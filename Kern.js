@@ -34,13 +34,19 @@
       // create child as a constructor function which is 
       // either supplied in prototypeProperties.constructor or set up 
       // as a generic constructor function calling the parents contructor
-      prototypeProperties = prototypeProperties || {};
+      prototypeProperties = prototypeProperties || {};
       staticProperties = staticProperties || {};
       var parent = this; // Note: here "this" is the class (which is the constructor function in JS)
-      var child = prototypeProperties.constructor || function() {
+      var child = (prototypeProperties.hasOwnProperty('constructor') ? prototypeProperties.constructor : function() {
         return parent.apply(this, arguments); // Note: here "this" is actually the object (instance)
-      };
-      child.prototype = Object.create(this.prototype, prototypeProperties);
+      });
+      delete prototypeProperties.constructor; // this should not be set again.
+      // create an instance of parent and assign it to childs prototype
+      child.prototype = Object.create(parent.prototype); // NOTE: this does not call the parent's constructor (instead of "new parent()")
+      child.prototype.constructor = child; //NOTE: this seems to be an oldish artefact; we do it anyways to be sure (http://stackoverflow.com/questions/9343193/why-set-prototypes-constructor-to-its-constructor-function)
+      // extend the prototype by further (provided) prototyp properties of the new class
+      objExtend(child.prototype, prototypeProperties);
+      // extend static properties (e.g. the extend static method itself)
       objExtend(child, this, staticProperties);
       return child;
     }
@@ -123,13 +129,15 @@
        * @return {object} this object
        */
       trigger: function(event) {
+        debugger;
         if (this.__listeners__[event]) {
           for (var i = 0; i < this.__listeners__[event].length; i++) {
             // copy arguments as we need to remove the first argument (event) 
             // and arguments is read only
+            var length = arguments.length;
             var args = new Array(length);
-            for (var i = 0; i < length; i++) {
-              args[i] = arguments[i + 1];
+            for (var j = 0; j < length - 1; j++) {
+              args[j] = arguments[j + 1];
             }
             // call the callback
             this.__listeners__[event][i].callback.apply(this, args);
@@ -150,25 +158,45 @@
       constructor: function(attributes) {
         // call super constructor
         EventManager.call(this);
-        this.ceased = 0;
-        this.attributes = attributes;
+        this.silent = false; // fire events on every "set"
+        this.history = false; // don't track changes
+        this.attributes = attributes || {}; // initialize attributes if given (don't fire change events)
+        return this;
+      },
+      /**
+       * changedAttributes will have original values of attributes in event handlers if called
+       * @return {Object} this object
+       */
+      trackChanges: function() {
+        this.history = true;
+        return this;
+      },
+      /**
+       * stop tracking changes
+       * @return {Object} this object
+       */
+      dontTrackChanges: function(){
+        this.history = false;
         return this;
       },
       /**
        * don't send change events until manually triggering with fire()
+       * Note: if silence is called nestedly, the same number of "fire"
+       * calls have to be made in order to trigger the change events!
        */
-      ceaseFire: function() {
-        this.ceased++;
+      silence: function() {
+        this.silent++;
+        return this;
       },
       /**
        * fire change events manually after setting attributes
        * @return {Object} this
        */
       fire: function() {
-        if (this.ceased > 0) {
-          this.ceased--;
+        if (this.silent > 0) {
+          this.silent--;
         }
-        _fire();
+        this._fire();
         return this;
       },
       /**
@@ -176,12 +204,15 @@
        * @return {[type]} [description]
        */
       _fire: function() {
-        if (this.ceased) {
+        if (this.silent) {
           return;
         }
         // trigger change event if something has changed
-        for (var attr in Object.keys(this.changedAttributes)) {
-          this.trigger("change:" + attr);
+        var that = this;
+        if (this.changedAttributes) {
+          Object.keys(this.changedAttributes).forEach(function(attr) {
+            that.trigger("change:" + attr);
+          });
         }
         this.trigger("change");
         delete this.changedAttributes;
@@ -198,7 +229,7 @@
           return this;
         }
         if (typeof attributes !== 'object') { // support set(attribute, value) syntax
-          this._set(arguments);
+          this._set.apply(this, arguments);
         } else { // support set({attribute: value}) syntax
           for (var prop in attributes) {
             if (attributes.hasOwnProperty(prop)) {
@@ -218,45 +249,51 @@
         var str;
         // check whether this is a new attribute
         if (!this.attributes.hasOwnProperty(attribute)) {
+          if (!this.changedAttributes) this.changedAttributes = {};
           this.changedAttributes[attribute] = undefined;
+          if (!this.newAttributes) this.newAttributes = {};
           this.newAttributes[attribute] = true;
+          // set the value
+          this.attributes[attribute] = value;
           return;
         }
         if (this.checkdiff) {
-          str = JSON.stringfy(this.attributes[attribute]);
-          if (str == JSON.stringfy(value)) {
+          str = JSON.stringify(this.attributes[attribute]);
+          if (str == JSON.stringify(value)) {
             return;
           }
         }
-
+        if (!this.changedAttributes) this.changedAttributes = {};
         // only save first value of attribute when accumulating change events
         if (!this.changedAttributes.hasOwnProperty(attribute)) {
           // save orig value of attribute if history is "on"
           if (this.history) {
-            str = str ||  JSON.stringfy(this.attributes[attribute]);
+            str = str || JSON.stringify(this.attributes[attribute]);
             this.changedAttributes[attribute] = JSON.parse(str); //FIXME: replace by better deep clone
           } else {
             this.changedAttributes[attribute] = true;
           }
         }
+        // set the value
         this.attributes[attribute] = value;
       },
       /**
        * modify an attribute without changing the reference. Only makes sense for deep models
-       * only works if change event firing is ceased (as it cannot fire automatically after
+       * only works if change event firing is silent (as it cannot fire automatically after
        * you made the change to the object)
        * @param {string} attribute attribute name
        * @return {Object} returns the value that can be modifed if it's an array or object
        */
-      update: function(attribute)  {
-        if (!this.ceased) {
+      update: function(attribute) {
+        if (!this.silent) {
           throw ('You cannot use update method without manually firing change events.')
         }
+        if (!this.changedAttributes) this.changedAttributes = {};
         // only save first value of attribute when accumulating change events
         if (!this.changedAttributes.hasOwnProperty(attribute)) {
           // save orig value of attribute if history is "on"
           if (this.history) {
-            this.changedAttributes[attribute] = JSON.parse(JSON.stringfy(this.attributes[attribute])); //FIXME: replace by better deep clone
+            this.changedAttributes[attribute] = JSON.parse(JSON.stringify(this.attributes[attribute])); //FIXME: replace by better deep clone
           } else {
             this.changedAttributes[attribute] = true;
           }
@@ -269,17 +306,20 @@
        * @return {Object} this object
        */
       unset: function(attribute) {
+        if (!this.changedAttributes) this.changedAttributes = {};
         // only save first value of attribute when accumulating change events
         if (!this.changedAttributes.hasOwnProperty(attribute)) {
           // save orig value of attribute if history is "on"
           if (this.history) {
-            this.changedAttributes[attribute] = JSON.parse(JSON.stringfy(this.attributes[attribute])); //FIXME: replace by better deep clone
+            this.changedAttributes[attribute] = JSON.parse(JSON.stringify(this.attributes[attribute])); //FIXME: replace by better deep clone
           } else {
             this.changedAttributes[attribute] = true;
           }
         }
+        if (!this.deletedAttributes) this.deletedAttributes = {};
         this.deletedAttributes[attribute] = true;
         delete this.attributes[attribute];
+        this._fire();
         return this;
       },
       /**
@@ -294,7 +334,7 @@
     });
     return Kern;
   }
-  
+
   // export to the outside
   // 
   // test whether this is in a requirejs environment
