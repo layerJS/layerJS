@@ -134,7 +134,7 @@
             // copy arguments as we need to remove the first argument (event) 
             // and arguments is read only
             var length = arguments.length;
-            var args = new Array(length);
+            var args = new Array(length - 1);
             for (var j = 0; j < length - 1; j++) {
               args[j] = arguments[j + 1];
             }
@@ -143,6 +143,34 @@
           }
         }
         return this;
+      },
+      /**
+       * return a functions that calls callback function with "this" set to context and
+       * further argements supplied in bind and supplied to the returned function
+       *
+       * @param {function} callback the function to be called
+       * @param {Object} context this context of the function to be called
+       * @param {arguments} arguments further arguments supplied to the callback on each call
+       * @return {Function} a function that can be called anywhere (eg as an event handler)
+       */
+      bindContext: function(callback, context) {
+        var length = arguments.length;
+        var args = new Array(length - 2);
+        for (var j = 0; j < length - 2; j++) {
+          args[j] = arguments[j + 2];
+        }
+        return function() {
+          var length = args.length;
+          var length2 = arguments.length;
+          var args2 = new Array(length + length2);
+          for (var j = 0; j < length; j++) {
+            args2[j] = args[j];
+          }
+          for (var j = 0; j < length2; j++) {
+            args2[j + length] = arguments[j];
+          }
+          callback.apply(context, args2)
+        }
       }
     });
     /**
@@ -174,7 +202,7 @@
        * stop tracking changes
        * @return {Object} this object
        */
-      dontTrackChanges: function(){
+      dontTrackChanges: function() {
         this.history = false;
         return this;
       },

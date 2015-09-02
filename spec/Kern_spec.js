@@ -132,7 +132,17 @@ describe("EventManager", function() {
     this.e.trigger('testevent2');
     expect(this.eventcalled).toBe(2);
   });
-
+  it('can bind context to functions and preapply parameters', function() {
+    that = this;
+    var handler = function(a, b, c, d) {
+      that.params = this + a + b + c + d;
+      that.eventp = c + d;
+    };
+    that.e.on('testevent', this.e.bindContext(handler, 1, 2, 4));
+    this.e.trigger('testevent', 8, 16);
+    expect(this.params).toBe(1 + 2 + 4 + 8 + 16);
+    expect(this.eventp).toBe(8 + 16);
+  });
 });
 describe('Model', function() {
   it('can be created with attributes', function() {
