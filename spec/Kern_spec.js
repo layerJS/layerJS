@@ -196,10 +196,11 @@ describe('Model', function() {
   it("can listen to change events with changedAttributes set", function() {
     var m = new Kern.Model();
     var that = this;
-    m.on('change', function() {
+    m.on('change', function(model) {
       // list changed attributes
       that.changed = Object.keys(this.changedAttributes).sort().toString();
       that.new = Object.keys(this.newAttributes).sort().toString();
+      that.object=model;
     })
     m.set({
       a: 1,
@@ -210,6 +211,7 @@ describe('Model', function() {
     });
     expect(this.changed).toBe("a,b,d");
     expect(this.new).toBe("a,b,d");
+    expect(this.object).toBe(m);
     expect(m.newAttributes).toBeUndefined();
     expect(m.removedAttributes).toBeUndefined();
     expect(m.changedAttributes).toBeUndefined();
@@ -217,10 +219,12 @@ describe('Model', function() {
   it("can listen to specific change events with changedAttributes set", function() {
     var m = new Kern.Model();
     var that = this;
-    m.on('change:b', function() {
+    m.on('change:b', function(model,value) {
       // list changed attributes
       that.changed = Object.keys(this.changedAttributes).sort().toString();
       that.new = Object.keys(this.newAttributes).sort().toString();
+      that.object=model;
+      that.value=value;
     })
     m.set({
       a: 1,
@@ -231,6 +235,8 @@ describe('Model', function() {
     });
     expect(this.changed).toBe("a,b,d");
     expect(this.new).toBe("a,b,d");
+    expect(this.object).toBe(m);
+    expect(this.value).toBe(m.attributes.b);
     expect(m.newAttributes).toBeUndefined();
     expect(m.deletedAttributes).toBeUndefined();
     expect(m.changedAttributes).toBeUndefined();

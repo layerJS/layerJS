@@ -238,10 +238,10 @@
         var that = this;
         if (this.changedAttributes) {
           Object.keys(this.changedAttributes).forEach(function(attr) {
-            that.trigger("change:" + attr);
+            that.trigger("change:" + attr, that, that.attributes[attr]);
           });
         }
-        this.trigger("change");
+        this.trigger("change", this);
         delete this.changedAttributes;
         delete this.newAttributes;
         delete this.deletedAttributes;
