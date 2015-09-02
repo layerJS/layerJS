@@ -129,7 +129,6 @@
        * @return {object} this object
        */
       trigger: function(event) {
-        debugger;
         if (this.__listeners__[event]) {
           for (var i = 0; i < this.__listeners__[event].length; i++) {
             // copy arguments as we need to remove the first argument (event) 

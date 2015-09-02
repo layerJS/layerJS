@@ -1,4 +1,4 @@
-Kern = require('../Kern.js');
+Kern = (typeof Kern !== 'undefined' ? Kern : require('../Kern.js'));
 
 describe("Kern", function() {
   it('can crate an EventManager', function() {
@@ -147,7 +147,7 @@ describe('Model', function() {
     expect(m.get('b').c).toBe(2);
     expect(m.get('d')[1]).toBe(2);
   });
-  it("'s atributes can be accessed directly", function() {
+  it("attributes can be accessed directly", function() {
     var m = new Kern.Model({
       a: 1,
       b: {
@@ -324,7 +324,7 @@ describe('Model', function() {
     expect(m.attributes.a).toBe(5);
     expect(m.attributes.e).toBe(3);
   });
-  it("changes get agglomerated if 'history' is set", function() {
+  it("changes get agglomerated if 'trackChanges' is set", function() {
     var m = new Kern.Model();
     var that = this;
     this.called = 0;
