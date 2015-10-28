@@ -1,4 +1,4 @@
-Kern = (typeof Kern !== 'undefined' ? Kern : require('../../src/core/Kern.js'));
+Kern = (typeof Kern !== 'undefined' ? Kern : require('../../src/kern/Kern.js'));
 
 describe("Kern", function() {
   it('can crate an EventManager', function() {
@@ -19,7 +19,7 @@ describe("Kern", function() {
   it('allows to create sub classes of Model (with constructor)', function() {
     var test = false;
     var SubModel = Kern.Model.extend({
-      constructor: function() {
+      constructor: function() { // Note: don't do that as it does not call the SUPER constructor
         test = true
       }
     });
@@ -143,6 +143,12 @@ describe("EventManager", function() {
     expect(this.params).toBe(1 + 2 + 4 + 8 + 16);
     expect(this.eventp).toBe(8 + 16);
   });
+  it('can daisy chain methods', function() {
+    expect(this.e.on("change", function() {})).toBe(this.e);
+    expect(this.e.once("change", function() {})).toBe(this.e);
+    expect(this.e.trigger("change")).toBe(this.e);
+    expect(this.e.off("change")).toBe(this.e);
+  })
 });
 describe('Model', function() {
   it('can be created with attributes', function() {
@@ -200,7 +206,7 @@ describe('Model', function() {
       // list changed attributes
       that.changed = Object.keys(this.changedAttributes).sort().toString();
       that.new = Object.keys(this.newAttributes).sort().toString();
-      that.object=model;
+      that.object = model;
     })
     m.set({
       a: 1,
@@ -219,12 +225,12 @@ describe('Model', function() {
   it("can listen to specific change events with changedAttributes set", function() {
     var m = new Kern.Model();
     var that = this;
-    m.on('change:b', function(model,value) {
+    m.on('change:b', function(model, value) {
       // list changed attributes
       that.changed = Object.keys(this.changedAttributes).sort().toString();
       that.new = Object.keys(this.newAttributes).sort().toString();
-      that.object=model;
-      that.value=value;
+      that.object = model;
+      that.value = value;
     })
     m.set({
       a: 1,
@@ -378,4 +384,116 @@ describe('Model', function() {
     expect(m.attributes.hasOwnProperty("d")).toBe(false);
   });
 
+});
+
+describe("ModelRepository", function() {
+  var data1 = {
+    a: 1,
+    b: "string",
+    c: {
+      from: 1,
+      to: 5
+    },
+    id: "1"
+  };
+  var data2 = {
+    query: "drgwerge",
+    answer: [1, 2, 3, 4],
+    id: "2"
+  };
+  var data3 = {
+    cid: "3",
+    b: 4
+  };
+  var datalist = [data1, data2];
+  var SubModel = Kern.Model.extend({});
+  it('can be instantiated', function() {
+    var r = new Kern.ModelRepository();
+    expect(r).toBeDefined();
+  });
+  it('can be instantiated with model data', function() {
+    var r = new Kern.ModelRepository(datalist);
+    expect(r.length()).toBe(2);
+    expect(r.get("1") instanceof Kern.Model).toBe(true);
+    expect(r.get("2").attributes.answer[0]).toBe(1);
+    var r2 = new Kern.ModelRepository({
+      3: data3
+    });
+    expect(r2.get("3").attributes.b).toBe(4);
+  });
+  it('cannot be initiated without ids', function() {
+    var r = new Kern.ModelRepository();
+    var fun = function() {
+      r.add(data3);
+    }
+    expect(fun).toThrow();
+  });
+  it('can add models', function() {
+    var m = new Kern.Model(data1);
+    var r = new Kern.ModelRepository();
+    r.add(m);
+    expect(r.length()).toBe(1);
+    expect(r.get('1').attributes.b).toBe("string");
+  });
+  it('can create models of a specific model type', function() {
+    var r = new Kern.ModelRepository(datalist, {
+      model: SubModel
+    });
+    expect(r.get('2') instanceof SubModel).toBe(true);
+    expect(r.get('2') instanceof Kern.Model).toBe(true);
+  });
+  it('can listen to change events from models', function() {
+    var mdl, chg;
+    var r = new Kern.ModelRepository(datalist);
+    r.on('change', function(model) {
+      mdl = model;
+      chg = model.changedAttributes;
+    });
+    r.get('2').set('query', "dust");
+    expect(mdl.attributes.id).toBe('2');
+    expect(chg.hasOwnProperty('query')).toBe(true);
+  });
+  it('can trigger add events', function() {
+    var cnt = 0,
+      mdl;
+    var r = new Kern.ModelRepository();
+    r.on('add', function(model, repo) {
+      cnt++;
+      mdl = model; // the last model
+    });
+    r.add(datalist);
+    expect(mdl.attributes.id).toBe('2');
+    expect(cnt).toBe(2);
+  });
+  it('can trigger remove events', function() {
+    var cnt = 0,
+      mdl;
+    var r = new Kern.ModelRepository();
+    r.on('remove', function(model, repo) {
+      cnt++;
+      mdl = model; // the last model
+    });
+    r.add(datalist);
+    r.remove('2')
+    expect(mdl.attributes.id).toBe('2');
+    expect(cnt).toBe(1);
+    r.remove(r.get('1'));
+    expect(mdl.attributes.id).toBe('1');
+    expect(cnt).toBe(2);
+  });
+  it('correctly removes change handlers from models', function() {
+    var mdl, cnt=0;
+    var r = new Kern.ModelRepository(datalist);
+    var model=r.get('2');
+    r.on('change', function(model) {
+      mdl = model;
+      cnt++;
+    });
+    expect(model.__listeners__.change.length).toBe(1); // that's interal poking and shouldn't be public interface. If it breaks fix the test.
+    r.remove('2');
+    model.set('query', "dust");
+    expect(mdl).toBeUndefined();
+    expect(cnt).toBe(0);
+    expect(model.__listeners__.change.length).toBe(0); // that's interal poking and shouldn't be public interface. If it breaks fix the test.
+  });
 })
