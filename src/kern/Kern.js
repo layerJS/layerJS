@@ -359,6 +359,129 @@
         return this.attributes[attribute]
       }
     });
+    /**
+     * Class for a Repository (hash) of Models
+     * not a sorted list, its a key-value store
+     * assumes model id's to be the keys
+     */
+    var ModelRepository = Kern.ModelRepository = EventManager.extend({
+      /**
+       * create a Model Repository. Models are safed by id that not necessarily needs to be stored
+       * in the model, although it maybe difficult to identify the models in event callback later on.
+       * @param {Object/Array} data and array of json objects which should be used to create models. Submit undefined if you don't want data initialized but want to set options
+       * @param {Object} options {idattr: string determining id property, model: The model class (default=Kern.Model)}
+       */
+      constructor: function(data, options) {
+        EventManager.call(this); // call SUPER constructor
+        this.models = {};
+        this.callbacks = {};
+        options = options || {};
+        this.idattr = options.idattr || this.idattr || 'id';
+        this.model = options.model || this.model || Model;
+        if (Array.isArray(data)) {
+          this.add(data);
+        } else if (typeof data == "object") {
+          this.add(data, {
+            isHash: true
+          });
+        }
+      },
+      /**
+       * add model(s) to the repository (or add models by json data)
+       * @param {Object|Model|Array} data Model or json data or an Array of those describing the model(s)
+       * @param {object} options options.id allows to specify the id; options.isHash allows adding object of objects {id1: {}, id2: {}}
+       */
+      add: function(data, options) {
+        var model;
+        if (options && options.isHash) { // interpret as {id1: {}, id2: {}}
+          for (var i in data) {
+            this.add(data[i], {
+              id: i
+            });
+          }
+        } else if (Array.isArray(data)) { // if array loop over array
+          for (var i = 0; i < data.length; i++) {
+            this.add(data[i]);
+          };
+        } else {
+          if (data instanceof this.model) { // model given
+            model = data;
+            var nid = (options && options.id) || model.attributes[this.idattr]; // id given as param or in model?
+            if (!nid) throw ('model with no id "' + this.idattr + '"');
+            this._add(model, nid);
+          } else if (typeof data == 'object') { // interpret as json data
+            var nid = (options && options.id) || data[this.idattr]; // id given as param or in json?
+            if (!nid) throw ('model with no id "' + this.idattr + '"');
+            var model = new this.model(data);
+            this._add(model, nid);
+          } else { // interpret as id
+
+          }
+        }
+        return this;
+      },
+      /**
+       * internal function to add model. sets event listeners and triggers events
+       * @param {string} id the id of the model
+       * @param {Model} model the model
+       */
+      _add: function(model, id) {
+        if (this.models.hasOwnProperty(id)) throw ('cannot add model with same id');
+        if (model.attributes[this.idattr] && model.attributes[this.idattr] != id) throw ('adding model with wrong id');
+        model.on('change', this.callbacks[id] = this.bindContext(this._modelChangeHandler, this));
+        this.models[id] = model;
+        this.trigger('add', model, this);
+        return this;
+      },
+      /**
+       * removes a model(s) from this Repository
+       * @param {String|Model|Array} model in id (string) or Model or an Array of those to be removed
+       * @return {Object} this object
+       */
+      remove: function(model) {
+        if (Array.isArray(model)) { // if array loop over array
+          for (var i = 0; i < model.length; i++) {
+            this.remove(model[i]);
+          };
+        } else {
+          var oldmodel;
+          if (model instanceof this.model) { // model given?
+            // remove change handler from model
+            oldmodel = this.models[model.attributes[this.idattr]].off("change", this.callbacks[model.attributes[this.idattr]]);
+            // delete reference to model
+            delete this.models[model.attributes[this.idattr]];
+          } else { // interpret as id
+            // remove change handler from model
+            oldmodel = this.models[model].off("change", this.callbacks[model]);
+            // delete reference to model
+            delete this.models[model];
+          }
+          this.trigger("remove", oldmodel, this);
+        }
+        return this;
+      },
+      /**
+       * handler listening to changes of the models in the repository
+       * @param {Object} model the model being changed
+       */
+      _modelChangeHandler: function(model) {
+        this.trigger("change", model) //FIXME make backbone compatible
+      },
+      /**
+       * return number of objects in repository
+       * @return {number} the number of objects
+       */
+      length: function() {
+        return Object.keys(this.models).length;
+      },
+      /**
+       * return the model with the corresponding id
+       * @return {Model} the requested model
+       */
+      get: function(id) {
+        return this.models[id];
+      }
+    });
     return Kern;
   }
 
