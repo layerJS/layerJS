@@ -1,4 +1,0 @@
----
-language: node_js
-before_script:
-  - npm install git+https://github.com/jasmine/jasmine.git
