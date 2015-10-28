@@ -1,4 +1,4 @@
-Kern = (typeof Kern !== 'undefined' ? Kern : require('../Kern.js'));
+Kern = (typeof Kern !== 'undefined' ? Kern : require('../../src/core/Kern.js'));
 
 describe("Kern", function() {
   it('can crate an EventManager', function() {
