@@ -23,7 +23,9 @@
         return obj;
       }
       // the module
-    var Kern = {};
+    var Kern = {
+      _extend: _extend
+    };
     /**
      * Kern.Base is the Base class providing extend capability
      */
