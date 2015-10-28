@@ -3,7 +3,6 @@ Kern = (typeof Kern !== 'undefined' ? Kern : require('../../src/kern/Kern.js'));
 describe("Kern", function() {
   it('can crate an EventManager', function() {
     var e = new Kern.EventManager();
-    console.log(e);
     expect(e).not.toBeUndefined();
   });
   it('can create a Model', function() {
@@ -150,6 +149,8 @@ describe("EventManager", function() {
     expect(this.e.off("change")).toBe(this.e);
   })
 });
+
+
 describe('Model', function() {
   it('can be created with attributes', function() {
     var m = new Kern.Model({
@@ -383,7 +384,19 @@ describe('Model', function() {
     expect(m.attributes.b.d).toBe(3);
     expect(m.attributes.hasOwnProperty("d")).toBe(false);
   });
-
+  it('can be initialized with class defaults', function() {
+    var SubModel = Kern.Model.extend({
+      defaults: {
+        a: 3,
+        b: 4,
+        c: 5
+      }
+    });
+    var m=new SubModel({d:7,b:9});
+    expect(m.attributes.a).toBe(3);
+    expect(m.attributes.b).toBe(9);
+    expect(m.attributes.d).toBe(7);
+  })
 });
 
 describe("ModelRepository", function() {
@@ -482,9 +495,9 @@ describe("ModelRepository", function() {
     expect(cnt).toBe(2);
   });
   it('correctly removes change handlers from models', function() {
-    var mdl, cnt=0;
+    var mdl, cnt = 0;
     var r = new Kern.ModelRepository(datalist);
-    var model=r.get('2');
+    var model = r.get('2');
     r.on('change', function(model) {
       mdl = model;
       cnt++;
@@ -496,4 +509,15 @@ describe("ModelRepository", function() {
     expect(cnt).toBe(0);
     expect(model.__listeners__.change.length).toBe(0); // that's interal poking and shouldn't be public interface. If it breaks fix the test.
   });
+  it('can contain a lot of models', function(){
+    console.log(Date.now());
+    var data={};
+    for (var i=0;i<10000;i++){
+      data['x'+i]=data3;
+    }
+    console.log(Date.now());
+    var r = new Kern.ModelRepository(data);
+    expect(r.get('x50').attributes.b).toBe(4);
+    console.log(Date.now());
+  })
 })

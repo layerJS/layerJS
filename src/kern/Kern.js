@@ -8,10 +8,10 @@
      * @param {Object} obj the object to be extended
      * @param {arguments} arguments list of objects that extend the object
      */
-    var objExtend = function(obj) {
+    var _extend = function(obj) {
         var len = arguments.length;
-        if (len < 2) throw ("too few arguments in objExtend");
-        if (obj == null) throw ("no object provided in objExtend");
+        if (len < 2) throw ("too few arguments in _extend");
+        if (obj == null) throw ("no object provided in _extend");
         // run through extending objects
         for (var i = 1; i < len; i++) {
           var props = Object.keys(arguments[i]); // this does not run through the prototype chain; also does not return special properties like length or prototype
@@ -20,6 +20,7 @@
             obj[props[j]] = arguments[i][props[j]];
           }
         }
+        return obj;
       }
       // the module
     var Kern = {};
@@ -45,9 +46,9 @@
       child.prototype = Object.create(parent.prototype); // NOTE: this does not call the parent's constructor (instead of "new parent()")
       child.prototype.constructor = child; //NOTE: this seems to be an oldish artefact; we do it anyways to be sure (http://stackoverflow.com/questions/9343193/why-set-prototypes-constructor-to-its-constructor-function)
       // extend the prototype by further (provided) prototyp properties of the new class
-      objExtend(child.prototype, prototypeProperties);
+      _extend(child.prototype, prototypeProperties);
       // extend static properties (e.g. the extend static method itself)
-      objExtend(child, this, staticProperties);
+      _extend(child, this, staticProperties);
       return child;
     }
     /**
@@ -153,7 +154,7 @@
        * @param {arguments} arguments further arguments supplied to the callback on each call
        * @return {Function} a function that can be called anywhere (eg as an event handler)
        */
-      bindContext: function(callback, context) {
+      bindContext: function(callback, context) { // WARN: this method seems to introduce an extreme performance hit!
         var length = arguments.length;
         var args = new Array(length - 2);
         for (var j = 0; j < length - 2; j++) {
@@ -187,7 +188,8 @@
         EventManager.call(this);
         this.silent = false; // fire events on every "set"
         this.history = false; // don't track changes
-        this.attributes = attributes || {}; // initialize attributes if given (don't fire change events)
+        this.attributes = _extend({}, this.defaults || {}, attributes || {}); // initialize attributes if given (don't fire change events)
+        //this.attributes = attributes || {}; // initialize attributes if given (don't fire change events)
         return this;
       },
       /**
@@ -374,15 +376,21 @@
       constructor: function(data, options) {
         EventManager.call(this); // call SUPER constructor
         this.models = {};
-        this.callbacks = {};
         options = options || {};
         this.idattr = options.idattr || this.idattr || 'id';
         this.model = options.model || this.model || Model;
+        var that = this;
+        this.modelChangeHandler = function() {
+          that._modelChangeHandler.apply(that, arguments);
+        }
         if (Array.isArray(data)) {
-          this.add(data);
+          this.add(data, {
+            noEvents: true
+          });
         } else if (typeof data == "object") {
           this.add(data, {
-            isHash: true
+            isHash: true,
+            noEvents: true
           });
         }
       },
@@ -393,7 +401,8 @@
        */
       add: function(data, options) {
         var model;
-        if (options && options.isHash) { // interpret as {id1: {}, id2: {}}
+        options = options || {};
+        if (options.isHash) { // interpret as {id1: {}, id2: {}}
           for (var i in data) {
             this.add(data[i], {
               id: i
@@ -408,12 +417,12 @@
             model = data;
             var nid = (options && options.id) || model.attributes[this.idattr]; // id given as param or in model?
             if (!nid) throw ('model with no id "' + this.idattr + '"');
-            this._add(model, nid);
+            this._add(model, nid, options.noEvents);
           } else if (typeof data == 'object') { // interpret as json data
             var nid = (options && options.id) || data[this.idattr]; // id given as param or in json?
             if (!nid) throw ('model with no id "' + this.idattr + '"');
             var model = new this.model(data);
-            this._add(model, nid);
+            this._add(model, nid, options.noEvents);
           } else { // interpret as id
 
           }
@@ -425,12 +434,18 @@
        * @param {string} id the id of the model
        * @param {Model} model the model
        */
-      _add: function(model, id) {
-        if (this.models.hasOwnProperty(id)) throw ('cannot add model with same id');
-        if (model.attributes[this.idattr] && model.attributes[this.idattr] != id) throw ('adding model with wrong id');
-        model.on('change', this.callbacks[id] = this.bindContext(this._modelChangeHandler, this));
+      _add: function(model, id, noEvents) {
+        if (this.models.hasOwnProperty(id)) {
+          throw ('cannot add model with same id');
+        }
+        if (model.attributes[this.idattr] && (model.attributes[this.idattr] != id)) {
+          throw ('adding model with wrong id');
+        }
+        // do not use bindContext, too slow!!!
+        // model.on('change', this.callbacks[id] = this.bindContext(this._modelChangeHandler, this)); 
+        model.on('change', this.modelChangeHandler);
         this.models[id] = model;
-        this.trigger('add', model, this);
+        noEvents || this.trigger('add', model, this);
         return this;
       },
       /**
@@ -447,12 +462,12 @@
           var oldmodel;
           if (model instanceof this.model) { // model given?
             // remove change handler from model
-            oldmodel = this.models[model.attributes[this.idattr]].off("change", this.callbacks[model.attributes[this.idattr]]);
+            oldmodel = this.models[model.attributes[this.idattr]].off("change", this.modelChangeHandler);
             // delete reference to model
             delete this.models[model.attributes[this.idattr]];
           } else { // interpret as id
             // remove change handler from model
-            oldmodel = this.models[model].off("change", this.callbacks[model]);
+            oldmodel = this.models[model].off("change", this.modelChangeHandler);
             // delete reference to model
             delete this.models[model];
           }
