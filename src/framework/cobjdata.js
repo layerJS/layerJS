@@ -14,7 +14,7 @@ var CobjData = Kern.Model.extend({
     // subclasses must overwrite this or FAIL
     type: undefined,
     tag: 'div',
-
+    elementId: undefined,
 
     // CSS string for styling this object
     style: '',

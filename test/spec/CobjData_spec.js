@@ -4,7 +4,6 @@ var FrameData = require('../../src/framework/framedata.js');
 var LayerData = require('../../src/framework/layerdata.js');
 var StageData = require('../../src/framework/stagedata.js');
 
-debugger;
 describe("CobjData", function() {
   it('can be created', function() {
     var c = new CobjData();
