@@ -44,7 +44,7 @@ var CobjView = Kern.EventManager.extend({
    * It only updates attributes that have changes (`this.data.changedAttributes`)
    * @return {void}
    */
-  render: function(attributes, options) {
+  render: function(options) {
     options = options ||  {};
     var attr = this.data.attributes,
       diff = this.data.changedAttributes || this.data.attributes,
