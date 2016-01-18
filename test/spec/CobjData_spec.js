@@ -65,27 +65,19 @@ describe("CgroupData", function() {
       "children": [110530, 110534, 110537, 110533, 110532, 110531]
     };
     var length;
-    var changed;
-    var cnt = 0;
+    var cnt=0;
     var c = new CgroupData(data);
-    c.on('change:children', function(model, value) {
-      debugger;
-      length = value.length;
-      var parts=[];
-      model.addedChildren && parts.push(model.addedChildren.sort().join(','));
-      model.removedChildren && parts.push(model.removedChildren.sort().join(','));
-      changed = parts.join(',');
-      cnt++;
+    c.on('change:children', function(model, value){
+    	length=value.length;
+    	cnt++;
     })
     c.removeChild(110534);
     expect(c.attributes.children.length).toBe(5);
     expect(length).toBe(5);
-    expect(changed).toBe('110534');
-    c.addChildren([1, 2, 3])
+    c.addChildren([1,2,3])
     expect(c.attributes.children.length).toBe(8);
     expect(length).toBe(8);
     expect(cnt).toBe(2);
-    expect(changed).toBe('1,2,3');
   })
 });
 
