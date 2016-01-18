@@ -1,5 +1,5 @@
 var jsdom = require("jsdom").jsdom;
-var document = global.document = jsdom("<html><head><style id='wl-obj-css'></style></head><body><div id='outer'><div id='7'></div></div></body></html>");
+var document = global.document = jsdom("<html><head><style id='wl-obj-css'></style></head><body><div id='outer'><div id='6'></div><div id='7'></div></div></body></html>");
 var window = global.window = document.defaultView;
 
 var CobjView = require('../../src/framework/cobjview.js');
@@ -50,12 +50,34 @@ describe("CobjView", function() {
       "x": 100,
       "rotation": 0
     });
-    var element = document.getElementById('7')
+    var element = document.getElementById('6')
     var cv = new CobjView(cd, {
       el: element
     });
     expect(cv.el).toBe(element);
-    expect(cv.el.id).toBe('7'); // not changed
+    expect(cv.el.id).toBe('6'); // not changed
+  });
+  it('cannot add view to existing element if that is already connected to another view', function() {
+    var cd = new CobjData({
+      "id": 5,
+      "type": "text",
+      "text": "Frame 1:1",
+      "scaleX": 1,
+      "scaleY": 1,
+      "height": 2000,
+      "zIndex": 500,
+      "width": 626,
+      "y": 100,
+      "x": 100,
+      "rotation": 0
+    });
+    var fun=function(){
+      var element = document.getElementById('6')
+      var cv = new CobjView(cd, {
+        el: element
+      });
+    };
+    expect(fun).toThrow()
   });
   it('can be initialized with an existing element, forcing re-rendering', function() {
     var cd = new CobjData({
@@ -77,11 +99,11 @@ describe("CobjView", function() {
       forceRender: true
     });
     expect(cv.el).toBe(element);
-    expect(cv.el.id).toBe('5'); // not changed
+    expect(cv.el.id).toBe('5'); // changed
   });
   it('is styled in a separate stylesheet', function() {
     var cd = new CobjData({
-      "id": 5,
+      "id": 9,
       "type": "text",
       "text": "Frame 1:1",
       "scaleX": 1,
@@ -95,7 +117,7 @@ describe("CobjView", function() {
       "rotation": 0
     });
     var cv = new CobjView(cd);
-    expect(document.getElementById('wl-obj-css').innerHTML).toContain("#wl-obj-5{color: red}");
+    expect(document.getElementById('wl-obj-css').innerHTML).toContain("#wl-obj-9{color: red}");
 
   })
 })

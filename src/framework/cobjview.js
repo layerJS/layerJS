@@ -15,14 +15,13 @@ var CobjView = Kern.EventManager.extend({
     // dataobject must exist
     this.data = dataModel || new CobjData();
     // DOM element
-    this.el = options.el || document.createElement(this.data.attributes.tag || 'div');
+    this.el = options.el || document.createElement(this.data.attributes.tag);
     // possible wrapper element
     this.elWrapper = options.elWrapper || this.el;
     this.renderLink();
     // backlink from DOM to object
-    this.el.wl_View = this.elWrapper.wl_View = this;
-    // no parent yet
-    this.parent = this.parentStage = null;
+    if (this.el._wlView) throw "trying to initialialize view on element that already has a view";
+    this.el._wlView = this.elWrapper._wlView = this;
 
     var that = this;
     // The change event must change the properties of the HTMLElement el.
@@ -71,6 +70,9 @@ var CobjView = Kern.EventManager.extend({
     // create object css style
     // these styles are stored in the head of the page index.html
     // in a style tag with the id object_css
+    // FIXME: we should use $('#object_css').sheet to acces the style sheet and then iterate through the cssrules. The view can keep a reference to its cssrule
+    // FIXME: should we support media queries here. if so how does that work with versions? alternative?
+
     var selector = (attr.elementId && "#" + attr.elementId) ||  "#wl-obj-" + attr.id;
     var oldSelector = (diff.elementId && "#" + diff.elementId) ||  (diff.id && "#wl-obj-" + diff.id) || selector;
 
