@@ -242,14 +242,14 @@
       },
       /**
        * fire change events manually after setting attributes
-       * @return {Object} this
+       * @return {Boolean} true if event was fired (not silenced)
        */
       fire: function() {
         if (this.silent > 0) {
           this.silent--;
         }
         this._fire();
-        return this;
+        return !this.silent;
       },
       /**
        * internal fire function (also used by set)
