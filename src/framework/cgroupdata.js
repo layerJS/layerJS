@@ -21,11 +21,14 @@ var CgroupData = CobjData.extend({
       }
     }
     this.fire();
+    delete this.addedChildren;
   },
   addChild: function(id) {
     this.silence();
     this.update('children').push(id);
-    this.fire();
+    this.addedChildren = this.addedChildren || [];
+    this.addedChildren.push(id);
+    if (this.fire()) delete this.addedChildren;
   },
   removeChildren: function(ids) {
     this.silence();
@@ -35,13 +38,16 @@ var CgroupData = CobjData.extend({
       }
     }
     this.fire();
+    delete this.removedChildren;
   },
   removeChild: function(id) {
     var idx = this.attributes.children.indexOf(id);
     if (idx >= 0) {
       this.silence();
       this.update('children').splice(idx, 1);
-      this.fire();
+      this.removedChildren = this.removedChildren || [];
+      this.removedChildren.push(id);
+      if (this.fire()) delete this.removedChildren;
     }
   }
 });
