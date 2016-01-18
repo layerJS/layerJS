@@ -1,5 +1,6 @@
 'use strict';
 var Kern = require('../kern/Kern.js');
+var defaults = require('./defaults.js');
 /**
  * #CobjData
  * This is the base data Model for all Webpgr objects.
@@ -13,7 +14,7 @@ var CobjData = Kern.Model.extend({
   defaults: {
     // subclasses must overwrite this or FAIL
     type: undefined,
-    tag: 'div',
+    tag: defaults.tag,
     elementId: undefined,
 
     // CSS string for styling this object
@@ -55,7 +56,7 @@ var CobjData = Kern.Model.extend({
     hidden: undefined,
     // bins are important for the compositor, they tell in which area the
     // object is located, this is used for faster lookups of elements
-    version: 'default'
+    version: defaults.version
   },
   //---
   // the tag should be overwritten by plugins if neccessary, eg. image plugin will set img here
