@@ -1,3 +1,5 @@
+// Copyright (c) 2015, Thomas Handorf, ThomasHandorf@gmail.com, all rights reserverd.
+
 Kern = (typeof Kern !== 'undefined' ? Kern : require('../../src/kern/Kern.js'));
 
 describe("Kern", function() {
@@ -35,7 +37,21 @@ describe("Kern", function() {
     expect(m1 instanceof SubModel).not.toBe(true);
     expect(m2 instanceof SubModel).toBe(true);
     expect(m2 instanceof Kern.Model).toBe(true);
-  })
+  });
+  it('can extend objects',function(){
+    var o1={a:1,b:2};
+    var o2={a:4,c:5};
+    var o3={c:4,d:6};
+    Kern._extend(o1,o2,o3);
+    expect(o1.a==4 && o1.b==2 && o1.c==4 && o1.d==6).toBe(true);
+  });
+  it('can extend objects with keeping existing properties',function(){
+    var o1={a:1,b:2};
+    var o2={a:4,c:5};
+    var o3={c:4,d:6};
+    Kern._extendKeep(o1,o2,o3);
+    expect(o1.a==1 && o1.b==2 && o1.c==5 && o1.d==6).toBe(true);
+  });
 });
 describe("EventManager", function() {
   beforeEach(function() {

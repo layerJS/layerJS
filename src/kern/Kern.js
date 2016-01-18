@@ -1,5 +1,7 @@
 'use strict';
 
+// Copyright (c) 2015, Thomas Handorf, ThomasHandorf@gmail.com, all rights reserverd.
+
 (function() { // private scope
 
   var scope = function() { // a scope which could be given a dependency as parameter (e.g. AMD or node require)
@@ -9,22 +11,42 @@
      * @param {arguments} arguments list of objects that extend the object
      */
     var _extend = function(obj) {
-        var len = arguments.length;
-        if (len < 2) throw ("too few arguments in _extend");
-        if (obj == null) throw ("no object provided in _extend");
-        // run through extending objects
-        for (var i = 1; i < len; i++) {
-          var props = Object.keys(arguments[i]); // this does not run through the prototype chain; also does not return special properties like length or prototype
-          // run through properties of extending object
-          for (var j = 0; j < props.length; j++) {
-            obj[props[j]] = arguments[i][props[j]];
-          }
+      var len = arguments.length;
+      if (len < 2) throw ("too few arguments in _extend");
+      if (obj == null) throw ("no object provided in _extend");
+      // run through extending objects
+      for (var i = 1; i < len; i++) {
+        var props = Object.keys(arguments[i]); // this does not run through the prototype chain; also does not return special properties like length or prototype
+        // run through properties of extending object
+        for (var j = 0; j < props.length; j++) {
+          obj[props[j]] = arguments[i][props[j]];
         }
-        return obj;
       }
-      // the module
+      return obj;
+    };
+    /**
+     * extend an object with properties from one or multiple object. Keep properties of earlier objects if present.
+     * @param {Object} obj the object to be extended
+     * @param {arguments} arguments list of objects that extend the object
+     */
+    var _extendKeep = function(obj) {
+      var len = arguments.length;
+      if (len < 2) throw ("too few arguments in _extend");
+      if (obj == null) throw ("no object provided in _extend");
+      // run through extending objects
+      for (var i = 1; i < len; i++) {
+        var props = Object.keys(arguments[i]); // this does not run through the prototype chain; also does not return special properties like length or prototype
+        // run through properties of extending object
+        for (var j = 0; j < props.length; j++) {
+          if (!obj.hasOwnProperty(props[j])) obj[props[j]] = arguments[i][props[j]];
+        }
+      }
+      return obj;
+    };
+    // the module
     var Kern = {
-      _extend: _extend
+      _extend: _extend,
+      _extendKeep: _extendKeep
     };
     /**
      * Kern.Base is the Base class providing extend capability
@@ -34,28 +56,28 @@
       }
       // this function can extend classes; it's a class function, not a object method
     Base.extend = function(prototypeProperties, staticProperties) {
-      // create child as a constructor function which is 
-      // either supplied in prototypeProperties.constructor or set up 
-      // as a generic constructor function calling the parents contructor
-      prototypeProperties = prototypeProperties || {};
-      staticProperties = staticProperties || {};
-      var parent = this; // Note: here "this" is the class (which is the constructor function in JS)
-      var child = (prototypeProperties.hasOwnProperty('constructor') ? prototypeProperties.constructor : function() {
-        return parent.apply(this, arguments); // Note: here "this" is actually the object (instance)
-      });
-      delete prototypeProperties.constructor; // this should not be set again.
-      // create an instance of parent and assign it to childs prototype
-      child.prototype = Object.create(parent.prototype); // NOTE: this does not call the parent's constructor (instead of "new parent()")
-      child.prototype.constructor = child; //NOTE: this seems to be an oldish artefact; we do it anyways to be sure (http://stackoverflow.com/questions/9343193/why-set-prototypes-constructor-to-its-constructor-function)
-      // extend the prototype by further (provided) prototyp properties of the new class
-      _extend(child.prototype, prototypeProperties);
-      // extend static properties (e.g. the extend static method itself)
-      _extend(child, this, staticProperties);
-      return child;
-    }
-    /**
-     * a class that can handle events
-     */
+        // create child as a constructor function which is
+        // either supplied in prototypeProperties.constructor or set up
+        // as a generic constructor function calling the parents contructor
+        prototypeProperties = prototypeProperties || {};
+        staticProperties = staticProperties || {};
+        var parent = this; // Note: here "this" is the class (which is the constructor function in JS)
+        var child = (prototypeProperties.hasOwnProperty('constructor') ? prototypeProperties.constructor : function() {
+          return parent.apply(this, arguments); // Note: here "this" is actually the object (instance)
+        });
+        delete prototypeProperties.constructor; // this should not be set again.
+        // create an instance of parent and assign it to childs prototype
+        child.prototype = Object.create(parent.prototype); // NOTE: this does not call the parent's constructor (instead of "new parent()")
+        child.prototype.constructor = child; //NOTE: this seems to be an oldish artefact; we do it anyways to be sure (http://stackoverflow.com/questions/9343193/why-set-prototypes-constructor-to-its-constructor-function)
+        // extend the prototype by further (provided) prototyp properties of the new class
+        _extend(child.prototype, prototypeProperties);
+        // extend static properties (e.g. the extend static method itself)
+        _extend(child, this, staticProperties);
+        return child;
+      }
+      /**
+       * a class that can handle events
+       */
     var EventManager = Kern.EventManager = Base.extend({
       constructor: function() {
         this.__listeners__ = {};
@@ -134,7 +156,7 @@
       trigger: function(event) {
         if (this.__listeners__[event]) {
           for (var i = 0; i < this.__listeners__[event].length; i++) {
-            // copy arguments as we need to remove the first argument (event) 
+            // copy arguments as we need to remove the first argument (event)
             // and arguments is read only
             var length = arguments.length;
             var args = new Array(length - 1);
@@ -190,8 +212,7 @@
         EventManager.call(this);
         this.silent = false; // fire events on every "set"
         this.history = false; // don't track changes
-        this.attributes = _extend({}, this.defaults || {}, attributes || {}); // initialize attributes if given (don't fire change events)
-        //this.attributes = attributes || {}; // initialize attributes if given (don't fire change events)
+        this.attributes = _extendKeep(attributes || {}, this.defaults || {}); // initialize attributes if given (don't fire change events); Note: this keeps the original attributes object.
         return this;
       },
       /**
@@ -420,7 +441,7 @@
             var nid = (options && options.id) || model.attributes[this.idattr]; // id given as param or in model?
             if (!nid) throw ('model with no id "' + this.idattr + '"');
             this._add(model, nid, options.noEvents);
-          } else if (typeof data == 'object') { // interpret as json data
+          } else if (typeof data == 'object') { // interpret as (single) json data
             var nid = (options && options.id) || data[this.idattr]; // id given as param or in json?
             if (!nid) throw ('model with no id "' + this.idattr + '"');
             var model = new this.model(data);
@@ -444,7 +465,7 @@
           throw ('adding model with wrong id');
         }
         // do not use bindContext, too slow!!!
-        // model.on('change', this.callbacks[id] = this.bindContext(this._modelChangeHandler, this)); 
+        // model.on('change', this.callbacks[id] = this.bindContext(this._modelChangeHandler, this));
         model.on('change', this.modelChangeHandler);
         this.models[id] = model;
         noEvents || this.trigger('add', model, this);
@@ -496,6 +517,9 @@
        * @return {Model} the requested model
        */
       get: function(id) {
+        if (!this.models[id]) {
+          throw "model not in repository";
+        }
         return this.models[id];
       }
     });
@@ -503,7 +527,7 @@
   }
 
   // export to the outside
-  // 
+  //
   // test whether this is in a requirejs environment
   if (typeof define === "function" && define.amd) {
     define("Kern", [], scope);
