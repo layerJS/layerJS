@@ -8,8 +8,9 @@ var CobjData = require('../../src/framework/cobjdata.js');
 var $ = document.querySelector;
 
 describe("CobjView", function() {
+  debugger;
   it('can be created', function() {
-    var cv = new CobjView();
+    var cv = new CobjView(new CobjData);
     expect(cv).not.toBeUndefined();
     expect(cv.el.outerHTML).toBe('<div class="object-default object-undefined"></div>');
     expect(document.getElementById('wl-obj-css').innerHTML).toBe('');

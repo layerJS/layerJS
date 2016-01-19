@@ -13,15 +13,17 @@ var CobjView = Kern.EventManager.extend({
   constructor: function(dataModel, options) {
     options = options ||  {};
     // dataobject must exist
-    this.data = dataModel || new CobjData();
+    if (!dataModel) throw "data object mus exist when creating a view";
+    this.data = dataModel;
     // DOM element
     this.el = options.el || document.createElement(this.data.attributes.tag);
-    // possible wrapper element
-    this.elWrapper = options.elWrapper || this.el;
-    this.renderLink();
     // backlink from DOM to object
     if (this.el._wlView) throw "trying to initialialize view on element that already has a view";
-    this.el._wlView = this.elWrapper._wlView = this;
+    this.el._wlView = this;
+    // possible wrapper element
+    this.elWrapper = options.elWrapper || this.el;
+    this.elWrapper._wlView = this;
+    this.renderLink();
 
     var that = this;
     // The change event must change the properties of the HTMLElement el.
@@ -36,7 +38,7 @@ var CobjView = Kern.EventManager.extend({
       that.renderLink();
     });
     // render the element the first time. Don't render if HTML Element already existed.
-    (options.forceRender || !options.el) && this.render();
+    (options.forceRender || !options.el) && this.render();
   },
   /**
    * ##render
