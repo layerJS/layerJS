@@ -12,8 +12,9 @@ var Repository = Kern.EventManager.extend({
    * @returns {This}
    */
   constructor: function(data, version) {
-      this.versions = {(version || defaults.version): data || {}};
-    }
+    this.versions = {};
+    this.versions[version ||  defaults.version] = data || {};
+  },
   /**
    * return a model of a give id from a specified version
    *
@@ -21,8 +22,8 @@ var Repository = Kern.EventManager.extend({
    * @param {string} version - the version of the requested model
    * @returns {CobjData} the model
    */
-  get: function(id, version){
-    this.versions[version] || throw "version not available"; // FIXME: need to fetch new versions at some point
+  get: function(id, version) {
+    if (!this.versions[version]) throw "version not available"; // FIXME: need to fetch new versions at some point
     return this.versions[version].get(id);
   },
 

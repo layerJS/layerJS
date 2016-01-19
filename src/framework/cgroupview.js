@@ -127,7 +127,7 @@ var CGroupView = CobjView.extend({
    */
   attachView: function(newView){
     this.childinfo[newView.data.attributes.id]=newView; // prepare info about new view
-    this.data.children.addChild(newView.data.attributes.id]); // this will eventually trigger _buildChildren which sets up everything for this group
+    this.data.children.addChild(newView.data.attributes.id); // this will eventually trigger _buildChildren which sets up everything for this group
   },
   /**
    * remove a view from this group. updates dataobject of this group which will trigger change event which
