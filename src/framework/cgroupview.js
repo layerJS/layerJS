@@ -43,13 +43,14 @@ var CGroupView = CobjView.extend({
    * object (i.e. no data-wl-id property); leaves them where they are.
    */
   _buildChildren: function() {
+    var that = this;
     var empty;
     var childIds = this.data.attributes.children;
     var k = -1; // index in childNodes;
     var nodeId;
     var _k_nextChild = function() { // find next DOM child node that is a wl-element
       k++;
-      while (!(empty = !(k < this.el.childNodes.length)) && !(nodeId = this.el.childNodes[k].getAttributes('data-wl-id'))) {
+      while (!(empty = !(k < that.el.childNodes.length)) && !(nodeId = that.el.childNodes[k].getAttributes('data-wl-id'))) {
         k++;
       }
     }
@@ -125,8 +126,8 @@ var CGroupView = CobjView.extend({
    * @param {CobjView} newView - the view object to be attached as child
    * @returns {Type} Description
    */
-  attachView: function(newView){
-    this.childinfo[newView.data.attributes.id]=newView; // prepare info about new view
+  attachView: function(newView) {
+    this.childinfo[newView.data.attributes.id] = newView; // prepare info about new view
     this.data.children.addChild(newView.data.attributes.id); // this will eventually trigger _buildChildren which sets up everything for this group
   },
   /**
@@ -136,10 +137,10 @@ var CGroupView = CobjView.extend({
    * @param {CobjView} view - the view object to be removed
    * @returns {Type} Description
    */
-  detachView: function(view){
+  detachView: function(view) {
     this.data.silence();
-    var idx=this.data.update('children').indexOf(view.data.attributes.id);
-    this.data.update('children').splice(idx,1);
+    var idx = this.data.update('children').indexOf(view.data.attributes.id);
+    this.data.update('children').splice(idx, 1);
     this.data.fire();
   },
   /**
@@ -179,7 +180,6 @@ var CGroupView = CobjView.extend({
   render: function(options) {
     CobjView.prototype.render.call(this, options);
     this._buildChildren();
-    this._renderChildrenPositions();
   },
   /**
    * Return decendent Views which give a true value when passed to a given

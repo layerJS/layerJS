@@ -2,16 +2,18 @@ var jsdom = require("jsdom").jsdom;
 
 var CobjView = require('../../src/framework/cobjview.js');
 var CobjData = require('../../src/framework/cobjdata.js');
+var CGroupView = require('../../src/framework/cgroupview.js');
+var CGroupData = require('../../src/framework/cgroupdata.js');
 
-
-describe("CobjView", function() {
+describe("CGroupView", function() {
+  debugger;
   var document = global.document = jsdom("<html><head><style id='wl-obj-css'></style></head><body><div id='outer'><div id='6'></div><div id='7'></div></div></body></html>");
   var window = global.window = document.defaultView;
   var $ = document.querySelector;
   it('can be created', function() {
-    var cv = new CobjView(new CobjData);
+    var cv = new CGroupView(new CGroupData);
     expect(cv).not.toBeUndefined();
-    expect(cv.el.outerHTML).toBe('<div class="object-default object-node"></div>');
+    expect(cv.el.outerHTML).toBe('<div class="object-default object-group"></div>');
     expect(document.getElementById('wl-obj-css').innerHTML).toBe('');
   });
   it('can be initialized with an CobjData object', function() {

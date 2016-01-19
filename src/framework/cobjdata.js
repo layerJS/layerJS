@@ -13,7 +13,7 @@ var CobjData = Kern.Model.extend({
   // will not be stored on the server
   defaults: {
     // subclasses must overwrite this or FAIL
-    type: undefined,
+    type: 'node',
     tag: defaults.tag,
     elementId: undefined,
 

@@ -4,7 +4,7 @@ var CobjData = require('../../src/framework/cobjdata.js');
 
 describe('PluginManager', function() {
   var data = {
-    "type": "html",
+    "type": "node",
     "text": "Cart",
     "width": '64px',
     "height": '35px',

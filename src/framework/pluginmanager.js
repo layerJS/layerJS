@@ -43,7 +43,7 @@ var PluginManager = Kern.EventManager.extend({
 });
 // initialialize pluginManager with default plugins
 WL.pluginManager = new PluginManager({
-  html: CobjView,
+  node: CobjView,
 //  group: CGroupView
 });
 // this module does not return the class but a singleton instance, the pluginmanager for the project.
