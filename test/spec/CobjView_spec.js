@@ -1,13 +1,17 @@
 var jsdom = require("jsdom").jsdom;
-
 var CobjView = require('../../src/framework/cobjview.js');
 var CobjData = require('../../src/framework/cobjdata.js');
 
-
 describe("CobjView", function() {
-  var document = global.document = jsdom("<html><head><style id='wl-obj-css'></style></head><body><div id='outer'><div id='6'></div><div id='7'></div></div></body></html>");
-  var window = global.window = document.defaultView;
-  var $ = document.querySelector;
+
+  var document, window,$;
+
+  beforeEach(function() {
+     document = global.document = jsdom("<html><head><style id='wl-obj-css'></style></head><body><div id='outer'><div id='6'></div><div id='7'></div></div></body></html>");
+     window = global.window = document.defaultView;
+     $ = document.querySelector;
+  });
+
   it('can be created', function() {
     var cv = new CobjView(new CobjData);
     expect(cv).not.toBeUndefined();
@@ -58,7 +62,7 @@ describe("CobjView", function() {
     expect(cv.el.id).toBe('6'); // not changed
   });
   it('cannot add view to existing element if that is already connected to another view', function() {
-    var cd = new CobjData({
+    var data = {
       "id": 5,
       "type": "text",
       "text": "Frame 1:1",
@@ -70,12 +74,15 @@ describe("CobjView", function() {
       "y": 100,
       "x": 100,
       "rotation": 0
-    });
+    };
+    var options = { el : document.getElementById('5') };
+
+    var cd1 = new CobjData(data);
+    var cv1 = new CobjView(cd1, options);
+    var cd2 = new CobjData(data);
+
     var fun=function(){
-      var element = document.getElementById('6')
-      var cv = new CobjView(cd, {
-        el: element
-      });
+      var cv = new CobjView(cd, options);
     };
     expect(fun).toThrow()
   });
