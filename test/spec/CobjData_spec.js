@@ -79,6 +79,57 @@ describe("CgroupData", function() {
     expect(length).toBe(8);
     expect(cnt).toBe(2);
   })
+
+  describe("has children", function(){
+
+    var eventIsRaised;
+    beforeEach(function(){
+      eventIsRaised = false;
+    });
+
+    var eventHandler = function(model, value){
+      eventIsRaised = true;
+    };
+
+    it("children are initialized", function() {
+      var data = {children : [110530] };
+      var cgroupData = new CgroupData(data);
+      expect(cgroupData.attributes.children).toBe(data.children);
+    });
+
+    it("can add a single child", function(){
+      var cgroupData = new CgroupData();
+      cgroupData.on("change:children", eventHandler);
+      cgroupData.addChild(1);
+      expect(cgroupData.attributes.children).toEqual([1])
+      expect(eventIsRaised).toBe(true);
+    });
+
+    it("can remove a single child", function(){
+      var cgroupData = new CgroupData({children : [1]});
+      cgroupData.on("change:children", eventHandler);
+      cgroupData.removeChild(1);
+      expect(cgroupData.attributes.children).toEqual([])
+      expect(eventIsRaised).toBe(true);
+    });
+
+    it("can add multiple children", function(){
+      var childrenToAdd = [1,2,3];
+      var cgroupData = new CgroupData({children : []});
+      cgroupData.on("change:children", eventHandler);
+      cgroupData.addChildren(childrenToAdd);
+      expect(cgroupData.attributes.children).toEqual(childrenToAdd);
+      expect(eventIsRaised).toBe(true);
+    });
+
+    it("can remove multiple children", function(){
+      var cgroupData = new CgroupData({children : [1,2,3] });
+      cgroupData.on("change:children", eventHandler);
+      cgroupData.removeChildren([2,3]);
+      expect(cgroupData.attributes.children).toEqual([1]);
+      expect(eventIsRaised).toBe(true);
+    });
+  });
 });
 
 describe("FrameData", function() {
