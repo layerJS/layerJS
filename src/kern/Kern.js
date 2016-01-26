@@ -43,10 +43,59 @@
       }
       return obj;
     };
+    /**
+     * returns a simple deep copy of an object. Only considers plain object and arrays (and of course scalar values)
+     *
+     * @param {object} obj - The object to be deep cloned
+     * @returns {obj} a fresh copy of the object
+     */
+    var _deepCopy = function(obj) {
+      if (typeof obj == 'object') {
+        if (Array.isArray(obj)) {
+          var temp = [];
+          for (var i = obj.length - 1; i >= 0; i--) {
+            temp[i] = _deepCopy(obj[i]);
+          }
+          return temp;
+        }
+        if (obj === null) {
+          return null;
+        }
+        var temp = {};
+        for (var k in Object.keys(obj)) {
+          temp[k] = _deepCopy(obj[k]);
+        }
+        return temp;
+      }
+      return obj;
+    };
+    /**
+     * extend an object with properties from one or multiple object. Keep properties of earlier objects if present.
+     * Will deep copy object and arrays from the exteding objects (needed for copying default values in Model)
+     * @param {Object} obj the object to be extended
+     * @param {arguments} arguments list of objects that extend the object
+     */
+    var _extendKeepDeepCopy = function(obj) {
+      var len = arguments.length;
+      if (len < 2) throw ("too few arguments in _extend");
+      if (obj == null) throw ("no object provided in _extend");
+      // run through extending objects
+      for (var i = 1; i < len; i++) {
+        var props = Object.keys(arguments[i]); // this does not run through the prototype chain; also does not return special properties like length or prototype
+        // run through properties of extending object
+        for (var j = 0; j < props.length; j++) {
+          if (!obj.hasOwnProperty(props[j])) {
+            obj[props[j]] = _deepCopy(arguments[i][props[j]]);
+          }
+        }
+      }
+      return obj;
+    };
     // the module
     var Kern = {
       _extend: _extend,
-      _extendKeep: _extendKeep
+      _extendKeep: _extendKeep,
+      _extendKeepDeepCopy: _extendKeepDeepCopy
     };
     /**
      * Kern.Base is the Base class providing extend capability
@@ -212,7 +261,7 @@
         EventManager.call(this);
         this.silent = false; // fire events on every "set"
         this.history = false; // don't track changes
-        this.attributes = _extendKeep(attributes || {}, this.defaults || {}); // initialize attributes if given (don't fire change events); Note: this keeps the original attributes object.
+        this.attributes = _extendKeepDeepCopy(attributes || {}, this.defaults || {}); // initialize attributes if given (don't fire change events); Note: this keeps the original attributes object.
         return this;
       },
       /**
