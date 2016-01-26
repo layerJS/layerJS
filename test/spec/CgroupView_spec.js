@@ -16,7 +16,7 @@ describe("CGroupView", function() {
   });
 
   it('can be created', function() {
-    var cv = new CGroupView(new CGroupData);
+    var cv = new CGroupView(new CGroupData ( { children : [] }));
     expect(cv).not.toBeUndefined();
     expect(cv.el.outerHTML).toBe('<div class="object-default object-group"></div>');
     expect(document.getElementById('wl-obj-css').innerHTML).toBe('');
