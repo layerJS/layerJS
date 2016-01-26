@@ -52,6 +52,32 @@ describe("Kern", function() {
     Kern._extendKeep(o1,o2,o3);
     expect(o1.a==1 && o1.b==2 && o1.c==5 && o1.d==6).toBe(true);
   });
+  it('defaults with arrays aren\'t shared between instances', function(){
+      var testClass = Kern.Model.extend({
+        defaults: {
+            children :[1,2,3]
+        }});
+
+      var testObject1 = new testClass();
+      var testObject2 = new testClass();
+      testObject1.attributes.children.push(4);
+
+      expect(testObject1.attributes.children).toEqual([1,2,3,4]);
+      expect(testObject2.attributes.children).toEqual([1,2,3]);
+  });
+  it('defaults with objects aren\'t shared between instances', function(){
+      var testClass = Kern.Model.extend({
+        defaults: {
+            child : { }
+        }});
+
+      var testObject1 = new testClass();
+      var testObject2 = new testClass();
+      testObject1.attributes.child.name = 'childname';
+
+      expect(testObject1.attributes.child.name).toEqual('childname');
+      expect(testObject2.attributes.child.name).toBeUndefined();
+  });
 });
 describe("EventManager", function() {
   beforeEach(function() {
