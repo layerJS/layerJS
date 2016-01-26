@@ -6,7 +6,7 @@ describe("CgroupData", function() {
     expect(c).not.toBeUndefined();
   });
   it('has default values', function() {
-    var c = new CgroupData({children: [] });
+    var c = new CgroupData();
     expect(c.attributes.type).toBe("group");
     expect(c.attributes.width).toBeUndefined;
   });
@@ -38,7 +38,7 @@ describe("CgroupData", function() {
     });
 
     it("can add a single child", function(){
-      var c = new CgroupData({children : [] });
+      var c = new CgroupData();
       c.on("change:children", eventHandler);
       c.addChild(1);
       expect(c.attributes.children).toEqual([1])
@@ -55,7 +55,7 @@ describe("CgroupData", function() {
 
     it("can add multiple children", function(){
       var childrenToAdd = [1,2,3];
-      var c = new CgroupData({children : []});
+      var c = new CgroupData();
       c.on("change:children", eventHandler);
       c.addChildren(childrenToAdd);
       expect(c.attributes.children).toEqual(childrenToAdd);
