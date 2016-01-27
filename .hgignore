@@ -1,2 +1,4 @@
 syntax: glob
 *.orig
+node_modules
+*.log

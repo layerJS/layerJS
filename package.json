@@ -1,0 +1,21 @@
+{
+  "name": "layerJS",
+  "description": "Here you can put discription of the product",
+  "author": "LayerJs",
+  "version": "1.0.0",
+  "devDependencies": {
+    "browserify": "latest",
+    "jasmine": "latest",
+    "rimraf": "latest",
+    "jsdom": "latest"
+  },
+  "scripts": {
+    "clean": "rimraf dist/*",
+
+    "prebuild": "npm run clean && npm run test",
+    "build": "npm run build:scripts -s",
+    "build:scripts": "browserify -e src/main.js -o dist/main.js",
+
+    "test": "jasmine JASMINE_CONFIG_PATH=./test/spec/support/jasmine.json"
+  }
+}
