@@ -1,8 +1,17 @@
+var jsdom = require("jsdom").jsdom;;
 var pluginmanager = require('../../src/framework/pluginmanager.js');
 var CobjView = require('../../src/framework/cobjview.js');
 var CobjData = require('../../src/framework/cobjdata.js');
 
 describe('PluginManager', function() {
+  var document, window,$;
+
+  beforeEach(function() {
+     document = global.document = jsdom("<html><head><style id='wl-obj-css'></style></head><body></body></html>");
+     window = global.window = document.defaultView;
+     $ = document.querySelector;
+  });
+
   var data = {
     "type": "node",
     "text": "Cart",
