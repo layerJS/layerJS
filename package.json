@@ -14,7 +14,7 @@
 
     "prebuild": "npm run clean && npm run test",
     "build": "npm run build:scripts -s",
-    "build:scripts": "browserify -e src/main.js -o dist/main.js",
+    "build:scripts": "mkdir -p dist && browserify -e src/main.js -o dist/main.js",
 
     "test": "jasmine JASMINE_CONFIG_PATH=./test/spec/support/jasmine.json"
   }
