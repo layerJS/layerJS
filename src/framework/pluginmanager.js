@@ -1,7 +1,10 @@
 var WL = require('./wl.js');
 var Kern = require('../kern/Kern.js');
 var CobjView = require('./cobjview.js');
-//var CGroupView = require('./cgroupview.js');
+var CGroupView = require('./cgroupview.js');
+var FrameView = require('./frameview.js');
+var StageView = require('./stageview.js');
+var LayerView = require('./layerview.js');
 
 var PluginManager = Kern.EventManager.extend({
   /**
@@ -44,7 +47,10 @@ var PluginManager = Kern.EventManager.extend({
 // initialialize pluginManager with default plugins
 WL.pluginManager = new PluginManager({
   node: CobjView,
-//  group: CGroupView
+  frame: FrameView,
+  stage: StageView,
+  group: CGroupView,
+  layer: LayerView
 });
 // this module does not return the class but a singleton instance, the pluginmanager for the project.
 module.exports = WL.pluginManager;
