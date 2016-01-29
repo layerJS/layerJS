@@ -19,7 +19,9 @@ var datasetReader = function(){
   this.readFromFile = function(datasetFileName){
 
     var result =  [];
-    var dataset = require('../datasets/' + datasetFileName);
+    var datasetOrg = require('../datasets/' + datasetFileName);
+    var dataset = JSON.parse(JSON.stringify(datasetOrg));
+
     var length = dataset.length;
 
     for(var i = 0; i < length; i++)

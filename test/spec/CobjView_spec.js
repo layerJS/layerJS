@@ -1,15 +1,25 @@
 var jsdom = require("jsdom").jsdom;
 var CobjView = require('../../src/framework/cobjview.js');
 var CobjData = require('../../src/framework/cobjdata.js');
+var DatasetReader = require('./helpers/datasetreader.js');
+var CommonViewTests = require('./helpers/Commonviewtests.js');
 
 describe("CobjView", function() {
 
+  var datasetReader= new DatasetReader();
   var document, window,$;
 
   beforeEach(function() {
      document = global.document = jsdom("<html><head><style id='wl-obj-css'></style></head><body><div id='outer'><div id='6'></div><div id='7'></div></div></body></html>");
      window = global.window = document.defaultView;
      $ = document.querySelector;
+  });
+
+  CommonViewTests(function() {
+    return {
+        data: datasetReader.readFromFile('simple_cobjdata.js')[0],
+        ViewType : CobjView
+    };
   });
 
   it('can be created', function() {
@@ -125,6 +135,5 @@ describe("CobjView", function() {
     });
     var cv = new CobjView(cd);
     expect(document.getElementById('wl-obj-css').innerHTML).toContain("#wl-obj-9{color: red}");
-
-  })
-})
+  });
+});
