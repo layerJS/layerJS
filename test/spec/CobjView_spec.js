@@ -118,22 +118,4 @@ describe("CobjView", function() {
     expect(cv.el).toBe(element);
     expect(cv.el.id).toBe('5'); // changed
   });
-  it('is styled in a separate stylesheet', function() {
-    var cd = new CobjData({
-      "id": 9,
-      "type": "text",
-      "text": "Frame 1:1",
-      "scaleX": 1,
-      "scaleY": 1,
-      "height": 2000,
-      "zIndex": 500,
-      "width": 626,
-      "style": "color: red",
-      "y": 100,
-      "x": 100,
-      "rotation": 0
-    });
-    var cv = new CobjView(cd);
-    expect(document.getElementById('wl-obj-css').innerHTML).toContain("#wl-obj-9{color: red}");
-  });
 });

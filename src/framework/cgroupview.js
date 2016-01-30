@@ -20,14 +20,14 @@ var CGroupView = CobjView.extend({
    * @returns {this}
    */
   constructor: function(dataModel, options) {
-    // call super constructor
-    CobjView.call(this, dataModel, options);
+
     var that = this;
     this.childInfo = {};
     // create listener to child changes. need different callbacks for each instance in order to remove listeners separately from child data objects
     this.myChildListenerCallback = function(model) {
       that._renderChildPosition(that.childInfo[model.attributes.id].view);
     }
+    CobjView.call(this, dataModel, options);
     this.data.on('change:children', (function() {
       that._buildChildren(); // update DOM when data.children changes
     }).bind(this));
@@ -50,7 +50,7 @@ var CGroupView = CobjView.extend({
     var nodeId;
     var _k_nextChild = function() { // find next DOM child node that is a wl-element
       k++;
-      while (!(empty = !(k < that.el.childNodes.length)) && !(nodeId = that.el.childNodes[k].getAttributes('data-wl-id'))) {
+      while (!(empty = !(k < that.el.childNodes.length)) && !(nodeId = that.el.childNodes[k].getAttribute('data-wl-id'))) {
         k++;
       }
     }
@@ -71,7 +71,7 @@ var CGroupView = CobjView.extend({
               // create view object if it does not exist yet (even if the HTML element exist)
               var vo;
               if (!this.el.childNodes[k_saved]._wlView) {
-                vo = pluginManager.createView(repository.get(childId, this.data.version), {
+                vo = pluginManager.createView(repository.get(childId, this.data.attributes.version), {
                   el: this.el.childNodes[k_saved]
                 });
               } else { // or get existing view
@@ -95,7 +95,7 @@ var CGroupView = CobjView.extend({
         }
         // check if we have already a new view object in childinfo that has to be added, OR create a new View object for the data object child that was not yet existing in the view's children list
         // Note: putting existing view objects into the childinfo before updateing data.children is the way to add new children that already have a view. This is done in this.attachChild()
-        var newView = (this.childInfo[childId] && this.childInfo[childId].view) ||  pluginManager.createView(repository.get(childId, this.data.version));
+        var newView = (this.childInfo[childId] && this.childInfo[childId].view) ||  pluginManager.createView(repository.get(childId, this.data.attributes.version));
         if (empty) {
           this.el.appendChild(newView.el);
         } else {

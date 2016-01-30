@@ -9,7 +9,7 @@ describe('(basis view tests)', function(){
     var init = initFunction();
     data = init.data;
     ViewType = init.ViewType;
-  });
+    });
 
   it('will add a new DOM element when no element is provided', function(){
     var view = new ViewType(data);

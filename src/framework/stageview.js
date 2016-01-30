@@ -1,4 +1,5 @@
 'use strict';
+var Kern = require('../kern/Kern.js');
 var CGroupView = require('./cgroupView.js');
 /**
  * A View which can have child views

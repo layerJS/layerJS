@@ -17,7 +17,6 @@ var datasetReader = function(){
   };
 
   this.readFromFile = function(datasetFileName){
-
     var result =  [];
     var datasetOrg = require('../datasets/' + datasetFileName);
     var dataset = JSON.parse(JSON.stringify(datasetOrg));
@@ -37,6 +36,19 @@ var datasetReader = function(){
     }
 
     return result;
+  };
+
+  this.readFromFileAsMap = function(datasetFileName){
+    var map = new Map();
+    var arr = this.readFromFile(datasetFileName);
+    var length = arr.length;
+
+    for (var i = 0; i < length; i++) {
+      var obj = arr[i]
+      map.set(obj.attributes.id, obj);
+    }
+
+    return map;
   };
 };
 
