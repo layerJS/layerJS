@@ -1,5 +1,5 @@
 'use strict';
-var Kern = require('../kern/Kern.js');
+var pluginManager = require('./pluginmanager.js');
 var CGroupView = require('./cgroupView.js');
 
 /**
@@ -11,10 +11,7 @@ var CGroupView = require('./cgroupView.js');
 
 
 var LayerView = CGroupView.extend({
-  constructor: function(dataModel, options) {
-    // call super constructor
-    CGroupView.call(this, dataModel, options);
-  }
-});
 
+});
+pluginManager.registerType('layer', LayerView);
 module.exports = LayerView;

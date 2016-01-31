@@ -1,6 +1,7 @@
 'use strict';
-var Kern = require('../kern/Kern.js');
+var pluginManager = require('./pluginManager.js')
 var CGroupView = require('./cgroupView.js');
+
 /**
  * A View which can have child views
  * @param {FrameData} dataModel
@@ -9,6 +10,7 @@ var CGroupView = require('./cgroupView.js');
  */
 var FrameView = CGroupView.extend({
 
-});
+  });
 
+pluginManager.registerType('frame', FrameView);
 module.exports = FrameView;

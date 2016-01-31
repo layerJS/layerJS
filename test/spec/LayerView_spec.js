@@ -1,15 +1,14 @@
 var jsdom = require("jsdom").jsdom;
 
-var CGroupView = require('../../src/framework/cgroupview.js');
-var CGroupData = require('../../src/framework/cgroupdata.js');
+var LayerView = require('../../src/framework/layerview.js');
+var LayerData = require('../../src/framework/layerdata.js');
 var CommonViewTests = require('./helpers/commonviewtests.js');
 var CommonGroupViewTests = require('./helpers/commongroupviewtests.js');
 var DatasetReader = require('./helpers/datasetreader.js');
 
-describe("CGroupView", function() {
-  debugger;
-  var document, window,$;
+describe("LayerView", function() {
 
+  var document, window,$;
   var datasetReader = new DatasetReader();
 
   beforeEach(function() {
@@ -18,18 +17,22 @@ describe("CGroupView", function() {
      $ = document.querySelector;
   });
 
+/*
   CommonViewTests(function() {
     return {
-        data: datasetReader.readFromFile('simple_cgroupdata.js')[0],
-        ViewType : CGroupView
+        data: datasetReader.readFromFile('simple_layerdata.js')[0],
+        ViewType : LayerView
     };
   });
+*/
 
-  CommonGroupViewTests(function() {
-    return {
-        map: datasetReader.readFromFileAsMap('cgroupdata_with_cobjdata.js'),
-        ViewType : CGroupView,
-        parentId : 110530
-    };
-  });
+CommonGroupViewTests(function() {
+  return {
+      map: datasetReader.readFromFileAsMap('simple_layerdata.js'),
+      ViewType : LayerView,
+      parentId : 5
+  };
+});
+
+
 })

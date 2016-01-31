@@ -30,7 +30,7 @@ var commonGroupViewTests = function(initFunction){
 
       for(var i = 0; i < element.childNodes.length; i++){
         var childNode = element.childNodes[i];
-        var childObj = repository.get(parseInt(childNode.id));
+        var childObj = repository.get(parseInt(childNode.id), defaults.version);
         expect(data.attributes.children).toContain(childObj.attributes.id);
 
         checkChildrenNodes(childObj, childNode);

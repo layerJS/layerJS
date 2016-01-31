@@ -12,6 +12,9 @@ require("./framework/stagedata.js");
 /* view objects*/
 require("./framework/cobjview.js");
 require("./framework/cgroupview.js");
+require("./framework/layerview.js");
+require("./framework/frameview.js");
+require("./framework/stageview.js");
 
 /* others*/
 require("./framework/pluginmanager.js");

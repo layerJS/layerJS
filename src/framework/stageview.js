@@ -1,6 +1,7 @@
 'use strict';
-var Kern = require('../kern/Kern.js');
+var pluginManager = require('./pluginmanager.js');
 var CGroupView = require('./cgroupView.js');
+
 /**
  * A View which can have child views
  * @param {StageData} dataModel
@@ -10,5 +11,5 @@ var CGroupView = require('./cgroupView.js');
 var StageView = CGroupView.extend({
 
 });
-
+pluginManager.registerType('stage',StageView);
 module.exports = StageView;
