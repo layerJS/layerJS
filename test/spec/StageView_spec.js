@@ -21,8 +21,8 @@ describe("StageView", function() {
 /*
   CommonViewTests(function() {
     return {
-        data: datasetReader.readFromFile('simple_layerdata.js')[0],
-        ViewType : LayerView
+        data: datasetReader.readFromFile('simple_stagedata.js')[0],
+        ViewType : StageView
     };
   });
 */
