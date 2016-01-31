@@ -22,6 +22,40 @@ describe('(basis view tests)', function(){
       expect(element._wlView === view).toBeTruthy();
   });
 
+  it('can be initialized with an existing element, without re-rendering', function() {
+    var element = document.createElement('div');
+    element.id = '1000';
+
+    var view = new ViewType(data, {
+      el: element
+    });
+    expect(view.el).toBe(element);
+    expect(view.el.id).toBe('1000');
+  });
+
+  it('can be initialized with an existing element, forcing re-rendering', function() {
+    var element = document.createElement('div');
+    element.id = '1000';
+    var view = new ViewType(data, {
+      el: element,
+      forceRender: true
+    });
+    expect(view.el).toBe(element);
+    expect(view.el.id).toBe(data.attributes.id.toString()); // changed
+  });
+
+  it('cannot add view to existing element if that is already connected to another view', function() {
+    var element = document.createElement('div');
+    element.id = '1000';
+    element._wlView = {};
+    var options = { el : element };
+
+    var fun=function(){
+      var cv = new viewType(data, options);
+    };
+    expect(fun).toThrow()
+  });
+
   it('is styled in a separte stylesheet', function(){
     var view = new ViewType(data);
 
