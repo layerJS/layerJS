@@ -1,6 +1,7 @@
 'use strict';
 var pluginManager = require('./pluginmanager.js');
-var CGroupView = require('./cgroupView.js');
+var LayerData = require('./layerdata.js');
+var CGroupView = require('./cgroupview.js');
 
 /**
  * A View which can have child views
@@ -12,6 +13,8 @@ var CGroupView = require('./cgroupView.js');
 
 var LayerView = CGroupView.extend({
 
+}, {
+  Model: LayerData
 });
 pluginManager.registerType('layer', LayerView);
 module.exports = LayerView;

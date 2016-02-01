@@ -2,7 +2,7 @@
   A simple CobjData object to use in test senario's.
 */
 var dataset = [{
-  "type": "text",
+  "type": "node",
   "text": "",
   "width": 1280,
   "height": 396,

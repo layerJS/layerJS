@@ -1,6 +1,6 @@
 var WL = require('./wl.js');
 var Kern = require('../kern/Kern.js');
-var CobjView = require('./CobjView.js');
+//var CobjView = require('./CobjView.js');
 
 var PluginManager = Kern.EventManager.extend({
   /**
@@ -9,7 +9,7 @@ var PluginManager = Kern.EventManager.extend({
    * It contains a list of constructors for the corresponding data types.
    * It can be dynamically extended by further data types.
    *
-   * @param {Object} map - an object mapping cobj types to view constructors
+   * @param {Object} map - an object mapping cobj types to {view:constructor, model: contructor} data sets
    * @returns {This}
    */
   constructor: function(map) {
@@ -25,9 +25,19 @@ var PluginManager = Kern.EventManager.extend({
    */
   createView: function(model, options) {
     // return existing view if the provided element already has one
-    if (options && options.el && options.el._wlView && options.el._wlView instanceof CobjView) return options.el._wlView;
-    if (model.attributes.type && this.map.hasOwnProperty(model.attributes.type)) return new(this.map[model.attributes.type])(model, options);
+    if (options && options.el && options.el._wlView && options.el._wlView instanceof CobjView) {
+      return options.el._wlView;
+    }
+    if (model.attributes.type && this.map.hasOwnProperty(model.attributes.type)) {
+      return new(this.map[model.attributes.type].view)(model, options);
+    }
     throw "no constructor found for cobjects of type '" + model.attributes.type + "'";
+  },
+  createModel: function(data, options) {
+    if (data.type && this.map.hasOwnProperty(data.type)) {
+      return new(this.map[data.type].model)(data, options);
+    }
+    throw "no constructor found for cobjects of type '" + data.type + "'";
   },
   /**
    * register a view class for a cobject type
@@ -37,12 +47,24 @@ var PluginManager = Kern.EventManager.extend({
    * @returns {This}
    */
   registerType: function(type, constructor) {
-    this.map[type] = constructor;
-  }
+    this.map[type] = {
+      view: constructor,
+      model: constructor.Model
+    };
+  },
+  /**
+   * make sure a certain plugin is available, continue with callback
+   *
+   * @param {string} type - the type that shoud be present
+   * @param {Function} callback - call when plugins is there
+   * @returns {Type} Description
+   */
+  // requireType: function(type, callback) {
+  //   if (!this.map[type]) throw "type " + type + " unkonw in pluginmanager. Have no means to load it"; //FIXME at some point this should dynamically load plugins
+  //   return callback(); // FIXME should be refactored with promises
+  // }
 });
 // initialialize pluginManager with default plugins
-WL.pluginManager = new PluginManager({
-  node: CobjView
-});
+WL.pluginManager = new PluginManager({});
 // this module does not return the class but a singleton instance, the pluginmanager for the project.
 module.exports = WL.pluginManager;

@@ -29,7 +29,7 @@ describe("StageView", function() {
 
 CommonGroupViewTests(function() {
   return {
-      map: datasetReader.readFromFileAsMap('simple_stagedata.js'),
+      data: datasetReader.readFromFile('simple_stagedata.js'),
       ViewType : StageView,
       parentId : 110540
   };

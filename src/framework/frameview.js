@@ -1,6 +1,7 @@
 'use strict';
-var pluginManager = require('./pluginManager.js')
-var CGroupView = require('./cgroupView.js');
+var pluginManager = require('./pluginmanager.js')
+var FrameData = require('./framedata.js');
+var CGroupView = require('./cgroupview.js');
 
 /**
  * A View which can have child views
@@ -9,8 +10,9 @@ var CGroupView = require('./cgroupView.js');
  * @extends CGroupView
  */
 var FrameView = CGroupView.extend({
-
-  });
+}, {
+  Model: FrameData
+});
 
 pluginManager.registerType('frame', FrameView);
 module.exports = FrameView;

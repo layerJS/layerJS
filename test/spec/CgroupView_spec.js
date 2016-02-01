@@ -7,7 +7,6 @@ var CommonGroupViewTests = require('./helpers/commongroupviewtests.js');
 var DatasetReader = require('./helpers/datasetreader.js');
 
 describe("CGroupView", function() {
-  debugger;
   var document, window,$;
 
   var datasetReader = new DatasetReader();
@@ -27,7 +26,7 @@ describe("CGroupView", function() {
 
   CommonGroupViewTests(function() {
     return {
-        map: datasetReader.readFromFileAsMap('cgroupdata_with_cobjdata.js'),
+        data: datasetReader.readFromFile('cgroupdata_with_cobjdata.js'),
         ViewType : CGroupView,
         parentId : 110530
     };

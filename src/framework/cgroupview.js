@@ -4,6 +4,7 @@ var WL = require('./wl.js');
 var pluginManager = require('./pluginmanager.js');
 var repository = require('./repository.js');
 var CobjView = require('./cobjview.js');
+var CGroupData = require('./cgroupdata.js');
 /**
  * A View which can have child views
  * @param {CobjGroupData} dataModel
@@ -229,6 +230,8 @@ var CGroupView = CobjView.extend({
     });
   },
 
+}, {
+  Model: CGroupData
 });
-pluginManager.registerType("group",CGroupView);
+pluginManager.registerType("group", CGroupView);
 module.exports = CGroupView;

@@ -8,31 +8,27 @@ var DatasetReader = require('./helpers/datasetreader.js');
 
 describe("FrameView", function() {
 
-  var document, window,$;
+  var document, window, $;
   var datasetReader = new DatasetReader();
 
   beforeEach(function() {
-     document = global.document = jsdom("<html><head><style id='wl-obj-css'></style></head><body></body></html>");
-     window = global.window = document.defaultView;
-     $ = document.querySelector;
+    document = global.document = jsdom("<html><head><style id='wl-obj-css'></style></head><body></body></html>");
+    window = global.window = document.defaultView;
+    $ = document.querySelector;
   });
-
-/*
-  CommonViewTests(function() {
+  /*
+    CommonViewTests(function() {
+      return {
+          data: datasetReader.readFromFile('simple_framedata.js')[0],
+          ViewType : FrameView
+      };
+    });
+  */
+  CommonGroupViewTests(function() {
     return {
-        data: datasetReader.readFromFile('simple_framedata.js')[0],
-        ViewType : FrameView
+      data: datasetReader.readFromFile('simple_framedata.js'),
+      ViewType: FrameView,
+      parentId: 110529
     };
   });
-*/
-
-CommonGroupViewTests(function() {
-  return {
-      map: datasetReader.readFromFileAsMap('simple_framedata.js'),
-      ViewType : FrameView,
-      parentId : 110529
-  };
-});
-
-
 })

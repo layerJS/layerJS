@@ -1,13 +1,13 @@
 /*
   A simple LayerData object to use in test senario's.
 */
-var dataset = [ {
+var dataset = [{
   "id": 5,
   "name": "layer1",
   "children": [110529],
   "type": "layer",
   "tag": "div"
-},{
+}, {
   "type": "frame",
   "name": "menuopen",
   "mediatype": "landscape",

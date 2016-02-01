@@ -8,31 +8,30 @@ var DatasetReader = require('./helpers/datasetreader.js');
 
 describe("LayerView", function() {
 
-  var document, window,$;
+  var document, window, $;
   var datasetReader = new DatasetReader();
 
   beforeEach(function() {
-     document = global.document = jsdom("<html><head><style id='wl-obj-css'></style></head><body></body></html>");
-     window = global.window = document.defaultView;
-     $ = document.querySelector;
+    document = global.document = jsdom("<html><head><style id='wl-obj-css'></style></head><body></body></html>");
+    window = global.window = document.defaultView;
+    $ = document.querySelector;
   });
 
-/*
-  CommonViewTests(function() {
+  /*
+    CommonViewTests(function() {
+      return {
+          data: datasetReader.readFromFile('simple_layerdata.js')[0],
+          ViewType : LayerView
+      };
+    });
+  */
+  CommonGroupViewTests(function() {
     return {
-        data: datasetReader.readFromFile('simple_layerdata.js')[0],
-        ViewType : LayerView
+      data: datasetReader.readFromFile('simple_layerdata.js'),
+      ViewType: LayerView,
+      parentId: 5
     };
   });
-*/
-
-CommonGroupViewTests(function() {
-  return {
-      map: datasetReader.readFromFileAsMap('simple_layerdata.js'),
-      ViewType : LayerView,
-      parentId : 5
-  };
-});
 
 
 })

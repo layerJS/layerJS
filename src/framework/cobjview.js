@@ -1,5 +1,6 @@
 'use strict';
 var Kern = require('../kern/Kern.js');
+var pluginManager = require('./pluginmanager.js')
 var CobjData = require('./cobjdata.js');
 
 /**
@@ -116,7 +117,7 @@ var CobjView = Kern.EventManager.extend({
     ('scaleX' in diff || 'scaleY' in  diff || 'rotation' in  diff) && (css.transform = "scale(" + attr.scaleX + "," + attr.scaleY + ")" + (attr.rotation ? " rotate(" + Math.round(attr.rotation) + "deg)" : ""));
     'zIndex' in diff && attr.zIndex !== undefined && (css.zIndex = attr.zIndex);
     'hidden' in diff && (css.display = attr.hidden ? 'none' : '');
-    'width' in diff && attr.width !== undefined && (css.width = attr.width+ 'px');
+    'width' in diff && attr.width !== undefined && (css.width = attr.width + 'px');
     'height' in diff && attr.height !== undefined && (css.height = attr.height + 'px');
 
     Kern._extend(el.style, css);
@@ -184,7 +185,10 @@ var CobjView = Kern.EventManager.extend({
   destroy: function() {
     this.elWrapper.parentNode.removeChild(this.elWrapper);
   }
+}, {
+  // save model class as static variable
+  Model: CobjData
 });
-
+pluginManager.registerType('node', CobjView);
 
 module.exports = CobjView;

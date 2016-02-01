@@ -4,12 +4,12 @@ var CobjView = require('../../src/framework/cobjview.js');
 var CobjData = require('../../src/framework/cobjdata.js');
 
 describe('PluginManager', function() {
-  var document, window,$;
+  var document, window, $;
 
   beforeEach(function() {
-     document = global.document = jsdom("<html><head><style id='wl-obj-css'></style></head><body></body></html>");
-     window = global.window = document.defaultView;
-     $ = document.querySelector;
+    document = global.document = jsdom("<html><head><style id='wl-obj-css'></style></head><body></body></html>");
+    window = global.window = document.defaultView;
+    $ = document.querySelector;
   });
 
   var data = {
@@ -41,13 +41,15 @@ describe('PluginManager', function() {
     expect(v.el._wlView).toBe(v);
   });
   it('can register and create new types of View objects', function() {
-    var NV = CobjView.extend({});
+    var NV = CobjView.extend({}, {
+      Model: CobjData
+    }); // Note this is the wrong model data type but that shouldn't be a problem
     var ndata = {
       "type": "heinz",
     }
-    var nc = new CobjData(ndata); // Note this is the wrong data type but that shouldn't be a problem
     pluginmanager.registerType('heinz', NV);
-    var v=pluginmanager.createView(nc);
+    var nc = pluginmanager.createModel(ndata);
+    var v = pluginmanager.createView(nc);
     expect(v instanceof NV).toBe(true);
     expect(v.el._wlView).toBe(v);
   })

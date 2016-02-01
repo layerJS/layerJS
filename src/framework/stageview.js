@@ -1,6 +1,7 @@
 'use strict';
 var pluginManager = require('./pluginmanager.js');
-var CGroupView = require('./cgroupView.js');
+var StageData = require('./stagedata.js');
+var CGroupView = require('./cgroupview.js');
 
 /**
  * A View which can have child views
@@ -10,6 +11,8 @@ var CGroupView = require('./cgroupView.js');
  */
 var StageView = CGroupView.extend({
 
+}, {
+  Model: StageData
 });
-pluginManager.registerType('stage',StageView);
+pluginManager.registerType('stage', StageView);
 module.exports = StageView;

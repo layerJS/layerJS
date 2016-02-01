@@ -1,7 +1,7 @@
 /*
   A simple FrameData object to use in test senario's.
 */
-var dataset = [ {
+var dataset = [{
   "type": "frame",
   "name": "menuopen",
   "mediatype": "landscape",

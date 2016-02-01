@@ -1,3 +1,4 @@
+var pluginManager = require('../../../src/framework/pluginmanager.js');
 
 var commonViewTests = function(initFunction){
 
@@ -7,7 +8,7 @@ describe('(basis view tests)', function(){
 
   beforeEach(function(){
     var init = initFunction();
-    data = init.data;
+    data = pluginManager.createModel(JSON.parse(JSON.stringify(init.data)));
     ViewType = init.ViewType;
     });
 
