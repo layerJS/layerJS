@@ -18,17 +18,17 @@ var LayoutManager = Kern.EventManager.extend({
    * register a new layout function
    *
    * @param {string} type - the layout type as given in the layer data model
-   * @param {Functon} fn - the layout function
+   * @param {LayerLayout} fn - the layout engine
    * @returns {Type} Description
    */
-  registerType: function(type, fn) {
-    this.map[type] = fn;
+  registerType: function(type, layouter) {
+    this.map[type] = layouter;
   },
   /**
    * return the layout function for a given layout type
    *
    * @param {string} type - the layout type
-   * @returns {Type} Description
+   * @returns {LayerLayout} the layout engine
    */
   get: function(type){
     return this.map[type];

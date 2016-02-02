@@ -6,11 +6,13 @@ describe('LayoutManager', function() {
   });
   it('can register layout functions and execute them', function() {
     var cc = 1;
-    var fn = function(param) {
-      cc += param;
+    var layouter = function(){ // dummy LayerLayout
+      this.fn=function(param) {
+        cc += param;
+      }
     }
-    layoutmanager.registerType('gordon', fn);
-    layoutmanager.get('gordon').call(this, 4);
+    layoutmanager.registerType('gordon', layouter);
+    (new (layoutmanager.get('gordon'))).fn(4);
     expect(cc).toBe(5);
   })
 });

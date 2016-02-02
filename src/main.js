@@ -3,7 +3,9 @@ require("./framework/wl.js");
 
 /* others*/
 require("./framework/pluginmanager.js");
+require("./framework/layoutmanager.js");
 require("./framework/repository.js");
+require("./framework/layerlayout.js");
 
 /* data objects*/
 require("./framework/defaults.js");
