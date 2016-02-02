@@ -10,11 +10,11 @@ var CGroupView = require('./cgroupview.js');
  * @extends CGroupView
  */
 
-
 var LayerView = CGroupView.extend({
-
 }, {
   Model: LayerData
 });
+
 pluginManager.registerType('layer', LayerView);
+
 module.exports = LayerView;

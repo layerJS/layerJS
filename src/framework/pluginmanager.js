@@ -21,7 +21,7 @@ var PluginManager = Kern.EventManager.extend({
    * @param {cobjdata} model - the model from which the view should be created
    * @param {Object} [options] - create options
    * @param {HTMLElement} options.el - the element of the view
-   * @returns {cobjview} the view object of type CobjView or a sub class
+   * @returns {CobjView} the view object of type CobjView or a sub class
    */
   createView: function(model, options) {
     // return existing view if the provided element already has one
@@ -33,6 +33,13 @@ var PluginManager = Kern.EventManager.extend({
     }
     throw "no constructor found for cobjects of type '" + model.attributes.type + "'";
   },
+  /**
+   * create a data model based on a json object (and it's type property)
+   *
+   * @param {Object} data - JSON data of data model
+   * @param {Object} options - options passed to the model constructor
+   * @returns {CobjData} the new data model
+   */
   createModel: function(data, options) {
     if (data.type && this.map.hasOwnProperty(data.type)) {
       return new(this.map[data.type].model)(data, options);
@@ -61,7 +68,7 @@ var PluginManager = Kern.EventManager.extend({
    */
   // requireType: function(type, callback) {
   //   if (!this.map[type]) throw "type " + type + " unkonw in pluginmanager. Have no means to load it"; //FIXME at some point this should dynamically load plugins
-  //   return callback(); // FIXME should be refactored with promises
+  //   return callback(); // FIXME should be refactored with promises or ES 6 yield
   // }
 });
 // initialialize pluginManager with default plugins
