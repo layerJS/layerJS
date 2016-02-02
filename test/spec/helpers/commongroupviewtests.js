@@ -19,7 +19,6 @@ var commonGroupViewTests = function(initFunction) {
     });
 
     it('will add it\'s children DOM element to its own DOM element', function() {
-      debugger;
       var view = new ViewType(data);
       var element = view.el;
       checkChildrenNodes(data, element);

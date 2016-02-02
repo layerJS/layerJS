@@ -1,13 +1,14 @@
 'use strict';
 var Kern = require('../kern/Kern.js');
-var CgroupData = require('./cgroupdata.js');
+var CGroupData = require('./cgroupdata.js');
 
 /**
  * @extends CobjGroupData
  */
-var LayerData = CgroupData.extend({
-  defaults: Kern._extend({}, CgroupData.prototype.defaults, {
-    type: 'layer'
+var LayerData = CGroupData.extend({
+  defaults: Kern._extend({}, CGroupData.prototype.defaults, {
+    type: 'layer',
+    layoutType: 'plain'
   })
 });
 

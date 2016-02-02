@@ -35,6 +35,6 @@ var LayoutManager = Kern.EventManager.extend({
   }
 });
 // initialialize layoutManager with default plugins
-WL.layoutManager = new LayoutManager({});
+WL.layoutManager = new LayoutManager();
 // this module does not return the class but a singleton instance, the layoutManager for the project.
 module.exports = WL.layoutManager;
