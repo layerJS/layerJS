@@ -20,6 +20,17 @@ var PlainLayout = LayerLayout.extend({
    */
   transitionTo: function(frame, transition) {
     var cframe = this.getCurrentFrame();
+  },
+  /**
+   * calculate pre and post transforms for current and target frame
+   * needed for swipes
+   *
+   * @param {ViewFrame} frame - the target frame
+   * @param {Object} transition - the transition object
+   * @returns {Type} Description
+   */
+  prepareTransition: function(frame, transition) {
+
   }
 });
 
