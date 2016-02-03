@@ -16,6 +16,8 @@ var CobjView = Kern.EventManager.extend({
     // dataobject must exist
     if (!dataModel) throw "data object mus exist when creating a view";
     this.data = dataModel;
+    // parent if defined
+    this.parent = options.parent;
     // DOM element
     this.el = options.el || document.createElement(this.data.attributes.tag);
     // backlink from DOM to object
@@ -40,6 +42,23 @@ var CobjView = Kern.EventManager.extend({
     });
     // render the element the first time. Don't render if HTML Element already existed.
     (options.forceRender || !options.el) && this.render();
+  },
+  /**
+   * add a new parent view
+   *
+   * @param {CobjView} parent - the parent of this view
+   * @returns {Type} Description
+   */
+  setParent: function(parent) {
+    this.parent = parent;
+  },
+  /**
+   * return the parent view of this view
+   *
+   * @returns {CobjView} parent
+   */
+  getParent: function(){
+    return this.parent;
   },
   /**
    * ##render
@@ -173,8 +192,22 @@ var CobjView = Kern.EventManager.extend({
       // console.log("unattaching link from object "+this.id);
     }
   },
-
-
+  /**
+   * returns the width of the object. Note, this is the actual width which may be different then in the data object
+   *
+   * @returns {number} width
+   */
+  width: function() {
+    return this.elWrapper.style.width; // WARN: Refactor: what to do if element is not yet rendered?
+  },
+  /**
+   * returns the height of the object. Note, this is the actual height which may be different then in the data object
+   *
+   * @returns {number} height
+   */
+  height: function() {
+    return this.elWrapper.style.height; // WARN: Refactor: what to do if element is not yet rendered?
+  },
   /**
    * ##destroy
    * This element was requested to be deleted completly; before the delete happens

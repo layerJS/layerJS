@@ -74,7 +74,8 @@ var CGroupView = CobjView.extend({
               var vo;
               if (!this.el.childNodes[k_saved]._wlView) {
                 vo = pluginManager.createView(repository.get(childId, this.data.attributes.version), {
-                  el: this.el.childNodes[k_saved]
+                  el: this.el.childNodes[k_saved],
+                  parent: this
                 });
               } else { // or get existing view
                 vo = this.el.childNodes[k_saved]._wlView;
@@ -98,7 +99,9 @@ var CGroupView = CobjView.extend({
         // check if we have already a new view object in childinfo that has to be added, OR create a new View object for the data object child that was not yet existing in the view's children list
         // Note: putting existing view objects into the childinfo before updateing data.children is the way to add new children that already have a view. This is done in this.attachChild()
 
-        var newView = (this.childInfo[childId] && this.childInfo[childId].view) ||  pluginManager.createView(repository.get(childId, this.data.attributes.version));
+        var newView = (this.childInfo[childId] && this.childInfo[childId].view) ||  pluginManager.createView(repository.get(childId, this.data.attributes.version), {
+          parent: this
+        });
         if (empty) {
           this.el.appendChild(newView.el);
         } else {
@@ -131,6 +134,7 @@ var CGroupView = CobjView.extend({
    */
   attachView: function(newView) {
     this.childinfo[newView.data.attributes.id] = newView; // prepare info about new view
+    newView.setParent(this);
     this.data.children.addChild(newView.data.attributes.id); // this will eventually trigger _buildChildren which sets up everything for this group
   },
   /**
@@ -145,6 +149,7 @@ var CGroupView = CobjView.extend({
     var idx = this.data.update('children').indexOf(view.data.attributes.id);
     this.data.update('children').splice(idx, 1);
     this.data.fire();
+    view.setParent(undefined);
   },
   /**
    * render the position of the child. This is done similar as setting other style (CSS) properties in

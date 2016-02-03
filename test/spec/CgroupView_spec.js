@@ -23,14 +23,6 @@ describe("CGroupView", function() {
         ViewType : CGroupView,
         parentId : 110530
     };
-  });
+  });  
   
-  
-  CommonGroupViewTests(function() {
-  return {
-      data: datasetReader.readFromFile('test_data_set.js'),
-      ViewType : CGroupView,
-      parentId : 1
-  };
 });
-})
