@@ -5,7 +5,7 @@ var CtextData = require('../../src/framework/ctextdata.js');
 var CtextView = require('../../src/framework/ctextview.js');
 var pluginManager = require('../../src/framework/pluginmanager.js');
 
-describe("CimageView", function() {
+describe("CtextView", function() {
 
   var datasetReader= new DatasetReader();
   var document, window,$;
@@ -33,6 +33,6 @@ describe("CimageView", function() {
     var view = new CtextView(data);
     var element = view.el;
 
-    expect(element.innerHTML).toBe(data.attributes.text ? data.attributes.text : '' );
+    expect(element.innerHTML).toBe(data.attributes.content);
   });
 });

@@ -33,7 +33,7 @@ describe("CimageView", function() {
     var view = new CimageView(data);
     var element = view.el;
 
-    expect(element.getAttribute('src')).toBe(data.attributes.src ? data.attributes.src : '' );
+    expect(element.getAttribute('src')).toBe(data.attributes.src);
   });
 
   it('will set the alt attribute of the DOM element', function() {
@@ -41,7 +41,7 @@ describe("CimageView", function() {
     var view = new CimageView(data);
     var element = view.el;
 
-    expect(element.getAttribute('alt')).toBe(data.attributes.alt ? data.attributes.alt : '' );
+    expect(element.getAttribute('alt')).toBe(data.attributes.alt);
   });
 
 });
