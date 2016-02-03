@@ -18,7 +18,7 @@
     "build": "npm run build:scripts -s",
     "build:scripts": "mkdirp dist && browserify -e src/main.js -o dist/main.js",
 
-    "test": "jasmine JASMINE_CONFIG_PATH=./test/spec/support/jasmine.json",
+    "test": "jasmine test/spec/layerview_spec.js JASMINE_CONFIG_PATH=./test/spec/support/jasmine.json",
 
     "correctDatasets" : "node ./test/scripts/correctDatasets.js"
   }

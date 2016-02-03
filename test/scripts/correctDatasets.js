@@ -26,14 +26,13 @@ for (var x = 0; x < datasetFilenames.length; x++) {
       console.log("processing " + datasetFileName + " " + (i+1) + "/" + length)
       var object = dataset[i];
 
-      if ( object.text)
-      {
+      if ( object.text != undefined)
+      {         
         object.content = object.text;
         delete object.text;
       }
 
-
-      if (object.scale)
+      if (object.scale != undefined)
       {
         object.scaleX = object.scale.x;
         object.scaleY = object.scale.y;
