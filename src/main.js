@@ -20,6 +20,7 @@ require("./framework/stagedata.js");
 /* view objects*/
 require("./framework/cobjview.js");
 require("./framework/cimageview.js");
+require("./framework/ctextview.js");
 require("./framework/cgroupview.js");
 require("./framework/layerview.js");
 require("./framework/frameview.js");

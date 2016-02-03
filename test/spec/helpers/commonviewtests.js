@@ -159,7 +159,7 @@ describe('(basis view tests)', function(){
     var element = view.el;
     var style = element.style;
 
-    expect(element.style.transform).toContain('scale(' + data.attributes.scaleX+ ',' + data.attributes.scaleY +')');
+    expect(element.style.transform).toContain('scale(' + data.attributes.scale.x+ ',' + data.attributes.scale.y +')');
   });
 
   it('will put the rotation in the transform property of the style of the DOM element will be set when renderPosition is called', function(){

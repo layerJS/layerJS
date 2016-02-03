@@ -1,15 +1,15 @@
 'use strict';
 var CobjView = require('./cobjview.js');
-var CimageData = require('./cimagedata.js');
+var CtextData = require('./ctextdata.js');
 var pluginManager = require('./pluginmanager.js');
 
 /**
  * A View which can render images
- * @param {CimageData} dataModel
+ * @param {CtextData} dataModel
  * @param {object}        options
  * @extends CobjView
  */
-var CimageView = CobjView.extend({
+var CtextView = CobjView.extend({
   render : function(options){
       var attr = this.data.attributes,
           diff = this.data.changedAttributes || this.data.attributes,
@@ -17,18 +17,14 @@ var CimageView = CobjView.extend({
 
      CobjView.prototype.render.call(this,options);
 
-     if ('src' in diff) {
-       el.setAttribute("src", attr.src);
-     }
-
-     if ('alt' in diff) {
-       el.setAttribute("alt", attr.alt);
+     if ('text' in diff) {
+       el.innerHTML = attr.text;
      }
   }
 
 },{
-  Model: CimageData
+  Model: CtextData
 });
 
-pluginManager.registerType('image', CimageView);
-module.exports = CimageView;
+pluginManager.registerType('text', CtextView);
+module.exports = CtextView;
