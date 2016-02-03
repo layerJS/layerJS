@@ -20,22 +20,36 @@ var commonGroupViewTests = function(initFunction) {
 
     it('will add it\'s children DOM element to its own DOM element', function() {
       var view = new ViewType(data);
-      var element = view.el;
-      checkChildrenNodes(data, element);
+      var element = view.elWrapper;
+      checkChildrenDataNodes(data, element);
+      checkChildrenViews(view);
     });
 
-    var checkChildrenNodes = function(dataObj, element) {
+    var checkChildrenDataNodes = function(dataObj, element) {
       expect(element.childNodes.length).toBe(dataObj.attributes.children.length);
 
       for (var i = 0; i < element.childNodes.length; i++) {
         var childNode = element.childNodes[i];
         var childObj = repository.get(parseInt(childNode.id), defaults.version);
         expect(data.attributes.children).toContain(childObj.attributes.id);
+        expect(childNode._wlView).toBeDefined();
+        expect(childNode._wlView.data).toBe(childObj);
 
-        checkChildrenNodes(childObj, childNode);
+        checkChildrenDataNodes(childObj, childNode);
       }
     };
 
+    var checkChildrenViews = function(view) {
+      expect(view.elWrapper.childNodes.length).toBe(view.data.attributes.children.length);
+
+      for (var i = 0; i < view.elWrapper.childNodes.length; i++) {
+        var childNode = view.elWrapper.childNodes[i];
+        var childView = childNode._wlView;
+        expect(childView.parent).toBe(view);
+
+        checkChildrenViews(childView);
+      }
+    };
   });
 };
 
