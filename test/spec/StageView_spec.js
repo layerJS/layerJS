@@ -10,13 +10,7 @@ var DatasetReader = require('./helpers/datasetreader.js');
 describe("StageView", function() {
 
   var document, window,$;
-  var datasetReader = new DatasetReader();
-
-  beforeEach(function() {
-     document = global.document = jsdom("<html><head><style id='wl-obj-css'></style></head><body></body></html>");
-     window = global.window = document.defaultView;
-     $ = document.querySelector;
-  });
+  var datasetReader = new DatasetReader();  
 
 /*
   CommonViewTests(function() {
@@ -32,6 +26,14 @@ CommonGroupViewTests(function() {
       data: datasetReader.readFromFile('simple_stagedata.js'),
       ViewType : StageView,
       parentId : 110540
+  };
+});
+
+CommonGroupViewTests(function() {
+  return {
+      data: datasetReader.readFromFile('test_data_set.js'),
+      ViewType : StageView,
+      parentId : 1
   };
 });
 

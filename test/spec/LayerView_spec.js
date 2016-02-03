@@ -7,16 +7,8 @@ var CommonGroupViewTests = require('./helpers/commongroupviewtests.js');
 var DatasetReader = require('./helpers/datasetreader.js');
 
 describe("LayerView", function() {
-
-  var document, window, $;
   var datasetReader = new DatasetReader();
-
-  beforeEach(function() {
-    document = global.document = jsdom("<html><head><style id='wl-obj-css'></style></head><body></body></html>");
-    window = global.window = document.defaultView;
-    $ = document.querySelector;
-  });
-
+  
   /*
     CommonViewTests(function() {
       return {
@@ -25,13 +17,21 @@ describe("LayerView", function() {
       };
     });
   */
+  
   CommonGroupViewTests(function() {
     return {
       data: datasetReader.readFromFile('simple_layerdata.js'),
       ViewType: LayerView,
       parentId: 5
     };
+  });  
+  
+  CommonGroupViewTests(function() {   
+     return {
+      data: datasetReader.readFromFile('test_data_set.js'),
+      ViewType: LayerView,
+      parentId: 5
+    };
   });
-
 
 })
