@@ -11,6 +11,7 @@ require("./framework/layouts/plainlayout.js");
 /* data objects*/
 require("./framework/defaults.js");
 require("./framework/cobjdata.js");
+require("./framework/cimagedata.js");
 require("./framework/cgroupdata.js");
 require("./framework/framedata.js");
 require("./framework/layerdata.js");
@@ -18,6 +19,7 @@ require("./framework/stagedata.js");
 
 /* view objects*/
 require("./framework/cobjview.js");
+require("./framework/cimageview.js");
 require("./framework/cgroupview.js");
 require("./framework/layerview.js");
 require("./framework/frameview.js");

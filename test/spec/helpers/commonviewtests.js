@@ -1,15 +1,21 @@
 var pluginManager = require('../../../src/framework/pluginmanager.js');
+var jsdom = require('jsdom').jsdom;
 
 var commonViewTests = function(initFunction){
 
 describe('(basis view tests)', function(){
 
+  var document, window,$;
   var data, ViewType;
 
   beforeEach(function(){
     var init = initFunction();
     data = pluginManager.createModel(JSON.parse(JSON.stringify(init.data)));
     ViewType = init.ViewType;
+
+    document = global.document = jsdom("<html><head><style id='wl-obj-css'></style></head><body></body></html>");
+    window = global.window = document.defaultView;
+    $ = document.querySelector;
     });
 
   it('will add a new DOM element when no element is provided', function(){
@@ -57,11 +63,16 @@ describe('(basis view tests)', function(){
     expect(fun).toThrow()
   });
 
-  it('is styled in a separte stylesheet', function(){
+  it('is styled in a separte stylesheet if a style is defined', function(){
     var view = new ViewType(data);
 
-    expect(document.getElementById('wl-obj-css').innerHTML)
-            .toContain("#wl-obj-" + data.attributes.id +"{" + data.attributes.style +"}");
+    var expected = expect(document.getElementById('wl-obj-css').innerHTML);
+    if (data.attributes.style){
+      expected.toContain("#wl-obj-" + data.attributes.id +"{" + data.attributes.style +"}");
+    }
+    else {
+      expected.not.toContain("#wl-obj-" + data.attributes.id );
+    }
   });
 
   it('will add a data-wl-id attribute DOM element', function(){
@@ -157,7 +168,10 @@ describe('(basis view tests)', function(){
     var element = view.el;
     var style = element.style;
 
-    expect(element.style.transform).toContain('rotate(' + Math.round(data.attributes.rotation) + 'deg)');
+    if ( data.attributes.rotation)
+      expect(element.style.transform).toContain('rotate(' + Math.round(data.attributes.rotation) + 'deg)');
+    else
+      expect(element.style.transform).not.toContain('rotate');
   });
 
   it('will put the zIndex in the zIndex property of the style of the DOM element will be set when renderPosition is called', function(){
