@@ -27,7 +27,7 @@ var LayerView = CGroupView.extend({
    * @returns {Type} Description
    */
   transformTo: function(framename, transition) {
-    // is framename is omitted?
+    // is framename  omitted?
     if (typeof framename === 'object') {
       transition = framename;
       framename = transition.frame;
@@ -37,6 +37,7 @@ var LayerView = CGroupView.extend({
     if (!framename) throw "transformTo: no frame given";
     var frame = this.frames[framename];
     if (!frame) throw "transformTo: " + framename + " does not exist in layer";
+    this.layout.transitionTo(frame, shift, transition);
 
   }
 }, {

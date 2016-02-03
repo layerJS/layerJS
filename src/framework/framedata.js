@@ -10,6 +10,7 @@ var FrameData = CgroupData.extend({
     nativeScroll: true,
     fitTo: 'width',
     startPosition: 'top',
+    noScrolling: false,
     type: 'frame'
   })
 });
