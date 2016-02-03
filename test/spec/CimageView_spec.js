@@ -4,6 +4,7 @@ var CommonViewTests = require('./helpers/Commonviewtests.js');
 var CimageData = require('../../src/framework/cimagedata.js');
 var CimageView = require('../../src/framework/cimageview.js');
 var pluginManager = require('../../src/framework/pluginmanager.js');
+var WL = require('../../src/framework/wl.js');
 
 describe("CimageView", function() {
 
@@ -33,7 +34,7 @@ describe("CimageView", function() {
     var view = new CimageView(data);
     var element = view.el;
 
-    expect(element.getAttribute('src')).toBe(data.attributes.src);
+    expect(element.getAttribute('src')).toBe( WL.imagePath + data.attributes.src);
   });
 
   it('will set the alt attribute of the DOM element', function() {
