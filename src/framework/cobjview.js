@@ -53,6 +53,14 @@ var CobjView = Kern.EventManager.extend({
     this.parent = parent;
   },
   /**
+   * return the parent view of this view
+   *
+   * @returns {CobjView} parent
+   */
+  getParent: function(){
+    return this.parent;
+  },
+  /**
    * ##render
    * This method applies all the object attributes to its DOM element `this.$el`.
    * It only updates attributes that have changes (`this.data.changedAttributes`)
