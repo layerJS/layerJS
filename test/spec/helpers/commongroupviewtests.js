@@ -71,11 +71,7 @@ var commonGroupViewTests = function (initFunction) {
 
                     checkChildrenViews(childView);
                 }
-            }
-            else{
-                // When the data doesn't have any children, the innerHTML should be empty
-                expect(view.elWrapper.innerHTML).toBe('');                
-            }
+            }            
         };
     });
 };
