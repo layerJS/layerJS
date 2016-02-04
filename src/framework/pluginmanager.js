@@ -13,7 +13,7 @@ var PluginManager = Kern.EventManager.extend({
    * @returns {This}
    */
   constructor: function(map) {
-    this.map = map ||  {}; // maps cobjdata types to View constructors
+    this.map = map || {}; // maps cobjdata types to View constructors
   },
   /**
    * create a view based on the type in the cobj's model

@@ -12,7 +12,7 @@ var CobjData = require('./cobjdata.js');
  */
 var CobjView = Kern.EventManager.extend({
   constructor: function(dataModel, options) {
-    options = options ||  {};
+    options = options || {};
     // dataobject must exist
     if (!dataModel) throw "data object mus exist when creating a view";
     this.data = dataModel;
@@ -67,7 +67,7 @@ var CobjView = Kern.EventManager.extend({
    * @return {void}
    */
   render: function(options) {
-    options = options ||  {};
+    options = options || {};
     var attr = this.data.attributes,
       diff = this.data.changedAttributes || this.data.attributes,
       el = this.el;
@@ -77,7 +77,7 @@ var CobjView = Kern.EventManager.extend({
     }
 
     if ('elementId' in diff) {
-      el.id = attr.elementId ||  attr.id; //-> shouldn't we always set an id? (priority of #id based css declarations)
+      el.id = attr.elementId || attr.id; //-> shouldn't we always set an id? (priority of #id based css declarations)
     }
 
     // add classes to object
@@ -95,8 +95,8 @@ var CobjView = Kern.EventManager.extend({
     // FIXME: we should use $('#object_css').sheet to acces the style sheet and then iterate through the cssrules. The view can keep a reference to its cssrule
     // FIXME: should we support media queries here. if so how does that work with versions? alternative?
 
-    var selector = (attr.elementId && "#" + attr.elementId) ||  "#wl-obj-" + attr.id;
-    var oldSelector = (diff.elementId && "#" + diff.elementId) ||  (diff.id && "#wl-obj-" + diff.id) || selector;
+    var selector = (attr.elementId && "#" + attr.elementId) || "#wl-obj-" + attr.id;
+    var oldSelector = (diff.elementId && "#" + diff.elementId) || (diff.id && "#wl-obj-" + diff.id) || selector;
 
     if (('style' in diff) || (selector != oldSelector)) {
       var styleElement = document.getElementById('wl-obj-css');
@@ -132,8 +132,8 @@ var CobjView = Kern.EventManager.extend({
     var css = {};
     'x' in diff && attr.x !== undefined && (css.left = attr.x + 'px');
     'y' in diff && attr.y !== undefined && (css.top = attr.y + 'px');
-    ('x' in diff ||  'y' in diff) && (css.position = (attr.x !== undefined ||  attr.y !== undefined ? "absolute" : "static"));
-    ('scaleX' in diff || 'scaleY' in  diff || 'rotation' in  diff) && (css.transform = "scale(" + attr.scaleX + "," + attr.scaleY + ")" + (attr.rotation ? " rotate(" + Math.round(attr.rotation) + "deg)" : ""));
+    ('x' in diff || 'y' in diff) && (css.position = (attr.x !== undefined || attr.y !== undefined ? "absolute" : "static"));
+    ('scaleX' in diff || 'scaleY' in diff || 'rotation' in diff) && (css.transform = "scale(" + attr.scaleX + "," + attr.scaleY + ")" + (attr.rotation ? " rotate(" + Math.round(attr.rotation) + "deg)" : ""));
     'zIndex' in diff && attr.zIndex !== undefined && (css.zIndex = attr.zIndex);
     'hidden' in diff && (css.display = attr.hidden ? 'none' : '');
     'width' in diff && attr.width !== undefined && (css.width = attr.width + 'px');

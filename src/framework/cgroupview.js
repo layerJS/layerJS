@@ -85,7 +85,7 @@ var CGroupView = CobjView.extend({
                 throw "duplicate child id " + childId + " in group " + this.data.attributes.id + ".";
               }
               // create childinfo which indicates which view we have for each id. This is also used for checking whether we registered a change callback already.
-              this.childInfo[childId] = this.childInfo[childId] ||  {};
+              this.childInfo[childId] = this.childInfo[childId] || {};
               this.childInfo[childId].view = vo;
               vo.data.on('change', this._myChildListenerCallback); // attach child change listener
               // Note: if the HTML was present, we don't render positions
@@ -99,7 +99,7 @@ var CGroupView = CobjView.extend({
         // check if we have already a new view object in childinfo that has to be added, OR create a new View object for the data object child that was not yet existing in the view's children list
         // Note: putting existing view objects into the childinfo before updateing data.children is the way to add new children that already have a view. This is done in this.attachChild()
 
-        var newView = (this.childInfo[childId] && this.childInfo[childId].view) ||  pluginManager.createView(repository.get(childId, this.data.attributes.version), {
+        var newView = (this.childInfo[childId] && this.childInfo[childId].view) || pluginManager.createView(repository.get(childId, this.data.attributes.version), {
           parent: this
         });
         if (empty) {
@@ -170,8 +170,8 @@ var CGroupView = CobjView.extend({
     var css = {};
     'x' in diff && attr.x !== undefined && (css.left = attr.x);
     'y' in diff && attr.y !== undefined && (css.top = attr.y);
-    ('x' in diff ||  'y' in diff) && (css.position = (attr.x !== undefined ||  attr.y !== undefined ? "absolute" : "static"));
-    ('scaleX' in diff || 'scaleY' in  diff || 'rotation' in  diff) && (css.transform = "scale(" + attr.scaleX + "," + attr.scaleY + ")" + (attr.rotation ? " rotate(" + Math.round(attr.rotation) + "deg)" : ""));
+    ('x' in diff || 'y' in diff) && (css.position = (attr.x !== undefined || attr.y !== undefined ? "absolute" : "static"));
+    ('scaleX' in diff || 'scaleY' in diff || 'rotation' in diff) && (css.transform = "scale(" + attr.scaleX + "," + attr.scaleY + ")" + (attr.rotation ? " rotate(" + Math.round(attr.rotation) + "deg)" : ""));
     'zIndex' in diff && attr.zIndex !== undefined && (css.zIndex = attr.zIndex);
     'hidden' in diff && (css.display = attr.hidden ? 'none' : '');
     'width' in diff && attr.width !== undefined && (css.width = attr.width);
