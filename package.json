@@ -20,8 +20,6 @@
 
     "test": "jasmine JASMINE_CONFIG_PATH=./test/spec/support/jasmine.json",
 
-    "correctDatasets" : "node ./test/scripts/correctDatasets.js",
-    
-    "browserify:dataset1": "browserify -e test/html/dataset1/dataset1_main.js -o test/html/dataset1/dataset1_main_bundle.js"
+    "correctDatasets" : "node ./test/scripts/correctDatasets.js"
   }
 }
