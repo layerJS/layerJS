@@ -12,6 +12,7 @@ var CobjData = require('./cobjdata.js');
  */
 var CobjView = Kern.EventManager.extend({
   constructor: function(dataModel, options) {
+    Kern.EventManager.call(this);
     options = options ||  {};
     // dataobject must exist
     if (!dataModel) throw "data object mus exist when creating a view";

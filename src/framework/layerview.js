@@ -14,10 +14,10 @@ var CGroupView = require('./cgroupview.js');
 var LayerView = CGroupView.extend({
   constructor: function(dataModel, options) {
     this.frames = {};
-    debugger;
-    this.layout = new (layoutManager.get(dataModel.attributes.layoutType))(this);
+    this.layout = new(layoutManager.get(dataModel.attributes.layoutType))(this);
     CGroupView.call(this, dataModel, options);
     this.stage = this.parent;
+    this.currentFrame = (this.data.attributes.defaultFrame && this.findChildView(this.data.attributes.defaultFrame)) ||  (this.data.attributes.children[0] && this.getChildView(this.data.attributes.children[0]));
   },
   /**
    * transform to a given frame in this layer with given transition
@@ -37,8 +37,12 @@ var LayerView = CGroupView.extend({
     if (!framename) throw "transformTo: no frame given";
     var frame = this.frames[framename];
     if (!frame) throw "transformTo: " + framename + " does not exist in layer";
+    var transformData = frame.getTransformData(this.stage, transition);
+    var shift = { // this will be non-zero if we have to switch scroll position in native scrolling
+      x: 0,
+      y: 0
+    }
     this.layout.transitionTo(frame, shift, transition);
-
   }
 }, {
   Model: LayerData
