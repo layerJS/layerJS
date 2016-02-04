@@ -71,7 +71,14 @@ var commonGroupViewTests = function (initFunction) {
 
                     checkChildrenViews(childView);
                 }
-            }            
+            }
+            else{
+                //When the data doesn't have children, it's childnodes should have a view attached.
+                for (var index = 0; index < view.elWrapper.childNodes.length; index++) {
+                    var element = view.elWrapper.childNodes[index];
+                    expect(element._wlView).toBeUndefined();
+                }
+            }                        
         };
     });
 };
