@@ -33,11 +33,6 @@ WL.imagePath = "../../img/img_dataset1/";
 WL.repository.importJSON(dataset, defaults.version);
 
 var stageData = WL.repository.get("1", defaults.version);
-console.log(stageData);
-
 var stageView = pluginmanager.createView(stageData);
-console.log(stageView);
 
 document.body.appendChild(stageView.el);
-
-console.log(WL);

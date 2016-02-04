@@ -1782,13 +1782,7 @@ WL.imagePath = "../../img/img_dataset1/";
 WL.repository.importJSON(dataset, defaults.version);
 
 var stageData = WL.repository.get("1", defaults.version);
-console.log(stageData);
-
 var stageView = pluginmanager.createView(stageData);
-console.log(stageView);
 
 document.body.appendChild(stageView.el);
-
-console.log(WL);
-
 },{"../../../src/framework/cgroupdata.js":1,"../../../src/framework/cgroupview.js":2,"../../../src/framework/cimagedata.js":3,"../../../src/framework/cimageview.js":4,"../../../src/framework/cobjdata.js":5,"../../../src/framework/cobjview.js":6,"../../../src/framework/ctextview.js":8,"../../../src/framework/defaults.js":9,"../../../src/framework/framedata.js":10,"../../../src/framework/frameview.js":11,"../../../src/framework/layerdata.js":12,"../../../src/framework/layerview.js":13,"../../../src/framework/layoutmanager.js":14,"../../../src/framework/layouts/layerlayout.js":15,"../../../src/framework/layouts/plainlayout.js":16,"../../../src/framework/pluginmanager.js":17,"../../../src/framework/repository.js":18,"../../../src/framework/stagedata.js":19,"../../../src/framework/stageview.js":20,"../../../src/framework/wl.js":21,"../../../src/kern/kern.js":23,"../../datasets/dataset1.js":24}]},{},[25]);
