@@ -20,6 +20,7 @@ var CGroupView = CobjView.extend({
    * @returns {this}
    */
   constructor: function(dataModel, options) {
+    options = options || {};
     var that = this;
     this.childInfo = {};
     // create listener to child changes. need different callbacks for each instance in order to remove listeners separately from child data objects
@@ -27,10 +28,16 @@ var CGroupView = CobjView.extend({
       that._renderChildPosition(that.childInfo[model.attributes.id].view);
     }
 
-    CobjView.call(this, dataModel, options);
+    CobjView.call(this, dataModel, Kern.Base.extend({}, options, { noRender: true }));
+    
     this.data.on('change:children', (function() {
       that._buildChildren(); // update DOM when data.children changes
-    }).bind(this));   
+    }).bind(this)); 
+    
+    this._buildChildren();
+    
+    if (!options.noRender && (options.forceRender || !options.el))
+      this.render();
   },
   /**
    * Syncronise the DOM child nodes with the data IDs in the data's
@@ -86,8 +93,7 @@ var CGroupView = CobjView.extend({
               // create childinfo which indicates which view we have for each id. This is also used for checking whether we registered a change callback already.
               this.childInfo[childId] = this.childInfo[childId] || {};
               this.childInfo[childId].view = vo;
-              vo.data.on('change', this._myChildListenerCallback); // attach child change listener
-              vo.render();
+              vo.data.on('change', this._myChildListenerCallback); // attach child change listener              
               // Note: if the HTML was present, we don't render positions
               _k_reset(k_saved);
               continue _bc_outer;
@@ -100,8 +106,7 @@ var CGroupView = CobjView.extend({
         // Note: putting existing view objects into the childinfo before updateing data.children is the way to add new children that already have a view. This is done in this.attachChild()        
         var newView = (this.childInfo[childId] && this.childInfo[childId].view) || pluginManager.createView(repository.get(childId, this.data.attributes.version), {
           parent: this
-        });
-        newView.render();
+        });        
         if (empty) {
           this.el.appendChild(newView.el);
         } else {
@@ -186,8 +191,16 @@ var CGroupView = CobjView.extend({
    * @returns {Type} Description
    */
   render: function(options) {
-    CobjView.prototype.render.call(this, options);
-    this._buildChildren();
+      options = options || {};
+      
+      CobjView.prototype.render.call(this, options);
+    
+     if (options.forceRender && this.data.attributes.children){
+         var length = this.data.attributes.children.length;
+         
+         for( var i=0; i < length; i++)
+            this.childInfo[this.data.attributes.children[i]].render(options)         
+     } 
   },
   /**
    * Return decendent Views which give a true value when passed to a given

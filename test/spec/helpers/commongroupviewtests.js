@@ -27,7 +27,6 @@ var commonGroupViewTests = function (initFunction) {
 
         it('will add it\'s children DOM element to its own DOM element when the render method is called', function () {
             var view = new ViewType(data);
-            view.render();
             
             var element = view.elWrapper;
             checkChildrenDataNodes(data, element);

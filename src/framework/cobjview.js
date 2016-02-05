@@ -35,7 +35,8 @@ var CobjView = Kern.EventManager.extend({
     });
    
     // Only render the element when it is passed in the options
-    (options.forceRender) && this.render();
+    if (!options.noRender && (options.forceRender || !options.el)) 
+        this.render();
   },
   /**
    * add a new parent view
@@ -55,6 +56,11 @@ var CobjView = Kern.EventManager.extend({
     return this.parent;
   },
   /**
+   * This property keeps track if the view is already rendered. 
+   * If true, the render method will only update the changedAttributes of the data model   * 
+   */ 
+  isRendered:false,
+  /**
    * ##render
    * This method applies all the object attributes to its DOM element `this.$el`.
    * It only updates attributes that have changes (`this.data.changedAttributes`)
@@ -63,9 +69,8 @@ var CobjView = Kern.EventManager.extend({
   render: function(options) {
     options = options || {};
     var attr = this.data.attributes,
-      diff = this.data.changedAttributes || this.data.attributes,
+      diff = (this.isRendererd ? this.data.changedAttributes : this.data.attributes),
       el = this.el;
-
     if ('id' in diff) {
       el.setAttribute("data-wl-id", attr.id); //-> should be a class?
     }
@@ -123,6 +128,8 @@ var CobjView = Kern.EventManager.extend({
         }
       }
     }
+    
+    this.isRendered = true;
   },
 
   /**

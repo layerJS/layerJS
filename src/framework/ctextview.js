@@ -2,6 +2,7 @@
 var CobjView = require('./cobjview.js');
 var CtextData = require('./ctextdata.js');
 var pluginManager = require('./pluginmanager.js');
+var Kern = require('../kern/Kern.js');
 
 /**
  * A View which can render images
@@ -10,21 +11,29 @@ var pluginManager = require('./pluginmanager.js');
  * @extends CobjView
  */
 var CtextView = CobjView.extend({
-  render : function(options){
-      var attr = this.data.attributes,
-          diff = this.data.changedAttributes || this.data.attributes,
-          el = this.el;
+    constructor: function (dataModel, options) {
+        options = options || {};
+        
+        CobjView.call(this, dataModel, Kern.Base.extend({}, options, { noRender: true }));
 
-     CobjView.prototype.render.call(this,options);
+        if (!options.noRender && (options.forceRender || !options.el))
+            this.render();
+    },
+    render: function (options) {
+        var attr = this.data.attributes,
+            diff = this.data.changedAttributes || this.data.attributes,
+            el = this.el;
 
-     if ('content' in diff) {
-       el.innerHTML = attr.content;
-     }
-  }
+        CobjView.prototype.render.call(this, options);
 
-},{
-  Model: CtextData
-});
+        if ('content' in diff) {
+            el.innerHTML = attr.content;
+        }
+    }
+
+}, {
+        Model: CtextData
+    });
 
 pluginManager.registerType('text', CtextView);
 module.exports = CtextView;

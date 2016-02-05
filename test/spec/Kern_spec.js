@@ -552,14 +552,11 @@ describe("ModelRepository", function() {
     expect(model.__listeners__.change.length).toBe(0); // that's interal poking and shouldn't be public interface. If it breaks fix the test.
   });
   it('can contain a lot of models', function(){
-    console.log(Date.now());
     var data={};
     for (var i=0;i<10000;i++){
       data['x'+i]=data3;
     }
-    console.log(Date.now());
     var r = new Kern.ModelRepository(data);
     expect(r.get('x50').attributes.b).toBe(4);
-    console.log(Date.now());
   })
 })

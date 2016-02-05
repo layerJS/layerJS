@@ -33,6 +33,13 @@ var commonViewTests = function (initFunction) {
             var element = view.el;
             expect(element._wlView === view).toBeTruthy();
         });
+        
+        it('when initialized with the noRender option true, the view doesn\'t get rendered', function () {
+            var view = new ViewType(data, { noRender: true});
+             
+            expect(view.el).toBeDefined();
+            expect(view.el.id).toBe('');
+        });
 
         it('can be initialized with an existing element, without re-rendering', function () {
             var element = document.createElement('div');
@@ -45,6 +52,7 @@ var commonViewTests = function (initFunction) {
             expect(view.el.id).not.toBe(data.attributes.id);
         });
 
+       
         it('will not automatic render the DOM element with data from it\'s dataModel', function () {
             var view = new ViewType(data);
             var element = view.el;
@@ -78,7 +86,6 @@ var commonViewTests = function (initFunction) {
 
         it('is styled in a separte stylesheet if a style is defined', function () {
             var view = new ViewType(data);
-            view.render();
 
             var expected = expect(document.getElementById('wl-obj-css').innerHTML);
             if (data.attributes.style) {
@@ -91,7 +98,6 @@ var commonViewTests = function (initFunction) {
 
         it('will add a data-wl-id attribute DOM element', function () {
             var view = new ViewType(data);
-            view.render();
 
             var element = view.el;
             var data_wl_id = element.getAttribute('data-wl-id');
@@ -100,7 +106,6 @@ var commonViewTests = function (initFunction) {
 
         it('will add a default class to the DOM element', function () {
             var view = new ViewType(data);
-            view.render();
 
             var element = view.el;
             var classAttribute = element.getAttribute('class');
@@ -109,7 +114,6 @@ var commonViewTests = function (initFunction) {
 
         it('will add classes that are defined in a data to the DOM element', function () {
             var view = new ViewType(data);
-            view.render();
 
             var element = view.el;
             var classAttribute = element.getAttribute('class');
@@ -118,7 +122,6 @@ var commonViewTests = function (initFunction) {
 
         it('will add classes that are defined in a data to the DOM element', function () {
             var view = new ViewType(data);
-            view.render();
 
             var element = view.el;
             var classAttribute = element.getAttribute('class');
@@ -255,7 +258,6 @@ var commonViewTests = function (initFunction) {
 
         it('will set the href attribute of the anchor DOM element to the link_to attribute of the data model', function () {
             var view = new ViewType(data);
-            view.render();
             var element = view.el;
 
             if (data.attributes.tag.toUpperCase() == 'A') {
@@ -269,7 +271,6 @@ var commonViewTests = function (initFunction) {
 
         it('will set the target attribute of the anchor DOM element to the link_target attribute of the data model', function () {
             var view = new ViewType(data);
-            view.render();
             var element = view.el;
 
             if (data.attributes.tag.toUpperCase() == 'A') {
