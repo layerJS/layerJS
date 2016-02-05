@@ -28,7 +28,7 @@ var commonGroupViewTests = function (initFunction) {
         it('will add it\'s children DOM element to its own DOM element when the render method is called', function () {
             var view = new ViewType(data);
             
-            var element = view.elWrapper;
+            var element = view.el;
             checkChildrenDataNodes(data, element);
             checkChildrenViews(view);
         });
@@ -56,10 +56,10 @@ var commonGroupViewTests = function (initFunction) {
 
         var checkChildrenViews = function (view) {
             if (view.data.attributes.children) {
-                expect(view.elWrapper.childNodes.length).toBe(view.data.attributes.children.length);
+                expect(view.el.childNodes.length).toBe(view.data.attributes.children.length);
 
-                for (var i = 0; i < view.elWrapper.childNodes.length; i++) {
-                    var childNode = view.elWrapper.childNodes[i];
+                for (var i = 0; i < view.el.childNodes.length; i++) {
+                    var childNode = view.el.childNodes[i];
                     var childView = childNode._wlView;
                     expect(childView.parent).toBe(view);
 
@@ -68,8 +68,8 @@ var commonGroupViewTests = function (initFunction) {
             }
             else{
                 //When the data doesn't have children, it's childnodes should have a view attached.
-                for (var index = 0; index < view.elWrapper.childNodes.length; index++) {
-                    var element = view.elWrapper.childNodes[index];
+                for (var index = 0; index < view.el.childNodes.length; index++) {
+                    var element = view.el.childNodes[index];
                     expect(element._wlView).toBeUndefined();
                 }
             }                        
