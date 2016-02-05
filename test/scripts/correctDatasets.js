@@ -10,6 +10,8 @@ var datasetFilenames = [
           ,"test/spec/datasets/simple_layerdata.js"
           ,"test/spec/datasets/simple_stagedata.js"
           ,"test/spec/datasets/test_data_set.js"
+          ,"test/spec/datasets/anchor_cobjdata.js"
+          ,"test/spec/datasets/anchor_cgroupdata.js"
 ];
 
 var fileSave = require('file-save');
