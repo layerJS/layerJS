@@ -37,8 +37,16 @@ describe('(basis view tests)', function(){
       el: element
     });
     expect(view.el).toBe(element);
-    expect(view.el.id).toBe('1000');
+    expect(view.el.id).not.toBe(data.attributes.id);
   });
+  
+  it('will not automatic render the DOM element with data from it\'s dataModel', function(){
+    var view = new ViewType(data);
+    var element = view.el;
+    
+    expect(element.id).not.toBe(data.attributes.id);    
+  });  
+      
 
   it('can be initialized with an existing element, forcing re-rendering', function() {
     var element = document.createElement('div');
@@ -65,6 +73,7 @@ describe('(basis view tests)', function(){
 
   it('is styled in a separte stylesheet if a style is defined', function(){
     var view = new ViewType(data);
+    view.render();
 
     var expected = expect(document.getElementById('wl-obj-css').innerHTML);
     if (data.attributes.style){
@@ -77,6 +86,8 @@ describe('(basis view tests)', function(){
 
   it('will add a data-wl-id attribute DOM element', function(){
     var view = new ViewType(data);
+    view.render();
+    
     var element = view.el;
     var data_wl_id = element.getAttribute('data-wl-id');
     expect(data_wl_id).toBe(data.attributes.id.toString());
@@ -84,6 +95,8 @@ describe('(basis view tests)', function(){
 
   it('will add a default class to the DOM element', function(){
     var view = new ViewType(data);
+    view.render();
+    
     var element = view.el;
     var classAttribute = element.getAttribute('class');
     expect(classAttribute).toContain('object-default object-' + data.attributes.type);
@@ -91,6 +104,8 @@ describe('(basis view tests)', function(){
 
   it('will add classes that are defined in a data to the DOM element', function(){
     var view = new ViewType(data);
+    view.render();
+    
     var element = view.el;
     var classAttribute = element.getAttribute('class');
     expect(classAttribute).toContain(data.attributes.classes);
@@ -98,6 +113,8 @@ describe('(basis view tests)', function(){
 
   it('will add classes that are defined in a data to the DOM element', function(){
     var view = new ViewType(data);
+    view.render();
+    
     var element = view.el;
     var classAttribute = element.getAttribute('class');
     expect(classAttribute).toContain(data.attributes.classes);
@@ -106,6 +123,7 @@ describe('(basis view tests)', function(){
   it('will put the x property as the left property of the style of the DOM element when renderPosition is called', function(){
     var view = new ViewType(data);
     view.renderPosition();
+    
     var element = view.el;
     var style = element.style;
 

@@ -40,8 +40,8 @@ var CobjView = Kern.EventManager.extend({
     this.data.on('change:link_target', function() {
       that.renderLink();
     });
-    // render the element the first time. Don't render if HTML Element already existed.
-    (options.forceRender || !options.el) && this.render();
+    // Only render the element when it is passed in the options
+    (options.forceRender) && this.render();
   },
   /**
    * add a new parent view

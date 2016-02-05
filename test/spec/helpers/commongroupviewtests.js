@@ -13,27 +13,22 @@ var commonGroupViewTests = function (initFunction) {
             ViewType = init.ViewType;
             repository.clear();
             repository.importJSON(init.data, defaults.version);
-            data = repository.get(init.parentId, defaults.version);
+            data = repository.get(init.parentId, defaults.version);            
 
             document = global.document = jsdom("<html><head><style id='wl-obj-css'></style></head><body></body></html>");
             window = global.window = document.defaultView;
             $ = document.querySelector;
         });
-
-        beforeEach(function () {
-            var init = initFunction();
-            ViewType = init.ViewType;
-            repository.clear();
-            repository.importJSON(init.data, defaults.version);
-            data = repository.get(init.parentId, defaults.version);
-        });
+     
 
         afterEach(function () {
             repository.clear();
         });
 
-        it('will add it\'s children DOM element to its own DOM element', function () {
+        it('will add it\'s children DOM element to its own DOM element when the render method is called', function () {
             var view = new ViewType(data);
+            view.render();
+            
             var element = view.elWrapper;
             checkChildrenDataNodes(data, element);
             checkChildrenViews(view);
@@ -46,7 +41,7 @@ var commonGroupViewTests = function (initFunction) {
 
                 for (var i = 0; i < element.childNodes.length; i++) {
                     var childNode = element.childNodes[i];
-                    var childObj = repository.get(parseInt(childNode.id), defaults.version);
+                    var childObj = repository.get(childNode.id, defaults.version);
                     expect(dataObj.attributes.children).toContain(childObj.attributes.id);
                     expect(childNode._wlView).toBeDefined();
                     expect(childNode._wlView.data).toBe(childObj);

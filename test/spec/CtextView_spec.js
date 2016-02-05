@@ -30,7 +30,8 @@ describe("CtextView", function() {
 
   it('will put the text attribute in the innerHTML the DOM element', function() {
     var data = pluginManager.createModel(datasetReader.readFromFile('simple_ctextdata.js')[0]);
-    var view = new CtextView(data);
+    var view = new CtextView(data);    
+    view.render();    
     var element = view.el;
 
     expect(element.innerHTML).toBe(data.attributes.content);

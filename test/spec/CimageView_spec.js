@@ -32,6 +32,8 @@ describe("CimageView", function() {
   it('will set the src attribute of the DOM element', function() {
     var data = pluginManager.createModel(datasetReader.readFromFile('simple_cimagedata.js')[0]);
     var view = new CimageView(data);
+    view.render();
+    
     var element = view.el;
 
     expect(element.getAttribute('src')).toBe( WL.imagePath + data.attributes.src);
@@ -40,6 +42,8 @@ describe("CimageView", function() {
   it('will set the alt attribute of the DOM element', function() {
     var data = pluginManager.createModel(datasetReader.readFromFile('simple_cimagedata.js')[0]);
     var view = new CimageView(data);
+    view.render();
+    
     var element = view.el;
 
     expect(element.getAttribute('alt')).toBe(data.attributes.alt);
