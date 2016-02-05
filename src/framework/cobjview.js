@@ -19,13 +19,13 @@ var CobjView = Kern.EventManager.extend({
     this.data = dataModel;
     // parent if defined
     this.parent = options.parent;
-    // DOM element
-    this.el = options.el || document.createElement(this.data.attributes.tag);
+    // DOM element, take either the one provide by a sub constructor, provided in options, or create new
+    this.el = this.el || options.el || document.createElement(this.data.attributes.tag);
     // backlink from DOM to object
     if (this.el._wlView) throw "trying to initialialize view on element that already has a view";
     this.el._wlView = this;
     // possible wrapper element
-    this.elWrapper = options.elWrapper || this.el;
+    this.elWrapper = this.elWrapper || options.elWrapper || this.el;
     this.elWrapper._wlView = this;
     this.renderLink();
 
@@ -58,7 +58,7 @@ var CobjView = Kern.EventManager.extend({
    *
    * @returns {CobjView} parent
    */
-  getParent: function(){
+  getParent: function() {
     return this.parent;
   },
   /**

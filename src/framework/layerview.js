@@ -1,4 +1,5 @@
 'use strict';
+var $ = require('./domhelpers.js');
 var pluginManager = require('./pluginmanager.js');
 var layoutManager = require('./layoutmanager.js');
 var LayerData = require('./layerdata.js');
@@ -13,11 +14,31 @@ var CGroupView = require('./cgroupview.js');
 
 var LayerView = CGroupView.extend({
   constructor: function(dataModel, options) {
+    options = options || {};
     this.frames = {};
     this.layout = new(layoutManager.get(dataModel.attributes.layoutType))(this);
+    // we need to create the divs here instead of in the cobjview constructor
+    this.elWrapper = options.el || document.createElement(dataModel.attributes.tag || 'div');
+    // do we already have a scroller div?
+    var hasScroller = this.elWrapper.childNodes.length == 1 && this.elWrapper.childNodes[0].getAttributes('data-wl-helper') == 'scroller';
+    this.el = this.elWrapper;
+    // should we not have a scroller?
+    if (hasScroller && !dataModel.attributes.nativeScroll) $.unwrapChildren(this.elWrapper);
+    // should we have a scroller but don't have one?
+    if (!hasScroller && dataModel.attributes.nativeScroll) {
+      // set el to scroller
+      this.el = $.wrapChildren(this.elWrapper);
+      hasScroller = true;
+    }
+    // mark scroller as scroller in HTML
+    this.el.setAttribute('data-wl-helper', 'scroller');
+    // call super constructor
     CGroupView.call(this, dataModel, options);
+    // this is my stage
     this.stage = this.parent;
+    // set current frame from data object or take first child
     this.currentFrame = (this.data.attributes.defaultFrame && this.findChildView(this.data.attributes.defaultFrame)) ||  (this.data.attributes.children[0] && this.getChildView(this.data.attributes.children[0]));
+
   },
   /**
    * transform to a given frame in this layer with given transition
