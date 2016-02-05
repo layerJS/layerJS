@@ -26,7 +26,6 @@ var CobjView = Kern.EventManager.extend({
     // possible wrapper element
     this.elWrapper = options.elWrapper || this.el;
     this.elWrapper._wlView = this;
-    this.renderLink();
 
     var that = this;
     // The change event must change the properties of the HTMLElement el.
@@ -34,12 +33,7 @@ var CobjView = Kern.EventManager.extend({
       //that._renderPosition();
       that.render();
     });
-    this.data.on('change:link_to', function() {
-      that.renderLink();
-    });
-    this.data.on('change:link_target', function() {
-      that.renderLink();
-    });
+   
     // Only render the element when it is passed in the options
     (options.forceRender) && this.render();
   },
@@ -87,6 +81,18 @@ var CobjView = Kern.EventManager.extend({
       // this.ontop && (classes += ' object-ontop');
       attr.classes && (classes += ' ' + attr.classes);
       this.el.className = classes;
+    }
+    
+    // When the object is an anchor, set the necessary attributes
+    if (this.data.attributes.tag.toUpperCase() == 'A'){  
+        if ('link_to' in diff)        
+            el.setAttribute('href', this.data.attributes.link_to);
+            
+        if (!this.data.attributes.link_target)
+            this.data.attributes.link_target = '_self';
+            
+        if ('link_target' in diff)
+            el.setAttribute('target', this.data.attributes.link_target);
     }
 
     // create object css style
@@ -140,58 +146,7 @@ var CobjView = Kern.EventManager.extend({
     'height' in diff && attr.height !== undefined && (css.height = attr.height + 'px');
 
     Kern._extend(el.style, css);
-  },
-
-  /**
-   * ##_renderLink
-   * Render hyperlinks seperate from the rest of the `_render` function.
-   * Why? The `_render` function is triggered on the `change` event while
-   * most `plugin` render function are triggered on `change:attr` which is
-   * triggered before the `change` event, and on long computation time this
-   * might cause a delay between rendering of the link and the object which
-   * the link wraps, which causes confusion. Therefor this function is triggered
-   * on `change:link_to`!
-   */
-  renderLink: function() {
-    // Deal with hyperlinks.
-    // there was a heisenbug in Safari that sometimes deleted the wraping link while being detached.
-    // this might have been due to garbage collection as the wrapping link was not referenced anymore
-    // we try to keep a reference to that element here (this.elWrapper)
-
-    var attr = this.data.attributes;
-
-    if (attr.link_to) {
-      var anchor;
-
-      if (this.elWrapper.tagName === 'A') {
-        anchor = this.elWrapper;
-      }
-      // not yet wrapped ?
-      else {
-        var parentElement = this.el.parentNode;
-
-        anchor = document.createElement('A');
-
-        anchor.appendChild(this.elWrapper);
-        this.elWrapper = anchor;
-
-        if (parentElement) {
-          parentElement.appendChild(anchor);
-        }
-      }
-
-      anchor.href = attr.link_to;
-
-      // set link target
-      anchor.target = attr.link_target ? attr.link_target : '_self';
-      // console.log("attaching link to object "+this.id);
-    } else if (this.elWrapper.tagName === 'A') { // wrapped -> unwrap
-      this.elWrapper.parentNode.appendChild(this.el);
-      delete this.elWrapper;
-      this.elWrapper = this.el;
-      // console.log("unattaching link from object "+this.id);
-    }
-  },
+  },  
   /**
    * returns the width of the object. Note, this is the actual width which may be different then in the data object
    *

@@ -21,6 +21,13 @@ describe("CobjView", function() {
         ViewType : CobjView
     };
   });
+  
+   CommonViewTests(function() {
+    return {
+        data: datasetReader.readFromFile('anchor_cobjdata.js')[0],
+        ViewType : CobjView
+    };
+  });
 
   it('can be created', function() {
     var cv = new CobjView(new CobjData);
