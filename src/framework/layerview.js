@@ -34,8 +34,12 @@ var LayerView = CGroupView.extend({
     this.el.setAttribute('data-wl-helper', 'scroller');
     // call super constructor
     CGroupView.call(this, dataModel, options);
-    // this is my stage
+    // this is my stage and add listener to keep it updated
     this.stage = this.parent;
+    this.on('parent', (function() {
+      this.stage = this.parent
+      // FIXME trigger adaption to new stage
+    }).bind(this));
     // set current frame from data object or take first child
     this.currentFrame = (this.data.attributes.defaultFrame && this.findChildView(this.data.attributes.defaultFrame)) ||  (this.data.attributes.children[0] && this.getChildView(this.data.attributes.children[0]));
 

@@ -52,6 +52,8 @@ var CobjView = Kern.EventManager.extend({
    */
   setParent: function(parent) {
     this.parent = parent;
+    // notify listeners.
+    this.trigger('parent',parent);
   },
   /**
    * return the parent view of this view
