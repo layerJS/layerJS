@@ -260,7 +260,7 @@ var commonViewTests = function (initFunction) {
 
             if (data.attributes.tag.toUpperCase() == 'A') {
                 expect(element.hasAttribute('href')).toBeTruthy();
-                expect(element.getAttribute('href')).toBe(data.attributes.link_to ? data.attributes.link_to : '');
+                expect(element.getAttribute('href')).toBe(data.attributes.linkTo ? data.attributes.linkTo : '');
             }
             else {
                 expect(element.hasAttribute('href')).toBeFalsy();
@@ -274,7 +274,7 @@ var commonViewTests = function (initFunction) {
 
             if (data.attributes.tag.toUpperCase() == 'A') {
                 expect(element.hasAttribute('target')).toBeTruthy();
-                expect(element.getAttribute('target')).toBe(data.attributes.link_target ? data.attributes.link_target : '_self');
+                expect(element.getAttribute('target')).toBe(data.attributes.linkTarget ? data.attributes.linkTarget : '_self');
             }
             else {
                 expect(element.hasAttribute('target')).toBeFalsy();

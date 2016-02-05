@@ -39,6 +39,18 @@ for (var x = 0; x < datasetFilenames.length; x++) {
 
         delete object.scale;
       }
+      
+      if (object.link_to != undefined)
+      {
+        object.linkTo = object.link_to;
+        delete object.link_to;
+      }
+      
+      if (object.link_target != undefined)
+      {
+        object.linkTarget = object.link_target;
+        delete object.link_target;
+      }
     }
 
     fileSave(datasetFileName)

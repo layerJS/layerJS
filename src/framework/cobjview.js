@@ -85,14 +85,14 @@ var CobjView = Kern.EventManager.extend({
     
     // When the object is an anchor, set the necessary attributes
     if (this.data.attributes.tag.toUpperCase() == 'A'){  
-        if ('link_to' in diff)        
-            el.setAttribute('href', this.data.attributes.link_to);
+        if ('linkTo' in diff)        
+            el.setAttribute('href', this.data.attributes.linkTo);
             
-        if (!this.data.attributes.link_target)
-            this.data.attributes.link_target = '_self';
+        if (!this.data.attributes.linkTarget)
+            this.data.attributes.linkTarget = '_self';
             
-        if ('link_target' in diff)
-            el.setAttribute('target', this.data.attributes.link_target);
+        if ('linkTarget' in diff)
+            el.setAttribute('target', this.data.attributes.linkTarget);
     }
 
     // create object css style
