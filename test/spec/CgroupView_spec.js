@@ -7,15 +7,8 @@ var CommonGroupViewTests = require('./helpers/commongroupviewtests.js');
 var DatasetReader = require('./helpers/datasetreader.js');
 
 describe("CGroupView", function() {
-  var document, window,$;
 
   var datasetReader = new DatasetReader();
-
-  beforeEach(function() {
-     document = global.document = jsdom("<html><head><style id='wl-obj-css'></style></head><body></body></html>");
-     window = global.window = document.defaultView;
-     $ = document.querySelector;
-  });
 
   CommonViewTests(function() {
     return {
@@ -30,5 +23,6 @@ describe("CGroupView", function() {
         ViewType : CGroupView,
         parentId : 110530
     };
-  });
-})
+  });  
+  
+});

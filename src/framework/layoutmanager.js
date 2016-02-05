@@ -13,7 +13,7 @@ var LayoutManager = Kern.EventManager.extend({
    */
   constructor: function(map) {
     Kern.EventManager.call(this);
-    this.map = map ||  {}; // maps cobjdata types to View constructors
+    this.map = map || {}; // maps cobjdata types to View constructors
   },
   /**
    * register a new layout function

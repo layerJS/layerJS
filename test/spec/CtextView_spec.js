@@ -5,7 +5,7 @@ var CtextData = require('../../src/framework/ctextdata.js');
 var CtextView = require('../../src/framework/ctextview.js');
 var pluginManager = require('../../src/framework/pluginmanager.js');
 
-describe("CimageView", function() {
+describe("CtextView", function() {
 
   var datasetReader= new DatasetReader();
   var document, window,$;
@@ -30,9 +30,10 @@ describe("CimageView", function() {
 
   it('will put the text attribute in the innerHTML the DOM element', function() {
     var data = pluginManager.createModel(datasetReader.readFromFile('simple_ctextdata.js')[0]);
-    var view = new CtextView(data);
+    var view = new CtextView(data);    
+    view.render();    
     var element = view.el;
 
-    expect(element.innerHTML).toBe(data.attributes.text ? data.attributes.text : '' );
+    expect(element.innerHTML).toBe(data.attributes.content);
   });
 });

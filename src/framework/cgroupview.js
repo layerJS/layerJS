@@ -27,13 +27,10 @@ var CGroupView = CobjView.extend({
       that._renderChildPosition(that.childInfo[model.attributes.id].view);
     }
 
-
-
     CobjView.call(this, dataModel, options);
     this.data.on('change:children', (function() {
       that._buildChildren(); // update DOM when data.children changes
-    }).bind(this));
-    this._buildChildren(); // build (or fix) DOM
+    }).bind(this));   
   },
   /**
    * Syncronise the DOM child nodes with the data IDs in the data's
@@ -45,6 +42,8 @@ var CGroupView = CobjView.extend({
    * object (i.e. no data-wl-id property); leaves them where they are.
    */
   _buildChildren: function() {
+      
+     
     var that = this;
     var empty;
     var childIds = this.data.attributes.children;
@@ -76,7 +75,7 @@ var CGroupView = CobjView.extend({
                 vo = pluginManager.createView(repository.get(childId, this.data.attributes.version), {
                   el: this.el.childNodes[k_saved],
                   parent: this
-                });
+                });               
               } else { // or get existing view
                 vo = this.el.childNodes[k_saved]._wlView;
               }
@@ -85,9 +84,10 @@ var CGroupView = CobjView.extend({
                 throw "duplicate child id " + childId + " in group " + this.data.attributes.id + ".";
               }
               // create childInfo which indicates which view we have for each id. This is also used for checking whether we registered a change callback already.
-              this.childInfo[childId] = this.childInfo[childId] ||  {};
+              this.childInfo[childId] = this.childInfo[childId] || {};
               this.childInfo[childId].view = vo;
               vo.data.on('change', this._myChildListenerCallback); // attach child change listener
+              vo.render();
               // Note: if the HTML was present, we don't render positions
               _k_reset(k_saved);
               continue _bc_outer;
@@ -98,10 +98,10 @@ var CGroupView = CobjView.extend({
         }
         // check if we have already a new view object in childInfo that has to be added, OR create a new View object for the data object child that was not yet existing in the view's children list
         // Note: putting existing view objects into the childInfo before updateing data.children is the way to add new children that already have a view. This is done in this.attachChild()
-
         var newView = (this.childInfo[childId] && this.childInfo[childId].view) ||  pluginManager.createView(repository.get(childId, this.data.attributes.version), {
           parent: this
         });
+        newView.render();
         if (empty) {
           this.el.appendChild(newView.el);
         } else {
@@ -193,8 +193,8 @@ var CGroupView = CobjView.extend({
     var css = {};
     'x' in diff && attr.x !== undefined && (css.left = attr.x);
     'y' in diff && attr.y !== undefined && (css.top = attr.y);
-    ('x' in diff ||  'y' in diff) && (css.position = (attr.x !== undefined ||  attr.y !== undefined ? "absolute" : "static"));
-    ('scaleX' in diff || 'scaleY' in  diff || 'rotation' in  diff) && (css.transform = "scale(" + attr.scaleX + "," + attr.scaleY + ")" + (attr.rotation ? " rotate(" + Math.round(attr.rotation) + "deg)" : ""));
+    ('x' in diff || 'y' in diff) && (css.position = (attr.x !== undefined || attr.y !== undefined ? "absolute" : "static"));
+    ('scaleX' in diff || 'scaleY' in diff || 'rotation' in diff) && (css.transform = "scale(" + attr.scaleX + "," + attr.scaleY + ")" + (attr.rotation ? " rotate(" + Math.round(attr.rotation) + "deg)" : ""));
     'zIndex' in diff && attr.zIndex !== undefined && (css.zIndex = attr.zIndex);
     'hidden' in diff && (css.display = attr.hidden ? 'none' : '');
     'width' in diff && attr.width !== undefined && (css.width = attr.width);

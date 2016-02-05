@@ -2,6 +2,7 @@
 var CobjView = require('./cobjview.js');
 var CimageData = require('./cimagedata.js');
 var pluginManager = require('./pluginmanager.js');
+var WL = require('./wl.js');
 
 /**
  * A View which can render images
@@ -18,7 +19,7 @@ var CimageView = CobjView.extend({
      CobjView.prototype.render.call(this,options);
 
      if ('src' in diff) {
-       el.setAttribute("src", attr.src);
+       el.setAttribute("src", WL.imagePath + attr.src);
      }
 
      if ('alt' in diff) {

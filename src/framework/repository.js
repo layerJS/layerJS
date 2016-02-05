@@ -63,7 +63,7 @@ var Repository = Kern.EventManager.extend({
    * @returns {CobjData} the model
    */
   get: function(id, version) {
-    version = version ||  defaults.version;
+    version = version || defaults.version;
     if (!this.versions[version]) throw "version not available"; // FIXME: need to fetch new versions at some point
     return this.versions[version].get(id);
   },

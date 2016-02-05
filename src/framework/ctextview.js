@@ -17,8 +17,8 @@ var CtextView = CobjView.extend({
 
      CobjView.prototype.render.call(this,options);
 
-     if ('text' in diff) {
-       el.innerHTML = attr.text;
+     if ('content' in diff) {
+       el.innerHTML = attr.content;
      }
   }
 

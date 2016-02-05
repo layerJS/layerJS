@@ -8,7 +8,8 @@
     "jasmine": "latest",
     "rimraf": "latest",
     "jsdom": "latest",
-    "mkdirp": "latest"
+    "mkdirp": "latest",
+    "file-save" : "latest"
   },
   "scripts": {
     "clean": "rimraf dist/*",
@@ -17,6 +18,8 @@
     "build": "npm run build:scripts -s",
     "build:scripts": "mkdirp dist && browserify -e src/main.js -o dist/main.js",
 
-    "test": "jasmine JASMINE_CONFIG_PATH=./test/spec/support/jasmine.json"
+    "test": "jasmine JASMINE_CONFIG_PATH=./test/spec/support/jasmine.json",
+
+    "correctDatasets" : "node ./test/scripts/correctDatasets.js"
   }
 }
