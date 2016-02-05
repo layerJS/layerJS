@@ -30,7 +30,8 @@ var CGroupView = CobjView.extend({
     CobjView.call(this, dataModel, options);
     this.data.on('change:children', (function() {
       that._buildChildren(); // update DOM when data.children changes
-    }).bind(this));   
+    }).bind(this));
+    this._buildChildren();
   },
   /**
    * Syncronise the DOM child nodes with the data IDs in the data's
@@ -42,8 +43,8 @@ var CGroupView = CobjView.extend({
    * object (i.e. no data-wl-id property); leaves them where they are.
    */
   _buildChildren: function() {
-      
-     
+
+
     var that = this;
     var empty;
     var childIds = this.data.attributes.children;
@@ -75,7 +76,7 @@ var CGroupView = CobjView.extend({
                 vo = pluginManager.createView(repository.get(childId, this.data.attributes.version), {
                   el: this.el.childNodes[k_saved],
                   parent: this
-                });               
+                });
               } else { // or get existing view
                 vo = this.el.childNodes[k_saved]._wlView;
               }
@@ -131,6 +132,7 @@ var CGroupView = CobjView.extend({
    * @returns {CobjView} the view object
    */
   getChildView: function(childId) {
+    if (!this.childInfo.hasOwnProperty(childId)) throw "unknown child "+childId+" in group "+this.data.attributes.id;
     return this.childInfo[childId].view;
   },
   /**
@@ -142,6 +144,7 @@ var CGroupView = CobjView.extend({
   findChildView: function(name) {
     for (var i = 0; i < this.data.attributes.children.length; i++) {
       var childId = this.data.attributes.children[i];
+      if (!this.childInfo.hasOwnProperty(childId)) throw "view for child"+childId+" missing in group "+this.data.attributes.id;
       if (childInfo[childId].view.data.attributes.name === name) {
         return childInfo[childId].view;
       }
