@@ -38,7 +38,7 @@ var LayerView = CGroupView.extend({
     this.stage = this.parent;
     this.on('parent', (function() {
       this.stage = this.parent
-      // FIXME trigger adaption to new stage
+        // FIXME trigger adaption to new stage
     }).bind(this));
     // set current frame from data object or take first child
     this.currentFrame = (this.data.attributes.defaultFrame && this.findChildView(this.data.attributes.defaultFrame)) ||  (this.data.attributes.children[0] && this.getChildView(this.data.attributes.children[0]));
@@ -63,11 +63,18 @@ var LayerView = CGroupView.extend({
     var frame = this.frames[framename];
     if (!frame) throw "transformTo: " + framename + " does not exist in layer";
     var transformData = frame.getTransformData(this.stage, transition);
-    var shift = { // this will be non-zero if we have to switch scroll position in native scrolling
-      x: 0,
-      y: 0
+    // calculate additional shift resulting from the current native scroll.
+    var shift = {};
+    if (this.data.attributes.nativeScroll) {
+      shift.x = (transformData.scrollX || 0) - this.elWrapper.scrollLeft;
+      shift.x = (transformData.scrollY || 0) - this.elWrapper.scrollTop;
+      transformData.scrollX = 0; // should we save that somewhere? can scrollTop/LEft change during transition? probably.
+      transformData.scrollY = 0;
+      // shoud we remove maxScroll* ?
     }
-    this.layout.transitionTo(frame, shift, transition);
+    this.layout.transitionTo(frame, shift, transition, function() {
+      // no that the transform finished we have to update the shift (transform ) and the scrollTop/Left and update length when native scrolling
+    });
   }
 }, {
   Model: LayerData
