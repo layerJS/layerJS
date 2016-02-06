@@ -18,7 +18,7 @@ describe("LayerView", function() {
     });
   */
   
-  CommonGroupViewTests(function() {
+  CommonGroupViewTests('simple_layerdata.js', function() {
     return {
       data: datasetReader.readFromFile('simple_layerdata.js'),
       ViewType: LayerView,
@@ -26,7 +26,7 @@ describe("LayerView", function() {
     };
   });  
   
-  CommonGroupViewTests(function() {   
+  CommonGroupViewTests('test_data_set.js', function() {   
      return {
       data: datasetReader.readFromFile('test_data_set.js'),
       ViewType: LayerView,

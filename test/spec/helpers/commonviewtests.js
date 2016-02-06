@@ -1,9 +1,9 @@
 var pluginManager = require('../../../src/framework/pluginmanager.js');
 var jsdom = require('jsdom').jsdom;
 
-var commonViewTests = function (initFunction) {
+var commonViewTests = function (scenario, initFunction) {
 
-    describe('(basis view tests)', function () {
+    describe('(basis view tests) ' + scenario, function () {
 
         var document, window, $;
         var data, ViewType;

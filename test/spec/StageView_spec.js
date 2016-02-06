@@ -21,7 +21,7 @@ describe("StageView", function() {
   });
 */
 
-CommonGroupViewTests(function() {
+CommonGroupViewTests('simple_stagedata.js',function() {
   return {
       data: datasetReader.readFromFile('simple_stagedata.js'),
       ViewType : StageView,
@@ -29,7 +29,7 @@ CommonGroupViewTests(function() {
   };
 });
 
-CommonGroupViewTests(function() {
+CommonGroupViewTests('test_data_set.js', function() {
   return {
       data: datasetReader.readFromFile('test_data_set.js'),
       ViewType : StageView,

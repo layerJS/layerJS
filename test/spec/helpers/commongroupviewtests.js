@@ -2,8 +2,8 @@ var repository = require('../../../src/framework/repository.js');
 var defaults = require('../../../src/framework/defaults.js');
 var jsdom = require('jsdom').jsdom;
 
-var commonGroupViewTests = function (initFunction) {
-    describe('(base tests for views that have children)', function () {
+var commonGroupViewTests = function (scenario, initFunction) {
+    describe('(base tests for views that have children) ' + scenario, function () {
 
         var document, window, $;
         var ViewType, data;

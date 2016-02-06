@@ -10,21 +10,21 @@ describe("CGroupView", function() {
 
   var datasetReader = new DatasetReader();
 
-  CommonViewTests(function() {
+  CommonViewTests('simple_cgroupdata.js',function() {
     return {
         data: datasetReader.readFromFile('simple_cgroupdata.js')[0],
         ViewType : CGroupView
     };
   });
   
-  CommonViewTests(function() {
+  CommonViewTests('anchor_cgroupdata.js',function() {
     return {
         data: datasetReader.readFromFile('anchor_cgroupdata.js')[0],
         ViewType : CGroupView
     };
   });
 
-  CommonGroupViewTests(function() {
+  CommonGroupViewTests('cgroupdata_with_cobjdata.js',function() {
     return {
         data: datasetReader.readFromFile('cgroupdata_with_cobjdata.js'),
         ViewType : CGroupView,
