@@ -1,4 +1,4 @@
-var jsdom = require("jsdom").jsdom;;
+var jsdom = require("jsdom").jsdom;
 var pluginmanager = require('../../src/framework/pluginmanager.js');
 var CobjView = require('../../src/framework/cobjview.js');
 var CobjData = require('../../src/framework/cobjdata.js');

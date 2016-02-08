@@ -12,32 +12,44 @@ var WL = require('./wl.js');
  * @extends CobjView
  */
 var CimageView = CobjView.extend({
-    constructor: function (dataModel, options) {
-        options = options || {};
-        CobjView.call(this, dataModel, Kern.Base.extend({}, options, { noRender: true }));
+  constructor: function (dataModel, options) {
+    options = options || {};
+    CobjView.call(this, dataModel, Kern.Base.extend({}, options, { noRender: true }));
 
-        if (!options.noRender && (options.forceRender || !options.el))
-            this.render();
-    },
-    render: function (options) {
-        var attr = this.data.attributes,
-            diff = this.data.changedAttributes || this.data.attributes,
-            el = this.el;
+    if (!options.noRender && (options.forceRender || !options.el))
+      this.render();
+  },
+  render: function (options) {
+    var attr = this.data.attributes,
+      diff = this.data.changedAttributes || this.data.attributes,
+      el = this.el;
 
-        CobjView.prototype.render.call(this, options);
+    CobjView.prototype.render.call(this, options);
 
-        if ('src' in diff) {
-            el.setAttribute("src", WL.imagePath + attr.src);
-        }
-
-        if ('alt' in diff) {
-            el.setAttribute("alt", attr.alt);
-        }
+    if ('src' in diff) {
+      el.setAttribute("src", WL.imagePath + attr.src);
     }
 
+    if ('alt' in diff) {
+      el.setAttribute("alt", attr.alt);
+    }
+  }
+
 }, {
-        Model: CimageData
-    });
+    Model: CimageData,
+    Parse: function (element) {
+      var data = CobjView.Parse(element);
+
+      var src = element.getAttribute('src');
+      var alt = element.getAttribute('alt');
+
+      data.src = src ? src.replace(WL.imagePath, '') : undefined;
+      data.alt = alt ? alt : undefined;
+      
+      return data;
+    }
+  });
+
 
 pluginManager.registerType('image', CimageView);
 module.exports = CimageView;

@@ -249,7 +249,10 @@ var CGroupView = CobjView.extend({
   },
 
 }, {
-  Model: CGroupData
+  Model: CGroupData,
+  Parse : CobjView.Parse
 });
+
+
 pluginManager.registerType("group", CGroupView);
 module.exports = CGroupView;

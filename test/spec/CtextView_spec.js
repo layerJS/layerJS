@@ -36,4 +36,13 @@ describe("CtextView", function() {
 
     expect(element.innerHTML).toBe(data.attributes.content);
   });
+  
+  it('the Parse method will add an content property to the data object', function() {
+    var element = document.createElement('div');
+    element.innerHTML = 'some content';
+    
+    var dataObject = CtextView.Parse(element);
+
+    expect(dataObject.content).toBe('some content');
+  });
 });

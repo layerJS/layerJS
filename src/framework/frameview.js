@@ -17,7 +17,8 @@ var FrameView = CGroupView.extend({ constructor: function (dataModel, options) {
             this.render();
     },
 }, {
-  Model: FrameData
+  Model: FrameData,
+  Parse: CGroupView.Parse
 });
 
 pluginManager.registerType('frame', FrameView);

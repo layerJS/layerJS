@@ -11,29 +11,36 @@ var Kern = require('../kern/Kern.js');
  * @extends CobjView
  */
 var CtextView = CobjView.extend({
-    constructor: function (dataModel, options) {
-        options = options || {};
-        
-        CobjView.call(this, dataModel, Kern.Base.extend({}, options, { noRender: true }));
+  constructor: function (dataModel, options) {
+    options = options || {};
 
-        if (!options.noRender && (options.forceRender || !options.el))
-            this.render();
-    },
-    render: function (options) {
-        var attr = this.data.attributes,
-            diff = this.data.changedAttributes || this.data.attributes,
-            el = this.el;
+    CobjView.call(this, dataModel, Kern.Base.extend({}, options, { noRender: true }));
 
-        CobjView.prototype.render.call(this, options);
+    if (!options.noRender && (options.forceRender || !options.el))
+      this.render();
+  },
+  render: function (options) {
+    var attr = this.data.attributes,
+      diff = this.data.changedAttributes || this.data.attributes,
+      el = this.el;
 
-        if ('content' in diff) {
-            el.innerHTML = attr.content;
-        }
+    CobjView.prototype.render.call(this, options);
+
+    if ('content' in diff) {
+      el.innerHTML = attr.content;
     }
+  }
 
 }, {
-        Model: CtextData
-    });
+    Model: CtextData,
+    Parse: function (element) {
+      var data = CobjView.Parse(element);
+      data.content = element.innerHTML;
+      
+      return data;
+    }
+  });
+
 
 pluginManager.registerType('text', CtextView);
 module.exports = CtextView;

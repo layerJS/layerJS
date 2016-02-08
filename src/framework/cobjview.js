@@ -11,7 +11,7 @@ var CobjData = require('./cobjdata.js');
  * @param {Object} options {data: json for creating a new data object; el: (optional) HTMLelement already exisitng; elWrapper: (optional) link wrapper existing; root: true if that is the root object}
  */
 var CobjView = Kern.EventManager.extend({
-  constructor: function(dataModel, options) {
+  constructor: function (dataModel, options) {
     options = options || {};
     // dataobject must exist
     if (!dataModel) throw "data object mus exist when creating a view";
@@ -29,14 +29,14 @@ var CobjView = Kern.EventManager.extend({
 
     var that = this;
     // The change event must change the properties of the HTMLElement el.
-    this.data.on('change', function() {
+    this.data.on('change', function () {
       //that._renderPosition();
       that.render();
     });
    
     // Only render the element when it is passed in the options
-    if (!options.noRender && (options.forceRender || !options.el)) 
-        this.render();
+    if (!options.noRender && (options.forceRender || !options.el))
+      this.render();
   },
   /**
    * add a new parent view
@@ -44,7 +44,7 @@ var CobjView = Kern.EventManager.extend({
    * @param {CobjView} parent - the parent of this view
    * @returns {Type} Description
    */
-  setParent: function(parent) {
+  setParent: function (parent) {
     this.parent = parent;
   },
   /**
@@ -52,27 +52,31 @@ var CobjView = Kern.EventManager.extend({
    *
    * @returns {CobjView} parent
    */
-  getParent: function(){
+  getParent: function () {
     return this.parent;
   },
   /**
    * This property keeps track if the view is already rendered. 
    * If true, the render method will only update the changedAttributes of the data model   * 
-   */ 
-  isRendered:false,
+   */
+  isRendered: false,
   /**
    * ##render
    * This method applies all the object attributes to its DOM element `this.$el`.
    * It only updates attributes that have changes (`this.data.changedAttributes`)
    * @return {void}
    */
-  render: function(options) {
+  render: function (options) {
     options = options || {};
     var attr = this.data.attributes,
       diff = (this.isRendererd ? this.data.changedAttributes : this.data.attributes),
       el = this.el;
     if ('id' in diff) {
       el.setAttribute("data-wl-id", attr.id); //-> should be a class?
+    }
+
+    if ('type' in diff) {
+      el.setAttribute("data-wl-type", attr.type); //-> should be a class?
     }
 
     if ('elementId' in diff) {
@@ -89,15 +93,15 @@ var CobjView = Kern.EventManager.extend({
     }
     
     // When the object is an anchor, set the necessary attributes
-    if (this.data.attributes.tag.toUpperCase() == 'A'){  
-        if ('linkTo' in diff)        
-            el.setAttribute('href', this.data.attributes.linkTo);
-            
-        if (!this.data.attributes.linkTarget)
-            this.data.attributes.linkTarget = '_self';
-            
-        if ('linkTarget' in diff)
-            el.setAttribute('target', this.data.attributes.linkTarget);
+    if (this.data.attributes.tag.toUpperCase() == 'A') {
+      if ('linkTo' in diff)
+        el.setAttribute('href', this.data.attributes.linkTo);
+
+      if (!this.data.attributes.linkTarget)
+        this.data.attributes.linkTarget = '_self';
+
+      if ('linkTarget' in diff)
+        el.setAttribute('target', this.data.attributes.linkTarget);
     }
 
     // create object css style
@@ -128,14 +132,14 @@ var CobjView = Kern.EventManager.extend({
         }
       }
     }
-    
+
     this.isRendered = true;
   },
 
   /**
    * Position the view's element using it's data's positional attributes.
    */
-  renderPosition: function(options) {
+  renderPosition: function (options) {
     options = options || {};
 
     var attr = this.data.attributes,
@@ -159,7 +163,7 @@ var CobjView = Kern.EventManager.extend({
    *
    * @returns {number} width
    */
-  width: function() {
+  width: function () {
     return this.elWrapper.style.width; // WARN: Refactor: what to do if element is not yet rendered?
   },
   /**
@@ -167,7 +171,7 @@ var CobjView = Kern.EventManager.extend({
    *
    * @returns {number} height
    */
-  height: function() {
+  height: function () {
     return this.elWrapper.style.height; // WARN: Refactor: what to do if element is not yet rendered?
   },
   /**
@@ -177,13 +181,53 @@ var CobjView = Kern.EventManager.extend({
    * will remove the DOM elements connected to this element.
    * @return {void}
    */
-  destroy: function() {
+  destroy: function () {
     this.elWrapper.parentNode.removeChild(this.elWrapper);
   }
 }, {
-  // save model class as static variable
-  Model: CobjData
-});
+    // save model class as static variable
+    Model: CobjData,
+    /**
+    * Will create a dataobject based on a DOM element
+    *
+    * @param {element} DOM element to needs to be parsed
+    * @return  {data} a javascript data object
+ */
+    Parse: function (element) {
+      var data = { el: element, tag: element.tagName };
+
+      var attributes = element.attributes;
+      var length = attributes.length;
+
+      for (var index = 0; index < length; index++) {
+        var attribute = attributes[index];
+        if (attribute.name.indexOf('data-wl-') != -1) {
+          data[attribute.name.replace('data-wl-', '')] = attribute.value;
+        }
+      }
+
+      data.classes = element.className.replace("object-default object-" + data.type, "");
+
+      if (data.tag.toUpperCase() == 'A') {
+        data.linkTo = element.getAttribute('href');
+        data.linkTarget = element.getAttribute('target');
+      }
+
+      var style = element.style;
+
+      data.x = style.left ? style.left.replace('px', '') : undefined;
+      data.y = style.top ? style.top.replace('px', '') : undefined;
+      data.hidden = style.display == 'none' ? true : undefined;
+      data.zIndex = style.zIndex ? style.zIndex : undefined;
+      data.width = style.width != '' ? style.width.replace('px', '') : undefined;
+      data.height = style.height != '' ? style.height.replace('px', '') : undefined;
+
+      return data;
+    }
+  }
+  );
+
+
 pluginManager.registerType('node', CobjView);
 
 module.exports = CobjView;

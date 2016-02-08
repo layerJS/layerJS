@@ -19,7 +19,8 @@ var StageView = CGroupView.extend({ constructor: function (dataModel, options) {
     },
 
 }, {
-  Model: StageData
+  Model: StageData,
+  Parse: CGroupView.Parse  
 });
 pluginManager.registerType('stage', StageView);
 module.exports = StageView;
