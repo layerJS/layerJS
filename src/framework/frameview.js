@@ -12,9 +12,8 @@ var CGroupView = require('./cgroupview.js');
 var FrameView = CGroupView.extend({
   constructor: function(dataModel, options) {
     options = options || {};
-    CGroupView.call(this, dataModel, Kern.Base.extend({}, options, {
-      noRender: true
-    }));
+        CGroupView.call(this, dataModel, Kern._extend({}, options, { noRender: true }));
+     
 
     if (!options.noRender && (options.forceRender || !options.el))
       this.render();

@@ -28,7 +28,7 @@ var CGroupView = CobjView.extend({
       that._renderChildPosition(that.childInfo[model.attributes.id].view);
     }
 
-    CobjView.call(this, dataModel, Kern.Base.extend({}, options, {
+    CobjView.call(this, dataModel, Kern._extend({}, options, { noRender: true }));
       noRender: true
     }));
 
@@ -201,8 +201,8 @@ var CGroupView = CobjView.extend({
       var length = this.data.attributes.children.length;
 
       for (var i = 0; i < length; i++)
-        this.childInfo[this.data.attributes.children[i]].render(options)
-    }
+            this.childInfo[this.data.attributes.children[i]].render(options)
+     }
   },
   /**
    * Return decendent Views which give a true value when passed to a given

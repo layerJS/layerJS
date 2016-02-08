@@ -14,7 +14,7 @@ var WL = require('./wl.js');
 var CimageView = CobjView.extend({
   constructor: function(dataModel, options) {
     options = options || {};
-    CobjView.call(this, dataModel, Kern.Base.extend({}, options, {
+    CobjView.call(this, dataModel, Kern._extend({}, options, { noRender: true }));
       noRender: true
     }));
 

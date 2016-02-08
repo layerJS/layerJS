@@ -14,10 +14,8 @@ var CtextView = CobjView.extend({
   constructor: function(dataModel, options) {
     options = options || {};
 
-    CobjView.call(this, dataModel, Kern.Base.extend({}, options, {
-      noRender: true
-    }));
-
+    CobjView.call(this, dataModel, Kern._extend({}, options, { noRender: true }));
+      
     if (!options.noRender && (options.forceRender || !options.el))
       this.render();
   },
