@@ -18,8 +18,10 @@ var LayerView = CGroupView.extend({
     debugger;
     this.layout = new(layoutManager.get(dataModel.attributes.layoutType))(this);
 
-        CGroupView.call(this, dataModel, Kern._extend({}, options, { noRender: true }));
-     
+    CGroupView.call(this, dataModel, Kern._extend({}, options, {
+      noRender: true
+    }));
+
 
     this.stage = this.parent;
 

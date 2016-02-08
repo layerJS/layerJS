@@ -297,6 +297,20 @@ var commonViewTests = function(scenario, initFunction) {
       expect(ViewType.Parse).toBeDefined();
     });
 
+    it('the Parse method will return a data object with all the data-wl-* attributes from a DOM element', function() {
+      var element = document.createElement('a');
+      element.setAttribute('data-wl-someThing', '1');
+      element.setAttribute('data-wl-someThingElse', '2');
+      element.setAttribute('data-custom', '3');
+
+      var dataObject = ViewType.Parse(element);
+
+      expect(dataObject).toBeDefined();
+      expect(dataObject.something).toBe('1');
+      expect(dataObject.somethingelse).toBe('2');
+      expect(dataObject.custom).toBeUndefined();
+    });
+
     it('the Parse method will return a data object based on a DOM element', function() {
       var element = document.createElement('a');
       element.setAttribute('data-wl-id', 1);

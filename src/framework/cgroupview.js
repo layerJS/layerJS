@@ -28,7 +28,7 @@ var CGroupView = CobjView.extend({
       that._renderChildPosition(that.childInfo[model.attributes.id].view);
     }
 
-    CobjView.call(this, dataModel, Kern._extend({}, options, { noRender: true }));
+    CobjView.call(this, dataModel, Kern._extend({}, options, {
       noRender: true
     }));
 
@@ -201,8 +201,8 @@ var CGroupView = CobjView.extend({
       var length = this.data.attributes.children.length;
 
       for (var i = 0; i < length; i++)
-            this.childInfo[this.data.attributes.children[i]].render(options)
-     }
+        this.childInfo[this.data.attributes.children[i]].render(options)
+    }
   },
   /**
    * Return decendent Views which give a true value when passed to a given
@@ -262,18 +262,13 @@ var CGroupView = CobjView.extend({
     while (children.length > 0) {
       var nextChildren = [];
       var length = children.length;
-      console.log("length " + length);
       for (var index = 0; index < length; index++) {
         var child = children[index];
-        console.log('child');
-        console.log(child);
 
         if (child.hasAttribute('data-wl-type')) {
           data.children.push(parseInt(child.getAttribute('data-wl-id')));
         } else {
           nextChildren = nextChildren.concat(Array.prototype.slice.call(child.children));
-          console.log("next children added");
-          console.log(nextChildren);
         }
       }
       children = [].concat(nextChildren);
