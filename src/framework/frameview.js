@@ -9,13 +9,16 @@ var CGroupView = require('./cgroupview.js');
  * @param {object}        options
  * @extends CGroupView
  */
-var FrameView = CGroupView.extend({ constructor: function (dataModel, options) {
-        options = options || {};
-        CGroupView.call(this, dataModel, Kern.Base.extend({}, options, { noRender: true }));
+var FrameView = CGroupView.extend({
+  constructor: function(dataModel, options) {
+    options = options || {};
+    CGroupView.call(this, dataModel, Kern.Base.extend({}, options, {
+      noRender: true
+    }));
 
-        if (!options.noRender && (options.forceRender || !options.el))
-            this.render();
-    },
+    if (!options.noRender && (options.forceRender || !options.el))
+      this.render();
+  },
 }, {
   Model: FrameData,
   Parse: CGroupView.Parse

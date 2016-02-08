@@ -8,7 +8,7 @@ var DatasetReader = require('./helpers/datasetreader.js');
 
 describe("LayerView", function() {
   var datasetReader = new DatasetReader();
-  
+
   /*
     CommonViewTests(function() {
       return {
@@ -17,17 +17,17 @@ describe("LayerView", function() {
       };
     });
   */
-  
+
   CommonGroupViewTests('simple_layerdata.js', function() {
     return {
       data: datasetReader.readFromFile('simple_layerdata.js'),
       ViewType: LayerView,
       parentId: 5
     };
-  });  
-  
-  CommonGroupViewTests('test_data_set.js', function() {   
-     return {
+  });
+
+  CommonGroupViewTests('test_data_set.js', function() {
+    return {
       data: datasetReader.readFromFile('test_data_set.js'),
       ViewType: LayerView,
       parentId: 5

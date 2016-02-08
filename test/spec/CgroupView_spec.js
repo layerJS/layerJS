@@ -10,28 +10,27 @@ describe("CGroupView", function() {
 
   var datasetReader = new DatasetReader();
 
-  CommonViewTests('simple_cgroupdata.js',function() {
+  CommonViewTests('simple_cgroupdata.js', function() {
     return {
-        data: datasetReader.readFromFile('simple_cgroupdata.js')[0],
-        ViewType : CGroupView
-    };
-  });
-  
-  CommonViewTests('anchor_cgroupdata.js',function() {
-    return {
-        data: datasetReader.readFromFile('anchor_cgroupdata.js')[0],
-        ViewType : CGroupView
+      data: datasetReader.readFromFile('simple_cgroupdata.js')[0],
+      ViewType: CGroupView
     };
   });
 
-  CommonGroupViewTests('cgroupdata_with_cobjdata.js',function() {
+  CommonViewTests('anchor_cgroupdata.js', function() {
     return {
-        data: datasetReader.readFromFile('cgroupdata_with_cobjdata.js'),
-        ViewType : CGroupView,
-        parentId : 110530
+      data: datasetReader.readFromFile('anchor_cgroupdata.js')[0],
+      ViewType: CGroupView
     };
   });
-  
-   
-  
+
+  CommonGroupViewTests('cgroupdata_with_cobjdata.js', function() {
+    return {
+      data: datasetReader.readFromFile('cgroupdata_with_cobjdata.js'),
+      ViewType: CGroupView,
+      parentId: 110530
+    };
+  });
+
+
 });

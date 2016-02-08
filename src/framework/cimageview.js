@@ -12,14 +12,16 @@ var WL = require('./wl.js');
  * @extends CobjView
  */
 var CimageView = CobjView.extend({
-  constructor: function (dataModel, options) {
+  constructor: function(dataModel, options) {
     options = options || {};
-    CobjView.call(this, dataModel, Kern.Base.extend({}, options, { noRender: true }));
+    CobjView.call(this, dataModel, Kern.Base.extend({}, options, {
+      noRender: true
+    }));
 
     if (!options.noRender && (options.forceRender || !options.el))
       this.render();
   },
-  render: function (options) {
+  render: function(options) {
     var attr = this.data.attributes,
       diff = this.data.changedAttributes || this.data.attributes,
       el = this.el;
@@ -36,19 +38,19 @@ var CimageView = CobjView.extend({
   }
 
 }, {
-    Model: CimageData,
-    Parse: function (element) {
-      var data = CobjView.Parse(element);
+  Model: CimageData,
+  Parse: function(element) {
+    var data = CobjView.Parse(element);
 
-      var src = element.getAttribute('src');
-      var alt = element.getAttribute('alt');
+    var src = element.getAttribute('src');
+    var alt = element.getAttribute('alt');
 
-      data.src = src ? src.replace(WL.imagePath, '') : undefined;
-      data.alt = alt ? alt : undefined;
-      
-      return data;
-    }
-  });
+    data.src = src ? src.replace(WL.imagePath, '') : undefined;
+    data.alt = alt ? alt : undefined;
+
+    return data;
+  }
+});
 
 
 pluginManager.registerType('image', CimageView);

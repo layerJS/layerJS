@@ -20,24 +20,26 @@ describe("CgroupData", function() {
     expect(c.attributes.children.length).toBe(6);
   });
 
-  describe("has children", function(){
+  describe("has children", function() {
 
     var eventIsRaised;
-    beforeEach(function(){
+    beforeEach(function() {
       eventIsRaised = false;
     });
 
-    var eventHandler = function(model, value){
+    var eventHandler = function(model, value) {
       eventIsRaised = true;
     };
 
     it("children are initialized", function() {
-      var data = {children : [110530] };
+      var data = {
+        children: [110530]
+      };
       var c = new CgroupData(data);
       expect(c.attributes.children).toBe(data.children);
     });
 
-    it("can add a single child", function(){
+    it("can add a single child", function() {
       var c = new CgroupData();
       c.on("change:children", eventHandler);
       c.addChild(1);
@@ -45,16 +47,18 @@ describe("CgroupData", function() {
       expect(eventIsRaised).toBe(true);
     });
 
-    it("can remove a single child", function(){
-      var c = new CgroupData({children : [1]});
+    it("can remove a single child", function() {
+      var c = new CgroupData({
+        children: [1]
+      });
       c.on("change:children", eventHandler);
       c.removeChild(1);
       expect(c.attributes.children).toEqual([])
       expect(eventIsRaised).toBe(true);
     });
 
-    it("can add multiple children", function(){
-      var childrenToAdd = [1,2,3];
+    it("can add multiple children", function() {
+      var childrenToAdd = [1, 2, 3];
       var c = new CgroupData();
       c.on("change:children", eventHandler);
       c.addChildren(childrenToAdd);
@@ -62,10 +66,12 @@ describe("CgroupData", function() {
       expect(eventIsRaised).toBe(true);
     });
 
-    it("can remove multiple children", function(){
-      var c = new CgroupData({children : [1,2,3] });
+    it("can remove multiple children", function() {
+      var c = new CgroupData({
+        children: [1, 2, 3]
+      });
       c.on("change:children", eventHandler);
-      c.removeChildren([2,3]);
+      c.removeChildren([2, 3]);
       expect(c.attributes.children).toEqual([1]);
       expect(eventIsRaised).toBe(true);
     });

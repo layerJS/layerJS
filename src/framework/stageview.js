@@ -10,17 +10,20 @@ var Kern = require('../kern/Kern.js');
  * @param {object}        options
  * @extends CGroupView
  */
-var StageView = CGroupView.extend({ constructor: function (dataModel, options) {
-        options = options || {};
-        CGroupView.call(this, dataModel, Kern.Base.extend({}, options, { noRender: true }));
+var StageView = CGroupView.extend({
+  constructor: function(dataModel, options) {
+    options = options || {};
+    CGroupView.call(this, dataModel, Kern.Base.extend({}, options, {
+      noRender: true
+    }));
 
-        if (!options.noRender && (options.forceRender || !options.el))
-            this.render();
-    },
+    if (!options.noRender && (options.forceRender || !options.el))
+      this.render();
+  },
 
 }, {
   Model: StageData,
-  Parse: CGroupView.Parse  
+  Parse: CGroupView.Parse
 });
 pluginManager.registerType('stage', StageView);
 module.exports = StageView;

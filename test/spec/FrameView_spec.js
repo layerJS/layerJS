@@ -7,9 +7,9 @@ var CommonGroupViewTests = require('./helpers/commongroupviewtests.js');
 var DatasetReader = require('./helpers/datasetreader.js');
 
 describe("FrameView", function() {
-    
+
   var datasetReader = new DatasetReader();
-  
+
   /*
     CommonViewTests(function() {
       return {

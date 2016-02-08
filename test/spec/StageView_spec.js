@@ -9,33 +9,33 @@ var DatasetReader = require('./helpers/datasetreader.js');
 
 describe("StageView", function() {
 
-  var document, window,$;
-  var datasetReader = new DatasetReader();  
+  var document, window, $;
+  var datasetReader = new DatasetReader();
 
-/*
-  CommonViewTests(function() {
+  /*
+    CommonViewTests(function() {
+      return {
+          data: datasetReader.readFromFile('simple_stagedata.js')[0],
+          ViewType : StageView
+      };
+    });
+  */
+
+  CommonGroupViewTests('simple_stagedata.js', function() {
     return {
-        data: datasetReader.readFromFile('simple_stagedata.js')[0],
-        ViewType : StageView
+      data: datasetReader.readFromFile('simple_stagedata.js'),
+      ViewType: StageView,
+      parentId: 110540
     };
   });
-*/
 
-CommonGroupViewTests('simple_stagedata.js',function() {
-  return {
-      data: datasetReader.readFromFile('simple_stagedata.js'),
-      ViewType : StageView,
-      parentId : 110540
-  };
-});
-
-CommonGroupViewTests('test_data_set.js', function() {
-  return {
+  CommonGroupViewTests('test_data_set.js', function() {
+    return {
       data: datasetReader.readFromFile('test_data_set.js'),
-      ViewType : StageView,
-      parentId : 1
-  };
-});
+      ViewType: StageView,
+      parentId: 1
+    };
+  });
 
 
 })

@@ -11,15 +11,17 @@ var Kern = require('../kern/Kern.js');
  * @extends CobjView
  */
 var CtextView = CobjView.extend({
-  constructor: function (dataModel, options) {
+  constructor: function(dataModel, options) {
     options = options || {};
 
-    CobjView.call(this, dataModel, Kern.Base.extend({}, options, { noRender: true }));
+    CobjView.call(this, dataModel, Kern.Base.extend({}, options, {
+      noRender: true
+    }));
 
     if (!options.noRender && (options.forceRender || !options.el))
       this.render();
   },
-  render: function (options) {
+  render: function(options) {
     var attr = this.data.attributes,
       diff = this.data.changedAttributes || this.data.attributes,
       el = this.el;
@@ -32,14 +34,14 @@ var CtextView = CobjView.extend({
   }
 
 }, {
-    Model: CtextData,
-    Parse: function (element) {
-      var data = CobjView.Parse(element);
-      data.content = element.innerHTML;
-      
-      return data;
-    }
-  });
+  Model: CtextData,
+  Parse: function(element) {
+    var data = CobjView.Parse(element);
+    data.content = element.innerHTML;
+
+    return data;
+  }
+});
 
 
 pluginManager.registerType('text', CtextView);

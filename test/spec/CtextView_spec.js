@@ -7,19 +7,19 @@ var pluginManager = require('../../src/framework/pluginmanager.js');
 
 describe("CtextView", function() {
 
-  var datasetReader= new DatasetReader();
-  var document, window,$;
+  var datasetReader = new DatasetReader();
+  var document, window, $;
 
   beforeEach(function() {
-     document = global.document = jsdom("<html><head><style id='wl-obj-css'></style></head><body></body></html>");
-     window = global.window = document.defaultView;
-     $ = document.querySelector;
+    document = global.document = jsdom("<html><head><style id='wl-obj-css'></style></head><body></body></html>");
+    window = global.window = document.defaultView;
+    $ = document.querySelector;
   });
 
   CommonViewTests('simple_ctextdata.js', function() {
     return {
-        data: datasetReader.readFromFile('simple_ctextdata.js')[0],
-        ViewType : CtextView
+      data: datasetReader.readFromFile('simple_ctextdata.js')[0],
+      ViewType: CtextView
     };
   });
 
@@ -30,17 +30,17 @@ describe("CtextView", function() {
 
   it('will put the text attribute in the innerHTML the DOM element', function() {
     var data = pluginManager.createModel(datasetReader.readFromFile('simple_ctextdata.js')[0]);
-    var view = new CtextView(data);    
-    view.render();    
+    var view = new CtextView(data);
+    view.render();
     var element = view.el;
 
     expect(element.innerHTML).toBe(data.attributes.content);
   });
-  
+
   it('the Parse method will add an content property to the data object', function() {
     var element = document.createElement('div');
     element.innerHTML = 'some content';
-    
+
     var dataObject = CtextView.Parse(element);
 
     expect(dataObject.content).toBe('some content');

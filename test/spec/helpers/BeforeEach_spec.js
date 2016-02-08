@@ -4,7 +4,7 @@
 
 require("../../../src/main.js")
 
-beforeEach(function () {
-    delete global.document;
-    delete global.window;
+beforeEach(function() {
+  delete global.document;
+  delete global.window;
 });
