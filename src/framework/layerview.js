@@ -31,7 +31,7 @@ var LayerView = CGroupView.extend({
       hasScroller = true;
     }
     // mark scroller as scroller in HTML
-    this.el.setAttribute('data-wl-helper', 'scroller');
+    if (hasScroller) this.el.setAttribute('data-wl-helper', 'scroller');
     // call super constructor
     CGroupView.call(this, dataModel, options);
     // this is my stage and add listener to keep it updated
