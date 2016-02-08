@@ -17,7 +17,7 @@ describe("CimageView", function() {
      $ = document.querySelector;
   });
 
-  CommonViewTests(function() {
+  CommonViewTests('simple_cimagedata.js', function() {
     return {
         data: datasetReader.readFromFile('simple_cimagedata.js')[0],
         ViewType : CimageView

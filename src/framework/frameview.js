@@ -1,4 +1,5 @@
 'use strict';
+var Kern = require('../kern/Kern.js');
 var pluginManager = require('./pluginmanager.js')
 var FrameData = require('./framedata.js');
 var CGroupView = require('./cgroupview.js');
@@ -11,8 +12,11 @@ var CGroupView = require('./cgroupview.js');
  */
 var FrameView = CGroupView.extend({
   constructor: function(dataModel, options) {
+    options = options || {};
     this.transformData = undefined;
-    CGroupView.call(this, dataModel, options);
+    CGroupView.call(this, dataModel, Kern._extend({}, options, { noRender: true }));
+
+    if (!options.noRender && (options.forceRender || !options.el)) this.render();
   },
   /**
    * get the transformData of the frame that describes how to fit the frame into the stage
@@ -147,7 +151,7 @@ var FrameView = CGroupView.extend({
     if (d.scrollX !== undefined) d.maxScrollX = d.frameWidth / d.scale - stageWidth;
     // define initial positioning
     // take startPosition from transition or from frame
-    switch ((transition.startPosition !== undefined && transition.startPosition) ||  this.attributes.startPosition) {
+    switch ((transition.startPosition !== undefined && transition.startPosition) || this.attributes.startPosition) {
       case 'top':
         if (d.scrollY !== undefined) d.scrollY = 0;
         break;

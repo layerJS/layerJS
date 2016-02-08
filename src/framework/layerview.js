@@ -1,5 +1,6 @@
 'use strict';
 var $ = require('./domhelpers.js');
+var Kern = require('../kern/Kern.js');
 var pluginManager = require('./pluginmanager.js');
 var layoutManager = require('./layoutmanager.js');
 var LayerData = require('./layerdata.js');
@@ -33,7 +34,8 @@ var LayerView = CGroupView.extend({
     // mark scroller as scroller in HTML
     if (hasScroller) this.el.setAttribute('data-wl-helper', 'scroller');
     // call super constructor
-    CGroupView.call(this, dataModel, options);
+    CGroupView.call(this, dataModel, Kern._extend({}, options, { noRender: true }));
+
     // this is my stage and add listener to keep it updated
     this.stage = this.parent;
     this.on('parent', (function() {
@@ -41,8 +43,8 @@ var LayerView = CGroupView.extend({
         // FIXME trigger adaption to new stage
     }).bind(this));
     // set current frame from data object or take first child
-    this.currentFrame = (this.data.attributes.defaultFrame && this.findChildView(this.data.attributes.defaultFrame)) ||  (this.data.attributes.children[0] && this.getChildView(this.data.attributes.children[0]));
-
+    this.currentFrame = (this.data.attributes.defaultFrame && this.findChildView(this.data.attributes.defaultFrame)) || (this.data.attributes.children[0] && this.getChildView(this.data.attributes.children[0]));
+    if (!options.noRender && (options.forceRender || !options.el)) this.render();
   },
   /**
    * transform to a given frame in this layer with given transition

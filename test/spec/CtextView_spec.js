@@ -16,7 +16,7 @@ describe("CtextView", function() {
      $ = document.querySelector;
   });
 
-  CommonViewTests(function() {
+  CommonViewTests('simple_ctextdata.js', function() {
     return {
         data: datasetReader.readFromFile('simple_ctextdata.js')[0],
         ViewType : CtextView

@@ -10,6 +10,8 @@ var datasetFilenames = [
           ,"test/spec/datasets/simple_layerdata.js"
           ,"test/spec/datasets/simple_stagedata.js"
           ,"test/spec/datasets/test_data_set.js"
+          ,"test/spec/datasets/anchor_cobjdata.js"
+          ,"test/spec/datasets/anchor_cgroupdata.js"
 ];
 
 var fileSave = require('file-save');
@@ -38,6 +40,18 @@ for (var x = 0; x < datasetFilenames.length; x++) {
         object.scaleY = object.scale.y;
 
         delete object.scale;
+      }
+      
+      if (object.link_to != undefined)
+      {
+        object.linkTo = object.link_to;
+        delete object.link_to;
+      }
+      
+      if (object.link_target != undefined)
+      {
+        object.linkTarget = object.link_target;
+        delete object.link_target;
       }
     }
 

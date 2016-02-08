@@ -18,7 +18,7 @@ describe("FrameView", function() {
       };
     });
   */
-  CommonGroupViewTests(function() {
+  CommonGroupViewTests('simple_framedata.js', function() {
     return {
       data: datasetReader.readFromFile('simple_framedata.js'),
       ViewType: FrameView,
