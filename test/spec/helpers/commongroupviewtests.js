@@ -80,18 +80,6 @@ var commonGroupViewTests = function(scenario, initFunction) {
         }
       }
     };
-
-    it('the Parse method will return a data object based on a DOM element with a children collection ', function() {
-      var type = data.attributes.type;
-
-      setHtml("<html><body><div id='test' data-wl-type='" + type + "'><div data-wl-type='text' data-wl-id='1'></div><div><div data-wl-type='group' data-wl-id='2'></div><div data-wl-type='group' data-wl-id='3'></div></div><div data-wl-type='text' data-wl-id='4'></div></div><div/></body></html>");
-
-      var element = document.getElementById('test');
-      var dataObject = ViewType.Parse(element);
-
-      expect(dataObject).toBeDefined();
-      expect(dataObject.children).toEqual([1, 4, 2, 3]);
-    });
   });
 };
 

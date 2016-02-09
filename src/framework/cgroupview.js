@@ -252,30 +252,7 @@ var CGroupView = CobjView.extend({
 
 }, {
   Model: CGroupData,
-  Parse: function(element) {
-
-    var data = CobjView.Parse(element);
-    data.children = [];
-
-    var children = element.children;
-
-    while (children.length > 0) {
-      var nextChildren = [];
-      var length = children.length;
-      for (var index = 0; index < length; index++) {
-        var child = children[index];
-
-        if (child.hasAttribute('data-wl-type')) {
-          data.children.push(parseInt(child.getAttribute('data-wl-id')));
-        } else {
-          nextChildren = nextChildren.concat(Array.prototype.slice.call(child.children));
-        }
-      }
-      children = [].concat(nextChildren);
-    }
-
-    return data;
-  }
+  Parse: CobjView.Parse
 });
 
 
