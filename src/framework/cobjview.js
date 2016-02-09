@@ -193,9 +193,8 @@ var CobjView = Kern.EventManager.extend({
    * @param {element} DOM element to needs to be parsed
    * @return  {data} a javascript data object
    */
-  Parse: function(element) {
+  parse: function(element) {
     var data = {
-      el: element,
       tag: element.tagName
     };
 
@@ -208,6 +207,9 @@ var CobjView = Kern.EventManager.extend({
         data[attribute.name.replace('data-wl-', '')] = attribute.value;
       }
     }
+
+    if (data.id)
+      data.id = parseInt(data.id);
 
     data.classes = element.className.replace("object-default object-" + data.type, "");
 

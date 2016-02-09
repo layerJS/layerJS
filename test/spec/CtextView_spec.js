@@ -41,7 +41,7 @@ describe("CtextView", function() {
     var element = document.createElement('div');
     element.innerHTML = 'some content';
 
-    var dataObject = CtextView.Parse(element);
+    var dataObject = CtextView.parse(element);
 
     expect(dataObject.content).toBe('some content');
   });

@@ -53,7 +53,7 @@ describe("CimageView", function() {
     var element = document.createElement('img');
     element.setAttribute('alt', 'some alt');
 
-    var dataObject = CimageView.Parse(element);
+    var dataObject = CimageView.parse(element);
 
     expect(dataObject.alt).toBe('some alt');
   });
@@ -62,7 +62,7 @@ describe("CimageView", function() {
     var element = document.createElement('img');
     element.setAttribute('src', 'some source');
 
-    var dataObject = CimageView.Parse(element);
+    var dataObject = CimageView.parse(element);
 
     expect(dataObject.src).toBe('some source');
   });

@@ -67,7 +67,25 @@ var Repository = Kern.EventManager.extend({
     if (!this.versions[version]) throw "version not available"; // FIXME: need to fetch new versions at some point
     return this.versions[version].get(id);
   },
+  /**
+   * Generates an id for a data object. This id should be unique
+   * This method should be looked at in the future.
+   *
+   * @returns {number} the id
+   */
+  getId: function() {
+    if (this.previous == undefined)
+      this.previous = 0;
 
+    var next = (new Date).getTime();
+
+    if (next <= this.previous) {
+      next = this.previous + 1;
+    }
+
+    this.previous = next;
+    return next;
+  }
 });
 // initialialize repository
 WL.repository = new Repository();

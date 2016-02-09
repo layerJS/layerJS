@@ -50,7 +50,7 @@ var LayerView = CGroupView.extend({
   }
 }, {
   Model: LayerData,
-  Parse: CGroupView.Parse
+  parse: CGroupView.parse
 });
 
 pluginManager.registerType('layer', LayerView);

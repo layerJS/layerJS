@@ -35,8 +35,8 @@ var CtextView = CobjView.extend({
 
 }, {
   Model: CtextData,
-  Parse: function(element) {
-    var data = CobjView.Parse(element);
+  parse: function(element) {
+    var data = CobjView.parse(element);
     data.content = element.innerHTML;
 
     return data;

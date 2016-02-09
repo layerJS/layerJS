@@ -22,7 +22,7 @@ var FrameView = CGroupView.extend({
   },
 }, {
   Model: FrameData,
-  Parse: CGroupView.Parse
+  parse: CGroupView.parse
 });
 
 pluginManager.registerType('frame', FrameView);

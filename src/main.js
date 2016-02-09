@@ -5,6 +5,7 @@ require("./framework/wl.js");
 require("./framework/pluginmanager.js");
 require("./framework/layoutmanager.js");
 require("./framework/repository.js");
+require("./framework/parsemanager.js");
 require("./framework/layouts/layerlayout.js");
 require("./framework/layouts/plainlayout.js");
 

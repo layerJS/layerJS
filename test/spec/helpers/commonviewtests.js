@@ -294,7 +294,7 @@ var commonViewTests = function(scenario, initFunction) {
     });
 
     it('will contain a Parse method to read the data from a DOM element', function() {
-      expect(ViewType.Parse).toBeDefined();
+      expect(ViewType.parse).toBeDefined();
     });
 
     it('the Parse method will return a data object with all the data-wl-* attributes from a DOM element', function() {
@@ -303,7 +303,7 @@ var commonViewTests = function(scenario, initFunction) {
       element.setAttribute('data-wl-someThingElse', '2');
       element.setAttribute('data-custom', '3');
 
-      var dataObject = ViewType.Parse(element);
+      var dataObject = ViewType.parse(element);
 
       expect(dataObject).toBeDefined();
       expect(dataObject.something).toBe('1');
@@ -325,11 +325,10 @@ var commonViewTests = function(scenario, initFunction) {
       element.setAttribute('href', 'url');
       element.setAttribute('target', '_self');
 
-      var dataObject = ViewType.Parse(element);
+      var dataObject = ViewType.parse(element);
 
       expect(dataObject).toBeDefined();
-      expect(dataObject.el).toBe(element);
-      expect(dataObject.id).toBe('1');
+      expect(dataObject.id).toBe(1);
       expect(dataObject.type).toBe(data.attributes.type);
       expect(dataObject.tag).toBe('A');
       expect(dataObject.classes).toBe(' someClass');

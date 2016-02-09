@@ -39,8 +39,8 @@ var CimageView = CobjView.extend({
 
 }, {
   Model: CimageData,
-  Parse: function(element) {
-    var data = CobjView.Parse(element);
+  parse: function(element) {
+    var data = CobjView.parse(element);
 
     var src = element.getAttribute('src');
     var alt = element.getAttribute('alt');

@@ -252,7 +252,7 @@ var CGroupView = CobjView.extend({
 
 }, {
   Model: CGroupData,
-  Parse: CobjView.Parse
+  parse: CobjView.parse
 });
 
 
