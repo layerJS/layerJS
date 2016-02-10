@@ -24,7 +24,7 @@ var CGroupView = CobjView.extend({
     var that = this;
     this.childInfo = {};
     // create listener to child changes. need different callbacks for each instance in order to remove listeners separately from child data objects
-    this.myChildListenerCallback = function(model) {
+    this._myChildListenerCallback = function(model) {
       that._renderChildPosition(that.childInfo[model.attributes.id].view);
     }
 
@@ -51,7 +51,7 @@ var CGroupView = CobjView.extend({
    * object (i.e. no data-wl-id property); leaves them where they are.
    */
   _buildChildren: function() {
-
+    
 
     var that = this;
     var empty;
@@ -140,9 +140,15 @@ var CGroupView = CobjView.extend({
    * @returns {Type} Description
    */
   attachView: function(newView) {
-    this.childinfo[newView.data.attributes.id] = newView; // prepare info about new view
-    newView.setParent(this);
-    this.data.children.addChild(newView.data.attributes.id); // this will eventually trigger _buildChildren which sets up everything for this group
+    var childId = newView.data.attributes.id;
+
+    if (!this.childInfo[childId]) {
+      this.childInfo[childId] = {
+        view: newView
+      };
+      newView.setParent(this);
+      this.data.addChild(childId); // this will eventually trigger _buildChildren which sets up everything for this group
+    }
   },
   /**
    * remove a view from this group. updates dataobject of this group which will trigger change event which
