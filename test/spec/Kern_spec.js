@@ -438,7 +438,25 @@ describe('Model', function() {
     expect(m.attributes.a).toBe(3);
     expect(m.attributes.b).toBe(9);
     expect(m.attributes.d).toBe(7);
-  })
+  });
+  it("when ignore is called after silence, all changes that where made between aren't triggerd", function() {
+    var m = new Kern.Model();
+    var that = this;
+     var called = 0;
+     m.on('change', function() {
+       called++;
+     });
+
+     m.silence();
+     m.set('a', 1);
+     m.ignore();
+
+     expect(m.changedAttributes).toBeUndefined();
+     expect(called).toBe(0);
+
+     m.set('a', 2);
+     expect(called).toBe(1);
+   });
 });
 
 describe("ModelRepository", function() {

@@ -290,6 +290,16 @@
         return this;
       },
       /**
+       * When called after a silence(), it makes sure that the changed events
+       * are ignored. 
+       */
+      ignore: function() {
+        this.silent = 0;
+        delete this.changedAttributes;
+        delete this.newAttributes;
+        delete this.deletedAttributes;
+      },
+      /**
        * fire change events manually after setting attributes
        * @return {Boolean} true if event was fired (not silenced)
        */
