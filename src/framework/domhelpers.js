@@ -26,6 +26,55 @@ var DomHelpers = {
     for (var i = 0; i < wrapper.childNodes.length; i++) {
       element.appendChild(wrapper.childNodes[i]);
     }
+  },
+  /**
+   * browser detection
+   * no mobile detection
+   */
+  detectBrowser: function() {
+    var match;
+    if (typeof navigator == 'undefined') {
+      this.browser = 'node';
+      return;
+    }
+    if (match = navigator.userAgent.match(/Edge\/([0-9]*)/)) {
+      this.vendorPrefix = '-ms-';
+      this.browserVersion = match[1];
+      this.browser = "edge";
+    } else if (match = navigator.userAgent.match(/MSIE ([0-9]*)/)) {
+      this.vendorPrefix = '-ms-';
+      this.browserVersion = match[1];
+      this.browser = "ie";
+    } else if (match = navigator.userAgent.match(/Trident.*rv\:([0-9]*)/)) {
+      this.vendorPrefix = '-ms-';
+      this.browserVersion = match[1];
+      this.browser = "ie";
+    } else if (match = navigator.userAgent.match(/Chrome\/([0-9]*)/)) {
+      this.vendorPrefix = '-webkit-';
+      this.browserVersion = match[1];
+      this.browser = "chrome";
+    } else if (match = navigator.userAgent.match(/Firefox\/([0-9]*)/)) {
+      this.vendorPrefix = '-moz-';
+      this.browserVersion = match[1];
+      this.browser = "firefox";
+    } else if (match = navigator.userAgent.match(/Safari\/([0-9]*)/)) {
+      this.vendorPrefix = '-webkit-';
+      this.browserVersion = match[1];
+      this.browser = "safari";
+    } else if (match = navigator.userAgent.match(/AppleWebKit/)) {
+      this.vendorPrefix = '-webkit-';
+      this.browserVersion = 0;
+      this.browser = "webkit";
+    }
+  },
+  calculatePrefixes: function(prefixable) {
+    this.cssPrefix = this.cssPrefix || {};
+    for (var i = 0; i < prefixable.length; i++) {
+      this.cssPrefix[prefixable[i]] = (this.vendorPrefix && (this.vendorPrefix + prefixable[i])) || prefixable[i];
+    }
   }
 }
+DomHelpers.detectBrowser();
+DomHelpers.calculatePrefixes(['transform', 'transform-origin']);
+
 module.exports = DomHelpers;
