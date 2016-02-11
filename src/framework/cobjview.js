@@ -1,4 +1,5 @@
 'use strict';
+var $ = require('./domhelpers.js');
 var Kern = require('../kern/Kern.js');
 var pluginManager = require('./pluginmanager.js')
 var CobjData = require('./cobjdata.js');
@@ -30,14 +31,28 @@ var CobjView = Kern.EventManager.extend({
 
     var that = this;
     // The change event must change the properties of the HTMLElement el.
-    this.data.on('change', function() {
+    this.data.on('change', function(model) {
       //that._renderPosition();
+      if (model.changedAttributes.hasOwnProperty('width') || model.changedAttributes.hasOwnProperty('height')) that._fixedDimensions();
       that.render();
     });
-   
+    this._fixedDimensions();
     // Only render the element when it is passed in the options
-    if (!options.noRender && (options.forceRender || !options.el)) 
-        this.render();
+    if (!options.noRender && (options.forceRender || !options.el))
+      this.render();
+  },
+  _fixedDimensions: function() {
+    var match;
+    if (this.data.width && (match = this.data.width.match(/(.*)px/))) {
+      this.fixedWidth = parseInt(match[1]);
+    } else {
+      delete this.fixedWidth;
+    }
+    if (this.data.height && (match = this.data.height.match(/(.*)px/))) {
+      this.fixedHeight = parseInt(match[1]);
+    } else {
+      delete this.fixedHeight;
+    }
   },
   /**
    * add a new parent view
@@ -48,7 +63,7 @@ var CobjView = Kern.EventManager.extend({
   setParent: function(parent) {
     this.parent = parent;
     // notify listeners.
-    this.trigger('parent',parent);
+    this.trigger('parent', parent);
   },
   /**
    * return the parent view of this view
@@ -59,10 +74,10 @@ var CobjView = Kern.EventManager.extend({
     return this.parent;
   },
   /**
-   * This property keeps track if the view is already rendered. 
-   * If true, the render method will only update the changedAttributes of the data model   * 
-   */ 
-  isRendered:false,
+   * This property keeps track if the view is already rendered.
+   * If true, the render method will only update the changedAttributes of the data model   *
+   */
+  isRendered: false,
   /**
    * ##render
    * This method applies all the object attributes to its DOM element `this.$el`.
@@ -73,13 +88,13 @@ var CobjView = Kern.EventManager.extend({
     options = options || {};
     var attr = this.data.attributes,
       diff = (this.isRendererd ? this.data.changedAttributes : this.data.attributes),
-      el = this.el;
+      elWrapper = this.elWrapper;
     if ('id' in diff) {
-      el.setAttribute("data-wl-id", attr.id); //-> should be a class?
+      elWrapper.setAttribute("data-wl-id", attr.id); //-> should be a class?
     }
 
     if ('elementId' in diff) {
-      el.id = attr.elementId || attr.id; //-> shouldn't we always set an id? (priority of #id based css declarations)
+      elWrapper.id = attr.elementId || attr.id; //-> shouldn't we always set an id? (priority of #id based css declarations)
     }
 
     // add classes to object
@@ -88,19 +103,19 @@ var CobjView = Kern.EventManager.extend({
       // this.ui && (classes += ' object-ui');
       // this.ontop && (classes += ' object-ontop');
       attr.classes && (classes += ' ' + attr.classes);
-      this.el.className = classes;
+      elWrapper.className = classes;
     }
-    
+
     // When the object is an anchor, set the necessary attributes
-    if (this.data.attributes.tag.toUpperCase() == 'A'){  
-        if ('linkTo' in diff)        
-            el.setAttribute('href', this.data.attributes.linkTo);
-            
-        if (!this.data.attributes.linkTarget)
-            this.data.attributes.linkTarget = '_self';
-            
-        if ('linkTarget' in diff)
-            el.setAttribute('target', this.data.attributes.linkTarget);
+    if (this.data.attributes.tag.toUpperCase() == 'A') {
+      if ('linkTo' in diff)
+        elWrapper.setAttribute('href', this.data.attributes.linkTo);
+
+      if (!this.data.attributes.linkTarget)
+        this.data.attributes.linkTarget = '_self';
+
+      if ('linkTarget' in diff)
+        elWrapper.setAttribute('target', this.data.attributes.linkTarget);
     }
 
     // create object css style
@@ -131,7 +146,7 @@ var CobjView = Kern.EventManager.extend({
         }
       }
     }
-    
+
     this.isRendered = true;
   },
 
@@ -156,22 +171,68 @@ var CobjView = Kern.EventManager.extend({
     'height' in diff && attr.height !== undefined && (css.height = attr.height + 'px');
 
     Kern._extend(el.style, css);
-  },  
+  },
+  /**
+   * apply CSS styles to this view
+   *
+   * @param {Type} Name - Description
+   * @returns {Type} Description
+   */
+  applyStyles: function(styles) {
+    var props = Object.keys(styles);
+    for (var i = 0; i < props.length; i++) {
+      this.elWrapper.style[$.cssPrefix[props[i]] || props[i]] = styles[props[i]];
+    }
+  },
   /**
    * returns the width of the object. Note, this is the actual width which may be different then in the data object
+   * Use waitForDimensions() to ensure that this value is correct
    *
    * @returns {number} width
    */
   width: function() {
-    return this.elWrapper.style.width; // WARN: Refactor: what to do if element is not yet rendered?
+    return this.elWrapper.offsetWidth || this.fixedWidth;
   },
   /**
-   * returns the height of the object. Note, this is the actual height which may be different then in the data object
+   * returns the height of the object. Note, this is the actual height which may be different then in the data object.
+   * Use waitForDimensions() to ensure that this value is correct
    *
    * @returns {number} height
    */
   height: function() {
-    return this.elWrapper.style.height; // WARN: Refactor: what to do if element is not yet rendered?
+    return this.elWrapper.offsetHeight || this.fixedHeight;
+  },
+  /**
+   * make sure element has reliable dimensions, either by being rendered or by having fixed dimensions
+   *
+   * @returns {Promise} the promise which becomes fulfilled if dimensions are availabe
+   */
+  waitForDimensions: function() {
+    var p = new Kern.Promise();
+    var w = this.elWrapper.offsetWidth || this.fixedWidth;
+    var h = this.elWrapper.offsetHeight || this.fixedHeight;
+    var that = this;
+    if (w || h) {
+      p.resolve({
+        width: w || 0,
+        height: h || 0
+      });
+    } else {
+      setTimeout(function f() {
+        var w = that.elWrapper.offsetWidth || this.fixedWidth;
+        var h = that.elWrapper.offsetHeight || this.fixedHeight;
+        if (w || h) {
+          p.resolve({
+            width: w || 0,
+            height: h || 0
+          });
+        } else {
+          setTimeout(f, 200);
+        }
+      }, 0);
+
+    }
+    return p;
   },
   /**
    * ##destroy

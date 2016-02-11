@@ -27,30 +27,31 @@ var commonGroupViewTests = function (scenario, initFunction) {
 
         it('will add it\'s children DOM element to its own DOM element when the render method is called', function () {
             var view = new ViewType(data);
-            
-            var element = view.el;
-            checkChildrenDataNodes(data, element);
+            if (scenario=='simple_stagedata.js') {
+              debugger;
+            }
+            checkChildrenDataNodes(data, view);
             checkChildrenViews(view);
         });
 
-        var checkChildrenDataNodes = function (dataObj, element) {
+        var checkChildrenDataNodes = function (dataObj, view) {
 
             if (dataObj.attributes.children) {
-                expect(element.childNodes.length).toBe(dataObj.attributes.children.length);
+                expect(view.el.childNodes.length).toBe(dataObj.attributes.children.length);
 
-                for (var i = 0; i < element.childNodes.length; i++) {
-                    var childNode = element.childNodes[i];
+                for (var i = 0; i < view.el.childNodes.length; i++) {
+                    var childNode = view.el.childNodes[i];
                     var childObj = repository.get(childNode.id, defaults.version);
                     expect(dataObj.attributes.children).toContain(childObj.attributes.id);
                     expect(childNode._wlView).toBeDefined();
                     expect(childNode._wlView.data).toBe(childObj);
 
-                    checkChildrenDataNodes(childObj, childNode);
+                    checkChildrenDataNodes(childObj, childNode._wlView);
                 }
             }
             else {
                  // When the data doesn't have any children, the innerHTML should be empty or equal at the content if data type is text
-                expect(element.innerHTML).toBe(dataObj.attributes.content ? dataObj.attributes.content : '');
+                expect(view.el.innerHTML).toBe(dataObj.attributes.content ? dataObj.attributes.content : '');
             }
         };
 

@@ -107,9 +107,9 @@ var CGroupView = CobjView.extend({
           parent: this
         });
         if (empty) {
-          this.el.appendChild(newView.el);
+          this.el.appendChild(newView.elWrapper);
         } else {
-          this.el.insertBefore(newView.el, this.el.childNodes[k]);
+          this.el.insertBefore(newView.elWrapper, this.el.childNodes[k]);
         }
         //if (this.childInfo[childId]) console.warn("Apparently DOM element for child id " + childId + " of parent " + this.data.attributes.id + " got deleted. ");
         // create childInfo for new view (may already exist with same info)
