@@ -27,8 +27,6 @@ var commonGroupViewTests = function(scenario, initFunction) {
       $ = document.querySelector;
     }
 
-
-
     afterEach(function() {
       repository.clear();
     });
@@ -80,6 +78,19 @@ var commonGroupViewTests = function(scenario, initFunction) {
         }
       }
     };
+
+    it("when a childview it's data changes, the _renderChildPosition should be called", function() {
+      if (data.attributes.children.length > 0) {
+        var parentView = new ViewType(data);
+        expect(parentView._myChildListenerCallback).toBeDefined();
+
+        var childView = parentView.childInfo[data.attributes.children[0]].view;
+        expect(childView.parent).toBe(parentView);
+
+        childView.data.set('x', 20);
+        expect(childView.el.style.left).toBe('20px');
+      }
+    });
   });
 };
 

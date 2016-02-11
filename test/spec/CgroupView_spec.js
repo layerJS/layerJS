@@ -21,7 +21,6 @@ describe("CGroupView", function() {
     $ = document.querySelector;
   });
 
-
   CommonViewTests('simple_cgroupdata.js', function() {
     return {
       data: datasetReader.readFromFile('simple_cgroupdata.js')[0],
@@ -62,4 +61,27 @@ describe("CGroupView", function() {
     expect(cgroupView._myChildListenerCallback).toHaveBeenCalledWith(cobjView.data);
   });
 
+  it("when a view with a parent is attached using the attachView method changes, the _myChildListenerCallback should be called", function() {
+    var parentData = new CGroupData(datasetReader.readFromFile('simple_cgroupdata.js')[0]);
+    parentData.attributes.id = 123456789;
+    var parentView = new CGroupView(parentData);
+
+    var cobjData = new CobjData(datasetReader.readFromFile('simple_cobjdata.js')[0]);
+    var cobjView = new CobjView(cobjData);
+    parentView.attachView(cobjView);
+
+    var cgroupData = new CGroupData(datasetReader.readFromFile('simple_cgroupdata.js')[0]);
+    var cgroupView = new CGroupView(cgroupData);
+
+    expect(cgroupView._myChildListenerCallback).toBeDefined();
+    spyOn(cgroupView, '_myChildListenerCallback');
+
+    cgroupView.attachView(cobjView);
+    expect(cobjView.parent).toBe(cgroupView);
+
+    cobjView.data.set('x', 20);
+
+    expect(cgroupView._myChildListenerCallback.calls.count()).toBe(1);
+    expect(cgroupView._myChildListenerCallback).toHaveBeenCalledWith(cobjView.data);
+  });
 });

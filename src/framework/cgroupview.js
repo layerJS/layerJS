@@ -51,7 +51,7 @@ var CGroupView = CobjView.extend({
    * object (i.e. no data-wl-id property); leaves them where they are.
    */
   _buildChildren: function() {
-    
+
 
     var that = this;
     var empty;
@@ -181,8 +181,8 @@ var CGroupView = CobjView.extend({
       el = childView.el;
 
     var css = {};
-    'x' in diff && attr.x !== undefined && (css.left = attr.x);
-    'y' in diff && attr.y !== undefined && (css.top = attr.y);
+    'x' in diff && attr.x !== undefined && (css.left = attr.x + 'px');
+    'y' in diff && attr.y !== undefined && (css.top = attr.y+ 'px');
     ('x' in diff || 'y' in diff) && (css.position = (attr.x !== undefined || attr.y !== undefined ? "absolute" : "static"));
     ('scaleX' in diff || 'scaleY' in diff || 'rotation' in diff) && (css.transform = "scale(" + attr.scaleX + "," + attr.scaleY + ")" + (attr.rotation ? " rotate(" + Math.round(attr.rotation) + "deg)" : ""));
     'zIndex' in diff && attr.zIndex !== undefined && (css.zIndex = attr.zIndex);
