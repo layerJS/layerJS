@@ -16,7 +16,9 @@ var CGroupView = require('./cgroupview.js');
 var LayerView = CGroupView.extend({
   constructor: function(dataModel, options) {
     options = options || {};
+    var that = this;
     this.frames = {};
+    this.inTransform = false;
     this.layout = new(layoutManager.get(dataModel.attributes.layoutType))(this);
     // we need to create the divs here instead of in the cobjview constructor
     this.elWrapper = options.el || document.createElement(dataModel.attributes.tag || 'div');
@@ -34,17 +36,22 @@ var LayerView = CGroupView.extend({
     // mark scroller as scroller in HTML
     if (hasScroller) this.el.setAttribute('data-wl-helper', 'scroller');
     // call super constructor
-    CGroupView.call(this, dataModel, Kern._extend({}, options, { noRender: true }));
+    CGroupView.call(this, dataModel, Kern._extend({}, options, {
+      noRender: true
+    }));
 
     // this is my stage and add listener to keep it updated
     this.stage = this.parent;
-    this.on('parent', (function() {
-      this.stage = this.parent
+    this.on('parent', function() {
+      that.stage = that.parent
         // FIXME trigger adaption to new stage
-    }).bind(this));
+    });
     // set current frame from data object or take first child
     this.currentFrame = (this.data.attributes.defaultFrame && this.findChildView(this.data.attributes.defaultFrame)) || (this.data.attributes.children[0] && this.getChildView(this.data.attributes.children[0]));
     if (!options.noRender && (options.forceRender || !options.el)) this.render();
+    if (this.stage && this.currentFrame) this.stage.waitForDimensions().then(function() {
+      that.layout.init(that.stage)
+    });
   },
   /**
    * transform to a given frame in this layer with given transition
@@ -74,9 +81,22 @@ var LayerView = CGroupView.extend({
       transformData.scrollY = 0;
       // shoud we remove maxScroll* ?
     }
-    this.layout.transitionTo(frame, shift, transition, function() {
-      // no that the transform finished we have to update the shift (transform ) and the scrollTop/Left and update length when native scrolling
+    this.inTransform = true;
+    var that = this;
+    this.layout.transitionTo(frame, transition, this.currentFrame.getTransformData(this.stage), transformData).then(function() {
+      // now that the transform finished we have to update the shift (transform ) and the scrollTop/Left and update length when native scrolling
+      that.inTransform = false;
     });
+    this.currentFrame = frame;
+  },
+  /**
+   * overriden default behavior of groupview
+   *
+   * @param {CobjView} childView - the child view that has changed
+   * @returns {Type} Description
+   */
+  _renderChildPosition(childView){
+    // just do nothing for now; FIXME
   }
 }, {
   Model: LayerData

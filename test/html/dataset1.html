@@ -14,10 +14,22 @@
             var stageData = WL.repository.get("1", 'default');
             var stageView = WL.pluginManager.createView(stageData);
             stageView.render();
-             
+
             document.body.appendChild(stageView.el);
         })();
     </script>
+    <style>
+    .object-frame {
+      position:absolute;
+    }
+    .object-layer {
+      position:absolute;
+      top:0px;
+      left:0px;
+      width:0px;
+      height:0px;
+    }
+    </style>
 </body>
 
 

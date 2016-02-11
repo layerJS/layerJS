@@ -1,0 +1,40 @@
+var dataset=[{
+  id:'s1',
+  type:'stage',
+  children:['l1','l2','l3']
+},{
+  id:'l1',
+  type:'layer',
+  children:['f2','f3']
+},{
+  id:'l2',
+  type:'layer',
+  children:['f1']
+},{
+  id:'l3',
+  type:'layer',
+  children:['f4']
+},{
+  id:'f1',
+  type:'frame'
+},{
+  id:'f2',
+  type:'frame'
+},{
+  id:'f3',
+  type:'frame'
+},{
+  id:'f4',
+  type:'frame',
+  children:['i1'],
+  width:'1380px',
+  height:'920px',
+  fitTo:'cover'
+},{
+  id:'i1',
+  type:'image',
+  src:'negativespace-151-690x460.2x.jpg',
+  width:'1380px',
+  height:'920px'
+}
+]
