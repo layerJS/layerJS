@@ -76,11 +76,11 @@ var FrameView = CGroupView.extend({
     d.isScrollY = false;
     switch (this.data.attributes.fitTo) {
       case 'width':
-        d.scale = d.frameWidth / stageWidth;
+        d.scale = stageWidth / d.frameWidth;
         d.isScrollY = true;
         break;
       case 'height':
-        d.scale = d.frameHeight / stageHeight;
+        d.scale = stageHeight / d.frameHeight;
         d.isScrollX = true;
         break;
       case 'fixed':
@@ -89,9 +89,9 @@ var FrameView = CGroupView.extend({
         d.isScrollY = true;
         break;
       case 'contain':
-        d.scaleX = d.frameWidth / stageWidth;
-        d.scaleY = d.frameHeight / stageHeight;
-        if (d.scaleX > d.scaleY) {
+        d.scaleX = stageWidth / d.frameWidth;
+        d.scaleY = stageHeight / d.frameHeight;
+        if (d.scaleX < d.scaleY) {
           d.scale = d.scaleX;
           d.isScrollY = true;
         } else {
@@ -100,9 +100,9 @@ var FrameView = CGroupView.extend({
         }
         break;
       case 'cover':
-        d.scaleX = d.frameWidth / stageWidth;
-        d.scaleY = d.frameHeight / stageHeight;
-        if (d.scaleX < d.scaleY) {
+        d.scaleX = stageWidth / d.frameWidth;
+        d.scaleY = stageHeight / d.frameHeight;
+        if (d.scaleX > d.scaleY) {
           d.scale = d.scaleX;
           d.isScrollY = true;
         } else {
@@ -115,20 +115,20 @@ var FrameView = CGroupView.extend({
           d.scale = 1;
           d.shiftY = this.attributes['elastic-left'] * (d.frameWidth - stageWidth) / (this.attributes['elastic-left'] + this.attributes['elastic-right']);
         } else if (stageWidth > d.frameWidth) {
-          d.scale = d.frameWidth / stageWidth;
+          d.scale = stageWidth / d.frameWidth;
         } else {
-          d.scale = (d.frameWidth - this.attributes['elastic-left'] - this.attributes['elastic-right']) / stageWidth;
+          d.scale = stageWidth / (d.frameWidth - this.attributes['elastic-left'] - this.attributes['elastic-right']);
         };
         d.isScrollY = true;
         break;
       case 'elastic-height':
-        if (stageWidth < d.frameWidth && stageWidth > d.frameWidth - this.attributes['elastic-left'] - this.attributes['elastic-right']) {
+        if (stageHeight < d.frameHeight && stageHeight > d.frameHeight - this.attributes['elastic-top'] - this.attributes['elastic-bottom']) {
           d.scale = 1;
-          d.shiftY = this.attributes['elastic-left'] * (d.frameWidth - stageWidth) / (this.attributes['elastic-left'] + this.attributes['elastic-right']);
-        } else if (stageWidth > d.frameWidth) {
-          d.scale = d.frameWidth / stageWidth;
+          d.shiftX = this.attributes['elastic-top'] * (d.frameHeight - stageHeight) / (this.attributes['elastic-top'] + this.attributes['elastic-bottom']);
+        } else if (stageHeight > d.frameHeight) {
+          d.scale = stageHeight / d.frameHeight;
         } else {
-          d.scale = (d.frameWidth - this.attributes['elastic-left'] - this.attributes['elastic-right']) / stageWidth;
+          d.scale = stageHeight / (d.frameHeight - this.attributes['elastic-top'] - this.attributes['elastic-bottom']);
         };
         d.isScrollX = true;
         break;
@@ -152,8 +152,8 @@ var FrameView = CGroupView.extend({
     }
     // calculate maximum scroll positions (depend on frame and stage dimensions)
     // WARN: allow negative maxScroll for now
-    if (d.isScrollY) d.maxScrollY = d.frameHeight / d.scale - stageHeight;
-    if (d.isScrollX) d.maxScrollX = d.frameWidth / d.scale - stageWidth;
+    if (d.isScrollY) d.maxScrollY = d.frameHeight * d.scale - stageHeight;
+    if (d.isScrollX) d.maxScrollX = d.frameWidth * d.scale - stageWidth;
     // define initial positioning
     // take startPosition from transition or from frame
     switch ((transition && transition.startPosition !== undefined && transition.startPosition) || this.data.attributes.startPosition) {
@@ -184,14 +184,14 @@ var FrameView = CGroupView.extend({
       case 'middle': // middle and center act the same
       case 'center':
         if (d.isScrollX) {
-          d.scrollX = (d.frameWidth / d.scale - stageWidth) / 2;
+          d.scrollX = (d.frameWidth * d.scale - stageWidth) / 2;
           if (d.scrollX < 0) {
             d.shiftX = -d.scrollX;
             d.scrollX = 0;
           }
         }
         if (d.isScrollY) {
-          d.scrollY = (d.frameHeight / d.scale - stageHeight) / 2;
+          d.scrollY = (d.frameHeight * d.scale - stageHeight) / 2;
           if (d.scrollY < 0) {
             d.shiftY = -d.scrollY;
             d.scrollY = 0;
@@ -204,8 +204,8 @@ var FrameView = CGroupView.extend({
         break;
     }
     // calculate actual frame width height in stage space
-    d.width = d.frameWidth / d.scale;
-    d.height = d.frameHeight / d.scale;
+    d.width = d.frameWidth * d.scale;
+    d.height = d.frameHeight * d.scale;
     // disable scrolling if maxscroll < 0
     if (d.maxScrollX < 0) {
       d.shiftX += d.scrollX;
@@ -233,13 +233,13 @@ var FrameView = CGroupView.extend({
       // apply transition scroll information if available
       // support transition.scroll as direction ambivalent scroll position
       if (d.isScrollX) {
-        if (transition.scroll !== undefined) d.scrollX = transition.scroll / d.scale;
-        if (transition.scrollX !== undefined) d.scrollX = transition.scrollX / d.scale;
+        if (transition.scroll !== undefined) d.scrollX = transition.scroll * d.scale;
+        if (transition.scrollX !== undefined) d.scrollX = transition.scrollX * d.scale;
         if (d.scrollX > d.maxScrollX) d.scrollX = d.maxScrollX;
       }
       if (d.isScrollY) {
-        if (transition.scroll !== undefined) d.scrollY = transition.scroll / d.scale;
-        if (transition.scrollY !== undefined) d.scrollY = transition.scrollY / d.scale;
+        if (transition.scroll !== undefined) d.scrollY = transition.scroll * d.scale;
+        if (transition.scrollY !== undefined) d.scrollY = transition.scrollY * d.scale;
         if (d.scrollY > d.maxScrollY) d.scrollY = d.maxScrollY;
       }
     }
