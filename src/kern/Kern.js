@@ -567,7 +567,7 @@
        */
       get: function(id) {
         if (!this.models[id]) {
-          throw "model not in repository";
+          throw "model "+id+" not in repository";
         }
         return this.models[id];
       }
