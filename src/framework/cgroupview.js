@@ -29,8 +29,11 @@ var CGroupView = CobjView.extend({
     }
 
     CobjView.call(this, dataModel, Kern._extend({}, options, {
-      noRender: true
+      noRender: true,
+      observeElement : false
     }));
+
+    this.observeElement = options.observeElement || true;
 
     this.data.on('change:children', (function() {
       that._buildChildren(); // update DOM when data.children changes
@@ -40,6 +43,8 @@ var CGroupView = CobjView.extend({
 
     if (!options.noRender && (options.forceRender || !options.el))
       this.render();
+
+
   },
   /**
    * Syncronise the DOM child nodes with the data IDs in the data's
@@ -182,7 +187,7 @@ var CGroupView = CobjView.extend({
 
     var css = {};
     'x' in diff && attr.x !== undefined && (css.left = attr.x + 'px');
-    'y' in diff && attr.y !== undefined && (css.top = attr.y+ 'px');
+    'y' in diff && attr.y !== undefined && (css.top = attr.y + 'px');
     ('x' in diff || 'y' in diff) && (css.position = (attr.x !== undefined || attr.y !== undefined ? "absolute" : "static"));
     ('scaleX' in diff || 'scaleY' in diff || 'rotation' in diff) && (css.transform = "scale(" + attr.scaleX + "," + attr.scaleY + ")" + (attr.rotation ? " rotate(" + Math.round(attr.rotation) + "deg)" : ""));
     'zIndex' in diff && attr.zIndex !== undefined && (css.zIndex = attr.zIndex);
@@ -200,8 +205,11 @@ var CGroupView = CobjView.extend({
    */
   render: function(options) {
     options = options || {};
+    this.observeElement = false;
 
-    CobjView.prototype.render.call(this, options);
+    CobjView.prototype.render.call(this, Kern._extend({}, options, {
+      observeElement: false
+    }));
 
     if (options.forceRender && this.data.attributes.children) {
       var length = this.data.attributes.children.length;
@@ -209,6 +217,8 @@ var CGroupView = CobjView.extend({
       for (var i = 0; i < length; i++)
         this.childInfo[this.data.attributes.children[i]].render(options)
     }
+
+    this.observeElement = options.observeElement || true;
   },
   /**
    * Return decendent Views which give a true value when passed to a given

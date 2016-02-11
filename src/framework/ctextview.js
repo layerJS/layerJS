@@ -15,22 +15,31 @@ var CtextView = CobjView.extend({
     options = options || {};
 
     CobjView.call(this, dataModel, Kern._extend({}, options, {
-      noRender: true
+      noRender: true,
+      observeElement: false
     }));
 
     if (!options.noRender && (options.forceRender || !options.el))
       this.render();
+
+    this.observeElement = options.observeElement || true;
   },
   render: function(options) {
+    options = options || {};
+    this.observeElement = false;
     var attr = this.data.attributes,
       diff = this.data.changedAttributes || this.data.attributes,
       el = this.el;
 
-    CobjView.prototype.render.call(this, options);
+    CobjView.prototype.render.call(this, Kern._extend({}, options, {
+      observeElement: false
+    }));
 
     if ('content' in diff) {
       el.innerHTML = attr.content;
     }
+
+    this.observeElement = options.observeElement || true;
   }
 
 }, {

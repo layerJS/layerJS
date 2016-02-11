@@ -237,18 +237,18 @@ var commonViewTests = function(scenario, initFunction) {
       var element = view.el;
       var style = element.style;
 
-      var width = data.attributes.width !== undefined ? data.attributes.width + 'px' : '';
+      var width = (data.attributes.width !== undefined && data.attributes.width != '') ? data.attributes.width + 'px' : '';
 
       expect(element.style.width).toBe(width);
     });
 
-    it('will put the width in the width property of the style of the DOM element will be set when renderPosition is called', function() {
+    it('will put the height in the height property of the style of the DOM element will be set when renderPosition is called', function() {
       var view = new ViewType(data);
       view.renderPosition();
       var element = view.el;
       var style = element.style;
 
-      var height = data.attributes.height !== undefined ? data.attributes.height + 'px' : '';
+      var height = (data.attributes.height !== undefined && data.attributes.height!='') ? data.attributes.height + 'px' : '';
 
       expect(element.style.height).toBe(height);
     });
@@ -340,6 +340,23 @@ var commonViewTests = function(scenario, initFunction) {
       expect(dataObject.zIndex).toBe('2');
       expect(dataObject.width).toBe('100');
       expect(dataObject.height).toBe('200');
+    });
+
+    it('listens for changes on its DOM element after it is rendered', function(){
+        var view = new ViewType(data);
+        var element = view.el;
+        view.render();
+
+        expect(view.observer).toBeDefined();
+
+
+        element.style.width = "55px";
+        element.className = "a_class";
+        element.setAttribute('data-wl-custom', 10);
+
+        expect(data.attributes.width).toBe('55');
+        expect(data.attributes.classes).toBe('a_class');
+        expect(data.attributes.custom).toBe('10');
     });
   });
 };

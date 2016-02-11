@@ -26,6 +26,7 @@ var CobjView = Kern.EventManager.extend({
     // possible wrapper element
     this.elWrapper = options.elWrapper || this.el;
     this.elWrapper._wlView = this;
+    this.observeElement = options.observeElement || true;
 
     var that = this;
     // The change event must change the properties of the HTMLElement el.
@@ -37,6 +38,8 @@ var CobjView = Kern.EventManager.extend({
     // Only render the element when it is passed in the options
     if (!options.noRender && (options.forceRender || !options.el))
       this.render();
+
+    this._observeElement();
   },
   /**
    * add a new parent view
@@ -68,6 +71,8 @@ var CobjView = Kern.EventManager.extend({
    */
   render: function(options) {
     options = options || {};
+    this.observeElement = false;
+
     var attr = this.data.attributes,
       diff = (this.isRendererd ? this.data.changedAttributes : this.data.attributes),
       el = this.el;
@@ -134,6 +139,8 @@ var CobjView = Kern.EventManager.extend({
     }
 
     this.isRendered = true;
+
+    this.observeElement = options.observeElement || true;
   },
 
   /**
@@ -141,7 +148,7 @@ var CobjView = Kern.EventManager.extend({
    */
   renderPosition: function(options) {
     options = options || {};
-
+    this.observeElement = false;
     var attr = this.data.attributes,
       diff = this.data.changedAttributes || this.data.attributes,
       el = this.el;
@@ -157,6 +164,8 @@ var CobjView = Kern.EventManager.extend({
     'height' in diff && attr.height !== undefined && (css.height = attr.height + 'px');
 
     Kern._extend(el.style, css);
+
+    this.observeElement = options.observeElement || true;
   },
   /**
    * returns the width of the object. Note, this is the actual width which may be different then in the data object
@@ -183,6 +192,61 @@ var CobjView = Kern.EventManager.extend({
    */
   destroy: function() {
     this.elWrapper.parentNode.removeChild(this.elWrapper);
+  },
+  _observeElement: function() {
+
+    if (this.observer)
+      return;
+
+    var that = this;
+
+    if (window.MutationObserver) {
+      this.observer = new MutationObserver(function(mutation) {
+        that._domElementChanged();
+      });
+
+      this.observer.observe(this.el, new {
+        attributes: true,
+        childList: false,
+        characterData: true,
+        subtree: false
+      });
+    } else {
+      this.observer = {};
+
+      this.el.addEventListener("DOMAttrModified", function(ev) {
+        that._domElementChanged();
+      }, false);
+
+      this.el.addEventListener("DOMAttributeNameChanged", function(ev) {
+        that._domElementChanged();
+      }, false);
+
+      this.el.addEventListener("DOMCharacterDataModified", function(ev) {
+        that._domElementChanged();
+      }, false);
+
+      this.el.addEventListener("DOMElementNameChanged", function(ev) {
+        that._domElementChanged();
+      }, false);
+    }
+  },
+  /**
+   * This function will parse the DOM element and add it to the data of the view.
+   * It will be use by the MutationObserver.
+   * @return {void}
+   */
+  _domElementChanged: function() {
+    if (!this.observeElement)
+      return;
+
+    var dataObject = CobjView.parse(this.el);
+
+    this.data.silence();
+    for (var data in dataObject) {
+      this.data.set(data, dataObject[data]);
+    }
+    this.data.ignore();
   }
 }, {
   // save model class as static variable
@@ -220,12 +284,17 @@ var CobjView = Kern.EventManager.extend({
 
     var style = element.style;
 
-    data.x = style.left ? style.left.replace('px', '') : undefined;
-    data.y = style.top ? style.top.replace('px', '') : undefined;
-    data.hidden = style.display == 'none' ? true : undefined;
-    data.zIndex = style.zIndex ? style.zIndex : undefined;
-    data.width = style.width != '' ? style.width.replace('px', '') : undefined;
-    data.height = style.height != '' ? style.height.replace('px', '') : undefined;
+    if (style.left)
+      data.x = style.left.replace('px', '');
+    if (style.top)
+      data.y = style.top.replace('px', '');
+    if (style.display == 'none')
+      data.hidden = style.display == 'none';
+    if (style.zIndex)
+      data.zIndex = style.zIndex;
+
+    data.width = style.width != '' ? style.width.replace('px', '') : ''
+    data.height = style.height != '' ? style.height.replace('px', '') : '';
 
     return data;
   }
