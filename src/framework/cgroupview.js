@@ -23,6 +23,7 @@ var CGroupView = CobjView.extend({
     options = options || {};
     var that = this;
     this.childInfo = {};
+    this.childNames = {};
     // create listener to child changes. need different callbacks for each instance in order to remove listeners separately from child data objects
     this.myChildListenerCallback = function(model) {
       that._renderChildPosition(that.childInfo[model.attributes.id].view);
@@ -93,6 +94,7 @@ var CGroupView = CobjView.extend({
               this.childInfo[childId] = this.childInfo[childId] || {};
               this.childInfo[childId].view = vo;
               vo.data.on('change', this._myChildListenerCallback); // attach child change listener
+              if (vo.data.attributes.name) this.childNames[vo.data.attributes.name] = vo;
               // Note: if the HTML was present, we don't render positions
               _k_reset(k_saved);
               continue _bc_outer;
@@ -116,6 +118,7 @@ var CGroupView = CobjView.extend({
         this.childInfo[childId] = {
           view: newView
         };
+        if (newView.data.attributes.name) this.childNames[newView.data.attributes.name] = newView;
         newView.data.on('change', this._myChildListenerCallback); // attach child change listener
         this._renderChildPosition(newView);
       }
@@ -124,6 +127,8 @@ var CGroupView = CobjView.extend({
     while (!empty) { // some objects need to be deleted (only removes dom elements of wl objects)
       var vo = this.el.childNodes[k]._wlView;
       vo.data.off('change', this._myChildListenerCallback); // remove child change listener
+      delete this.childNames[vo.data.attributes.name];
+      delete this.childNodes[vo.data.attributes.id];
       this.el.childNodes[k].remove(); // remove child from dom
       _k_nextChild(); // next wl object
     }
@@ -137,6 +142,16 @@ var CGroupView = CobjView.extend({
   getChildView: function(childId) {
     if (!this.childInfo.hasOwnProperty(childId)) throw "unknown child "+childId+" in group "+this.data.attributes.id;
     return this.childInfo[childId].view;
+  },
+  /**
+   * return view by name property
+   *
+   * @param {string} name - the name of the searched child
+   * @returns {CobjView} the view object
+   */
+  getChildViewByName: function(name) {
+    if (!this.childNames.hasOwnProperty(name)) throw "unknown child with name "+name+" in group "+this.data.attributes.id;
+    return this.childNames[name];
   },
   /**
    * Find a view by its name
@@ -194,7 +209,7 @@ var CGroupView = CobjView.extend({
   _renderChildPosition: function(childView) {
     var attr = childView.data.attributes,
       diff = childView.data.changedAttributes || childView.data.attributes,
-      el = childView.el;
+      el = childView.elWrapper;
 
     var css = {};
     'x' in diff && attr.x !== undefined && (css.left = attr.x);
