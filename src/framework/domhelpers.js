@@ -72,6 +72,15 @@ var DomHelpers = {
     for (var i = 0; i < prefixable.length; i++) {
       this.cssPrefix[prefixable[i]] = (this.vendorPrefix && (this.vendorPrefix + prefixable[i])) || prefixable[i];
     }
+  },
+  postAnimationFrame: function(callback) {
+    rf = window.requestAnimationFrame || function(cb) {
+      setTimeout(cb, 1000 / 60);
+    };
+    rf(function() {
+      // make sure to get behind the current render thread
+      setTimeout(callback, 0);
+    });
   }
 }
 DomHelpers.detectBrowser();
