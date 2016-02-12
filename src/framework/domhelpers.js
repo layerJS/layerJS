@@ -73,6 +73,15 @@ var DomHelpers = {
       this.cssPrefix[prefixable[i]] = (this.vendorPrefix && (this.vendorPrefix + prefixable[i])) || prefixable[i];
     }
   },
+  /**
+   * execute after the next renderloop
+   * needed to ensure a previous transform has been applied so we can now apply a new transform with a transition
+   * NOTE: if this is too slow (at least 16ms), we may try to apply the first transform also with a transision (1ms) 
+   * and listen for transitionEnd event
+   *
+   * @param {Function} callback - the function to be executed
+   * @returns {void}
+   */
   postAnimationFrame: function(callback) {
     rf = window.requestAnimationFrame || function(cb) {
       setTimeout(cb, 1000 / 60);
