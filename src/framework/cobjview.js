@@ -93,8 +93,8 @@ var CobjView = Kern.EventManager.extend({
       elWrapper.setAttribute("data-wl-id", attr.id); //-> should be a class?
     }
 
-    if ('elementId' in diff) {
-      elWrapper.id = attr.elementId || attr.id; //-> shouldn't we always set an id? (priority of #id based css declarations)
+    if ('elementId' in diff || 'id' in diff) {
+      elWrapper.id = attr.elementId || "wl-obj-" + attr.id; //-> shouldn't we always set an id? (priority of #id based css declarations)
     }
 
     // add classes to object
