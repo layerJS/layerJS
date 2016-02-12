@@ -24,28 +24,17 @@ var FrameView = CGroupView.extend({
    * get the transformData of the frame that describes how to fit the frame into the stage
    *
    * @param {StageView} stage - the stage to be fit into
-   * @param {Transtion} transition - the transition data for the current transition
+   * @param {Transtion} transition -  [optional] the transition data for the current transition, only startPosition is considered
    * @returns {TransformData} the transform data
    */
-  getTransformData: function(stage, transition) {
+  getTransformData: function(stage, transitionStartPosition) {
     // check if we can return cached version of transfromData
     var d = this.transformData;
-    if (d && d.stage === stage && !transition.startPosition) {
-      // scroll data in transition may differ from cached version
-      if (d.scrollX !== undefined) {
-        if (transition.scroll !== undefined) d.scrollX = transition.scroll / d.scale;
-        if (transition.scrollX !== undefined) d.scrollX = transition.scrollX / d.scale;
-        if (d.scrollX > d.maxScrollX) d.scrollX = d.maxScrollX;
-      }
-      if (d.scrollY !== undefined) {
-        if (transition.scroll !== undefined) d.scrollY = transition.scroll / d.scale;
-        if (transition.scrollY !== undefined) d.scrollY = transition.scrollY / d.scale;
-        if (d.scrollY > d.maxScrollY) d.scrollY = d.maxScrollY;
-      }
-      return d;
+    if (!d || d.stage !== stage || (transitionStartPosition && transitionStartPosition !== d.startPosition)) {
+      // calculate transformData
+      return this.calculateTransformData(stage, transitionStartPosition);
     }
-    // calculate transformData and return
-    return this.calculateTransformData(stage, transition);
+    return d;
   },
   /**
    * calculate transform data (scale, scoll position and displacement) when fitting current frame into associated stage
@@ -54,7 +43,7 @@ var FrameView = CGroupView.extend({
    * @param {Transtion} transition - optional, the transition data for the current transition
    * @returns {TransformData} the transform data
    */
-  calculateTransformData: function(stage, transition) {
+  calculateTransformData: function(stage, transitionStartPosition) {
     var stageWidth = stage.width();
     var stageHeight = stage.height();
     // data record contianing transformation and scrolling information of frame within given stage
@@ -113,22 +102,24 @@ var FrameView = CGroupView.extend({
       case 'elastic-width':
         if (stageWidth < d.frameWidth && stageWidth > d.frameWidth - this.attributes['elastic-left'] - this.attributes['elastic-right']) {
           d.scale = 1;
-          d.shiftY = this.attributes['elastic-left'] * (d.frameWidth - stageWidth) / (this.attributes['elastic-left'] + this.attributes['elastic-right']);
+          d.shiftX = this.attributes['elastic-left'] * (d.frameWidth - stageWidth) / (this.attributes['elastic-left'] + this.attributes['elastic-right']);
         } else if (stageWidth > d.frameWidth) {
           d.scale = stageWidth / d.frameWidth;
         } else {
           d.scale = stageWidth / (d.frameWidth - this.attributes['elastic-left'] - this.attributes['elastic-right']);
+          d.shiftX = this.attributes['elastic-left'];
         };
         d.isScrollY = true;
         break;
       case 'elastic-height':
         if (stageHeight < d.frameHeight && stageHeight > d.frameHeight - this.attributes['elastic-top'] - this.attributes['elastic-bottom']) {
           d.scale = 1;
-          d.shiftX = this.attributes['elastic-top'] * (d.frameHeight - stageHeight) / (this.attributes['elastic-top'] + this.attributes['elastic-bottom']);
+          d.shiftY = this.attributes['elastic-top'] * (d.frameHeight - stageHeight) / (this.attributes['elastic-top'] + this.attributes['elastic-bottom']);
         } else if (stageHeight > d.frameHeight) {
           d.scale = stageHeight / d.frameHeight;
         } else {
           d.scale = stageHeight / (d.frameHeight - this.attributes['elastic-top'] - this.attributes['elastic-bottom']);
+          d.shiftX = this.attributes['elastic-top'];
         };
         d.isScrollX = true;
         break;
@@ -156,7 +147,8 @@ var FrameView = CGroupView.extend({
     if (d.isScrollX) d.maxScrollX = d.frameWidth * d.scale - stageWidth;
     // define initial positioning
     // take startPosition from transition or from frame
-    switch ((transition && transition.startPosition !== undefined && transition.startPosition) || this.data.attributes.startPosition) {
+    d.startPosition = transitionStartPosition || this.data.attributes.startPosition;
+    switch (d.startPosition) {
       case 'top':
         if (d.isScrollY) d.scrollY = 0;
         break;
@@ -164,7 +156,7 @@ var FrameView = CGroupView.extend({
         if (d.isScrollY) {
           d.scrollY = d.maxScrollY;
           if (d.scrollY < 0) {
-            d.shiftY = -d.scrollY;
+            d.shiftY = d.scrollY;
             d.scrollY = 0;
           }
         }
@@ -176,7 +168,7 @@ var FrameView = CGroupView.extend({
         if (d.isScrollX) {
           d.scrollX = d.maxScrollX;
           if (d.scrollX < 0) {
-            d.shiftX = -d.scrollX;
+            d.shiftX = d.scrollX;
             d.scrollX = 0;
           }
         }
@@ -186,14 +178,14 @@ var FrameView = CGroupView.extend({
         if (d.isScrollX) {
           d.scrollX = (d.frameWidth * d.scale - stageWidth) / 2;
           if (d.scrollX < 0) {
-            d.shiftX = -d.scrollX;
+            d.shiftX = d.scrollX;
             d.scrollX = 0;
           }
         }
         if (d.isScrollY) {
           d.scrollY = (d.frameHeight * d.scale - stageHeight) / 2;
           if (d.scrollY < 0) {
-            d.shiftY = -d.scrollY;
+            d.shiftY = d.scrollY;
             d.scrollY = 0;
           }
         }
@@ -229,19 +221,19 @@ var FrameView = CGroupView.extend({
       d.isScrollY = false;
       d.maxScrollX = 0;
       d.maxScrollY = 0;
-    } else if (transition) {
-      // apply transition scroll information if available
-      // support transition.scroll as direction ambivalent scroll position
-      if (d.isScrollX) {
-        if (transition.scroll !== undefined) d.scrollX = transition.scroll * d.scale;
-        if (transition.scrollX !== undefined) d.scrollX = transition.scrollX * d.scale;
-        if (d.scrollX > d.maxScrollX) d.scrollX = d.maxScrollX;
-      }
-      if (d.isScrollY) {
-        if (transition.scroll !== undefined) d.scrollY = transition.scroll * d.scale;
-        if (transition.scrollY !== undefined) d.scrollY = transition.scrollY * d.scale;
-        if (d.scrollY > d.maxScrollY) d.scrollY = d.maxScrollY;
-      }
+      // } else if (transition) {
+      //   // apply transition scroll information if available
+      //   // support transition.scroll as direction ambivalent scroll position
+      //   if (d.isScrollX) {
+      //     if (transition.scroll !== undefined) d.scrollX = transition.scroll * d.scale;
+      //     if (transition.scrollX !== undefined) d.scrollX = transition.scrollX * d.scale;
+      //     if (d.scrollX > d.maxScrollX) d.scrollX = d.maxScrollX;
+      //   }
+      //   if (d.isScrollY) {
+      //     if (transition.scroll !== undefined) d.scrollY = transition.scroll * d.scale;
+      //     if (transition.scrollY !== undefined) d.scrollY = transition.scrollY * d.scale;
+      //     if (d.scrollY > d.maxScrollY) d.scrollY = d.maxScrollY;
+      //   }
     }
     return this.transformData = d;
   }
