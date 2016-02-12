@@ -1,4 +1,6 @@
 var WL = require('../wl.js');
+var $ = require('../domhelpers.js');
+var Kern = require('../../kern/Kern.js');
 var layoutManager = require('../layoutmanager.js');
 var LayerLayout = require('./layerlayout.js');
 
@@ -38,11 +40,26 @@ var PlainLayout = LayerLayout.extend({
    */
   transitionTo: function(frame, transition, currentTransformData, targetTransformData) {
     var finished = new Kern.Promise();
+    var currentFrame = this.layer.currentFrame;
     this.prepareTransition(frame, transition.type, currentTransformData, targetTransformData).then(function(t) {
+      console.log('now for real');
+      currentFrame.applyStyles({
+        transition: '2s'
+      });
+      frame.applyStyles({
+        transition: '2s'
+      });
       frame.elWrapper.addEventListener("transitionEnd", function() { // FIXME needs webkitTransitionEnd etc
+        currentFrame.applyStyles({
+          transition: 'none'
+        });
+        frame.applyStyles({
+          transition: 'none'
+        });
         finished.resolve();
       });
-      return frame.applyStyles(t.t1);
+      frame.applyStyles(t.t1);
+      currentFrame.applyStyles(t.c1);
     });
     return finished;
   },
@@ -65,12 +82,14 @@ var PlainLayout = LayerLayout.extend({
     // create a promise that will wait for the transform being applied
     var finished = new Kern.Promise();
     // apply pre position to target frame
-    Kern._extend(frame.elWrapper.style, t.t0, {
+    Kern._extend(frame.elWrapper.style, {
       transition: 'none'
+    }, t.t0);
+    console.log(t.t0);
+    $.postAnimationFrame(function() {
+      console.log('resolve');
+      finished.resolve(t);
     });
-    setTimeout(function() {
-      finished.resolve();
-    }, 1);
     return finished;
   },
   swipeTransition: function(type, which, currentTransformData, targetTransformData) {
@@ -80,7 +99,7 @@ var PlainLayout = LayerLayout.extend({
       var x = -targetTransformData.shiftX - targetTransformData.scrollX;
       var y = -targetTransformData.shiftY - targetTransformData.scrollY;
       t.t1 = {
-        transform: "translate3d(" + x + "," + y + ",0) scale(" + targetTransformData.scale + ")"
+        transform: "translate3d(" + x + "px," + y + "px,0px) scale(" + targetTransformData.scale + ")"
       };
     }
     switch (type) {
@@ -90,7 +109,7 @@ var PlainLayout = LayerLayout.extend({
           var x = currentTransformData.width - currentTransformData.shiftX - currentTransformData.scrollX;
           var y = -targetTransformData.shiftY - targetTransformData.scrollY;
           t.t0 = {
-            transform: "translate3d(" + x + "," + y + ",0) scale(" + targetTransformData.scale + ")"
+            transform: "translate3d(" + x + "px," + y + "px,0px) scale(" + targetTransformData.scale + ")"
           };
         }
         // current frame transform time 1
@@ -98,7 +117,7 @@ var PlainLayout = LayerLayout.extend({
           var x = -targetTransformData.width + currentTransformData.shiftX + currentTransformData.scrollX;
           var y = -currentTransformData.shiftY - currentTransformData.scrollY;
           t.c1 = {
-            transform: "translate3d(" + x + "," + y + ",0) scale(" + currentTransformData.scale + ")"
+            transform: "translate3d(" + x + "px," + y + "px,0px) scale(" + currentTransformData.scale + ")"
           };
         }
         break;

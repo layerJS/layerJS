@@ -10,13 +10,20 @@ var Kern = require('../kern/Kern.js');
  * @param {object}        options
  * @extends CGroupView
  */
-var StageView = CGroupView.extend({ constructor: function (dataModel, options) {
-        options = options || {};
-        CGroupView.call(this, dataModel, Kern._extend({}, options, { noRender: true }));
+var StageView = CGroupView.extend({
+  constructor: function(dataModel, options) {
+    options = options || {};
+    CGroupView.call(this, dataModel, Kern._extend({}, options, {
+      noRender: true
+    }));
 
-        if (!options.noRender && (options.forceRender || !options.el))
-            this.render();
-    },
+    if (!options.noRender && (options.forceRender || !options.el))
+      this.render();
+  },
+  _renderChildPosition: function(childView){
+    childView.elWrapper.style.left="0px";
+    childView.elWrapper.style.top="0px";
+  }
 
 }, {
   Model: StageData

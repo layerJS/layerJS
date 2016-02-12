@@ -60,7 +60,7 @@ var LayerView = CGroupView.extend({
    * @param {Object} transition - (optional) transition object
    * @returns {Type} Description
    */
-  transformTo: function(framename, transition) {
+  transitionTo: function(framename, transition) {
     // is framename  omitted?
     if (typeof framename === 'object') {
       transition = framename;
@@ -69,9 +69,9 @@ var LayerView = CGroupView.extend({
     transition = transition || {};
     framename = framename || transition.framename;
     if (!framename) throw "transformTo: no frame given";
-    var frame = this.frames[framename];
+    var frame = this.getChildViewByName(framename);
     if (!frame) throw "transformTo: " + framename + " does not exist in layer";
-    var transformData = frame.getTransformData(this.stage, transition);
+    var transformData = frame.getTransformData(this.stage, transition.startPosition);
     // calculate additional shift resulting from the current native scroll.
     var shift = {};
     if (this.data.attributes.nativeScroll) {
@@ -95,8 +95,15 @@ var LayerView = CGroupView.extend({
    * @param {CobjView} childView - the child view that has changed
    * @returns {Type} Description
    */
-  _renderChildPosition(childView){
-    // just do nothing for now; FIXME
+  _renderChildPosition(childView) {
+    var attr = childView.data.attributes,
+      diff = childView.data.changedAttributes || childView.data.attributes,
+      el = childView.elWrapper;
+    var css = {};
+    // just do width & height for now; FIXME
+    'width' in diff && attr.width !== undefined && (css.width = attr.width);
+    'height' in diff && attr.height !== undefined && (css.height = attr.height);
+    Kern._extend(el.style, css);
   }
 }, {
   Model: LayerData
