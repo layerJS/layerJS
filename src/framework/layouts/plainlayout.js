@@ -26,9 +26,13 @@ var PlainLayout = LayerLayout.extend({
    * @returns {Type} Description
    */
   init: function(stage) {
+    for (var i = 0; i < this.layer.el.childNodes.length; i++) {
+      this.layer.el.childNodes[i].style.visibility = 'hidden';
+    }
     if (this.layer.currentFrame) {
       var t = this.swipeTransition(undefined, PlainLayout.IT, null, this.layer.currentFrame.getTransformData(stage))
       this.layer.currentFrame.applyStyles(t.t1);
+      this.layer.currentFrame.elWrapper.style.visibility = 'initial';
     }
   },
   /**
@@ -51,7 +55,8 @@ var PlainLayout = LayerLayout.extend({
       });
       frame.elWrapper.addEventListener("transitionEnd", function() { // FIXME needs webkitTransitionEnd etc
         currentFrame.applyStyles({
-          transition: 'none'
+          transition: 'none',
+          visibility: 'hidden'
         });
         frame.applyStyles({
           transition: 'none'
@@ -83,7 +88,8 @@ var PlainLayout = LayerLayout.extend({
     var finished = new Kern.Promise();
     // apply pre position to target frame
     Kern._extend(frame.elWrapper.style, {
-      transition: 'none'
+      transition: 'none',
+      visibility: 'initial'
     }, t.t0);
     console.log(t.t0);
     $.postAnimationFrame(function() {
