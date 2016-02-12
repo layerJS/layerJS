@@ -16,13 +16,13 @@ var CtextView = CobjView.extend({
 
     CobjView.call(this, dataModel, Kern._extend({}, options, {
       noRender: true,
-      observeElement: false
+      noObserveElement: true
     }));
 
     if (!options.noRender && (options.forceRender || !options.el))
       this.render();
 
-    this.observeElement = options.observeElement || true;
+    this.observeElement = (!options.noObserveElement);
   },
   render: function(options) {
     options = options || {};
@@ -32,14 +32,14 @@ var CtextView = CobjView.extend({
       el = this.el;
 
     CobjView.prototype.render.call(this, Kern._extend({}, options, {
-      observeElement: false
+      noObserveElement: false
     }));
 
     if ('content' in diff) {
       el.innerHTML = attr.content;
     }
 
-    this.observeElement = options.observeElement || true;
+    this.observeElement = (!options.noObserveElement);
   }
 
 }, {

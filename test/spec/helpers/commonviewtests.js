@@ -342,13 +342,13 @@ var commonViewTests = function(scenario, initFunction) {
       expect(dataObject.height).toBe('200');
     });
 
-    it('listens for changes on its DOM element after it is rendered', function(){
+    it('listens for changes on its DOM element when observeElement is true', function(){
         var view = new ViewType(data);
         var element = view.el;
         view.render();
 
         expect(view.observer).toBeDefined();
-
+        expect(view.observeElement).toBeTruthy();
 
         element.style.width = "55px";
         element.className = "a_class";
@@ -357,6 +357,32 @@ var commonViewTests = function(scenario, initFunction) {
         expect(data.attributes.width).toBe('55');
         expect(data.attributes.classes).toBe('a_class');
         expect(data.attributes.custom).toBe('10');
+    });
+
+    it('doesn\'t listen for changes on its DOM element when observeElement is false', function(){
+        var view = new ViewType(data);
+        var element = view.el;
+        view.render();
+        view.observeElement = false;
+
+        expect(view.observer).toBeDefined();
+        expect(view.observeElement).toBeFalsy();
+
+        element.style.width = "55px";
+        element.className = "a_class";
+        element.setAttribute('data-wl-custom', 10);
+
+        expect(data.attributes.width).not.toBe('55');
+        expect(data.attributes.classes).not.toBe('a_class');
+        expect(data.attributes.custom).not.toBe('10');
+    });
+
+    it('can pass a value for the observeElement in the constructor using the options parameter', function(){
+        var view = new ViewType(data, { noObserveElement : true, noRender:true});
+        var element = view.el;
+
+        expect(view.observer).toBeDefined();
+        expect(view.observeElement).toBeFalsy();
     });
   });
 };

@@ -20,7 +20,7 @@ var LayerView = CGroupView.extend({
 
     CGroupView.call(this, dataModel, Kern._extend({}, options, {
       noRender: true,
-      observeElement : false
+      noObserveElement: true
     }));
 
 
@@ -29,7 +29,7 @@ var LayerView = CGroupView.extend({
     if (!options.noRender && (options.forceRender || !options.el))
       this.render();
 
-      this.observeElement = options.observeElement ||true;
+    this.observeElement = (!options.noObserveElement);
   },
   /**
    * transform to a given frame in this layer with given transition

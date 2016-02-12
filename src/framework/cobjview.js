@@ -26,7 +26,7 @@ var CobjView = Kern.EventManager.extend({
     // possible wrapper element
     this.elWrapper = options.elWrapper || this.el;
     this.elWrapper._wlView = this;
-    this.observeElement = options.observeElement || true;
+    this.observeElement = (!options.noObserveElement);
 
     var that = this;
     // The change event must change the properties of the HTMLElement el.
@@ -140,7 +140,7 @@ var CobjView = Kern.EventManager.extend({
 
     this.isRendered = true;
 
-    this.observeElement = options.observeElement || true;
+    this.observeElement = (!options.noObserveElement);
   },
 
   /**
@@ -165,7 +165,7 @@ var CobjView = Kern.EventManager.extend({
 
     Kern._extend(el.style, css);
 
-    this.observeElement = options.observeElement || true;
+    this.observeElement = (!options.noObserveElement);
   },
   /**
    * returns the width of the object. Note, this is the actual width which may be different then in the data object

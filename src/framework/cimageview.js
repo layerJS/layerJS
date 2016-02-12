@@ -16,13 +16,13 @@ var CimageView = CobjView.extend({
     options = options || {};
     CobjView.call(this, dataModel, Kern._extend({}, options, {
       noRender: true,
-      observeElement:false
+      noObserveElement:true
     }));
 
     if (!options.noRender && (options.forceRender || !options.el))
       this.render();
 
-      this.observeElement = options.observeElement || true;
+      this.observeElement = (!options.noObserveElement);
   },
   render: function(options) {
     options = options || {};
@@ -32,7 +32,7 @@ var CimageView = CobjView.extend({
       el = this.el;
 
     CobjView.prototype.render.call(this, Kern._extend({}, options, {
-      observeElement: false
+      noObserveElement: true
     }));
 
     if ('src' in diff) {
@@ -43,7 +43,7 @@ var CimageView = CobjView.extend({
       el.setAttribute("alt", attr.alt);
     }
 
-    this.observeElement = options.observeElement || true;
+    this.observeElement = (!options.noObserveElement);
   }
 
 }, {

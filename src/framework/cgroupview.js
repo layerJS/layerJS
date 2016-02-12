@@ -30,10 +30,10 @@ var CGroupView = CobjView.extend({
 
     CobjView.call(this, dataModel, Kern._extend({}, options, {
       noRender: true,
-      observeElement : false
+      noObserveElement : true
     }));
 
-    this.observeElement = options.observeElement || true;
+    this.observeElement = (!options.noObserveElement);
 
     this.data.on('change:children', (function() {
       that._buildChildren(); // update DOM when data.children changes
@@ -208,7 +208,7 @@ var CGroupView = CobjView.extend({
     this.observeElement = false;
 
     CobjView.prototype.render.call(this, Kern._extend({}, options, {
-      observeElement: false
+      noObserveElement: true
     }));
 
     if (options.forceRender && this.data.attributes.children) {
@@ -218,7 +218,7 @@ var CGroupView = CobjView.extend({
         this.childInfo[this.data.attributes.children[i]].render(options)
     }
 
-    this.observeElement = options.observeElement || true;
+    this.observeElement = (!options.noObserveElement)
   },
   /**
    * Return decendent Views which give a true value when passed to a given

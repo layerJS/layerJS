@@ -15,13 +15,13 @@ var StageView = CGroupView.extend({
     options = options || {};
     CGroupView.call(this, dataModel, Kern._extend({}, options, {
       noRender: true,
-      observeElement: false
+      noObserveElement: true
     }));
 
     if (!options.noRender && (options.forceRender || !options.el))
       this.render();
 
-    this.observeElement = options.observeElement || true;
+  this.observeElement = (!options.noObserveElement);
   },
 
 }, {
