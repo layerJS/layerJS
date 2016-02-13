@@ -13,8 +13,7 @@ describe('Repository', function() {
     for (var i = 0; i < length; i++) {
       var count = 0;
       for (var x = 0; i < length; i++) {
-        if( ids[i] == ids[x])
-        count++;
+        if (ids[i] == ids[x]) count++;
       }
 
       expect(count).toBe(1);

@@ -99,12 +99,12 @@ var CGroupView = CobjView.extend({
               }
               // create view object if it does not exist yet (even if the HTML element exist)
               var vo;
-              if (!this.el.childNodes[k_saved]._wlView)
+              if (!this.el.childNodes[k_saved]._wlView) {
                 vo = pluginManager.createView(repository.get(childId, this.data.attributes.version), {
                   el: this.el.childNodes[k_saved],
                   parent: this
                 });
-              else { // or get existing view
+              } else { // or get existing view
                 vo = this.el.childNodes[k_saved]._wlView;
               }
 
