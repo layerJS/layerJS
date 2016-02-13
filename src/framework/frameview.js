@@ -2,6 +2,7 @@
 var pluginManager = require('./pluginmanager.js')
 var FrameData = require('./framedata.js');
 var CGroupView = require('./cgroupview.js');
+var Kern = require('../kern/Kern.js');
 
 /**
  * A View which can have child views

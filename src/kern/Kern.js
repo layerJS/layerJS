@@ -291,7 +291,7 @@
       },
       /**
        * When called after a silence(), it makes sure that the changed events
-       * are ignored. 
+       * are ignored.
        */
       ignore: function() {
         this.silent = 0;
@@ -575,7 +575,7 @@
        * return the model with the corresponding id
        * @return {Model} the requested model
        */
-      get: function(id) {
+      get: function(id) {      
         if (!this.models[id]) {
           throw "model not in repository";
         }

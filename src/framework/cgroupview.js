@@ -30,7 +30,7 @@ var CGroupView = CobjView.extend({
 
     CobjView.call(this, dataModel, Kern._extend({}, options, {
       noRender: true,
-      noObserveElement : true
+      noObserveElement: true
     }));
 
     this.observeElement = (!options.noObserveElement);
@@ -69,6 +69,7 @@ var CGroupView = CobjView.extend({
         k++;
       }
     }
+
     var _k_reset = function(k_orig) { // set k to k_orig and fix "empty" and "nodeId"
       k = k_orig - 1;
       _k_nextChild();
@@ -76,23 +77,37 @@ var CGroupView = CobjView.extend({
     _bc_outer: for (var i = 0; i < childIds.length; i++) {
         var childId = childIds[i];
         _k_nextChild();
+
         if (!empty) {
           // check if we already have the corresponding view object of the child;
           // check if we can find it at the current position in DOM or in the remaining DOM children
           var k_saved = k; // save current position in DOM children list
           while (!empty) {
-            if (nodeId === childId) { // found a matching DOM element; put it at the right position
-              if (k !== k_saved) this.el.insertBefore(this.el.childNodes[k], this.el.childNodes[k_saved]);
+            if (nodeId == childId) { // found a matching DOM element; put it at the right position
+              if (k !== k_saved) {
+                var fromIndex = k;
+                var elementToBeReplaced = this.el.childNodes[k_saved];
+
+                this.el.insertBefore(this.el.childNodes[k], elementToBeReplaced);
+
+                if (k + 1 <= this.el.childNodes.length) {
+                  this.el.insertBefore(elementToBeReplaced, this.el.childNodes[k + 1]);
+                } else {
+                  this.el.removeChild(elementToBeReplaced);
+                  this.el.appendChild(elementToBeReplaced);
+                }
+              }
               // create view object if it does not exist yet (even if the HTML element exist)
               var vo;
-              if (!this.el.childNodes[k_saved]._wlView) {
+              if (!this.el.childNodes[k_saved]._wlView)
                 vo = pluginManager.createView(repository.get(childId, this.data.attributes.version), {
                   el: this.el.childNodes[k_saved],
                   parent: this
                 });
-              } else { // or get existing view
+              else { // or get existing view
                 vo = this.el.childNodes[k_saved]._wlView;
               }
+
               // check if we have registered another view under the same id
               if (this.childInfo[childId] && this.childInfo[childId].view && this.childInfo[childId].view != vo) {
                 throw "duplicate child id " + childId + " in group " + this.data.attributes.id + ".";

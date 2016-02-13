@@ -91,6 +91,57 @@ var commonGroupViewTests = function(scenario, initFunction) {
         expect(childView.el.style.left).toBe('20px');
       }
     });
+
+    it("the order of non-layers objects will be kept correct", function() {
+      var version = 'test';
+
+      var dataObjects = [{
+        "id": 100,
+        "type": data.attributes.type,
+        "children": [101, 102],
+        "version": version
+      }, {
+        "id": 101,
+        "type": "node",
+        "version": version
+      }, {
+        "id": 102,
+        "type": "node",
+        "version": version
+      }];
+
+      repository.importJSON(dataObjects, version);
+
+      setHtml("<html><head><style id='wl-obj-css'></style></head><body>" +
+        "<div id='100' data-wl-id='100' data-wl-type='" + data.attributes.type + "'>" +
+        "<div id='element1'></div>" +
+        "<div id='101' data-wl-id='101' data-wl-type='text'></div>" +
+        "<div id='element2'></div>" +
+        "<div id='102' data-wl-id='102' data-wl-type='text'></div>" +
+        "<div id='element3'></div>" +
+        "</div></body></html>");
+
+      var parentData = repository.get(100, version);
+      var parentElement = document.getElementById('100');
+      var parentView = new ViewType(parentData, {
+        el: parentElement
+      });
+
+      expect(parentElement.children[0].id).toBe('element1');
+      expect(parentElement.children[1].id).toBe('101');
+      expect(parentElement.children[2].id).toBe('element2');
+      expect(parentElement.children[3].id).toBe('102');
+      expect(parentElement.children[4].id).toBe('element3');
+
+      parentData.set('children', [102, 101]);
+
+      expect(parentElement.children[0].id).toBe('element1');
+      expect(parentElement.children[1].id).toBe('102');
+      expect(parentElement.children[2].id).toBe('element2');
+      expect(parentElement.children[3].id).toBe('101');
+      expect(parentElement.children[4].id).toBe('element3');
+    });
+
   });
 };
 
