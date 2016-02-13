@@ -1,4 +1,5 @@
 'use strict';
+var $ = require('./domhelpers.js');
 var Kern = require('../kern/Kern.js');
 var pluginManager = require('./pluginmanager.js')
 var CobjData = require('./cobjdata.js');
@@ -12,34 +13,48 @@ var CobjData = require('./cobjdata.js');
  */
 var CobjView = Kern.EventManager.extend({
   constructor: function(dataModel, options) {
+    Kern.EventManager.call(this);
     options = options || {};
     // dataobject must exist
     if (!dataModel) throw "data object mus exist when creating a view";
     this.data = dataModel;
     // parent if defined
     this.parent = options.parent;
-    // DOM element
-    this.el = options.el || document.createElement(this.data.attributes.tag);
+    // DOM element, take either the one provide by a sub constructor, provided in options, or create new
+    this.el = this.el || options.el || document.createElement(this.data.attributes.tag);
     // backlink from DOM to object
     if (this.el._wlView) throw "trying to initialialize view on element that already has a view";
     this.el._wlView = this;
     // possible wrapper element
-    this.elWrapper = options.elWrapper || this.el;
+    this.elWrapper = this.elWrapper || options.elWrapper || this.el;
     this.elWrapper._wlView = this;
     this.observeElement = (!options.noObserveElement);
 
     var that = this;
     // The change event must change the properties of the HTMLElement el.
-    this.data.on('change', function() {
+    this.data.on('change', function(model) {
       //that._renderPosition();
+      if (model.changedAttributes.hasOwnProperty('width') || model.changedAttributes.hasOwnProperty('height')) that._fixedDimensions();
       that.render();
     });
-
+    this._fixedDimensions();
     // Only render the element when it is passed in the options
     if (!options.noRender && (options.forceRender || !options.el))
       this.render();
-
     this._observeElement();
+  },
+  _fixedDimensions: function() {
+    var match;
+    if (this.data.width && (match = this.data.width.match(/(.*)px/))) {
+      this.fixedWidth = parseInt(match[1]);
+    } else {
+      delete this.fixedWidth;
+    }
+    if (this.data.height && (match = this.data.height.match(/(.*)px/))) {
+      this.fixedHeight = parseInt(match[1]);
+    } else {
+      delete this.fixedHeight;
+    }
   },
   /**
    * add a new parent view
@@ -49,6 +64,8 @@ var CobjView = Kern.EventManager.extend({
    */
   setParent: function(parent) {
     this.parent = parent;
+    // notify listeners.
+    this.trigger('parent', parent);
   },
   /**
    * return the parent view of this view
@@ -75,17 +92,17 @@ var CobjView = Kern.EventManager.extend({
 
     var attr = this.data.attributes,
       diff = (this.isRendererd ? this.data.changedAttributes : this.data.attributes),
-      el = this.el;
+      elWrapper = this.elWrapper;
     if ('id' in diff) {
-      el.setAttribute("data-wl-id", attr.id); //-> should be a class?
+      elWrapper.setAttribute("data-wl-id", attr.id); //-> should be a class?
     }
 
     if ('type' in diff) {
-      el.setAttribute("data-wl-type", attr.type); //-> should be a class?
+      elWrapper.setAttribute("data-wl-type", attr.type); //-> should be a class?
     }
 
-    if ('elementId' in diff) {
-      el.id = attr.elementId || attr.id; //-> shouldn't we always set an id? (priority of #id based css declarations)
+    if ('elementId' in diff || 'id' in diff) {
+      elWrapper.id = attr.elementId || "wl-obj-" + attr.id; //-> shouldn't we always set an id? (priority of #id based css declarations)
     }
 
     // add classes to object
@@ -94,19 +111,19 @@ var CobjView = Kern.EventManager.extend({
       // this.ui && (classes += ' object-ui');
       // this.ontop && (classes += ' object-ontop');
       attr.classes && (classes += ' ' + attr.classes);
-      this.el.className = classes;
+      elWrapper.className = classes;
     }
 
     // When the object is an anchor, set the necessary attributes
     if (this.data.attributes.tag.toUpperCase() == 'A') {
       if ('linkTo' in diff)
-        el.setAttribute('href', this.data.attributes.linkTo);
+        elWrapper.setAttribute('href', this.data.attributes.linkTo);
 
       if (!this.data.attributes.linkTarget)
         this.data.attributes.linkTarget = '_self';
 
       if ('linkTarget' in diff)
-        el.setAttribute('target', this.data.attributes.linkTarget);
+        elWrapper.setAttribute('target', this.data.attributes.linkTarget);
     }
 
     // create object css style
@@ -168,20 +185,66 @@ var CobjView = Kern.EventManager.extend({
     this.observeElement = (!options.noObserveElement);
   },
   /**
+   * apply CSS styles to this view
+   *
+   * @param {Type} Name - Description
+   * @returns {Type} Description
+   */
+  applyStyles: function(styles) {
+    var props = Object.keys(styles);
+    for (var i = 0; i < props.length; i++) {
+      this.elWrapper.style[$.cssPrefix[props[i]] || props[i]] = styles[props[i]];
+    }
+  },
+  /**
    * returns the width of the object. Note, this is the actual width which may be different then in the data object
+   * Use waitForDimensions() to ensure that this value is correct
    *
    * @returns {number} width
    */
   width: function() {
-    return this.elWrapper.style.width; // WARN: Refactor: what to do if element is not yet rendered?
+    return this.elWrapper.offsetWidth || this.fixedWidth;
   },
   /**
-   * returns the height of the object. Note, this is the actual height which may be different then in the data object
+   * returns the height of the object. Note, this is the actual height which may be different then in the data object.
+   * Use waitForDimensions() to ensure that this value is correct
    *
    * @returns {number} height
    */
   height: function() {
-    return this.elWrapper.style.height; // WARN: Refactor: what to do if element is not yet rendered?
+    return this.elWrapper.offsetHeight || this.fixedHeight;
+  },
+  /**
+   * make sure element has reliable dimensions, either by being rendered or by having fixed dimensions
+   *
+   * @returns {Promise} the promise which becomes fulfilled if dimensions are availabe
+   */
+  waitForDimensions: function() {
+    var p = new Kern.Promise();
+    var w = this.elWrapper.offsetWidth || this.fixedWidth;
+    var h = this.elWrapper.offsetHeight || this.fixedHeight;
+    var that = this;
+    if (w || h) {
+      p.resolve({
+        width: w || 0,
+        height: h || 0
+      });
+    } else {
+      setTimeout(function f() {
+        var w = that.elWrapper.offsetWidth || this.fixedWidth;
+        var h = that.elWrapper.offsetHeight || this.fixedHeight;
+        if (w || h) {
+          p.resolve({
+            width: w || 0,
+            height: h || 0
+          });
+        } else {
+          setTimeout(f, 200);
+        }
+      }, 0);
+
+    }
+    return p;
   },
   /**
    * ##destroy
@@ -237,9 +300,7 @@ var CobjView = Kern.EventManager.extend({
    * @return {void}
    */
   _domElementChanged: function() {
-    if (!this.observeElement)
-      return;
-
+    if (!this.observeElement) return;
     var dataObject = CobjView.parse(this.el);
 
     this.data.silence();

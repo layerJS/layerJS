@@ -15,6 +15,7 @@ var LayerLayout = Kern.EventManager.extend({
    * @returns {Type} Description
    */
   constructor: function(layer) {
+    Kern.EventManager.call(this);
     if (!layer) throw "provide a layer";
     this.layer = layer;
   },

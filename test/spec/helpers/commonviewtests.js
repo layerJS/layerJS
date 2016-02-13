@@ -33,7 +33,6 @@ var commonViewTests = function(scenario, initFunction) {
       var element = view.el;
       expect(element._wlView === view).toBeTruthy();
     });
-
     it('when initialized with the noRender option true, the view doesn\'t get rendered', function() {
       var view = new ViewType(data, {
         noRender: true
@@ -71,7 +70,7 @@ var commonViewTests = function(scenario, initFunction) {
         forceRender: true
       });
       expect(view.el).toBe(element);
-      expect(view.el.id).toBe(data.attributes.id.toString()); // changed
+      expect(view.el.id).toBe('wl-obj-' + data.attributes.id.toString()); // changed
     });
 
     it('cannot add view to existing element if that is already connected to another view', function() {

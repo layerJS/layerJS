@@ -102,31 +102,31 @@
      */
     var Base = Kern.Base = function() {
 
-      }
-      // this function can extend classes; it's a class function, not a object method
+    };
+    // this function can extend classes; it's a class function, not a object method
     Base.extend = function(prototypeProperties, staticProperties) {
-        // create child as a constructor function which is
-        // either supplied in prototypeProperties.constructor or set up
-        // as a generic constructor function calling the parents contructor
-        prototypeProperties = prototypeProperties || {};
-        staticProperties = staticProperties || {};
-        var parent = this; // Note: here "this" is the class (which is the constructor function in JS)
-        var child = (prototypeProperties.hasOwnProperty('constructor') ? prototypeProperties.constructor : function() {
-          return parent.apply(this, arguments); // Note: here "this" is actually the object (instance)
-        });
-        delete prototypeProperties.constructor; // this should not be set again.
-        // create an instance of parent and assign it to childs prototype
-        child.prototype = Object.create(parent.prototype); // NOTE: this does not call the parent's constructor (instead of "new parent()")
-        child.prototype.constructor = child; //NOTE: this seems to be an oldish artefact; we do it anyways to be sure (http://stackoverflow.com/questions/9343193/why-set-prototypes-constructor-to-its-constructor-function)
-        // extend the prototype by further (provided) prototyp properties of the new class
-        _extend(child.prototype, prototypeProperties);
-        // extend static properties (e.g. the extend static method itself)
-        _extend(child, this, staticProperties);
-        return child;
-      }
-      /**
-       * a class that can handle events
-       */
+      // create child as a constructor function which is
+      // either supplied in prototypeProperties.constructor or set up
+      // as a generic constructor function calling the parents contructor
+      prototypeProperties = prototypeProperties || {};
+      staticProperties = staticProperties || {};
+      var parent = this; // Note: here "this" is the class (which is the constructor function in JS)
+      var child = (prototypeProperties.hasOwnProperty('constructor') ? prototypeProperties.constructor : function() {
+        return parent.apply(this, arguments); // Note: here "this" is actually the object (instance)
+      });
+      delete prototypeProperties.constructor; // this should not be set again.
+      // create an instance of parent and assign it to childs prototype
+      child.prototype = Object.create(parent.prototype); // NOTE: this does not call the parent's constructor (instead of "new parent()")
+      child.prototype.constructor = child; //NOTE: this seems to be an oldish artefact; we do it anyways to be sure (http://stackoverflow.com/questions/9343193/why-set-prototypes-constructor-to-its-constructor-function)
+      // extend the prototype by further (provided) prototyp properties of the new class
+      _extend(child.prototype, prototypeProperties);
+      // extend static properties (e.g. the extend static method itself)
+      _extend(child, this, staticProperties);
+      return child;
+    };
+    /**
+     * a class that can handle events
+     */
     var EventManager = Kern.EventManager = Base.extend({
       constructor: function() {
         this.__listeners__ = {};
@@ -319,6 +319,8 @@
           return;
         }
         // trigger change event if something has changed
+        if (this.firing) throw "Eventmanager: already firing."
+        this.firing=true;
         var that = this;
         if (this.changedAttributes) {
           Object.keys(this.changedAttributes).forEach(function(attr) {
@@ -326,6 +328,7 @@
           });
         }
         this.trigger("change", this);
+        delete this.firing;
         delete this.changedAttributes;
         delete this.newAttributes;
         delete this.deletedAttributes;
@@ -575,13 +578,93 @@
        * return the model with the corresponding id
        * @return {Model} the requested model
        */
-      get: function(id) {      
+      get: function(id) {
         if (!this.models[id]) {
-          throw "model not in repository";
+          throw "model "+id+" not in repository";
         }
         return this.models[id];
       }
     });
+    /**
+     * A simple Promise implementation
+     *
+     */
+    var Promise = Kern.Promise = Base.extend({
+      constructor: function() {
+        this.state = undefined;
+        this.value = undefined;
+        this.reason = undefined;
+      },
+      /**
+       * register resolve and reject handlers
+       *
+       * @param {Function} fn - function to be called if Promise is resolved.
+       * first parameter is the value of the Promise
+       * can return a further promise whice is passes to the returned promise
+       * @param {Function} errFn - function called if promise is rejected
+       * first parameter is a reason1
+       * @returns {Promise} return a further promise which allows chaining of then().then().then() calls
+       */
+      then: function(fn, errFn) {
+        this.nextPromise = new Promise();
+        this.fn = fn;
+        this.errFn = errFn;
+        if (this.state !== undefined) this.execute();
+        return this.nextPromise;
+      },
+      /**
+       * resolve the promise
+       *
+       * @param {Anything} value - value of the promise
+       * @returns {void}
+       */
+      resolve: function(value) {
+        this.state = true;
+        this.value = value;
+        this.execute();
+      },
+      /**
+       * reject the promise
+       *
+       * @param {Anything} reason - specify the reason of rejection
+       * @returns {void}
+       */
+      reject: function(reason) {
+        this.state = false;
+        this.reason = reason;
+        this.execute();
+      },
+      /**
+       * internal fulfilemnt function. Will pass the promise behaviour of the resolve function to the Promise returned in then()
+       *
+       * @returns {void}
+       */
+      execute: function() {
+        if (!this.nextPromise) return;
+        var that = this;
+        if (this.state === true) {
+          if (!this.fn) return;
+          try {
+            var result = this.fn(this.value);
+            if (result instanceof Promise) {
+              result.then(function(value) {
+                that.nextPromise.resolve(value);
+              }, function(reason) {
+                that.nextPromise.reject(reason)
+              });
+            } else {
+              that.nextPromise.resolve(result)
+            }
+          } catch (e) {
+            this.nextPromise.reject(e);
+          }
+        } else if (this.state === false) {
+          if (this.errFn) this.errFn(this.reason);
+          this.nextPromise.reject(this.reason);
+        }
+      }
+    });
+
     return Kern;
   }
 

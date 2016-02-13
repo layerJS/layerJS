@@ -13,7 +13,6 @@ var Kern = require('../kern/Kern.js');
 var CtextView = CobjView.extend({
   constructor: function(dataModel, options) {
     options = options || {};
-
     CobjView.call(this, dataModel, Kern._extend({}, options, {
       noRender: true,
       noObserveElement: true

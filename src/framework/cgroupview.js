@@ -23,6 +23,7 @@ var CGroupView = CobjView.extend({
     options = options || {};
     var that = this;
     this.childInfo = {};
+    this.childNames = {};
     // create listener to child changes. need different callbacks for each instance in order to remove listeners separately from child data objects
     this._myChildListenerCallback = function(model) {
       that._renderChildPosition(that.childInfo[model.attributes.id].view);
@@ -112,10 +113,11 @@ var CGroupView = CobjView.extend({
               if (this.childInfo[childId] && this.childInfo[childId].view && this.childInfo[childId].view != vo) {
                 throw "duplicate child id " + childId + " in group " + this.data.attributes.id + ".";
               }
-              // create childinfo which indicates which view we have for each id. This is also used for checking whether we registered a change callback already.
+              // create childInfo which indicates which view we have for each id. This is also used for checking whether we registered a change callback already.
               this.childInfo[childId] = this.childInfo[childId] || {};
               this.childInfo[childId].view = vo;
               vo.data.on('change', this._myChildListenerCallback); // attach child change listener
+              if (vo.data.attributes.name) this.childNames[vo.data.attributes.name] = vo;
               // Note: if the HTML was present, we don't render positions
               _k_reset(k_saved);
               continue _bc_outer;
@@ -124,21 +126,22 @@ var CGroupView = CobjView.extend({
           }
           _k_reset(k_saved);
         }
-        // check if we have already a new view object in childinfo that has to be added, OR create a new View object for the data object child that was not yet existing in the view's children list
-        // Note: putting existing view objects into the childinfo before updateing data.children is the way to add new children that already have a view. This is done in this.attachChild()
+        // check if we have already a new view object in childInfo that has to be added, OR create a new View object for the data object child that was not yet existing in the view's children list
+        // Note: putting existing view objects into the childInfo before updateing data.children is the way to add new children that already have a view. This is done in this.attachChild()
         var newView = (this.childInfo[childId] && this.childInfo[childId].view) || pluginManager.createView(repository.get(childId, this.data.attributes.version), {
           parent: this
         });
         if (empty) {
-          this.el.appendChild(newView.el);
+          this.el.appendChild(newView.elWrapper);
         } else {
-          this.el.insertBefore(newView.el, this.el.childNodes[k]);
+          this.el.insertBefore(newView.elWrapper, this.el.childNodes[k]);
         }
         //if (this.childInfo[childId]) console.warn("Apparently DOM element for child id " + childId + " of parent " + this.data.attributes.id + " got deleted. ");
-        // create childinfo for new view (may already exist with same info)
+        // create childInfo for new view (may already exist with same info)
         this.childInfo[childId] = {
           view: newView
         };
+        if (newView.data.attributes.name) this.childNames[newView.data.attributes.name] = newView;
         newView.data.on('change', this._myChildListenerCallback); // attach child change listener
         this._renderChildPosition(newView);
       }
@@ -147,8 +150,45 @@ var CGroupView = CobjView.extend({
     while (!empty) { // some objects need to be deleted (only removes dom elements of wl objects)
       var vo = this.el.childNodes[k]._wlView;
       vo.data.off('change', this._myChildListenerCallback); // remove child change listener
+      delete this.childNames[vo.data.attributes.name];
+      delete this.childNodes[vo.data.attributes.id];
       this.el.childNodes[k].remove(); // remove child from dom
       _k_nextChild(); // next wl object
+    }
+  },
+  /**
+   * return child CobjView for a given child id
+   *
+   * @param {string} childId - the id of the requested object
+   * @returns {CobjView} the view object
+   */
+  getChildView: function(childId) {
+    if (!this.childInfo.hasOwnProperty(childId)) throw "unknown child "+childId+" in group "+this.data.attributes.id;
+    return this.childInfo[childId].view;
+  },
+  /**
+   * return view by name property
+   *
+   * @param {string} name - the name of the searched child
+   * @returns {CobjView} the view object
+   */
+  getChildViewByName: function(name) {
+    if (!this.childNames.hasOwnProperty(name)) throw "unknown child with name "+name+" in group "+this.data.attributes.id;
+    return this.childNames[name];
+  },
+  /**
+   * Find a view by its name
+   *
+   * @param {string} name - the name of the child object
+   * @returns {CobjView} the found view or undefined
+   */
+  findChildView: function(name) {
+    for (var i = 0; i < this.data.attributes.children.length; i++) {
+      var childId = this.data.attributes.children[i];
+      if (!this.childInfo.hasOwnProperty(childId)) throw "view for child"+childId+" missing in group "+this.data.attributes.id;
+      if (childInfo[childId].view.data.attributes.name === name) {
+        return childInfo[childId].view;
+      }
     }
   },
   /**
@@ -196,9 +236,11 @@ var CGroupView = CobjView.extend({
    * @returns {Type} Description
    */
   _renderChildPosition: function(childView) {
+    var observeElementSve = this.observeElement;
+    this.observeElement = false;
     var attr = childView.data.attributes,
       diff = childView.data.changedAttributes || childView.data.attributes,
-      el = childView.el;
+      el = childView.elWrapper;
 
     var css = {};
     'x' in diff && attr.x !== undefined && (css.left = attr.x + 'px');
@@ -211,6 +253,9 @@ var CGroupView = CobjView.extend({
     'height' in diff && attr.height !== undefined && (css.height = attr.height);
 
     Kern._extend(el.style, css);
+
+    this.observeElement = observeElementSve;
+
   },
   /**
    * render the group. Uses cobjview.render to display changes to the object.
@@ -221,14 +266,11 @@ var CGroupView = CobjView.extend({
   render: function(options) {
     options = options || {};
     this.observeElement = false;
-
     CobjView.prototype.render.call(this, Kern._extend({}, options, {
       noObserveElement: true
     }));
-
     if (options.forceRender && this.data.attributes.children) {
       var length = this.data.attributes.children.length;
-
       for (var i = 0; i < length; i++)
         this.childInfo[this.data.attributes.children[i]].render(options)
     }

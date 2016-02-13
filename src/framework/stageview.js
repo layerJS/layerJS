@@ -23,6 +23,10 @@ var StageView = CGroupView.extend({
 
   this.observeElement = (!options.noObserveElement);
   },
+  _renderChildPosition: function(childView){
+    childView.elWrapper.style.left="0px";
+    childView.elWrapper.style.top="0px";
+  }
 
 }, {
   Model: StageData,

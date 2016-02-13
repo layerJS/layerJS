@@ -12,6 +12,7 @@ var LayoutManager = Kern.EventManager.extend({
    * @returns {This}
    */
   constructor: function(map) {
+    Kern.EventManager.call(this);
     this.map = map || {}; // maps cobjdata types to View constructors
   },
   /**

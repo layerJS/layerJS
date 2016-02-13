@@ -8,7 +8,10 @@ var CGroupData = require('./cgroupdata.js');
 var LayerData = CGroupData.extend({
   defaults: Kern._extend({}, CGroupData.prototype.defaults, {
     type: 'layer',
-    layoutType: 'plain'
+    tag: 'div',
+    layoutType: 'plain',
+    defaultFrame: undefined,
+    nativeScroll: true
   })
 });
 

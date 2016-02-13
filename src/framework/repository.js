@@ -22,7 +22,7 @@ var Repository = Kern.EventManager.extend({
    * @param {string} version - version to be used
    * @returns {Type} Description
    */
-  importJSON(data, version) {
+  importJSON: function(data, version) {
     if (!data) throw "no ModelRepository or data given";
     if (!version) throw "no version to create given";
     if (this.versions.hasOwnProperty(version)) throw "version already present in repository"

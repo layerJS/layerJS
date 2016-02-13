@@ -38,45 +38,65 @@ describe("Kern", function() {
     expect(m2 instanceof SubModel).toBe(true);
     expect(m2 instanceof Kern.Model).toBe(true);
   });
-  it('can extend objects',function(){
-    var o1={a:1,b:2};
-    var o2={a:4,c:5};
-    var o3={c:4,d:6};
-    Kern._extend(o1,o2,o3);
-    expect(o1.a==4 && o1.b==2 && o1.c==4 && o1.d==6).toBe(true);
+  it('can extend objects', function() {
+    var o1 = {
+      a: 1,
+      b: 2
+    };
+    var o2 = {
+      a: 4,
+      c: 5
+    };
+    var o3 = {
+      c: 4,
+      d: 6
+    };
+    Kern._extend(o1, o2, o3);
+    expect(o1.a == 4 && o1.b == 2 && o1.c == 4 && o1.d == 6).toBe(true);
   });
-  it('can extend objects with keeping existing properties',function(){
-    var o1={a:1,b:2};
-    var o2={a:4,c:5};
-    var o3={c:4,d:6};
-    Kern._extendKeep(o1,o2,o3);
-    expect(o1.a==1 && o1.b==2 && o1.c==5 && o1.d==6).toBe(true);
+  it('can extend objects with keeping existing properties', function() {
+    var o1 = {
+      a: 1,
+      b: 2
+    };
+    var o2 = {
+      a: 4,
+      c: 5
+    };
+    var o3 = {
+      c: 4,
+      d: 6
+    };
+    Kern._extendKeep(o1, o2, o3);
+    expect(o1.a == 1 && o1.b == 2 && o1.c == 5 && o1.d == 6).toBe(true);
   });
-  it('defaults with arrays aren\'t shared between instances', function(){
-      var testClass = Kern.Model.extend({
-        defaults: {
-            children :[1,2,3]
-        }});
+  it('defaults with arrays aren\'t shared between instances', function() {
+    var testClass = Kern.Model.extend({
+      defaults: {
+        children: [1, 2, 3]
+      }
+    });
 
-      var testObject1 = new testClass();
-      var testObject2 = new testClass();
-      testObject1.attributes.children.push(4);
+    var testObject1 = new testClass();
+    var testObject2 = new testClass();
+    testObject1.attributes.children.push(4);
 
-      expect(testObject1.attributes.children).toEqual([1,2,3,4]);
-      expect(testObject2.attributes.children).toEqual([1,2,3]);
+    expect(testObject1.attributes.children).toEqual([1, 2, 3, 4]);
+    expect(testObject2.attributes.children).toEqual([1, 2, 3]);
   });
-  it('defaults with objects aren\'t shared between instances', function(){
-      var testClass = Kern.Model.extend({
-        defaults: {
-            child : { }
-        }});
+  it('defaults with objects aren\'t shared between instances', function() {
+    var testClass = Kern.Model.extend({
+      defaults: {
+        child: {}
+      }
+    });
 
-      var testObject1 = new testClass();
-      var testObject2 = new testClass();
-      testObject1.attributes.child.name = 'childname';
+    var testObject1 = new testClass();
+    var testObject2 = new testClass();
+    testObject1.attributes.child.name = 'childname';
 
-      expect(testObject1.attributes.child.name).toEqual('childname');
-      expect(testObject2.attributes.child.name).toBeUndefined();
+    expect(testObject1.attributes.child.name).toEqual('childname');
+    expect(testObject2.attributes.child.name).toBeUndefined();
   });
 });
 describe("EventManager", function() {
@@ -434,7 +454,10 @@ describe('Model', function() {
         c: 5
       }
     });
-    var m=new SubModel({d:7,b:9});
+    var m = new SubModel({
+      d: 7,
+      b: 9
+    });
     expect(m.attributes.a).toBe(3);
     expect(m.attributes.b).toBe(9);
     expect(m.attributes.d).toBe(7);
@@ -570,11 +593,93 @@ describe("ModelRepository", function() {
     expect(model.__listeners__.change.length).toBe(0); // that's interal poking and shouldn't be public interface. If it breaks fix the test.
   });
   it('can contain a lot of models', function(){
-    var data={};
-    for (var i=0;i<10000;i++){
-      data['x'+i]=data3;
+    var data = {};
+    for (var i = 0; i < 10000; i++) {
+      data['x' + i] = data3;
     }
     var r = new Kern.ModelRepository(data);
     expect(r.get('x50').attributes.b).toBe(4);
   })
-})
+});
+
+describe('Promise', function() {
+  it('can be created', function() {
+    var p = new Kern.Promise();
+    expect(p).toBeDefined();
+  });
+  it('can be resolved', function() {
+    var p = new Kern.Promise();
+    p.resolve(5);
+    expect(p.value).toBe(5);
+  });
+  it('can be rejected', function() {
+    var p = new Kern.Promise();
+    p.reject(5);
+    expect(p.reason).toBe(5);
+  });
+  it('can trigger function with then()', function() {
+    var p = new Kern.Promise();
+    var test = 0;
+    var p2 = p.then(function(value) {
+      return test = value + 5
+    })
+    expect(p2.value).toBeUndefined();
+    p.resolve(5);
+    expect(test).toBe(10);
+    expect(p2.value).toBe(10);
+  });
+  it('can trigger rejection function with then()', function() {
+    var p = new Kern.Promise();
+    var test = 0;
+    var p2 = p.then(function() {}, function(reason) {
+      return test = reason + 5;
+    })
+    expect(p2.value).toBeUndefined();
+    p.reject(5);
+    expect(test).toBe(10);
+    expect(p2.value).toBeUndefined();
+    expect(p2.reason).toBe(5);
+  });
+  it('final promise is rejected if resolve function throws', function() {
+    var p = new Kern.Promise();
+    var test = 0;
+    var p2 = p.then(function(value) {
+      throw value + 6;
+    })
+    expect(p2.value).toBeUndefined();
+    p.resolve(5);
+    expect(p2.reason).toBe(11);
+    expect(p2.value).toBeUndefined();
+  });
+  it('can chain then\'s', function() {
+    var p = new Kern.Promise();
+    var test = 0;
+    var p2 = p.then(function(value) {
+      return value + 6;
+    }).then(function(value) {
+      return value + 8;
+    })
+    expect(p2.value).toBeUndefined();
+    p.resolve(5);
+    expect(p2.value).toBe(19);
+  });
+  it('can chain then\'s returning new promises in the resolve functions', function() {
+    var p = new Kern.Promise();
+    var ip;
+    var test = 0;
+    var p2 = p.then(function(value) {
+      var innerPromise = new Kern.Promise();
+      ip = function(value2) {
+        innerPromise.resolve(2 * (value + value2));
+      }
+      return innerPromise;
+    }).then(function(value) {
+      return value + 8;
+    });
+    expect(p2.value).toBeUndefined();
+    p.resolve(5);
+    expect(p2.value).toBeUndefined();
+    ip(4);
+    expect(p2.value).toBe(26);
+  });
+});
