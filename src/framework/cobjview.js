@@ -191,10 +191,15 @@ var CobjView = Kern.EventManager.extend({
    * @returns {Type} Description
    */
   applyStyles: function(styles) {
+    var observeElementSve = this.observeElement;
+    this.observeElement = false;
+
     var props = Object.keys(styles);
     for (var i = 0; i < props.length; i++) {
       this.elWrapper.style[$.cssPrefix[props[i]] || props[i]] = styles[props[i]];
     }
+
+    this.observeElement = observeElementSve;
   },
   /**
    * returns the width of the object. Note, this is the actual width which may be different then in the data object
@@ -263,7 +268,7 @@ var CobjView = Kern.EventManager.extend({
 
     var that = this;
 
-    if (window.MutationObserver) {
+    if (false && window.MutationObserver) {
       this.observer = new MutationObserver(function(mutation) {
         that._domElementChanged();
       });
