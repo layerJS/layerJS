@@ -1,10 +1,12 @@
-# layerJS README #
+# Introduction #
 
 layerJS is an open source Javascript UX (User Experience) library allowing intuitive, mobile app-like experiences for web apps and websites.
 
 layerJS introduces the Stage-Frame concept. Frames are arbitrary HTML fragments - the content of your site - that can be fit into Stages (viewports) dynamically. The root Stage is usually the browser window and its Frames represent sub pages or app screens. Frames can be exchanged within Stages using animated transitions like swipes, fades or 3D transitions. Stages and Frames can be nested such that a slider can exists within an animated frame. Frames can be placed on overlapping layers allowing effects like floating menus or parallax backgrounds. 
 
-layerJS has been developed as a lean library that goes out of your way when it is not needed. You can use any framework to build your website or app and just use layerJS to do the frame transitions. layerJS also does not break the linking-paradigm of the web. Switching frames within stages changes the URL through the router. This also supports using relative links to trigger frame transition.
+layerJS has been developed as a lean library that goes out of your way when it is not needed. You can use any framework to build your website or app and just use layerJS to do the Frame transitions. layerJS also does not break the linking-paradigm of the web. Switching Frames within Stages changes the URL through the router. This also supports using relative links to trigger Frame transition.
+
+layerJS supports directional touch and touchpad gestures to trigger transitions.  Use your finger to pull down menus or swipe through a list of sub pages. Transition can further be triggered through API calls or above mentioned links.
 
 ### Quickstart ###
 
