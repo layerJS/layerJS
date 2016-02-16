@@ -8,7 +8,7 @@ layerJS has been developed as a lean library that goes out of your way when it i
 
 layerJS supports directional touch and touchpad gestures to trigger transitions.  Use your finger to pull down menus or swipe through a list of sub pages. Transition can further be triggered through API calls or above mentioned links.
 
-### Quickstart ###
+## Quickstart ##
 
 In the simplest case layerJS will fit a frame which exists on a layer into a single stage
 ```
@@ -41,7 +41,20 @@ In the above example layerJS wouldn't support any transitions between frames unt
 layerJS can now be used to trigger transitions between the two frames:
 ```
 WL.init();
-WL.select('#layer1').transtionTo('second',{type: 'left'});
+WL.select('#layer1').transitionTo('second',{type: 'left'});
 ```
 
 above code example will trigger a 'swipe left' transition between the two frames.
+
+## How to build ##
+
+Building layerjs requires nodejs and npm. Necessary node packages can be installed using:
+```
+npm install
+```
+
+The build process can be started using
+```
+npm run build
+```
+which automatically runs all unit tests via `npm test`. The result can be found in the `./dist` directory.
