@@ -338,9 +338,6 @@ var CobjView = Kern.EventManager.extend({
       }
     }
 
-    if (data.id)
-      data.id = parseInt(data.id);
-
     data.classes = element.className.replace("object-default object-" + data.type, "");
 
     if (data.tag.toUpperCase() == 'A') {

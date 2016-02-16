@@ -71,7 +71,7 @@ var Repository = Kern.EventManager.extend({
    * Generates an id for a data object. This id should be unique
    * This method should be looked at in the future.
    *
-   * @returns {number} the id
+   * @returns {string} the id
    */
   getId: function() {
     if (this.previous == undefined)
@@ -84,7 +84,7 @@ var Repository = Kern.EventManager.extend({
     }
 
     this.previous = next;
-    return next;
+    return next.toString();
   }
 });
 // initialialize repository

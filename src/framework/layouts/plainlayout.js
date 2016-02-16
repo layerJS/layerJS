@@ -16,8 +16,8 @@ var PlainLayout = LayerLayout.extend({
     this.transitions = {
       left: this.swipeTransition,
       right: this.swipeTransition,
-      top: this.swipeTransition,
-      bottom: this.swipeTransition
+      up: this.swipeTransition,
+      down: this.swipeTransition
     }
   },
   /**

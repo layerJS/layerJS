@@ -327,7 +327,7 @@ var commonViewTests = function(scenario, initFunction) {
       var dataObject = ViewType.parse(element);
 
       expect(dataObject).toBeDefined();
-      expect(dataObject.id).toBe(1);
+      expect(dataObject.id).toBe('1');
       expect(dataObject.type).toBe(data.attributes.type);
       expect(dataObject.tag).toBe('A');
       expect(dataObject.classes).toBe(' someClass');

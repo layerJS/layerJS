@@ -28,13 +28,13 @@ describe('ParseMananger', function() {
 
     var stage = repository.get(1, defaults.version);
     expect(stage).toBeDefined();
-    expect(stage.attributes.id).toBe(1);
+    expect(stage.attributes.id).toBe('1');
     expect(stage.attributes.type).toBe('stage');
     expect(stage.attributes.children.length).toBe(0);
 
     stage = repository.get(2, defaults.version);
     expect(stage).toBeDefined();
-    expect(stage.attributes.id).toBe(2);
+    expect(stage.attributes.id).toBe('2');
     expect(stage.attributes.type).toBe('stage');
     expect(stage.attributes.children.length).toBe(0);
   });
@@ -65,19 +65,19 @@ describe('ParseMananger', function() {
 
     var stage = repository.get(1, defaults.version);
     expect(stage).toBeDefined();
-    expect(stage.attributes.id).toBe(1);
+    expect(stage.attributes.id).toBe('1');
     expect(stage.attributes.type).toBe('stage');
-    expect(stage.attributes.children).toEqual([2]);
+    expect(stage.attributes.children).toEqual(['2']);
 
     var layer = repository.get(2, defaults.version);
     expect(layer).toBeDefined();
-    expect(layer.attributes.id).toBe(2);
+    expect(layer.attributes.id).toBe('2');
     expect(layer.attributes.type).toBe('layer');
-    expect(layer.attributes.children).toEqual([3]);
+    expect(layer.attributes.children).toEqual(['3']);
 
     var frame = repository.get(3, defaults.version);
     expect(frame).toBeDefined();
-    expect(frame.attributes.id).toBe(3);
+    expect(frame.attributes.id).toBe('3');
     expect(frame.attributes.type).toBe('frame');
     expect(frame.attributes.children.length).toBe(0);
   });
@@ -99,13 +99,13 @@ describe('ParseMananger', function() {
 
     var stage = repository.get(1, defaults.version);
     expect(stage).toBeDefined();
-    expect(stage.attributes.id).toBe(1);
+    expect(stage.attributes.id).toBe('1');
     expect(stage.attributes.type).toBe('stage');
-    expect(stage.attributes.children).toEqual([2]);
+    expect(stage.attributes.children).toEqual(['2']);
 
     var layer = repository.get(2, defaults.version);
     expect(layer).toBeDefined();
-    expect(layer.attributes.id).toBe(2);
+    expect(layer.attributes.id).toBe('2');
     expect(layer.attributes.type).toBe('layer');
     expect(layer.attributes.children.length).toBe(0);
   });
@@ -123,7 +123,7 @@ describe('ParseMananger', function() {
 
     var stage = repository.get(1, defaults.version);
     expect(stage).toBeDefined();
-    expect(stage.attributes.id).toBe(1);
+    expect(stage.attributes.id).toBe('1');
     expect(stage.attributes.type).toBe('stage');
     expect(stage.attributes.children.length).toBe(0);
   });
@@ -143,13 +143,13 @@ describe('ParseMananger', function() {
 
     var stage = repository.get(1, defaults.version);
     expect(stage).toBeDefined();
-    expect(stage.attributes.id).toBe(1);
+    expect(stage.attributes.id).toBe('1');
     expect(stage.attributes.type).toBe('stage');
-    expect(stage.attributes.children).toEqual([2]);
+    expect(stage.attributes.children).toEqual(['2']);
 
     var layer = repository.get(2, defaults.version);
     expect(layer).toBeDefined();
-    expect(layer.attributes.id).toBe(2);
+    expect(layer.attributes.id).toBe('2');
     expect(layer.attributes.type).toBe('layer');
     expect(layer.attributes.children.length).toBe(0);
   });
@@ -164,13 +164,13 @@ describe('ParseMananger', function() {
 
     var stage = repository.get(1, version);
     expect(stage).toBeDefined();
-    expect(stage.attributes.id).toBe(1);
+    expect(stage.attributes.id).toBe('1');
     expect(stage.attributes.type).toBe('stage');
     expect(stage.attributes.children.length).toBe(0);
 
     stage = repository.get(2, version);
     expect(stage).toBeDefined();
-    expect(stage.attributes.id).toBe(2);
+    expect(stage.attributes.id).toBe('2');
     expect(stage.attributes.type).toBe('stage');
     expect(stage.attributes.children.length).toBe(0);
   });
