@@ -28,7 +28,7 @@ var CobjView = Kern.EventManager.extend({
     // possible wrapper element
     this.elWrapper = this.elWrapper || options.elWrapper || this.el;
     this.elWrapper._wlView = this;
-    this.observeElement = (!options.noObserveElement);
+    this.disableObserver();
 
     var that = this;
     // The change event must change the properties of the HTMLElement el.
@@ -36,12 +36,15 @@ var CobjView = Kern.EventManager.extend({
       //that._renderPosition();
       if (model.changedAttributes.hasOwnProperty('width') || model.changedAttributes.hasOwnProperty('height')) that._fixedDimensions();
       that.render();
+
     });
     this._fixedDimensions();
     // Only render the element when it is passed in the options
     if (!options.noRender && (options.forceRender || !options.el))
       this.render();
-    this._observeElement();
+
+    this._createObserver();
+    this.enableObserver();
   },
   _fixedDimensions: function() {
     var match;
@@ -88,7 +91,7 @@ var CobjView = Kern.EventManager.extend({
    */
   render: function(options) {
     options = options || {};
-    this.observeElement = false;
+    this.disableObserver();
 
     var attr = this.data.attributes,
       diff = (this.isRendererd ? this.data.changedAttributes : this.data.attributes),
@@ -157,7 +160,7 @@ var CobjView = Kern.EventManager.extend({
 
     this.isRendered = true;
 
-    this.observeElement = (!options.noObserveElement);
+    this.enableObserver();
   },
 
   /**
@@ -165,7 +168,7 @@ var CobjView = Kern.EventManager.extend({
    */
   renderPosition: function(options) {
     options = options || {};
-    this.observeElement = false;
+    this.disableObserver();
     var attr = this.data.attributes,
       diff = this.data.changedAttributes || this.data.attributes,
       el = this.el;
@@ -182,7 +185,7 @@ var CobjView = Kern.EventManager.extend({
 
     Kern._extend(el.style, css);
 
-    this.observeElement = (!options.noObserveElement);
+    this.enableObserver();
   },
   /**
    * apply CSS styles to this view
@@ -191,15 +194,14 @@ var CobjView = Kern.EventManager.extend({
    * @returns {Type} Description
    */
   applyStyles: function(styles) {
-    var observeElementSve = this.observeElement;
-    this.observeElement = false;
+    this.disableObserver();
 
     var props = Object.keys(styles);
     for (var i = 0; i < props.length; i++) {
       this.elWrapper.style[$.cssPrefix[props[i]] || props[i]] = styles[props[i]];
     }
 
-    this.observeElement = observeElementSve;
+    this.enableObserver();
   },
   /**
    * returns the width of the object. Note, this is the actual width which may be different then in the data object
@@ -261,26 +263,40 @@ var CobjView = Kern.EventManager.extend({
   destroy: function() {
     this.elWrapper.parentNode.removeChild(this.elWrapper);
   },
-  _observeElement: function() {
+  enableObserver: function() {
+    if (!this.hasOwnProperty('_observerCounter')) {
+      this._observerCounter = 0
+    } else if (this._observerCounter > 0) {
+      this._observerCounter--;
+    }
+  },
+  disableObserver: function() {
+    if (!this.hasOwnProperty('_observerCounter')) {
+      this._observerCounter = 0
+    }
 
-    if (this.observer)
+    this._observerCounter++;
+  },
+  _createObserver: function() {
+
+    if (this.hasOwnProperty('_observer'))
       return;
 
     var that = this;
 
     if (false && window.MutationObserver) {
-      this.observer = new MutationObserver(function(mutation) {
+      this._observer = new MutationObserver(function(mutation) {
         that._domElementChanged();
       });
 
-      this.observer.observe(this.el, new {
+      this._observer.observe(this.el, {
         attributes: true,
         childList: false,
         characterData: true,
         subtree: false
       });
     } else {
-      this.observer = {};
+      this._observer = {};
 
       this.el.addEventListener("DOMAttrModified", function(ev) {
         that._domElementChanged();
@@ -305,7 +321,8 @@ var CobjView = Kern.EventManager.extend({
    * @return {void}
    */
   _domElementChanged: function() {
-    if (!this.observeElement) return;
+    if (this._observerCounter != 0) return;
+
     var dataObject = CobjView.parse(this.el);
 
     this.data.silence();

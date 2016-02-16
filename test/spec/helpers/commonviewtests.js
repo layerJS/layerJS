@@ -247,7 +247,7 @@ var commonViewTests = function(scenario, initFunction) {
       var element = view.el;
       var style = element.style;
 
-      var height = (data.attributes.height !== undefined && data.attributes.height!='') ? data.attributes.height + 'px' : '';
+      var height = (data.attributes.height !== undefined && data.attributes.height != '') ? data.attributes.height + 'px' : '';
 
       expect(element.style.height).toBe(height);
     });
@@ -341,47 +341,48 @@ var commonViewTests = function(scenario, initFunction) {
       expect(dataObject.height).toBe('200');
     });
 
-    it('listens for changes on its DOM element when observeElement is true', function(){
-        var view = new ViewType(data);
-        var element = view.el;
-        view.render();
+    it('listens for changes on its DOM element when _observerCounter is 0', function() {
+      var view = new ViewType(data);
+      var element = view.el;
+      view.render();
 
-        expect(view.observer).toBeDefined();
-        expect(view.observeElement).toBeTruthy();
+      expect(view._observer).toBeDefined();
+      expect(view._observerCounter).toBe(0);
 
-        element.style.width = "55px";
-        element.className = "a_class";
-        element.setAttribute('data-wl-custom', 10);
+      element.style.width = "55px";
+      element.className = "a_class";
+      element.setAttribute('data-wl-custom', 10);
 
-        expect(data.attributes.width).toBe('55');
-        expect(data.attributes.classes).toBe('a_class');
-        expect(data.attributes.custom).toBe('10');
+      expect(data.attributes.width).toBe('55');
+      expect(data.attributes.classes).toBe('a_class');
+      expect(data.attributes.custom).toBe('10');
     });
 
-    it('doesn\'t listen for changes on its DOM element when observeElement is false', function(){
-        var view = new ViewType(data);
-        var element = view.el;
-        view.render();
-        view.observeElement = false;
+    it('doesn\'t listen for changes on its DOM element when _observerCounter is greater then 0', function() {
+      var view = new ViewType(data);
+      var element = view.el;
 
-        expect(view.observer).toBeDefined();
-        expect(view.observeElement).toBeFalsy();
+      view.render();
+      view.disableObserver();
 
-        element.style.width = "55px";
-        element.className = "a_class";
-        element.setAttribute('data-wl-custom', 10);
+      expect(view._observer).toBeDefined();
+      expect(view._observerCounter).toBe(1);
 
-        expect(data.attributes.width).not.toBe('55');
-        expect(data.attributes.classes).not.toBe('a_class');
-        expect(data.attributes.custom).not.toBe('10');
+      element.style.width = "55px";
+      element.className = "a_class";
+      element.setAttribute('data-wl-custom', 10);
+
+      expect(data.attributes.width).not.toBe('55');
+      expect(data.attributes.classes).not.toBe('a_class');
+      expect(data.attributes.custom).not.toBe('10');
     });
 
-    it('can pass a value for the observeElement in the constructor using the options parameter', function(){
-        var view = new ViewType(data, { noObserveElement : true, noRender:true});
-        var element = view.el;
+    it('will listen for chnanges on its DOM element by default', function() {
+      var view = new ViewType(data);
+      var element = view.el;
 
-        expect(view.observer).toBeDefined();
-        expect(view.observeElement).toBeFalsy();
+      expect(view._observer).toBeDefined();
+      expect(view._observerCounter).toBe(0);
     });
   });
 };

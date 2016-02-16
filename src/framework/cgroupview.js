@@ -30,11 +30,8 @@ var CGroupView = CobjView.extend({
     }
 
     CobjView.call(this, dataModel, Kern._extend({}, options, {
-      noRender: true,
-      noObserveElement: true
+      noRender: true
     }));
-
-    this.observeElement = (!options.noObserveElement);
 
     this.data.on('change:children', (function() {
       that._buildChildren(); // update DOM when data.children changes
@@ -44,8 +41,6 @@ var CGroupView = CobjView.extend({
 
     if (!options.noRender && (options.forceRender || !options.el))
       this.render();
-
-
   },
   /**
    * Syncronise the DOM child nodes with the data IDs in the data's
@@ -58,7 +53,7 @@ var CGroupView = CobjView.extend({
    */
   _buildChildren: function() {
 
-
+    this.disableObserver();
     var that = this;
     var empty;
     var childIds = this.data.attributes.children;
@@ -155,6 +150,8 @@ var CGroupView = CobjView.extend({
       this.el.childNodes[k].remove(); // remove child from dom
       _k_nextChild(); // next wl object
     }
+
+    this.enableObserver();
   },
   /**
    * return child CobjView for a given child id
@@ -236,8 +233,7 @@ var CGroupView = CobjView.extend({
    * @returns {Type} Description
    */
   _renderChildPosition: function(childView) {
-    var observeElementSve = this.observeElement;
-    this.observeElement = false;
+
     var attr = childView.data.attributes,
       diff = childView.data.changedAttributes || childView.data.attributes,
       el = childView.elWrapper;
@@ -252,10 +248,9 @@ var CGroupView = CobjView.extend({
     'width' in diff && attr.width !== undefined && (css.width = attr.width);
     'height' in diff && attr.height !== undefined && (css.height = attr.height);
 
+    childView.disableObserver();
     Kern._extend(el.style, css);
-
-    this.observeElement = observeElementSve;
-
+    childView.enableObserver();
   },
   /**
    * render the group. Uses cobjview.render to display changes to the object.
@@ -265,17 +260,17 @@ var CGroupView = CobjView.extend({
    */
   render: function(options) {
     options = options || {};
-    this.observeElement = false;
-    CobjView.prototype.render.call(this, Kern._extend({}, options, {
-      noObserveElement: true
-    }));
+    this.disableObserver();
+
+    CobjView.prototype.render.call(this, options);
+
     if (options.forceRender && this.data.attributes.children) {
       var length = this.data.attributes.children.length;
       for (var i = 0; i < length; i++)
         this.childInfo[this.data.attributes.children[i]].render(options)
     }
 
-    this.observeElement = (!options.noObserveElement)
+    this.enableObserver();
   },
   /**
    * Return decendent Views which give a true value when passed to a given

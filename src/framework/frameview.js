@@ -16,16 +16,11 @@ var FrameView = CGroupView.extend({
     options = options || {};
     this.transformData = undefined;
     CGroupView.call(this, dataModel, Kern._extend({}, options, {
-      noRender: true,
-      noObserveElement : true
+      noRender: true
     }));
-
 
     if (!options.noRender && (options.forceRender || !options.el))
       this.render();
-
-    this.observeElement = (!options.noObserveElement);
-
   },
   /**
    * get the transformData of the frame that describes how to fit the frame into the stage

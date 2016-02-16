@@ -14,18 +14,17 @@ var StageView = CGroupView.extend({
   constructor: function(dataModel, options) {
     options = options || {};
     CGroupView.call(this, dataModel, Kern._extend({}, options, {
-      noRender: true,
-      noObserveElement: true
+      noRender: true
     }));
 
     if (!options.noRender && (options.forceRender || !options.el))
       this.render();
-
-  this.observeElement = (!options.noObserveElement);
   },
   _renderChildPosition: function(childView){
+    childView.disableObserver();
     childView.elWrapper.style.left="0px";
     childView.elWrapper.style.top="0px";
+    childView.enableObserver();
   }
 
 }, {

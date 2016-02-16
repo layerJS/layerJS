@@ -14,33 +14,28 @@ var CtextView = CobjView.extend({
   constructor: function(dataModel, options) {
     options = options || {};
     CobjView.call(this, dataModel, Kern._extend({}, options, {
-      noRender: true,
-      noObserveElement: true
+      noRender: true
     }));
 
     if (!options.noRender && (options.forceRender || !options.el))
       this.render();
-
-    this.observeElement = (!options.noObserveElement);
   },
   render: function(options) {
     options = options || {};
-    this.observeElement = false;
+    this.disableObserver();
+
     var attr = this.data.attributes,
       diff = this.data.changedAttributes || this.data.attributes,
       el = this.el;
 
-    CobjView.prototype.render.call(this, Kern._extend({}, options, {
-      noObserveElement: false
-    }));
+    CobjView.prototype.render.call(this, options);
 
     if ('content' in diff) {
       el.innerHTML = attr.content;
     }
 
-    this.observeElement = (!options.noObserveElement);
+    this.enableObserver();
   }
-
 }, {
   Model: CtextData,
   parse: function(element) {

@@ -69,6 +69,7 @@ describe("CGroupView", function() {
 
     var cobjData = new CobjData(datasetReader.readFromFile('simple_cobjdata.js')[0]);
     var cobjView = new CobjView(cobjData);
+
     parentView.attachView(cobjView);
 
     var cgroupData = new CGroupData(datasetReader.readFromFile('simple_cgroupdata.js')[0]);
@@ -114,16 +115,16 @@ describe("CGroupView", function() {
     repository.clear();
 
     var dataObjects = [{
-      "id": 100,
+      "id": '100',
       "type": 'group',
-      "children": [101, 102],
+      "children": ['101', '102'],
       "version": version
     }, {
-      "id": 101,
+      "id": '101',
       "type": "node",
       "version": version
     }, {
-      "id": 102,
+      "id": '102',
       "type": "node",
       "version": version
     }];
@@ -151,7 +152,7 @@ describe("CGroupView", function() {
     expect(parentElement.children[3].id).toBe('102');
     expect(parentElement.children[4].id).toBe('element3');
 
-    parentData.set('children', [102, 101]);
+    parentData.set('children', ['102', '101']);
 
     expect(parentElement.children[0].id).toBe('element1');
     expect(parentElement.children[1].id).toBe('102');
@@ -159,5 +160,4 @@ describe("CGroupView", function() {
     expect(parentElement.children[3].id).toBe('101');
     expect(parentElement.children[4].id).toBe('element3');
   });
-
 });

@@ -36,9 +36,9 @@ var LayerView = CGroupView.extend({
     // mark scroller as scroller in HTML
     if (hasScroller) this.el.setAttribute('data-wl-helper', 'scroller');
     // call super constructor
+
     CGroupView.call(this, dataModel, Kern._extend({}, options, {
-      noRender: true,
-      noObserveElement: true
+      noRender: true
     }));
 
     // this is my stage and add listener to keep it updated
@@ -50,7 +50,7 @@ var LayerView = CGroupView.extend({
     // set current frame from data object or take first child
     this.currentFrame = (this.data.attributes.defaultFrame && this.findChildView(this.data.attributes.defaultFrame)) || (this.data.attributes.children[0] && this.getChildView(this.data.attributes.children[0]));
     if (!options.noRender && (options.forceRender || !options.el)) this.render();
-    this.observeElement = (!options.noObserveElement);
+
     if (this.stage && this.currentFrame) this.stage.waitForDimensions().then(function() {
       that.layout.init(that.stage)
     });
@@ -98,8 +98,7 @@ var LayerView = CGroupView.extend({
    * @returns {Type} Description
    */
   _renderChildPosition(childView) {
-    var observeElementSve = this.observeElement;
-    this.observeElement = false;
+    this.disableObserver();
 
     var attr = childView.data.attributes,
       diff = childView.data.changedAttributes || childView.data.attributes,
@@ -109,8 +108,7 @@ var LayerView = CGroupView.extend({
     'width' in diff && attr.width !== undefined && (css.width = attr.width);
     'height' in diff && attr.height !== undefined && (css.height = attr.height);
     Kern._extend(el.style, css);
-    this.observeElement = observeElementSve;
-
+    this.enableObserver();
   }
 }, {
   Model: LayerData,
