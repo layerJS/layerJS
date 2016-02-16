@@ -261,6 +261,10 @@ var CobjView = Kern.EventManager.extend({
    * @return {void}
    */
   destroy: function() {
+    if (window.MutationObserver && this._observer) {
+      this._observer.disconnect();
+    }
+
     this.elWrapper.parentNode.removeChild(this.elWrapper);
   },
   enableObserver: function() {
@@ -284,12 +288,12 @@ var CobjView = Kern.EventManager.extend({
 
     var that = this;
 
-    if (false && window.MutationObserver) {
+    if (window.MutationObserver) {
       this._observer = new MutationObserver(function(mutation) {
         that._domElementChanged();
       });
 
-      this._observer.observe(this.el, {
+      this._observer.observe(this.elWrapper, {
         attributes: true,
         childList: false,
         characterData: true,
@@ -298,19 +302,19 @@ var CobjView = Kern.EventManager.extend({
     } else {
       this._observer = {};
 
-      this.el.addEventListener("DOMAttrModified", function(ev) {
+      this.elWrapper.addEventListener("DOMAttrModified", function(ev) {
         that._domElementChanged();
       }, false);
 
-      this.el.addEventListener("DOMAttributeNameChanged", function(ev) {
+      this.elWrapper.addEventListener("DOMAttributeNameChanged", function(ev) {
         that._domElementChanged();
       }, false);
 
-      this.el.addEventListener("DOMCharacterDataModified", function(ev) {
+      this.elWrapper.addEventListener("DOMCharacterDataModified", function(ev) {
         that._domElementChanged();
       }, false);
 
-      this.el.addEventListener("DOMElementNameChanged", function(ev) {
+      this.elWrapper.addEventListener("DOMElementNameChanged", function(ev) {
         that._domElementChanged();
       }, false);
     }
@@ -323,7 +327,7 @@ var CobjView = Kern.EventManager.extend({
   _domElementChanged: function() {
     if (this._observerCounter != 0) return;
 
-    var dataObject = CobjView.parse(this.el);
+    var dataObject = CobjView.parse(this.elWrapper);
 
     this.data.silence();
     for (var data in dataObject) {
