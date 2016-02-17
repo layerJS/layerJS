@@ -11,7 +11,7 @@ var ParseManager = function() {
    * Asks the repository for an id if it is not provided
    *
    * @param {Object} parentDataObject - the data object for the passed element
-   * @param {Object} parentDataObject - the data object for the passed element
+   * @param {HTMLElement} element - parent element
    * @param {Array} dataObjects - A list of all found data objects, new ones are added to this collection
    * @param {Object} options - an options object
    * @returns {void}

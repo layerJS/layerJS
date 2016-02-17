@@ -1,12 +1,12 @@
 # Introduction #
 
-layerJS is an open source Javascript UX (User Experience) library allowing intuitive, mobile app-like experiences for web apps and websites.
+layerJS is an open source Javascript UX (User Experience) library allowing intuitive, mobile app-like experiences for web apps and websites. It follows the idea that any kind of interactive web content can be realized by placing media elements on moving layers.
 
-layerJS introduces the Stage-Frame concept. Frames are arbitrary HTML fragments - the content of your site - that can be fit into Stages (viewports) dynamically. The root Stage is usually the browser window and its Frames represent sub pages or app screens. Frames can be exchanged within Stages using animated transitions like swipes, fades or 3D transitions. Stages and Frames can be nested such that a slider can exists within an animated frame. Frames can be placed on overlapping layers allowing effects like floating menus or parallax backgrounds. 
+layerJS introduces the Stage-Frame concept. Frames are arbitrary HTML fragments - the content of your site - that can be fit into Stages (viewports) dynamically. The root Stage is usually the browser window and its Frames represent sub pages or app screens. Frames can be exchanged within Stages using animated transitions like swipes, fades or 3D transitions. Stages and Frames can be nested such that a slider can exists within an animated frame. Frames can be placed on overlapping layers allowing effects like floating menus or parallax backgrounds.
 
-layerJS has been developed as a lean library that goes out of your way when it is not needed. You can use any framework to build your website or app and just use layerJS to do the Frame transitions. layerJS also does not break the linking-paradigm of the web. Switching Frames within Stages changes the URL through the router. This also supports using relative links to trigger Frame transition.
+layerJS has been developed as a lean library that goes out of your way when it is not needed. You can use any framework to build your website or app and just use layerJS to do the Frame transitions. layerJS also does not break the linking-paradigm of the web. Switching Frames within Stages changes the URL. This also supports using relative links to trigger Frame transition.
 
-layerJS supports directional touch and touchpad gestures to trigger transitions.  Use your finger to pull down menus or swipe through a list of sub pages. Transition can further be triggered through API calls or above mentioned links.
+layerJS supports directional touch and touchpad gestures to trigger transitions.  Use your fingers to pull down menus or swipe through a list of sub pages. Transitions can further be triggered through API calls or above mentioned links.
 
 ## Quickstart ##
 
@@ -58,3 +58,11 @@ The build process can be started using
 npm run build
 ```
 which automatically runs all unit tests via `npm test`. The result can be found in the `./dist` directory.
+
+## How to contribute ##
+
+layerJS is in alpha currently so things still change. It's best to get in contact with us (developers@layerjs.com) and discuss your ideas.
+
+Of course it is possible to fork the repo and submit pull requests.
+
+In order to have your code included into the layerJS framework you need to sign our [Harmony Code Contribution agreement](Contribution.md) which allows us to additionally license layerJS under other license terms in future. [Learn more about Harmony agreements.](harmonyagreements.org)
