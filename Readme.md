@@ -61,7 +61,7 @@ which automatically runs all unit tests via `npm test`. The result can be found 
 
 ## How to contribute ##
 
-layerJS is in alpha currently so things still change. It's best to get in contact with us [developers@layerjs.org](mailto:developers@layerjs.org) and discuss your ideas.
+layerJS is in alpha currently so things still change. It's best to get in contact with us at [developers@layerjs.org](mailto:developers@layerjs.org) and discuss your ideas.
 
 Of course it is possible to fork the repo and submit pull requests.
 
