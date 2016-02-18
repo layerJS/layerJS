@@ -61,7 +61,7 @@ var CGroupView = CobjView.extend({
     var nodeId;
     var _k_nextChild = function() { // find next DOM child node that is a wl-element
       k++;
-      while (!(empty = !(k < that.el.childNodes.length)) && !(nodeId = that.el.childNodes[k].getAttribute('data-wl-id'))) {
+      while (!(empty = !(k < that.el.childNodes.length)) && (that.el.childNodes[k].nodeType != 1 || !(nodeId = that.el.childNodes[k].getAttribute('data-wl-id')))) {
         k++;
       }
     }
@@ -144,6 +144,11 @@ var CGroupView = CobjView.extend({
       !empty && _k_nextChild();
     while (!empty) { // some objects need to be deleted (only removes dom elements of wl objects)
       var vo = this.el.childNodes[k]._wlView;
+      if (!vo) {
+        console.log('FIXME: ignoring uninitialized layerjs object in children list.');
+        _k_nextChild();
+        continue;
+      }
       vo.data.off('change', this._myChildListenerCallback); // remove child change listener
       delete this.childNames[vo.data.attributes.name];
       delete this.childNodes[vo.data.attributes.id];
@@ -160,7 +165,7 @@ var CGroupView = CobjView.extend({
    * @returns {CobjView} the view object
    */
   getChildView: function(childId) {
-    if (!this.childInfo.hasOwnProperty(childId)) throw "unknown child "+childId+" in group "+this.data.attributes.id;
+    if (!this.childInfo.hasOwnProperty(childId)) throw "unknown child " + childId + " in group " + this.data.attributes.id;
     return this.childInfo[childId].view;
   },
   /**
@@ -170,7 +175,7 @@ var CGroupView = CobjView.extend({
    * @returns {CobjView} the view object
    */
   getChildViewByName: function(name) {
-    if (!this.childNames.hasOwnProperty(name)) throw "unknown child with name "+name+" in group "+this.data.attributes.id;
+    if (!this.childNames.hasOwnProperty(name)) throw "unknown child with name " + name + " in group " + this.data.attributes.id;
     return this.childNames[name];
   },
   /**
@@ -182,7 +187,7 @@ var CGroupView = CobjView.extend({
   findChildView: function(name) {
     for (var i = 0; i < this.data.attributes.children.length; i++) {
       var childId = this.data.attributes.children[i];
-      if (!this.childInfo.hasOwnProperty(childId)) throw "view for child"+childId+" missing in group "+this.data.attributes.id;
+      if (!this.childInfo.hasOwnProperty(childId)) throw "view for child" + childId + " missing in group " + this.data.attributes.id;
       if (childInfo[childId].view.data.attributes.name === name) {
         return childInfo[childId].view;
       }
