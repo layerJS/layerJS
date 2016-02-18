@@ -146,6 +146,44 @@ var PlainLayout = LayerLayout.extend({
           };
         }
         break;
+
+        case 'down':
+          // target frame transform time 0
+          if (which & PlainLayout.TT0) {
+            var x = -targetTransformData.shiftX - targetTransformData.scrollX;
+            var y = -currentTransformData.height + currentTransformData.shiftY +  currentTransformData.scrollY;
+            t.t0 = {
+              transform: "translate3d(" + x + "px," + y + "px,0px) scale(" + targetTransformData.scale + ")"
+            };
+          }
+          // current frame transform time 1
+          if (which & PlainLayout.CT1) {
+            var x =  currentTransformData.shiftX + currentTransformData.scrollX;
+            var y =  targetTransformData.height - currentTransformData.shiftY - currentTransformData.scrollY;
+            t.c1 = {
+              transform: "translate3d(" + x + "px," + y + "px,0px) scale(" + currentTransformData.scale + ")"
+            };
+          }
+          break;
+
+          case 'up':
+            // target frame transform time 0
+            if (which & PlainLayout.TT0) {
+              var x = -targetTransformData.shiftX - targetTransformData.scrollX;
+              var y = currentTransformData.height - targetTransformData.shiftY -  targetTransformData.scrollY;
+              t.t0 = {
+                transform: "translate3d(" + x + "px," + y + "px,0px) scale(" + targetTransformData.scale + ")"
+              };
+            }
+            // current frame transform time 1
+            if (which & PlainLayout.CT1) {
+              var x =  -currentTransformData.shiftX - currentTransformData.scrollY;
+              var y =  -targetTransformData.height - currentTransformData.shiftY - currentTransformData.scrollY;
+              t.c1 = {
+                transform: "translate3d(" + x + "px," + y + "px,0px) scale(" + currentTransformData.scale + ")"
+              };
+            }
+            break;
     }
     return t;
   }
