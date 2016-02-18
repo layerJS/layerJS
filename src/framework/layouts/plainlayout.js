@@ -130,6 +130,26 @@ var PlainLayout = LayerLayout.extend({
           };
         }
         break;
+        case 'right':
+          // target frame transform time 0
+          if (which & PlainLayout.TT0) {
+            var x = -currentTransformData.width + currentTransformData.shiftX + currentTransformData.scrollX;
+            var y = -targetTransformData.shiftY - targetTransformData.scrollY;
+            t.t0 = {
+              transform: "translate3d(" + x + "px," + y + "px,0px) scale(" + targetTransformData.scale + ")",
+              'transform-origin': "0 0"
+            };
+          }
+          // current frame transform time 1
+          if (which & PlainLayout.CT1) {
+            var x = targetTransformData.width - currentTransformData.shiftX - currentTransformData.scrollX;
+            var y = currentTransformData.shiftY + currentTransformData.scrollY;
+            t.c1 = {
+              transform: "translate3d(" + x + "px," + y + "px,0px) scale(" + currentTransformData.scale + ")",
+              'transform-origin': "0 0"
+            };
+          }
+          break;
     }
     return t;
   }
