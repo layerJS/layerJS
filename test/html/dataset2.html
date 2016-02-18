@@ -13,7 +13,7 @@
             WL.repository.importJSON(dataset, 'default');
             var stageData = WL.repository.get("s1", 'default');
             var stageView = WL.pluginManager.createView(stageData);
-            stageView.render();
+            //stageView.render();
 
             document.body.appendChild(stageView.el);
         })();

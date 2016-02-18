@@ -26,8 +26,8 @@ var PlainLayout = LayerLayout.extend({
    * @returns {Type} Description
    */
   init: function(stage) {
-    for (var i = 0; i < this.layer.el.childNodes.length; i++) {
-      this.layer.el.childNodes[i].style.visibility = 'hidden';
+    for (var i = 0; i < this.layer.el.children.length; i++) {
+      this.layer.el.children[i].style.visibility = 'hidden';
     }
     if (this.layer.currentFrame) {
       var t = this.swipeTransition(undefined, PlainLayout.IT, null, this.layer.currentFrame.getTransformData(stage))
@@ -105,7 +105,8 @@ var PlainLayout = LayerLayout.extend({
       var x = -targetTransformData.shiftX - targetTransformData.scrollX;
       var y = -targetTransformData.shiftY - targetTransformData.scrollY;
       t.t1 = {
-        transform: "translate3d(" + x + "px," + y + "px,0px) scale(" + targetTransformData.scale + ")"
+        transform: "translate3d(" + x + "px," + y + "px,0px) scale(" + targetTransformData.scale + ")",
+        'transform-origin': "0 0"
       };
     }
     switch (type) {
@@ -115,7 +116,8 @@ var PlainLayout = LayerLayout.extend({
           var x = currentTransformData.width - currentTransformData.shiftX - currentTransformData.scrollX;
           var y = -targetTransformData.shiftY - targetTransformData.scrollY;
           t.t0 = {
-            transform: "translate3d(" + x + "px," + y + "px,0px) scale(" + targetTransformData.scale + ")"
+            transform: "translate3d(" + x + "px," + y + "px,0px) scale(" + targetTransformData.scale + ")",
+            'transform-origin': "0 0"
           };
         }
         // current frame transform time 1
@@ -123,7 +125,8 @@ var PlainLayout = LayerLayout.extend({
           var x = -targetTransformData.width + currentTransformData.shiftX + currentTransformData.scrollX;
           var y = -currentTransformData.shiftY - currentTransformData.scrollY;
           t.c1 = {
-            transform: "translate3d(" + x + "px," + y + "px,0px) scale(" + currentTransformData.scale + ")"
+            transform: "translate3d(" + x + "px," + y + "px,0px) scale(" + currentTransformData.scale + ")",
+            'transform-origin': "0 0"
           };
         }
         break;
