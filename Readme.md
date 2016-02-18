@@ -10,6 +10,21 @@ layerJS supports directional touch and touchpad gestures to trigger transitions.
 
 ## Quickstart ##
 
+### How to build ###
+
+Building layerjs requires nodejs and npm. Necessary node packages can be installed using:
+```
+npm install
+```
+
+The build process can be started using
+```
+npm run build
+```
+which automatically runs all unit tests via `npm test`. The result can be found in the `./dist` directory.
+
+### Examples ###
+
 In the simplest case layerJS will fit a frame which exists on a layer into a single stage
 ```
 <div data-wl-type="stage">
@@ -46,23 +61,10 @@ WL.select('#layer1').transitionTo('second',{type: 'left'});
 
 above code example will trigger a 'swipe left' transition between the two frames.
 
-## How to build ##
-
-Building layerjs requires nodejs and npm. Necessary node packages can be installed using:
-```
-npm install
-```
-
-The build process can be started using
-```
-npm run build
-```
-which automatically runs all unit tests via `npm test`. The result can be found in the `./dist` directory.
-
 ## How to contribute ##
 
-layerJS is in alpha currently so things still change. It's best to get in contact with us (developers@layerjs.org) and discuss your ideas.
+layerJS is in alpha currently so things still change. It's best to get in contact with us at [developers@layerjs.org](mailto:developers@layerjs.org) and discuss your ideas.
 
 Of course it is possible to fork the repo and submit pull requests.
 
-In order to have your code included into the layerJS framework you need to sign our [Harmony Code Contribution agreement](Contribution.md) which allows us to additionally license layerJS under other license terms in future. [Learn more about Harmony agreements.](harmonyagreements.org)
+In order to have your code included into the layerJS framework you need to sign our [Harmony Code Contribution agreement](Contribution.md) which allows us to additionally license layerJS under other license terms in future. [Learn more about Harmony agreements.](http://harmonyagreements.org)

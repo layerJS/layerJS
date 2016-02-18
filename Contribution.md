@@ -50,6 +50,7 @@ TO THE MAXIMUM EXTENT PERMITTED BY APPLICABLE LAW, IN NO EVENT WILL YOU OR US BE
 
 
 ## You ##
+```
 ________________________
 Name: __________________
 Address: ________________
@@ -57,16 +58,17 @@ ________________________
 
 
 Date & Signuature: ________________________
-
+```
 ## Us ##
+```
 layerJS
 Name: Thomas Handorf
 Title: Product Owner
 Address: Luisenstr. 53
 10117 Berlin
 
-
 Date & Signuature: ________________________
+```
 
 
 Harmony (HA-CAA-I-ANY) Version 1.0
