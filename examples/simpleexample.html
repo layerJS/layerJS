@@ -8,11 +8,15 @@
       top: 0px;
       left: 0px;
     }
+
+    #root {
+      height: 500px;
+    }
   </style>
 </head>
 
 <body>
-  <div data-wl-type="stage">
+  <div id="root" data-wl-type="stage">
     <div id="layer1" data-wl-type="layer" data-wl-defaultFrame="main">
       <div data-wl-type="frame" data-wl-name="main" data-wl-fitTo="width" data-wl-startPostion="top" style="width:1440px"> Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea
         takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores
@@ -23,12 +27,19 @@
         physical exercise, except to obtain some advantage from it? But who has any right to find fault with a man who chooses to enjoy a pleasure that has no annoying consequences, or one who avoids a pain that produces no resultant pleasure? </div>
     </div>
   </div>
+  <button id="next"> next </button>
   <script src="../dist/main.js"></script>
   <script>
     WL.init();
-    WL.select('#layer1').transitionTo('second', {
-      type: 'left'
-    });
+    var frames = ['main', 'second'];
+    var findex = 0;
+    document.getElementById('next').addEventListener('click', function() {
+      findex++;
+      findex %= frames.length;
+      WL.select('#layer1').transitionTo(frames[findex], {
+        type: 'left'
+      });
+    })
   </script>
 </body>
 
