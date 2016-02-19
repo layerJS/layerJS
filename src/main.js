@@ -8,6 +8,7 @@ require("./framework/repository.js");
 require("./framework/parsemanager.js");
 require("./framework/layouts/layerlayout.js");
 require("./framework/layouts/plainlayout.js");
+require("./framework/gesturehandler.js");
 
 /* data objects*/
 require("./framework/defaults.js");
