@@ -27,3 +27,7 @@ require("./framework/cgroupview.js");
 require("./framework/layerview.js");
 require("./framework/frameview.js");
 require("./framework/stageview.js");
+
+WL.init = function(){
+  WL.parseManager.parseDocument();
+}

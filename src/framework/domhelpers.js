@@ -9,8 +9,8 @@ var DomHelpers = {
   wrapChildren: function(element, options) {
     options = options || {};
     var wrapper = document.createElement(options.tag || "div");
-    for (var i = 0; i < element.childNodes.length; i++) {
-      wrapper.appendChild(element.childNodes[i]);
+    while (element.childNodes.length) {
+      wrapper.appendChild(element.childNodes[0]);
     }
     element.appendChild(wrapper);
     return wrapper;
@@ -76,7 +76,7 @@ var DomHelpers = {
   /**
    * execute after the next renderloop
    * needed to ensure a previous transform has been applied so we can now apply a new transform with a transition
-   * NOTE: if this is too slow (at least 16ms), we may try to apply the first transform also with a transision (1ms) 
+   * NOTE: if this is too slow (at least 16ms), we may try to apply the first transform also with a transision (1ms)
    * and listen for transitionEnd event
    *
    * @param {Function} callback - the function to be executed
@@ -90,6 +90,19 @@ var DomHelpers = {
       // make sure to get behind the current render thread
       setTimeout(callback, 0);
     });
+  },
+  /**
+   * select a layerJS view object using a CSS selector
+   * returns only the first view it finds.
+   *
+   * @param {string} selector - a CSS selector that identifies an element that is associated with a CobjView
+   * @returns {CobjView} the selected view object
+   */
+  selectView: function(selector){
+    var nodes=document.querySelectorAll(selector);
+    for (var i=0;i<nodes.length;i++){
+      if (nodes[i]._wlView) return nodes[i]._wlView;
+    }
   }
 }
 DomHelpers.detectBrowser();

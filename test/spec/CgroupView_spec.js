@@ -92,7 +92,6 @@ describe("CGroupView", function() {
     repository.importJSON(datasetReader.readFromFile('cgroupdata_with_cobjdata.js'), 'default');
     data = repository.get(110530, 'default');
     if (data.attributes.children.length > 0) {
-      debugger;
       var parentView = new CGroupView(data);
       expect(parentView._myChildListenerCallback).toBeDefined();
 

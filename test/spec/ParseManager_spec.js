@@ -22,7 +22,7 @@ describe('ParseMananger', function() {
   }
 
   it('will fill add stageData to the repository from DOM elements', function() {
-    setHtml("<html><head><style id='wl-obj-css'></style></head><body><div data-wl-id='1' data-wl-type='stage'/><div data-wl-id='2' data-wl-type='stage'/></body></html>");
+    setHtml("<html><head><style id='wl-obj-css'></style></head><body><div data-wl-id='1' data-wl-type='stage'></div><div data-wl-id='2' data-wl-type='stage'><div></body></html>");
 
     parseManager.parseDocument();
 
@@ -40,13 +40,14 @@ describe('ParseMananger', function() {
   });
 
   it('will ask the repository for an id if the DOM element doesn\'t have a data-wl-id attribute', function() {
-    setHtml("<html><head><style id='wl-obj-css'></style></head><body><div data-wl-type='stage'/></body></html>");
+    setHtml("<html><head><style id='wl-obj-css'></style></head><body><div data-wl-type='stage'></div></body></html>");
 
     var element = document.querySelector("[data-wl-type='stage']");
     expect(element.hasAttribute('data-wl-id')).toBeFalsy();
 
     parseManager.parseDocument();
-
+    expect(element._wlView).toBeDefined();
+    element._wlView.render();
     expect(element.hasAttribute('data-wl-id')).toBeTruthy();
   });
 
@@ -55,12 +56,12 @@ describe('ParseMananger', function() {
       "<div data-wl-id='1' data-wl-type='stage'>" +
       "<div data-wl-id='2' data-wl-type='layer'>" +
       "<div data-wl-id='3' data-wl-type='frame'>" +
-      "<div data-wl-id='4' data-wl-type='text'/>" +
+      "<div data-wl-id='4' data-wl-type='text'></div>" +
       "</div>" +
       "</div>" +
       "</div>" +
       "</body></html>");
-
+debugger;
     parseManager.parseDocument();
 
     var stage = repository.get(1, defaults.version);
@@ -87,7 +88,7 @@ describe('ParseMananger', function() {
       "<div data-wl-id='1' data-wl-type='stage'>" +
       "<div data-wl-id='2' data-wl-type='layer'>" +
       "<div data-wl-id='3' data-wl-type='frame'>" +
-      "<div data-wl-id='4' data-wl-type='text'/>" +
+      "<div data-wl-id='4' data-wl-type='text'></div>" +
       "</div>" +
       "</div>" +
       "</div>" +

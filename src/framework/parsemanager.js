@@ -2,6 +2,7 @@ var WL = require('./wl.js');
 var CobjView = require('./cobjview.js');
 var repository = require('./repository.js');
 var defaults = require('./defaults.js');
+var StageView = require('./stageview.js');
 
 var ParseManager = function() {
 
@@ -84,12 +85,14 @@ var ParseManager = function() {
     options.lookInNonLayerJsElements = options.lookInNonLayerJsElements || false;
 
     var stageElements = document.querySelectorAll("[data-wl-type='stage']");
+    var stageIDs = [];
     var dataObjects = [];
     var length = stageElements.length;
 
     for (var index = 0; index < length; index++) {
       var stageElement = stageElements[index];
       var dataObject = getDataObject(stageElement);
+      stageIDs.push(dataObject.id);
       dataObject.children = [];
 
       dataObjects.push(dataObject);
@@ -98,8 +101,16 @@ var ParseManager = function() {
         parseChildren(dataObject, stageElement, dataObjects, options);
       }
     }
-
     repository.importJSON(dataObjects, options.version || defaults.version);
+    for (var index = 0; index < length; index++) {
+      var stageElement = stageElements[index];
+      var dataObject = repository.get(stageIDs[index], options.version || defaults.version)
+      if (!stageElement._wlView) {
+        var v = new StageView(dataObject, {
+          el: stageElement
+        });
+      }
+    }
   };
 };
 

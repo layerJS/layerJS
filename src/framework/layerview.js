@@ -23,7 +23,7 @@ var LayerView = CGroupView.extend({
     // we need to create the divs here instead of in the cobjview constructor
     this.elWrapper = options.el || document.createElement(dataModel.attributes.tag || 'div');
     // do we already have a scroller div?
-    var hasScroller = this.elWrapper.childNodes.length == 1 && this.elWrapper.childNodes[0].getAttributes('data-wl-helper') == 'scroller';
+    var hasScroller = this.elWrapper.childNodes.length == 1 && this.elWrapper.childNodes[0].getAttribute('data-wl-helper') == 'scroller';
     this.el = this.elWrapper;
     // should we not have a scroller?
     if (hasScroller && !dataModel.attributes.nativeScroll) $.unwrapChildren(this.elWrapper);

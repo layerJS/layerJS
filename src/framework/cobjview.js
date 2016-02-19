@@ -140,6 +140,10 @@ var CobjView = Kern.EventManager.extend({
 
     if (('style' in diff) || (selector != oldSelector)) {
       var styleElement = document.getElementById('wl-obj-css');
+      if (!styleElement) {
+        styleElement = document.createElement('style');
+        document.head.appendChild(styleElement);
+      }
       var cssContent = styleElement.innerHTML;
       var re;
 
