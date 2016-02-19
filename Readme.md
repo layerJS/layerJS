@@ -10,6 +10,8 @@ layerJS supports directional touch and touchpad gestures to trigger transitions.
 
 ## Quickstart ##
 
+layerJS ist work in progress. You can clone the repository, build the the project. Then have a look at the `./examples` directory.
+
 ### How to build ###
 
 Building layerjs requires nodejs and npm. Necessary node packages can be installed using:
