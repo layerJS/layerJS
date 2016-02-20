@@ -8,7 +8,7 @@ require("./framework/repository.js");
 require("./framework/parsemanager.js");
 require("./framework/layouts/layerlayout.js");
 require("./framework/layouts/plainlayout.js");
-require("./framework/gesturehandler.js");
+require("./framework/gesturemanager.js");
 
 /* data objects*/
 require("./framework/defaults.js");
@@ -30,4 +30,5 @@ require("./framework/stageview.js");
 
 WL.init = function(){
   WL.parseManager.parseDocument();
+  WL.gestureManager.register();
 }

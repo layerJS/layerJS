@@ -1,4 +1,5 @@
 'use strict';
+var WL = require('./wl.js');
 
 /**
  *  Will attach eventhandlers to identify gestures made on a DOM element
@@ -6,9 +7,7 @@
  * @param {Object} element - element to add eventhandlers to
  * @param {func} callback - Function that will be invoked when a gesture is found
  */
-var dectectGestures = function(element, callBack) {
-
-  var touchStart = null;
+var GestureManager = function() {
 
   /**
    * Method that returns the current location based on an event
@@ -37,6 +36,8 @@ var dectectGestures = function(element, callBack) {
     };
   };
 
+  var touchStart;
+
   /**
    * Method that needs to be invoked when an element is touched
    *
@@ -51,7 +52,7 @@ var dectectGestures = function(element, callBack) {
    *
    * @param {Object} e - event
    */
-  var endTouchHandler = function(e) {
+  var endTouchHandler = function(e, callBack) {
     var direction;
     var touchEnd = getTouchLocation(e);
     var distanceX = touchEnd.x - touchStart.x,
@@ -68,15 +69,8 @@ var dectectGestures = function(element, callBack) {
     }
   };
 
-
   var lastGesture;
-
-  /**
-   * Method  will be called when a mouse wheel event is raised
-   *
-   * @param {Object} e - event
-   */
-  var wheellistener = function(e) {
+  var wheelListener = function(e, callBack) {
 
     var gesture = (lastGesture && new Date().getTime() - lastGesture.startTime <= 300) ? lastGesture : undefined,
       delta = 0,
@@ -116,7 +110,7 @@ var dectectGestures = function(element, callBack) {
       var distanceX = gesture.deltaX + deltaX,
         distanceY = gesture.delta + delta;
       var direction;
-      if (Math.abs(distanceX) >= Math.abs(distanceY)) {
+      if (distanceX != 0) {
         direction = (distanceX < 0) ? 'left' : 'right'
       } else if (distanceY != 0) { // 2nd condition for vertical swipe met
         direction = (distanceY > 0) ? 'up' : 'down'
@@ -131,20 +125,82 @@ var dectectGestures = function(element, callBack) {
         delta: delta
       };
     }
+  };
+
+  var addEventListeners = function(element, callBack) {
+
+    element.addEventListener('touchstart', startTouchHandler, false);
+    element.addEventListener('mouseDown', startTouchHandler, false);
+
+    element.addEventListener('touchmove', function(e) {
+      e.preventDefault() // prevent scrolling when inside DIV
+    }, false)
+
+    element.addEventListener('touchend', function(e) {
+      endTouchHandler(e, callBack)
+    }, false);
+    element.addEventListener('mouseUp', function(e) {
+      endTouchHandler(e, callBack)
+    }, false);
+
+    element.addEventListener('mousewheel', function(e) {
+      wheelListener(e, callBack)
+    }, false);
+    element.addEventListener('DOMMouseScroll ', function(e) {
+      wheelListener(e, callBack)
+    }, false);
+  };
+
+  this.register = function() {
+
+    var layerElements = document.querySelectorAll("[data-wl-type='layer']");
+    var length = layerElements.length;
+
+    for (var i = 0; i < length; i++) {
+      var layerElement = layerElements[i];
+      addEventListeners(layerElement, function(direction) {
+        //console.log(layerElement._wlView);
+        var layerView = layerElement._wlView;
+        var currentFrameView = layerView.currentFrame;
+        var targetFrameName = null;
+        console.log(direction);
+
+        switch (direction) {
+          case 'up':
+            if (currentFrameView.data.attributes.neighbors && typeof currentFrameView.data.attributes.neighbors.u == 'string') {
+              targetFrameName = currentFrameView.data.attributes.neighbors.u;
+            }
+            break;
+          case 'down':
+            if (currentFrameView.data.attributes.neighbors && typeof currentFrameView.data.attributes.neighbors.d == 'string') {
+              targetFrameName = currentFrameView.data.attributes.neighbors.d;
+            }
+            break;
+          case 'left':
+            if (currentFrameView.data.attributes.neighbors && typeof currentFrameView.data.attributes.neighbors.l == 'string') {
+              targetFrameName = currentFrameView.data.attributes.neighbors.l;
+            }
+            break;
+          case 'right':
+            if (currentFrameView.data.attributes.neighbors && typeof currentFrameView.data.attributes.neighbors.r == 'string') {
+              targetFrameName = currentFrameView.data.attributes.neighbors.r;
+            }
+            break;
+          default:
+        }
+
+        if (null != targetFrameName) {
+          console.log('current framename ' + currentFrameView.data.attributes.name);
+          console.log('target framename ' + targetFrameName);
+
+          layerView.transitionTo({
+            framename: targetFrameName,
+            type: direction
+          })
+        }
+      });
+    }
   }
-
-  element.addEventListener('touchstart', startTouchHandler, false);
-  element.addEventListener('mouseDown', startTouchHandler, false);
-
-  element.addEventListener('touchmove', function(e) {
-    e.preventDefault() // prevent scrolling when inside DIV
-  }, false)
-
-  element.addEventListener('touchend', endTouchHandler, false);
-  element.addEventListener('mouseUp', endTouchHandler, false);
-
-  element.addEventListener('mousewheel', wheellistener, false);
-  element.addEventListener('DOMMouseScroll ', wheellistener, false);
 };
-
-module.exports = dectectGestures;
+WL.gestureManager = new GestureManager();
+module.exports = WL.gestureManager;
