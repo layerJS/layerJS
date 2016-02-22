@@ -81,17 +81,7 @@ var GroupView = ObjView.extend({
           while (!empty) {
             if (nodeId == childId) { // found a matching DOM element; put it at the right position
               if (k !== k_saved) {
-                var fromIndex = k;
-                var elementToBeReplaced = this.el.childNodes[k_saved];
-
-                this.el.insertBefore(this.el.childNodes[k], elementToBeReplaced);
-
-                if (k + 1 <= this.el.childNodes.length) {
-                  this.el.insertBefore(elementToBeReplaced, this.el.childNodes[k + 1]);
-                } else {
-                  this.el.removeChild(elementToBeReplaced);
-                  this.el.appendChild(elementToBeReplaced);
-                }
+                this.el.insertBefore(this.el.childNodes[k], this.el.childNodes[k_saved]);
               }
               // create view object if it does not exist yet (even if the HTML element exist)
               var vo;
