@@ -4,23 +4,23 @@ var Kern = require('../kern/Kern.js');
 var pluginManager = require('./pluginmanager.js');
 var layoutManager = require('./layoutmanager.js');
 var LayerData = require('./layerdata.js');
-var CGroupView = require('./cgroupview.js');
+var GroupView = require('./groupview.js');
 
 /**
  * A View which can have child views
  * @param {LayerData} dataModel
  * @param {object}        options
- * @extends CGroupView
+ * @extends GroupView
  */
 
-var LayerView = CGroupView.extend({
+var LayerView = GroupView.extend({
   constructor: function(dataModel, options) {
     options = options || {};
     var that = this;
     this.frames = {};
     this.inTransform = false;
     this.layout = new(layoutManager.get(dataModel.attributes.layoutType))(this);
-    // we need to create the divs here instead of in the cobjview constructor
+    // we need to create the divs here instead of in the Objview constructor
     this.elWrapper = options.el || document.createElement(dataModel.attributes.tag || 'div');
     // do we already have a scroller div?
     var hasScroller = this.elWrapper.childNodes.length == 1 && this.elWrapper.childNodes[0].getAttribute('data-wl-helper') == 'scroller';
@@ -37,7 +37,7 @@ var LayerView = CGroupView.extend({
     if (hasScroller) this.el.setAttribute('data-wl-helper', 'scroller');
     // call super constructor
 
-    CGroupView.call(this, dataModel, Kern._extend({}, options, {
+    GroupView.call(this, dataModel, Kern._extend({}, options, {
       noRender: true
     }));
 
@@ -94,7 +94,7 @@ var LayerView = CGroupView.extend({
   /**
    * overriden default behavior of groupview
    *
-   * @param {CobjView} childView - the child view that has changed
+   * @param {ObjView} childView - the child view that has changed
    * @returns {Type} Description
    */
   _renderChildPosition(childView) {
@@ -112,7 +112,7 @@ var LayerView = CGroupView.extend({
   }
 }, {
   Model: LayerData,
-  parse: CGroupView.parse
+  parse: GroupView.parse
 });
 
 pluginManager.registerType('layer', LayerView);

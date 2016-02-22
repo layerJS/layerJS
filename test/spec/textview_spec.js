@@ -1,11 +1,11 @@
 var jsdom = require("jsdom").jsdom;
 var DatasetReader = require('./helpers/datasetreader.js');
 var CommonViewTests = require('./helpers/Commonviewtests.js');
-var CtextData = require('../../src/framework/ctextdata.js');
-var CtextView = require('../../src/framework/ctextview.js');
+var TextData = require('../../src/framework/textdata.js');
+var TextView = require('../../src/framework/textview.js');
 var pluginManager = require('../../src/framework/pluginmanager.js');
 
-describe("CtextView", function() {
+describe("TextView", function() {
 
   var datasetReader = new DatasetReader();
   var document, window, $;
@@ -16,21 +16,21 @@ describe("CtextView", function() {
     $ = document.querySelector;
   });
 
-  CommonViewTests('simple_ctextdata.js', function() {
+  CommonViewTests('simple_textdata.js', function() {
     return {
-      data: datasetReader.readFromFile('simple_ctextdata.js')[0],
-      ViewType: CtextView
+      data: datasetReader.readFromFile('simple_textdata.js')[0],
+      ViewType: TextView
     };
   });
 
   it('can be created', function() {
-    var cv = new CtextView(new CtextData());
+    var cv = new TextView(new TextData());
     expect(cv).toBeDefined();
   });
 
   it('will put the text attribute in the innerHTML the DOM element', function() {
-    var data = pluginManager.createModel(datasetReader.readFromFile('simple_ctextdata.js')[0]);
-    var view = new CtextView(data);
+    var data = pluginManager.createModel(datasetReader.readFromFile('simple_textdata.js')[0]);
+    var view = new TextView(data);
     view.render();
     var element = view.el;
 
@@ -41,7 +41,7 @@ describe("CtextView", function() {
     var element = document.createElement('div');
     element.innerHTML = 'some content';
 
-    var dataObject = CtextView.parse(element);
+    var dataObject = TextView.parse(element);
 
     expect(dataObject.content).toBe('some content');
   });

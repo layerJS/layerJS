@@ -1,54 +1,54 @@
 var WL = require('./wl.js');
 var Kern = require('../kern/Kern.js');
-//var CobjView = require('./CobjView.js');
+//var ObjView = require('./ObjView.js');
 
 var PluginManager = Kern.EventManager.extend({
   /**
    * create a PluginManager
-   * the PluginManager is used to create View objects from cobjdata objects.
+   * the PluginManager is used to create View objects from ObjData objects.
    * It contains a list of constructors for the corresponding data types.
    * It can be dynamically extended by further data types.
    *
-   * @param {Object} map - an object mapping cobj types to {view:constructor, model: contructor} data sets
+   * @param {Object} map - an object mapping Obj types to {view:constructor, model: contructor} data sets
    * @returns {This}
    */
   constructor: function(map) {
     Kern.EventManager.call(this);
-    this.map = map || {}; // maps cobjdata types to View constructors
+    this.map = map || {}; // maps ObjData types to View constructors
   },
   /**
-   * create a view based on the type in the cobj's model
+   * create a view based on the type in the Obj's model
    *
-   * @param {cobjdata} model - the model from which the view should be created
+   * @param {ObjData} model - the model from which the view should be created
    * @param {Object} [options] - create options
    * @param {HTMLElement} options.el - the element of the view
-   * @returns {CobjView} the view object of type CobjView or a sub class
+   * @returns {ObjView} the view object of type ObjView or a sub class
    */
   createView: function(model, options) {
     // return existing view if the provided element already has one
-    if (options && options.el && options.el._wlView && options.el._wlView instanceof CobjView) {
+    if (options && options.el && options.el._wlView && options.el._wlView instanceof ObjView) {
       return options.el._wlView;
     }
     if (model.attributes.type && this.map.hasOwnProperty(model.attributes.type)) {
       return new(this.map[model.attributes.type].view)(model, options);
     }
-    throw "no constructor found for cobjects of type '" + model.attributes.type + "'";
+    throw "no constructor found for objects of type '" + model.attributes.type + "'";
   },
   /**
    * create a data model based on a json object (and it's type property)
    *
    * @param {Object} data - JSON data of data model
    * @param {Object} options - options passed to the model constructor
-   * @returns {CobjData} the new data model
+   * @returns {ObjData} the new data model
    */
   createModel: function(data, options) {
     if (data.type && this.map.hasOwnProperty(data.type)) {
       return new(this.map[data.type].model)(data, options);
     }
-    throw "no constructor found for cobjects of type '" + data.type + "'";
+    throw "no constructor found for ObjData of type '" + data.type + "'";
   },
   /**
-   * register a view class for a cobject type
+   * register a view class for a ObjData type
    *
    * @param {string} type - the name of the type
    * @param {function} constructor - the constructor of the view class of this type

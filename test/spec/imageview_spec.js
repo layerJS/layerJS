@@ -1,12 +1,12 @@
 var jsdom = require("jsdom").jsdom;
 var DatasetReader = require('./helpers/datasetreader.js');
 var CommonViewTests = require('./helpers/Commonviewtests.js');
-var CimageData = require('../../src/framework/cimagedata.js');
-var CimageView = require('../../src/framework/cimageview.js');
+var ImageData = require('../../src/framework/imagedata.js');
+var ImageView = require('../../src/framework/imageview.js');
 var pluginManager = require('../../src/framework/pluginmanager.js');
 var WL = require('../../src/framework/wl.js');
 
-describe("CimageView", function() {
+describe("ImageView", function() {
 
   var datasetReader = new DatasetReader();
   var document, window, $;
@@ -17,21 +17,21 @@ describe("CimageView", function() {
     $ = document.querySelector;
   });
 
-  CommonViewTests('simple_cimagedata.js', function() {
+  CommonViewTests('simple_imagedata.js', function() {
     return {
-      data: datasetReader.readFromFile('simple_cimagedata.js')[0],
-      ViewType: CimageView
+      data: datasetReader.readFromFile('simple_imagedata.js')[0],
+      ViewType: ImageView
     };
   });
 
   it('can be created', function() {
-    var cv = new CimageView(new CimageData());
+    var cv = new ImageView(new ImageData());
     expect(cv).toBeDefined();
   });
 
   it('will set the src attribute of the DOM element', function() {
-    var data = pluginManager.createModel(datasetReader.readFromFile('simple_cimagedata.js')[0]);
-    var view = new CimageView(data);
+    var data = pluginManager.createModel(datasetReader.readFromFile('simple_imagedata.js')[0]);
+    var view = new ImageView(data);
     view.render();
 
     var element = view.el;
@@ -40,8 +40,8 @@ describe("CimageView", function() {
   });
 
   it('will set the alt attribute of the DOM element', function() {
-    var data = pluginManager.createModel(datasetReader.readFromFile('simple_cimagedata.js')[0]);
-    var view = new CimageView(data);
+    var data = pluginManager.createModel(datasetReader.readFromFile('simple_imagedata.js')[0]);
+    var view = new ImageView(data);
     view.render();
 
     var element = view.el;
@@ -53,7 +53,7 @@ describe("CimageView", function() {
     var element = document.createElement('img');
     element.setAttribute('alt', 'some alt');
 
-    var dataObject = CimageView.parse(element);
+    var dataObject = ImageView.parse(element);
 
     expect(dataObject.alt).toBe('some alt');
   });
@@ -62,7 +62,7 @@ describe("CimageView", function() {
     var element = document.createElement('img');
     element.setAttribute('src', 'some source');
 
-    var dataObject = CimageView.parse(element);
+    var dataObject = ImageView.parse(element);
 
     expect(dataObject.src).toBe('some source');
   });

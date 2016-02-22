@@ -3,19 +3,19 @@ var Kern = require('../kern/Kern.js');
 var WL = require('./wl.js');
 var pluginManager = require('./pluginmanager.js');
 var repository = require('./repository.js');
-var CobjView = require('./cobjview.js');
-var CGroupData = require('./cgroupdata.js');
+var ObjView = require('./objview.js');
+var GroupData = require('./groupdata.js');
 /**
  * A View which can have child views
- * @param {CobjGroupData} dataModel
+ * @param {GroupData} dataModel
  * @param {object}        options
- * @extends CobjView
+ * @extends ObjView
  */
-var CGroupView = CobjView.extend({
+var GroupView = ObjView.extend({
   /**
-   * construct a new view of a CobjGroupData
+   * construct a new view of a GroupData
    *
-   * @param {CobjData} dataModel - the data model to be used for the view
+   * @param {GroupData} dataModel - the data model to be used for the view
    * @param {object} options - passed to the Super constructor
    * @returns {this}
    */
@@ -29,7 +29,7 @@ var CGroupView = CobjView.extend({
       that._renderChildPosition(that.childInfo[model.attributes.id].view);
     }
 
-    CobjView.call(this, dataModel, Kern._extend({}, options, {
+    ObjView.call(this, dataModel, Kern._extend({}, options, {
       noRender: true
     }));
 
@@ -159,10 +159,10 @@ var CGroupView = CobjView.extend({
     this.enableObserver();
   },
   /**
-   * return child CobjView for a given child id
+   * return child ObjView for a given child id
    *
    * @param {string} childId - the id of the requested object
-   * @returns {CobjView} the view object
+   * @returns {ObjView} the view object
    */
   getChildView: function(childId) {
     if (!this.childInfo.hasOwnProperty(childId)) throw "unknown child " + childId + " in group " + this.data.attributes.id;
@@ -172,7 +172,7 @@ var CGroupView = CobjView.extend({
    * return view by name property
    *
    * @param {string} name - the name of the searched child
-   * @returns {CobjView} the view object
+   * @returns {ObjView} the view object
    */
   getChildViewByName: function(name) {
     if (!this.childNames.hasOwnProperty(name)) throw "unknown child with name " + name + " in group " + this.data.attributes.id;
@@ -182,7 +182,7 @@ var CGroupView = CobjView.extend({
    * Find a view by its name
    *
    * @param {string} name - the name of the child object
-   * @returns {CobjView} the found view or undefined
+   * @returns {ObjView} the found view or undefined
    */
   findChildView: function(name) {
     for (var i = 0; i < this.data.attributes.children.length; i++) {
@@ -198,7 +198,7 @@ var CGroupView = CobjView.extend({
    * This method is the only way to attach an existing view to the parent. If a child is added solely in the dataobject,
    * a new view object is generated via the plugin manager.
    *
-   * @param {CobjView} newView - the view object to be attached as child
+   * @param {ObjView} newView - the view object to be attached as child
    * @returns {Type} Description
    */
   attachView: function(newView) {
@@ -216,7 +216,7 @@ var CGroupView = CobjView.extend({
    * remove a view from this group. updates dataobject of this group which will trigger change event which
    * will call _buildChildren
    *
-   * @param {CobjView} view - the view object to be removed
+   * @param {ObjView} view - the view object to be removed
    * @returns {Type} Description
    */
   detachView: function(view) {
@@ -228,13 +228,13 @@ var CGroupView = CobjView.extend({
   },
   /**
    * render the position of the child. This is done similar as setting other style (CSS) properties in
-   * cobjview's render method. It's important to do this here so that derived classes can overwrite it
+   * objview's render method. It's important to do this here so that derived classes can overwrite it
    * and position objects differently
    * Note: this currently implements setting the positional style information directly on the object.
    * This is most likely the best for speed. For rendering on the server, this infor has to go into a
    * separate css style
    *
-   * @param {Cobjview} childView - the view to be positioned.
+   * @param {ObjView} childView - the view to be positioned.
    * @returns {Type} Description
    */
   _renderChildPosition: function(childView) {
@@ -258,7 +258,7 @@ var CGroupView = CobjView.extend({
     childView.enableObserver();
   },
   /**
-   * render the group. Uses cobjview.render to display changes to the object.
+   * render the group. Uses objview.render to display changes to the object.
    *
    * @param {Type} Name - Description
    * @returns {Type} Description
@@ -267,7 +267,7 @@ var CGroupView = CobjView.extend({
     options = options || {};
     this.disableObserver();
 
-    CobjView.prototype.render.call(this, options);
+    ObjView.prototype.render.call(this, options);
 
     if (options.forceRender && this.data.attributes.children) {
       var length = this.data.attributes.children.length;
@@ -324,10 +324,10 @@ var CGroupView = CobjView.extend({
   },
 
 }, {
-  Model: CGroupData,
-  parse: CobjView.parse
+  Model: GroupData,
+  parse: ObjView.parse
 });
 
 
-pluginManager.registerType("group", CGroupView);
-module.exports = CGroupView;
+pluginManager.registerType("group", GroupView);
+module.exports = GroupView;

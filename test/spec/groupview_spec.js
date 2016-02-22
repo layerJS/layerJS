@@ -1,15 +1,15 @@
 var jsdom = require("jsdom").jsdom;
 var repository = require('../../src/framework/repository.js');
 
-var CGroupView = require('../../src/framework/cgroupview.js');
-var CGroupData = require('../../src/framework/cgroupdata.js');
-var CobjView = require('../../src/framework/cobjview.js');
-var CobjData = require('../../src/framework/cobjdata.js');
+var GroupView = require('../../src/framework/groupview.js');
+var GroupData = require('../../src/framework/groupdata.js');
+var ObjView = require('../../src/framework/objview.js');
+var ObjData = require('../../src/framework/objdata.js');
 var CommonViewTests = require('./helpers/commonviewtests.js');
 var CommonGroupViewTests = require('./helpers/commongroupviewtests.js');
 var DatasetReader = require('./helpers/datasetreader.js');
 
-describe("CGroupView", function() {
+describe("GroupView", function() {
 
   var datasetReader = new DatasetReader();
 
@@ -22,77 +22,77 @@ describe("CGroupView", function() {
     $ = document.querySelector;
   });
 
-  CommonViewTests('simple_cgroupdata.js', function() {
+  CommonViewTests('simple_groupdata.js', function() {
     return {
-      data: datasetReader.readFromFile('simple_cgroupdata.js')[0],
-      ViewType: CGroupView
+      data: datasetReader.readFromFile('simple_groupdata.js')[0],
+      ViewType: GroupView
     };
   });
 
-  CommonViewTests('anchor_cgroupdata.js', function() {
+  CommonViewTests('anchor_groupdata.js', function() {
     return {
-      data: datasetReader.readFromFile('anchor_cgroupdata.js')[0],
-      ViewType: CGroupView
+      data: datasetReader.readFromFile('anchor_groupdata.js')[0],
+      ViewType: GroupView
     };
   });
 
-  CommonGroupViewTests('cgroupdata_with_cobjdata.js', function() {
+  CommonGroupViewTests('groupdata_with_objdata.js', function() {
     return {
-      data: datasetReader.readFromFile('cgroupdata_with_cobjdata.js'),
-      ViewType: CGroupView,
+      data: datasetReader.readFromFile('groupdata_with_objdata.js'),
+      ViewType: GroupView,
       parentId: 110530
     };
   });
 
   it("when a view that is attached using the attachView method changes, the _myChildListenerCallback should be called", function() {
-    var cgroupData = new CGroupData(datasetReader.readFromFile('simple_cgroupdata.js')[0]);
-    var cgroupView = new CGroupView(cgroupData);
+    var groupData = new GroupData(datasetReader.readFromFile('simple_groupdata.js')[0]);
+    var groupView = new GroupView(groupData);
 
-    expect(cgroupView._myChildListenerCallback).toBeDefined();
-    spyOn(cgroupView, '_myChildListenerCallback');
+    expect(groupView._myChildListenerCallback).toBeDefined();
+    spyOn(groupView, '_myChildListenerCallback');
 
-    var cobjData = new CobjData(datasetReader.readFromFile('simple_cobjdata.js')[0]);
-    var cobjView = new CobjView(cobjData);
+    var objData = new ObjData(datasetReader.readFromFile('simple_objdata.js')[0]);
+    var objView = new ObjView(objData);
 
-    cgroupView.attachView(cobjView);
+    groupView.attachView(objView);
 
-    cobjView.data.set('x', 20);
+    objView.data.set('x', 20);
 
-    expect(cgroupView._myChildListenerCallback.calls.count()).toBe(1);
-    expect(cgroupView._myChildListenerCallback).toHaveBeenCalledWith(cobjView.data);
+    expect(groupView._myChildListenerCallback.calls.count()).toBe(1);
+    expect(groupView._myChildListenerCallback).toHaveBeenCalledWith(objView.data);
   });
 
   it("when a view with a parent is attached using the attachView method changes, the _myChildListenerCallback should be called", function() {
-    var parentData = new CGroupData(datasetReader.readFromFile('simple_cgroupdata.js')[0]);
+    var parentData = new GroupData(datasetReader.readFromFile('simple_groupdata.js')[0]);
     parentData.attributes.id = 123456789;
-    var parentView = new CGroupView(parentData);
+    var parentView = new GroupView(parentData);
 
-    var cobjData = new CobjData(datasetReader.readFromFile('simple_cobjdata.js')[0]);
-    var cobjView = new CobjView(cobjData);
+    var objData = new ObjData(datasetReader.readFromFile('simple_objdata.js')[0]);
+    var objView = new ObjView(objData);
 
-    parentView.attachView(cobjView);
+    parentView.attachView(objView);
 
-    var cgroupData = new CGroupData(datasetReader.readFromFile('simple_cgroupdata.js')[0]);
-    var cgroupView = new CGroupView(cgroupData);
+    var groupData = new GroupData(datasetReader.readFromFile('simple_groupdata.js')[0]);
+    var groupView = new GroupView(groupData);
 
-    expect(cgroupView._myChildListenerCallback).toBeDefined();
-    spyOn(cgroupView, '_myChildListenerCallback');
+    expect(groupView._myChildListenerCallback).toBeDefined();
+    spyOn(groupView, '_myChildListenerCallback');
 
-    cgroupView.attachView(cobjView);
-    expect(cobjView.parent).toBe(cgroupView);
+    groupView.attachView(objView);
+    expect(objView.parent).toBe(groupView);
 
-    cobjView.data.set('x', 20);
+    objView.data.set('x', 20);
 
-    expect(cgroupView._myChildListenerCallback.calls.count()).toBe(1);
-    expect(cgroupView._myChildListenerCallback).toHaveBeenCalledWith(cobjView.data);
+    expect(groupView._myChildListenerCallback.calls.count()).toBe(1);
+    expect(groupView._myChildListenerCallback).toHaveBeenCalledWith(objView.data);
   });
 
   it("when a childview it's data changes, the _renderChildPosition should be called", function() {
     repository.clear();
-    repository.importJSON(datasetReader.readFromFile('cgroupdata_with_cobjdata.js'), 'default');
+    repository.importJSON(datasetReader.readFromFile('groupdata_with_objdata.js'), 'default');
     data = repository.get(110530, 'default');
     if (data.attributes.children.length > 0) {
-      var parentView = new CGroupView(data);
+      var parentView = new GroupView(data);
       expect(parentView._myChildListenerCallback).toBeDefined();
 
       var childView = parentView.childInfo[data.attributes.children[0]].view;
@@ -141,7 +141,7 @@ describe("CGroupView", function() {
 
     var parentData = repository.get(100, version);
     var parentElement = document.getElementById('100');
-    var parentView = new CGroupView(parentData, {
+    var parentView = new GroupView(parentData, {
       el: parentElement
     });
 

@@ -60,7 +60,7 @@ var Repository = Kern.EventManager.extend({
    *
    * @param {string} id - the id of the model
    * @param {string} version - the version of the requested model
-   * @returns {CobjData} the model
+   * @returns {ObjData} the model
    */
   get: function(id, version) {
     version = version || defaults.version;

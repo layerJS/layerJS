@@ -1,12 +1,12 @@
-var CgroupData = require('../../src/framework/cgroupdata.js');
+var GroupData = require('../../src/framework/groupdata.js');
 
-describe("CgroupData", function() {
+describe("GroupData", function() {
   it('can be created', function() {
-    var c = new CgroupData();
+    var c = new GroupData();
     expect(c).not.toBeUndefined();
   });
   it('has default values', function() {
-    var c = new CgroupData();
+    var c = new GroupData();
     expect(c.attributes.type).toBe("group");
     expect(c.attributes.width).toBeUndefined;
   });
@@ -16,7 +16,7 @@ describe("CgroupData", function() {
       "id": 110528,
       "children": [110530, 110534, 110537, 110533, 110532, 110531]
     };
-    var c = new CgroupData(data);
+    var c = new GroupData(data);
     expect(c.attributes.children.length).toBe(6);
   });
 
@@ -35,12 +35,12 @@ describe("CgroupData", function() {
       var data = {
         children: [110530]
       };
-      var c = new CgroupData(data);
+      var c = new GroupData(data);
       expect(c.attributes.children).toBe(data.children);
     });
 
     it("can add a single child", function() {
-      var c = new CgroupData();
+      var c = new GroupData();
       c.on("change:children", eventHandler);
       c.addChild(1);
       expect(c.attributes.children).toEqual([1])
@@ -48,7 +48,7 @@ describe("CgroupData", function() {
     });
 
     it("can remove a single child", function() {
-      var c = new CgroupData({
+      var c = new GroupData({
         children: [1]
       });
       c.on("change:children", eventHandler);
@@ -59,7 +59,7 @@ describe("CgroupData", function() {
 
     it("can add multiple children", function() {
       var childrenToAdd = [1, 2, 3];
-      var c = new CgroupData();
+      var c = new GroupData();
       c.on("change:children", eventHandler);
       c.addChildren(childrenToAdd);
       expect(c.attributes.children).toEqual(childrenToAdd);
@@ -67,7 +67,7 @@ describe("CgroupData", function() {
     });
 
     it("can remove multiple children", function() {
-      var c = new CgroupData({
+      var c = new GroupData({
         children: [1, 2, 3]
       });
       c.on("change:children", eventHandler);

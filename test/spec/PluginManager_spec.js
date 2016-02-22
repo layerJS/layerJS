@@ -1,7 +1,7 @@
 var jsdom = require("jsdom").jsdom;
 var pluginmanager = require('../../src/framework/pluginmanager.js');
-var CobjView = require('../../src/framework/cobjview.js');
-var CobjData = require('../../src/framework/cobjdata.js');
+var ObjView = require('../../src/framework/objview.js');
+var ObjData = require('../../src/framework/objdata.js');
 
 describe('PluginManager', function() {
   var document, window, $;
@@ -30,7 +30,7 @@ describe('PluginManager', function() {
     "disallow": {},
     "id": 110534
   };
-  var c = new CobjData(data);
+  var c = new ObjData(data);
   it('can be initialized', function() {
     expect(pluginmanager).toBeDefined();
   });
@@ -41,8 +41,8 @@ describe('PluginManager', function() {
     expect(v.el._wlView).toBe(v);
   });
   it('can register and create new types of View objects', function() {
-    var NV = CobjView.extend({}, {
-      Model: CobjData
+    var NV = ObjView.extend({}, {
+      Model: ObjData
     }); // Note this is the wrong model data type but that shouldn't be a problem
     var ndata = {
       "type": "heinz",

@@ -1,6 +1,6 @@
 var WL = require('./wl.js');
 var Kern = require('../kern/Kern.js');
-//var CobjView = require('./CobjView.js');
+//var ObjView = require('./ObjView.js');
 
 var LayoutManager = Kern.EventManager.extend({
   /**
@@ -13,7 +13,7 @@ var LayoutManager = Kern.EventManager.extend({
    */
   constructor: function(map) {
     Kern.EventManager.call(this);
-    this.map = map || {}; // maps cobjdata types to View constructors
+    this.map = map || {}; // maps ObjData types to View constructors
   },
   /**
    * register a new layout function

@@ -2,20 +2,20 @@
 var Kern = require('../kern/Kern.js');
 var pluginManager = require('./pluginmanager.js')
 var FrameData = require('./framedata.js');
-var CGroupView = require('./cgroupview.js');
+var GroupView = require('./groupview.js');
 var Kern = require('../kern/Kern.js');
 
 /**
  * A View which can have child views
  * @param {FrameData} dataModel
  * @param {object}        options
- * @extends CGroupView
+ * @extends GroupView
  */
-var FrameView = CGroupView.extend({
+var FrameView = GroupView.extend({
   constructor: function(dataModel, options) {
     options = options || {};
     this.transformData = undefined;
-    CGroupView.call(this, dataModel, Kern._extend({}, options, {
+    GroupView.call(this, dataModel, Kern._extend({}, options, {
       noRender: true
     }));
 
@@ -241,7 +241,7 @@ var FrameView = CGroupView.extend({
   }
 }, {
   Model: FrameData,
-  parse: CGroupView.parse
+  parse: GroupView.parse
 });
 
 pluginManager.registerType('frame', FrameView);

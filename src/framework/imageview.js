@@ -1,20 +1,20 @@
 'use strict';
-var CobjView = require('./cobjview.js');
-var CimageData = require('./cimagedata.js');
+var ObjView = require('./objview.js');
+var ImageData = require('./imagedata.js');
 var pluginManager = require('./pluginmanager.js');
 var Kern = require('../kern/Kern.js');
 var WL = require('./wl.js');
 
 /**
  * A View which can render images
- * @param {CimageData} dataModel
+ * @param {ImageData} dataModel
  * @param {object}        options
- * @extends CobjView
+ * @extends ObjView
  */
-var CimageView = CobjView.extend({
+var ImageView = ObjView.extend({
   constructor: function(dataModel, options) {
     options = options || {};
-    CobjView.call(this, dataModel, Kern._extend({}, options, {
+    ObjView.call(this, dataModel, Kern._extend({}, options, {
       noRender: true
     }));
 
@@ -29,7 +29,7 @@ var CimageView = CobjView.extend({
       diff = this.data.changedAttributes || this.data.attributes,
       el = this.el;
 
-    CobjView.prototype.render.call(this, options);
+    ObjView.prototype.render.call(this, options);
 
     if ('src' in diff) {
       el.setAttribute("src", WL.imagePath + attr.src);
@@ -43,9 +43,9 @@ var CimageView = CobjView.extend({
   }
 
 }, {
-  Model: CimageData,
+  Model: ImageData,
   parse: function(element) {
-    var data = CobjView.parse(element);
+    var data = ObjView.parse(element);
 
     var src = element.getAttribute('src');
     var alt = element.getAttribute('alt');
@@ -58,5 +58,5 @@ var CimageView = CobjView.extend({
 });
 
 
-pluginManager.registerType('image', CimageView);
-module.exports = CimageView;
+pluginManager.registerType('image', ImageView);
+module.exports = ImageView;

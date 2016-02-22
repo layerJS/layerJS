@@ -1,5 +1,5 @@
 var WL = require('./wl.js');
-var CobjView = require('./cobjview.js');
+var ObjView = require('./objview.js');
 var repository = require('./repository.js');
 var defaults = require('./defaults.js');
 var StageView = require('./stageview.js');
@@ -59,7 +59,7 @@ var ParseManager = function() {
    * @returns {Object} a data object
    */
   var getDataObject = function(element) {
-    var dataObject = CobjView.parse(element);
+    var dataObject = ObjView.parse(element);
 
     if (dataObject.id == undefined) {
       dataObject.id = repository.getId();

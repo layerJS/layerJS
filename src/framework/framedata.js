@@ -1,12 +1,12 @@
 'use strict';
 var Kern = require('../kern/Kern.js');
-var CgroupData = require('./cgroupdata.js');
+var GroupData = require('./groupdata.js');
 
 /**
- * @extends CobjGroupData
+ * @extends GroupData
  */
-var FrameData = CgroupData.extend({
-  defaults: Kern._extend({}, CgroupData.prototype.defaults, {
+var FrameData = GroupData.extend({
+  defaults: Kern._extend({}, GroupData.prototype.defaults, {
     nativeScroll: true,
     fitTo: 'width',
     startPosition: 'top',

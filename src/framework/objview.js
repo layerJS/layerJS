@@ -2,16 +2,16 @@
 var $ = require('./domhelpers.js');
 var Kern = require('../kern/Kern.js');
 var pluginManager = require('./pluginmanager.js')
-var CobjData = require('./cobjdata.js');
+var ObjData = require('./objdata.js');
 
 /**
- * Defines the view of a cobj and provides all basic properties and
+ * Defines the view of a ObjData and provides all basic properties and
  * rendering fuctions that are needed for a visible element.
  *
- * @param {CobjData} dataModel the Tailbone Model of the View's data
+ * @param {ObjData} dataModel the Tailbone Model of the View's data
  * @param {Object} options {data: json for creating a new data object; el: (optional) HTMLelement already exisitng; elWrapper: (optional) link wrapper existing; root: true if that is the root object}
  */
-var CobjView = Kern.EventManager.extend({
+var ObjView = Kern.EventManager.extend({
   constructor: function(dataModel, options) {
     Kern.EventManager.call(this);
     options = options || {};
@@ -62,7 +62,7 @@ var CobjView = Kern.EventManager.extend({
   /**
    * add a new parent view
    *
-   * @param {CobjView} parent - the parent of this view
+   * @param {ObjView} parent - the parent of this view
    * @returns {Type} Description
    */
   setParent: function(parent) {
@@ -73,7 +73,7 @@ var CobjView = Kern.EventManager.extend({
   /**
    * return the parent view of this view
    *
-   * @returns {CobjView} parent
+   * @returns {ObjView} parent
    */
   getParent: function() {
     return this.parent;
@@ -331,7 +331,7 @@ var CobjView = Kern.EventManager.extend({
   _domElementChanged: function() {
     if (this._observerCounter != 0) return;
 
-    var dataObject = CobjView.parse(this.elWrapper);
+    var dataObject = ObjView.parse(this.elWrapper);
 
     this.data.silence();
     for (var data in dataObject) {
@@ -341,7 +341,7 @@ var CobjView = Kern.EventManager.extend({
   }
 }, {
   // save model class as static variable
-  Model: CobjData,
+  Model: ObjData,
   /**
    * Will create a dataobject based on a DOM element
    *
@@ -389,6 +389,6 @@ var CobjView = Kern.EventManager.extend({
 });
 
 
-pluginManager.registerType('node', CobjView);
+pluginManager.registerType('node', ObjView);
 
-module.exports = CobjView;
+module.exports = ObjView;
