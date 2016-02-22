@@ -7,10 +7,15 @@
       position: absolute;
       top: 0px;
       left: 0px;
+      /* border: 1px solid green; */
     }
-
+    [data-wl-type='stage'] {
+      /* border: 1px solid red; */
+      position: relative; /* important!!! now childs will be positioned absolute relative to the stage */
+      overflow: hidden;
+    }
     #root {
-      height: 500px;
+      height: 90%;
     }
   </style>
 </head>
