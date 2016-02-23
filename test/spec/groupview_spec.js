@@ -142,7 +142,7 @@ describe("GroupView", function() {
     var parentData = repository.get(100, version);
     var parentElement = document.getElementById('100');
     var parentView = new GroupView(parentData, {
-      innerEl: parentElement
+      el: parentElement
     });
 
     expect(parentElement.children[0].id).toBe('element1');

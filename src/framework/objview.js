@@ -21,12 +21,12 @@ var ObjView = Kern.EventManager.extend({
     // parent if defined
     this.parent = options.parent;
     // DOM element, take either the one provide by a sub constructor, provided in options, or create new
-    this.innerEl = this.innerEl || options.innerEl || document.createElement(this.data.attributes.tag);
+    this.innerEl = this.innerEl || options.el || document.createElement(this.data.attributes.tag);
     // backlink from DOM to object
     if (this.innerEl._wlView) throw "trying to initialialize view on element that already has a view";
     this.innerEl._wlView = this;
     // possible wrapper element
-    this.outerEl = this.outerEl || options.outerEl || this.innerEl;
+    this.outerEl = this.outerEl || options.el || this.innerEl;
     this.outerEl._wlView = this;
     this.disableObserver();
 
@@ -40,7 +40,7 @@ var ObjView = Kern.EventManager.extend({
     });
     this._fixedDimensions();
     // Only render the element when it is passed in the options
-    if (!options.noRender && (options.forceRender || !options.innerEl))
+    if (!options.noRender && (options.forceRender || !options.el))
       this.render();
 
     this._createObserver();

@@ -47,7 +47,7 @@ var commonViewTests = function(scenario, initFunction) {
       element.id = '1000';
 
       var view = new ViewType(data, {
-        innerEl: element
+        el: element
       });
       expect(view.innerEl).toBe(element);
       expect(view.innerEl.id).not.toBe(data.attributes.id);
@@ -66,7 +66,7 @@ var commonViewTests = function(scenario, initFunction) {
       var element = document.createElement('div');
       element.id = '1000';
       var view = new ViewType(data, {
-        innerEl: element,
+        el: element,
         forceRender: true
       });
       expect(view.innerEl).toBe(element);
@@ -260,7 +260,7 @@ var commonViewTests = function(scenario, initFunction) {
       expect(parent.children.length).toBe(1);
 
       var view = new ViewType(data, {
-        innerEl: child
+        el: child
       });
       view.destroy();
 

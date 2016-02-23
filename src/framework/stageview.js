@@ -17,7 +17,7 @@ var StageView = GroupView.extend({
       noRender: true
     }));
 
-    if (!options.noRender && (options.forceRender || !options.innerEl))
+    if (!options.noRender && (options.forceRender || !options.el))
       this.render();
   },
   _renderChildPosition: function(childView){

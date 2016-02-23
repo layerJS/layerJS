@@ -21,7 +21,7 @@ var LayerView = GroupView.extend({
     this.inTransform = false;
     this.layout = new(layoutManager.get(dataModel.attributes.layoutType))(this);
     // we need to create the divs here instead of in the Objview constructor
-    this.outerEl = options.innerEl || document.createElement(dataModel.attributes.tag || 'div');
+    this.outerEl = options.el || document.createElement(dataModel.attributes.tag || 'div');
     // do we already have a scroller div?
     var hasScroller = this.outerEl.childNodes.length == 1 && this.outerEl.childNodes[0].getAttribute('data-wl-helper') == 'scroller';
     this.innerEl = this.outerEl;
@@ -49,7 +49,7 @@ var LayerView = GroupView.extend({
     });
     // set current frame from data object or take first child
     this.currentFrame = (this.data.attributes.defaultFrame && this.findChildView(this.data.attributes.defaultFrame)) || (this.data.attributes.children[0] && this.getChildView(this.data.attributes.children[0]));
-    if (!options.noRender && (options.forceRender || !options.innerEl)) this.render();
+    if (!options.noRender && (options.forceRender || !options.el)) this.render();
 
     if (this.stage && this.currentFrame) this.stage.waitForDimensions().then(function() {
       that.layout.init(that.stage)

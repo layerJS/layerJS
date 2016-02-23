@@ -39,7 +39,7 @@ var GroupView = ObjView.extend({
 
     this._buildChildren();
 
-    if (!options.noRender && (options.forceRender || !options.innerEl))
+    if (!options.noRender && (options.forceRender || !options.el))
       this.render();
   },
   /**
@@ -87,7 +87,7 @@ var GroupView = ObjView.extend({
               var vo;
               if (!this.innerEl.childNodes[k_saved]._wlView) {
                 vo = pluginManager.createView(repository.get(childId, this.data.attributes.version), {
-                  innerEl: this.innerEl.childNodes[k_saved],
+                  el: this.innerEl.childNodes[k_saved],
                   parent: this
                 });
               } else { // or get existing view
