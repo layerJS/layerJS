@@ -21,11 +21,13 @@ var commonViewTests = function(scenario, initFunction) {
     it('will add a new DOM element when no element is provided', function() {
       var view = new ViewType(data);
       expect(view.innerEl).not.toBeUndefined();
+      expect(view.outerEl).not.toBeUndefined();
     });
 
     it('the DOM element will have the same tag as defined in the data model', function() {
       var view = new ViewType(data);
       expect(view.innerEl.tagName.toUpperCase()).toBe(data.attributes.tag.toUpperCase());
+      expect(view.outerEl.tagName.toUpperCase()).toBe(data.attributes.tag.toUpperCase());
     });
 
     it('will add a _wlView property to the DOM element', function() {
@@ -38,8 +40,8 @@ var commonViewTests = function(scenario, initFunction) {
         noRender: true
       });
 
-      expect(view.innerEl).toBeDefined();
-      expect(view.innerEl.id).toBe('');
+      expect(view.outerEl).toBeDefined();
+      expect(view.outerEl.id).toBe('');
     });
 
     it('can be initialized with an existing element, without re-rendering', function() {
@@ -49,14 +51,14 @@ var commonViewTests = function(scenario, initFunction) {
       var view = new ViewType(data, {
         el: element
       });
-      expect(view.innerEl).toBe(element);
-      expect(view.innerEl.id).not.toBe(data.attributes.id);
+      expect(view.outerEl).toBe(element);
+      expect(view.outerEl.id).not.toBe(data.attributes.id);
     });
 
 
     it('will not automatic render the DOM element with data from it\'s dataModel', function() {
       var view = new ViewType(data);
-      var element = view.innerEl;
+      var element = view.outerEl;
 
       expect(element.id).not.toBe(data.attributes.id);
     });
@@ -69,8 +71,8 @@ var commonViewTests = function(scenario, initFunction) {
         el: element,
         forceRender: true
       });
-      expect(view.innerEl).toBe(element);
-      expect(view.innerEl.id).toBe('wl-obj-' + data.attributes.id.toString()); // changed
+      expect(view.outerEl).toBe(element);
+      expect(view.outerEl.id).toBe('wl-obj-' + data.attributes.id.toString()); // changed
     });
 
     it('cannot add view to existing element if that is already connected to another view', function() {
@@ -101,7 +103,7 @@ var commonViewTests = function(scenario, initFunction) {
     it('will add a data-wl-id attribute DOM element', function() {
       var view = new ViewType(data);
 
-      var element = view.innerEl;
+      var element = view.outerEl;
       var data_wl_id = element.getAttribute('data-wl-id');
       expect(data_wl_id).toBe(data.attributes.id.toString());
     });
@@ -109,7 +111,7 @@ var commonViewTests = function(scenario, initFunction) {
     it('will add a data-wl-type attribute DOM element', function() {
       var view = new ViewType(data);
 
-      var element = view.innerEl;
+      var element = view.outerEl;
       var data_wl_type = element.getAttribute('data-wl-type');
       expect(data_wl_type).toBe(data.attributes.type.toString());
     });
@@ -117,7 +119,7 @@ var commonViewTests = function(scenario, initFunction) {
     it('will add a default class to the DOM element', function() {
       var view = new ViewType(data);
 
-      var element = view.innerEl;
+      var element = view.outerEl;
       var classAttribute = element.getAttribute('class');
       expect(classAttribute).toContain('object-default object-' + data.attributes.type);
     });
@@ -125,7 +127,7 @@ var commonViewTests = function(scenario, initFunction) {
     it('will add classes that are defined in a data to the DOM element', function() {
       var view = new ViewType(data);
 
-      var element = view.innerEl;
+      var element = view.outerEl;
       var classAttribute = element.getAttribute('class');
       expect(classAttribute).toContain(data.attributes.classes);
     });
@@ -133,7 +135,7 @@ var commonViewTests = function(scenario, initFunction) {
     it('will add classes that are defined in a data to the DOM element', function() {
       var view = new ViewType(data);
 
-      var element = view.innerEl;
+      var element = view.outerEl;
       var classAttribute = element.getAttribute('class');
       expect(classAttribute).toContain(data.attributes.classes);
     });
@@ -142,7 +144,7 @@ var commonViewTests = function(scenario, initFunction) {
       var view = new ViewType(data);
       view.renderPosition();
 
-      var element = view.innerEl;
+      var element = view.outerEl;
       var style = element.style;
 
       expect(element.style.left).toBe(data.attributes.x + 'px');
@@ -151,7 +153,7 @@ var commonViewTests = function(scenario, initFunction) {
     it('will put the y property as the top property of the style of the DOM element when renderPosition is called', function() {
       var view = new ViewType(data);
       view.renderPosition();
-      var element = view.innerEl;
+      var element = view.outerEl;
       var style = element.style;
 
       expect(element.style.top).toBe(data.attributes.y + 'px');
@@ -161,7 +163,7 @@ var commonViewTests = function(scenario, initFunction) {
       data.attributes.y = undefined;
       var view = new ViewType(data);
       view.renderPosition();
-      var element = view.innerEl;
+      var element = view.outerEl;
       var style = element.style;
 
       expect(element.style.position).toBe('absolute');
@@ -172,7 +174,7 @@ var commonViewTests = function(scenario, initFunction) {
 
       var view = new ViewType(data);
       view.renderPosition();
-      var element = view.innerEl;
+      var element = view.outerEl;
       var style = element.style;
 
       expect(element.style.position).toBe('absolute');
@@ -183,7 +185,7 @@ var commonViewTests = function(scenario, initFunction) {
       data.attributes.x = undefined;
       var view = new ViewType(data);
       view.renderPosition();
-      var element = view.innerEl;
+      var element = view.outerEl;
       var style = element.style;
 
       expect(element.style.position).toBe('static');
@@ -192,7 +194,7 @@ var commonViewTests = function(scenario, initFunction) {
     it('will put a scaleX, scaleY in the transform property of the style of the DOM element will be set when renderPosition is called', function() {
       var view = new ViewType(data);
       view.renderPosition();
-      var element = view.innerEl;
+      var element = view.outerEl;
       var style = element.style;
 
       expect(element.style.transform).toContain('scale(' + data.attributes.scaleX + ',' + data.attributes.scaleY + ')');
@@ -201,7 +203,7 @@ var commonViewTests = function(scenario, initFunction) {
     it('will put the rotation in the transform property of the style of the DOM element will be set when renderPosition is called', function() {
       var view = new ViewType(data);
       view.renderPosition();
-      var element = view.innerEl;
+      var element = view.outerEl;
       var style = element.style;
 
       if (data.attributes.rotation)
@@ -213,7 +215,7 @@ var commonViewTests = function(scenario, initFunction) {
     it('will put the zIndex in the zIndex property of the style of the DOM element will be set when renderPosition is called', function() {
       var view = new ViewType(data);
       view.renderPosition();
-      var element = view.innerEl;
+      var element = view.outerEl;
       var style = element.style;
 
       expect(element.style.zIndex).toBe(data.attributes.zIndex !== undefined ? data.attributes.zIndex.toString() : '');
@@ -222,7 +224,7 @@ var commonViewTests = function(scenario, initFunction) {
     it('will set the display property in the style of the DOM element when renderPosition is called', function() {
       var view = new ViewType(data);
       view.renderPosition();
-      var element = view.innerEl;
+      var element = view.outerEl;
       var style = element.style;
 
       var displaySetting = data.attributes.hidden ? 'none' : '';
@@ -233,7 +235,7 @@ var commonViewTests = function(scenario, initFunction) {
     it('will put the width in the width property of the style of the DOM element will be set when renderPosition is called', function() {
       var view = new ViewType(data);
       view.renderPosition();
-      var element = view.innerEl;
+      var element = view.outerEl;
       var style = element.style;
 
       var width = (data.attributes.width !== undefined && data.attributes.width != '') ? data.attributes.width + 'px' : '';
@@ -244,7 +246,7 @@ var commonViewTests = function(scenario, initFunction) {
     it('will put the height in the height property of the style of the DOM element will be set when renderPosition is called', function() {
       var view = new ViewType(data);
       view.renderPosition();
-      var element = view.innerEl;
+      var element = view.outerEl;
       var style = element.style;
 
       var height = (data.attributes.height !== undefined && data.attributes.height != '') ? data.attributes.height + 'px' : '';
@@ -270,7 +272,7 @@ var commonViewTests = function(scenario, initFunction) {
 
     it('will set the href attribute of the anchor DOM element to the link_to attribute of the data model', function() {
       var view = new ViewType(data);
-      var element = view.innerEl;
+      var element = view.outerEl;
 
       if (data.attributes.tag.toUpperCase() == 'A') {
         expect(element.hasAttribute('href')).toBeTruthy();
@@ -282,7 +284,7 @@ var commonViewTests = function(scenario, initFunction) {
 
     it('will set the target attribute of the anchor DOM element to the link_target attribute of the data model', function() {
       var view = new ViewType(data);
-      var element = view.innerEl;
+      var element = view.outerEl;
 
       if (data.attributes.tag.toUpperCase() == 'A') {
         expect(element.hasAttribute('target')).toBeTruthy();
@@ -343,7 +345,7 @@ var commonViewTests = function(scenario, initFunction) {
 
     it('listens for changes on its DOM element when _observerCounter is 0', function() {
       var view = new ViewType(data);
-      var element = view.innerEl;
+      var element = view.outerEl;
       view.render();
 
       expect(view._observer).toBeDefined();
@@ -360,7 +362,7 @@ var commonViewTests = function(scenario, initFunction) {
 
     it('doesn\'t listen for changes on its DOM element when _observerCounter is greater then 0', function() {
       var view = new ViewType(data);
-      var element = view.innerEl;
+      var element = view.outerEl;
 
       view.render();
       view.disableObserver();
@@ -379,7 +381,7 @@ var commonViewTests = function(scenario, initFunction) {
 
     it('will listen for chnanges on its DOM element by default', function() {
       var view = new ViewType(data);
-      var element = view.innerEl;
+      var element = view.outerEl;
 
       expect(view._observer).toBeDefined();
       expect(view._observerCounter).toBe(0);
