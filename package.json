@@ -10,15 +10,17 @@
     "jsdom": "latest",
     "mkdirp": "latest",
     "file-save" : "latest",
-    "uglifyjs" : "latest"
+    "uglifyjs" : "latest",
+    "fs-extra" : "latest"
   },
   "scripts": {
     "clean": "rimraf dist/*",
 
     "prebuild": "npm run clean && npm run test",
     "build": "npm run build:scripts -s",
-    "build:scripts": "mkdirp dist && browserify -e src/main.js -o dist/main.js",
-    "build:compressed": "mkdirp dist && browserify -e src/main.js | uglifyjs -c -m -o dist/main.js",
+    "build:scripts": "mkdirp dist && browserify -e src/layerjs.js -o dist/layerjs.js && npm run build:copywithversionnumber",
+    "build:compressed": "mkdirp dist && browserify -e src/layerjs.js | uglifyjs -c -m -o dist/layerjs.js && npm run build:copywithversionnumber",
+    "build:copywithversionnumber": "node ./.build/copywithversionnumber.js",
 
     "test": "jasmine JASMINE_CONFIG_PATH=./test/spec/support/jasmine.json",
 
