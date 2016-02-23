@@ -1,0 +1,19 @@
+
+[data-wl-type='stage'] {
+  overflow: hidden;
+  position: relative;
+}
+[data-wl-type='frame'] {
+  position: absolute;
+  transform-origin: left top;
+  -webkit-transform-origin: left top;
+  top: 0px;
+  left: 0px;
+}
+[data-wl-type='layer'] {
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  width: 0px;
+  height: 0px;
+}
