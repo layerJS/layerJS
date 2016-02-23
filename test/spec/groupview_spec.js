@@ -153,10 +153,15 @@ describe("GroupView", function() {
 
     parentData.set('children', ['102', '101']);
 
-    expect(parentElement.children[0].id).toBe('element1');
-    expect(parentElement.children[1].id).toBe('102');
-    expect(parentElement.children[2].id).toBe('element2');
-    expect(parentElement.children[3].id).toBe('101');
-    expect(parentElement.children[4].id).toBe('element3');
+    var order={};
+    for (var i=0;i<parentElement.children.length;i++){
+      order[parentElement.children[i].id]=i;
+    }
+    // these tests are only topological as the reordering of the layerJS children does not uniquely define a reordering of all elements. 
+    expect(order['102']<order['101']).toBe(true);
+    expect(order['element1']<order['element2']).toBe(true);
+    expect(order['element2']<order['element3']).toBe(true);
+    expect(order['element1']<order['102']).toBe(true);
+    expect(order['101']<order['element3']).toBe(true);
   });
 });
