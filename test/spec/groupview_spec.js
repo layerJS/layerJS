@@ -99,7 +99,7 @@ describe("GroupView", function() {
       expect(childView.parent).toBe(parentView);
 
       childView.data.set('x', 20);
-      expect(childView.elWrapper.style.left).toBe('20px');
+      expect(childView.outerEl.style.left).toBe('20px');
     }
   });
 
@@ -142,7 +142,7 @@ describe("GroupView", function() {
     var parentData = repository.get(100, version);
     var parentElement = document.getElementById('100');
     var parentView = new GroupView(parentData, {
-      el: parentElement
+      innerEl: parentElement
     });
 
     expect(parentElement.children[0].id).toBe('element1');
@@ -157,7 +157,7 @@ describe("GroupView", function() {
     for (var i=0;i<parentElement.children.length;i++){
       order[parentElement.children[i].id]=i;
     }
-    // these tests are only topological as the reordering of the layerJS children does not uniquely define a reordering of all elements. 
+    // these tests are only topological as the reordering of the layerJS children does not uniquely define a reordering of all elements.
     expect(order['102']<order['101']).toBe(true);
     expect(order['element1']<order['element2']).toBe(true);
     expect(order['element2']<order['element3']).toBe(true);

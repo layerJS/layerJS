@@ -9,7 +9,7 @@ var ObjData = require('./objdata.js');
  * rendering fuctions that are needed for a visible element.
  *
  * @param {ObjData} dataModel the Tailbone Model of the View's data
- * @param {Object} options {data: json for creating a new data object; el: (optional) HTMLelement already exisitng; elWrapper: (optional) link wrapper existing; root: true if that is the root object}
+ * @param {Object} options {data: json for creating a new data object; el: (optional) HTMLelement already exisitng; outerEl: (optional) link wrapper existing; root: true if that is the root object}
  */
 var ObjView = Kern.EventManager.extend({
   constructor: function(dataModel, options) {
@@ -21,13 +21,13 @@ var ObjView = Kern.EventManager.extend({
     // parent if defined
     this.parent = options.parent;
     // DOM element, take either the one provide by a sub constructor, provided in options, or create new
-    this.el = this.el || options.el || document.createElement(this.data.attributes.tag);
+    this.innerEl = this.innerEl || options.innerEl || document.createElement(this.data.attributes.tag);
     // backlink from DOM to object
-    if (this.el._wlView) throw "trying to initialialize view on element that already has a view";
-    this.el._wlView = this;
+    if (this.innerEl._wlView) throw "trying to initialialize view on element that already has a view";
+    this.innerEl._wlView = this;
     // possible wrapper element
-    this.elWrapper = this.elWrapper || options.elWrapper || this.el;
-    this.elWrapper._wlView = this;
+    this.outerEl = this.outerEl || options.outerEl || this.innerEl;
+    this.outerEl._wlView = this;
     this.disableObserver();
 
     var that = this;
@@ -40,7 +40,7 @@ var ObjView = Kern.EventManager.extend({
     });
     this._fixedDimensions();
     // Only render the element when it is passed in the options
-    if (!options.noRender && (options.forceRender || !options.el))
+    if (!options.noRender && (options.forceRender || !options.innerEl))
       this.render();
 
     this._createObserver();
@@ -95,17 +95,17 @@ var ObjView = Kern.EventManager.extend({
 
     var attr = this.data.attributes,
       diff = (this.isRendererd ? this.data.changedAttributes : this.data.attributes),
-      elWrapper = this.elWrapper;
+      outerEl = this.outerEl;
     if ('id' in diff) {
-      elWrapper.setAttribute("data-wl-id", attr.id); //-> should be a class?
+      outerEl.setAttribute("data-wl-id", attr.id); //-> should be a class?
     }
 
     if ('type' in diff) {
-      elWrapper.setAttribute("data-wl-type", attr.type); //-> should be a class?
+      outerEl.setAttribute("data-wl-type", attr.type); //-> should be a class?
     }
 
     if ('elementId' in diff || 'id' in diff) {
-      elWrapper.id = attr.elementId || "wl-obj-" + attr.id; //-> shouldn't we always set an id? (priority of #id based css declarations)
+      outerEl.id = attr.elementId || "wl-obj-" + attr.id; //-> shouldn't we always set an id? (priority of #id based css declarations)
     }
 
     // add classes to object
@@ -114,19 +114,19 @@ var ObjView = Kern.EventManager.extend({
       // this.ui && (classes += ' object-ui');
       // this.ontop && (classes += ' object-ontop');
       attr.classes && (classes += ' ' + attr.classes);
-      elWrapper.className = classes;
+      outerEl.className = classes;
     }
 
     // When the object is an anchor, set the necessary attributes
     if (this.data.attributes.tag.toUpperCase() == 'A') {
       if ('linkTo' in diff)
-        elWrapper.setAttribute('href', this.data.attributes.linkTo);
+        outerEl.setAttribute('href', this.data.attributes.linkTo);
 
       if (!this.data.attributes.linkTarget)
         this.data.attributes.linkTarget = '_self';
 
       if ('linkTarget' in diff)
-        elWrapper.setAttribute('target', this.data.attributes.linkTarget);
+        outerEl.setAttribute('target', this.data.attributes.linkTarget);
     }
 
     // create object css style
@@ -175,7 +175,7 @@ var ObjView = Kern.EventManager.extend({
     this.disableObserver();
     var attr = this.data.attributes,
       diff = this.data.changedAttributes || this.data.attributes,
-      el = this.el;
+      el = this.innerEl;
 
     var css = {};
     'x' in diff && attr.x !== undefined && (css.left = attr.x + 'px');
@@ -202,7 +202,7 @@ var ObjView = Kern.EventManager.extend({
 
     var props = Object.keys(styles);
     for (var i = 0; i < props.length; i++) {
-      this.elWrapper.style[$.cssPrefix[props[i]] || props[i]] = styles[props[i]];
+      this.outerEl.style[$.cssPrefix[props[i]] || props[i]] = styles[props[i]];
     }
 
     this.enableObserver();
@@ -214,7 +214,7 @@ var ObjView = Kern.EventManager.extend({
    * @returns {number} width
    */
   width: function() {
-    return this.elWrapper.offsetWidth || this.fixedWidth;
+    return this.outerEl.offsetWidth || this.fixedWidth;
   },
   /**
    * returns the height of the object. Note, this is the actual height which may be different then in the data object.
@@ -223,7 +223,7 @@ var ObjView = Kern.EventManager.extend({
    * @returns {number} height
    */
   height: function() {
-    return this.elWrapper.offsetHeight || this.fixedHeight;
+    return this.outerEl.offsetHeight || this.fixedHeight;
   },
   /**
    * make sure element has reliable dimensions, either by being rendered or by having fixed dimensions
@@ -232,8 +232,8 @@ var ObjView = Kern.EventManager.extend({
    */
   waitForDimensions: function() {
     var p = new Kern.Promise();
-    var w = this.elWrapper.offsetWidth || this.fixedWidth;
-    var h = this.elWrapper.offsetHeight || this.fixedHeight;
+    var w = this.outerEl.offsetWidth || this.fixedWidth;
+    var h = this.outerEl.offsetHeight || this.fixedHeight;
     var that = this;
     if (w || h) {
       p.resolve({
@@ -242,8 +242,8 @@ var ObjView = Kern.EventManager.extend({
       });
     } else {
       setTimeout(function f() {
-        var w = that.elWrapper.offsetWidth || this.fixedWidth;
-        var h = that.elWrapper.offsetHeight || this.fixedHeight;
+        var w = that.outerEl.offsetWidth || this.fixedWidth;
+        var h = that.outerEl.offsetHeight || this.fixedHeight;
         if (w || h) {
           p.resolve({
             width: w || 0,
@@ -269,7 +269,7 @@ var ObjView = Kern.EventManager.extend({
       this._observer.disconnect();
     }
 
-    this.elWrapper.parentNode.removeChild(this.elWrapper);
+    this.outerEl.parentNode.removeChild(this.outerEl);
   },
   enableObserver: function() {
     if (!this.hasOwnProperty('_observerCounter')) {
@@ -297,7 +297,7 @@ var ObjView = Kern.EventManager.extend({
         that._domElementChanged();
       });
 
-      this._observer.observe(this.elWrapper, {
+      this._observer.observe(this.outerEl, {
         attributes: true,
         childList: false,
         characterData: true,
@@ -306,19 +306,19 @@ var ObjView = Kern.EventManager.extend({
     } else {
       this._observer = {};
 
-      this.elWrapper.addEventListener("DOMAttrModified", function(ev) {
+      this.outerEl.addEventListener("DOMAttrModified", function(ev) {
         that._domElementChanged();
       }, false);
 
-      this.elWrapper.addEventListener("DOMAttributeNameChanged", function(ev) {
+      this.outerEl.addEventListener("DOMAttributeNameChanged", function(ev) {
         that._domElementChanged();
       }, false);
 
-      this.elWrapper.addEventListener("DOMCharacterDataModified", function(ev) {
+      this.outerEl.addEventListener("DOMCharacterDataModified", function(ev) {
         that._domElementChanged();
       }, false);
 
-      this.elWrapper.addEventListener("DOMElementNameChanged", function(ev) {
+      this.outerEl.addEventListener("DOMElementNameChanged", function(ev) {
         that._domElementChanged();
       }, false);
     }
@@ -331,7 +331,7 @@ var ObjView = Kern.EventManager.extend({
   _domElementChanged: function() {
     if (this._observerCounter != 0) return;
 
-    var dataObject = ObjView.parse(this.elWrapper);
+    var dataObject = ObjView.parse(this.outerEl);
 
     this.data.silence();
     for (var data in dataObject) {

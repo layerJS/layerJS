@@ -21,13 +21,13 @@ var PluginManager = Kern.EventManager.extend({
    *
    * @param {ObjData} model - the model from which the view should be created
    * @param {Object} [options] - create options
-   * @param {HTMLElement} options.el - the element of the view
+   * @param {HTMLElement} options.innerEl - the element of the view
    * @returns {ObjView} the view object of type ObjView or a sub class
    */
   createView: function(model, options) {
     // return existing view if the provided element already has one
-    if (options && options.el && options.el._wlView && options.el._wlView instanceof ObjView) {
-      return options.el._wlView;
+    if (options && options.innerEl && options.innerEl._wlView && options.innerEl._wlView instanceof ObjView) {
+      return options.innerEl._wlView;
     }
     if (model.attributes.type && this.map.hasOwnProperty(model.attributes.type)) {
       return new(this.map[model.attributes.type].view)(model, options);

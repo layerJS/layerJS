@@ -19,7 +19,7 @@ var FrameView = GroupView.extend({
       noRender: true
     }));
 
-    if (!options.noRender && (options.forceRender || !options.el))
+    if (!options.noRender && (options.forceRender || !options.innerEl))
       this.render();
   },
   /**
@@ -127,18 +127,18 @@ var FrameView = GroupView.extend({
         break;
       case 'responsive':
         d.scale = 1;
-        this.el.style.width = d.frameWidth = stageWidth;
-        this.el.style.height = d.frameHeight = stageHeight;
+        this.innerEl.style.width = d.frameWidth = stageWidth;
+        this.innerEl.style.height = d.frameHeight = stageHeight;
         break;
       case 'responsive-width':
         d.scale = 1;
         d.isScrollY = true;
-        this.el.style.width = d.frameWidth = stageWidth;
+        this.innerEl.style.width = d.frameWidth = stageWidth;
         break;
       case 'responsive-height':
         d.scale = 1;
         d.isScrollX = true;
-        this.el.style.height = d.frameHeight = stageHeight;
+        this.innerEl.style.height = d.frameHeight = stageHeight;
         break;
       default:
         throw "unkown fitTo type '" + this.attributes.fitTo + "'";

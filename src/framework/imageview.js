@@ -18,7 +18,7 @@ var ImageView = ObjView.extend({
       noRender: true
     }));
 
-    if (!options.noRender && (options.forceRender || !options.el))
+    if (!options.noRender && (options.forceRender || !options.innerEl))
       this.render();
   },
   render: function(options) {
@@ -27,7 +27,7 @@ var ImageView = ObjView.extend({
 
     var attr = this.data.attributes,
       diff = this.data.changedAttributes || this.data.attributes,
-      el = this.el;
+      el = this.outerEl;
 
     ObjView.prototype.render.call(this, options);
 

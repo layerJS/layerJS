@@ -17,13 +17,13 @@ var StageView = GroupView.extend({
       noRender: true
     }));
 
-    if (!options.noRender && (options.forceRender || !options.el))
+    if (!options.noRender && (options.forceRender || !options.innerEl))
       this.render();
   },
   _renderChildPosition: function(childView){
     childView.disableObserver();
-    childView.elWrapper.style.left="0px";
-    childView.elWrapper.style.top="0px";
+    childView.outerEl.style.left="0px";
+    childView.outerEl.style.top="0px";
     childView.enableObserver();
   }
 

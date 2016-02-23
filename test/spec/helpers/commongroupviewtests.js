@@ -41,10 +41,10 @@ var commonGroupViewTests = function(scenario, initFunction) {
     var checkChildrenDataNodes = function(dataObj, view) {
 
       if (dataObj.attributes.children) {
-        expect(view.el.childNodes.length).toBe(dataObj.attributes.children.length);
+        expect(view.innerEl.childNodes.length).toBe(dataObj.attributes.children.length);
 
-        for (var i = 0; i < view.el.childNodes.length; i++) {
-          var childNode = view.el.childNodes[i];
+        for (var i = 0; i < view.innerEl.childNodes.length; i++) {
+          var childNode = view.innerEl.childNodes[i];
           expect(childNode._wlView).toBeDefined();
           var childNodeId=childNode._wlView.data.attributes.id;
           expect(childNode.id).toBe('wl-obj-'+childNodeId);
@@ -56,16 +56,16 @@ var commonGroupViewTests = function(scenario, initFunction) {
         }
       } else {
         // When the data doesn't have any children, the innerHTML should be empty or equal at the content if data type is text
-        expect(view.el.innerHTML).toBe(dataObj.attributes.content ? dataObj.attributes.content : '');
+        expect(view.innerEl.innerHTML).toBe(dataObj.attributes.content ? dataObj.attributes.content : '');
       }
     };
 
     var checkChildrenViews = function(view) {
       if (view.data.attributes.children) {
-        expect(view.el.childNodes.length).toBe(view.data.attributes.children.length);
+        expect(view.innerEl.childNodes.length).toBe(view.data.attributes.children.length);
 
-        for (var i = 0; i < view.el.childNodes.length; i++) {
-          var childNode = view.el.childNodes[i];
+        for (var i = 0; i < view.innerEl.childNodes.length; i++) {
+          var childNode = view.innerEl.childNodes[i];
           var childView = childNode._wlView;
           expect(childView.parent).toBe(view);
 
@@ -73,8 +73,8 @@ var commonGroupViewTests = function(scenario, initFunction) {
         }
       } else {
         //When the data doesn't have children, it's childnodes should have a view attached.
-        for (var index = 0; index < view.el.childNodes.length; index++) {
-          var element = view.el.childNodes[index];
+        for (var index = 0; index < view.innerEl.childNodes.length; index++) {
+          var element = view.innerEl.childNodes[index];
           expect(element._wlView).toBeUndefined();
         }
       }

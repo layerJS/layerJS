@@ -17,7 +17,7 @@ var TextView = ObjView.extend({
       noRender: true
     }));
 
-    if (!options.noRender && (options.forceRender || !options.el))
+    if (!options.noRender && (options.forceRender || !options.innerEl))
       this.render();
   },
   render: function(options) {
@@ -26,7 +26,7 @@ var TextView = ObjView.extend({
 
     var attr = this.data.attributes,
       diff = this.data.changedAttributes || this.data.attributes,
-      el = this.el;
+      el = this.innerEl;
 
     ObjView.prototype.render.call(this, options);
 

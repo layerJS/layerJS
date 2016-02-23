@@ -26,13 +26,13 @@ var PlainLayout = LayerLayout.extend({
    * @returns {Type} Description
    */
   init: function(stage) {
-    for (var i = 0; i < this.layer.el.children.length; i++) {
-      this.layer.el.children[i].style.visibility = 'hidden';
+    for (var i = 0; i < this.layer.innerEl.children.length; i++) {
+      this.layer.innerEl.children[i].style.visibility = 'hidden';
     }
     if (this.layer.currentFrame) {
       var t = this.swipeTransition(undefined, PlainLayout.IT, null, this.layer.currentFrame.getTransformData(stage))
       this.layer.currentFrame.applyStyles(t.t1);
-      this.layer.currentFrame.elWrapper.style.visibility = 'initial';
+      this.layer.currentFrame.outerEl.style.visibility = 'initial';
     }
   },
   /**
@@ -53,7 +53,7 @@ var PlainLayout = LayerLayout.extend({
       frame.applyStyles({
         transition: '2s'
       });
-      frame.elWrapper.addEventListener("transitionEnd", function() { // FIXME needs webkitTransitionEnd etc
+      frame.outerEl.addEventListener("transitionEnd", function() { // FIXME needs webkitTransitionEnd etc
         currentFrame.applyStyles({
           transition: 'none',
           visibility: 'hidden'
@@ -87,7 +87,7 @@ var PlainLayout = LayerLayout.extend({
     // create a promise that will wait for the transform being applied
     var finished = new Kern.Promise();
     // apply pre position to target frame
-    Kern._extend(frame.elWrapper.style, {
+    Kern._extend(frame.outerEl.style, {
       transition: 'none',
       visibility: 'initial'
     }, t.t0);

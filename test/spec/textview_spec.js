@@ -32,7 +32,7 @@ describe("TextView", function() {
     var data = pluginManager.createModel(datasetReader.readFromFile('simple_textdata.js')[0]);
     var view = new TextView(data);
     view.render();
-    var element = view.el;
+    var element = view.innerEl;
 
     expect(element.innerHTML).toBe(data.attributes.content);
   });

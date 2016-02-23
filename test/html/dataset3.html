@@ -14,7 +14,7 @@
             var stageData = WL.repository.get("s1", 'default');
             var stageView = WL.pluginManager.createView(stageData);
             //stageView.render();
-            document.body.appendChild(stageView.el);
+            document.body.appendChild(stageView.outerEl);
             WL.gestureManager.register();
         })();
     </script>

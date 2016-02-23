@@ -21,20 +21,20 @@ var LayerView = GroupView.extend({
     this.inTransform = false;
     this.layout = new(layoutManager.get(dataModel.attributes.layoutType))(this);
     // we need to create the divs here instead of in the Objview constructor
-    this.elWrapper = options.el || document.createElement(dataModel.attributes.tag || 'div');
+    this.outerEl = options.innerEl || document.createElement(dataModel.attributes.tag || 'div');
     // do we already have a scroller div?
-    var hasScroller = this.elWrapper.childNodes.length == 1 && this.elWrapper.childNodes[0].getAttribute('data-wl-helper') == 'scroller';
-    this.el = this.elWrapper;
+    var hasScroller = this.outerEl.childNodes.length == 1 && this.outerEl.childNodes[0].getAttribute('data-wl-helper') == 'scroller';
+    this.innerEl = this.outerEl;
     // should we not have a scroller?
-    if (hasScroller && !dataModel.attributes.nativeScroll) $.unwrapChildren(this.elWrapper);
+    if (hasScroller && !dataModel.attributes.nativeScroll) $.unwrapChildren(this.outerEl);
     // should we have a scroller but don't have one?
     if (!hasScroller && dataModel.attributes.nativeScroll) {
       // set el to scroller
-      this.el = $.wrapChildren(this.elWrapper);
+      this.innerEl = $.wrapChildren(this.outerEl);
       hasScroller = true;
     }
     // mark scroller as scroller in HTML
-    if (hasScroller) this.el.setAttribute('data-wl-helper', 'scroller');
+    if (hasScroller) this.innerEl.setAttribute('data-wl-helper', 'scroller');
     // call super constructor
 
     GroupView.call(this, dataModel, Kern._extend({}, options, {
@@ -49,7 +49,7 @@ var LayerView = GroupView.extend({
     });
     // set current frame from data object or take first child
     this.currentFrame = (this.data.attributes.defaultFrame && this.findChildView(this.data.attributes.defaultFrame)) || (this.data.attributes.children[0] && this.getChildView(this.data.attributes.children[0]));
-    if (!options.noRender && (options.forceRender || !options.el)) this.render();
+    if (!options.noRender && (options.forceRender || !options.innerEl)) this.render();
 
     if (this.stage && this.currentFrame) this.stage.waitForDimensions().then(function() {
       that.layout.init(that.stage)
@@ -77,8 +77,8 @@ var LayerView = GroupView.extend({
     // calculate additional shift resulting from the current native scroll.
     var shift = {};
     if (this.data.attributes.nativeScroll) {
-      shift.x = (transformData.scrollX || 0) - this.elWrapper.scrollLeft;
-      shift.x = (transformData.scrollY || 0) - this.elWrapper.scrollTop;
+      shift.x = (transformData.scrollX || 0) - this.outerEl.scrollLeft;
+      shift.x = (transformData.scrollY || 0) - this.outerEl.scrollTop;
       transformData.scrollX = 0; // should we save that somewhere? can scrollTop/LEft change during transition? probably.
       transformData.scrollY = 0;
       // shoud we remove maxScroll* ?
@@ -102,7 +102,7 @@ var LayerView = GroupView.extend({
 
     var attr = childView.data.attributes,
       diff = childView.data.changedAttributes || childView.data.attributes,
-      el = childView.elWrapper;
+      el = childView.outerEl;
     var css = {};
     // just do width & height for now; FIXME
     'width' in diff && attr.width !== undefined && (css.width = attr.width);

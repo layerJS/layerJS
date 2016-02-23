@@ -107,7 +107,7 @@ var ParseManager = function() {
       var dataObject = repository.get(stageIDs[index], options.version || defaults.version)
       if (!stageElement._wlView) {
         var v = new StageView(dataObject, {
-          el: stageElement
+          innerEl: stageElement
         });
       }
     }

@@ -38,7 +38,7 @@ describe('PluginManager', function() {
     var v = pluginmanager.createView(c);
     expect(v).toBeDefined();
     expect(v.data.attributes.x).toBe('789px');
-    expect(v.el._wlView).toBe(v);
+    expect(v.innerEl._wlView).toBe(v);
   });
   it('can register and create new types of View objects', function() {
     var NV = ObjView.extend({}, {
@@ -51,6 +51,6 @@ describe('PluginManager', function() {
     var nc = pluginmanager.createModel(ndata);
     var v = pluginmanager.createView(nc);
     expect(v instanceof NV).toBe(true);
-    expect(v.el._wlView).toBe(v);
+    expect(v.innerEl._wlView).toBe(v);
   })
 });

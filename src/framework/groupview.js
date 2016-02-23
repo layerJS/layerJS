@@ -39,7 +39,7 @@ var GroupView = ObjView.extend({
 
     this._buildChildren();
 
-    if (!options.noRender && (options.forceRender || !options.el))
+    if (!options.noRender && (options.forceRender || !options.innerEl))
       this.render();
   },
   /**
@@ -61,7 +61,7 @@ var GroupView = ObjView.extend({
     var nodeId;
     var _k_nextChild = function() { // find next DOM child node that is a wl-element
       k++;
-      while (!(empty = !(k < that.el.childNodes.length)) && (that.el.childNodes[k].nodeType != 1 || !(nodeId = that.el.childNodes[k].getAttribute('data-wl-id')))) {
+      while (!(empty = !(k < that.innerEl.childNodes.length)) && (that.innerEl.childNodes[k].nodeType != 1 || !(nodeId = that.innerEl.childNodes[k].getAttribute('data-wl-id')))) {
         k++;
       }
     }
@@ -81,17 +81,17 @@ var GroupView = ObjView.extend({
           while (!empty) {
             if (nodeId == childId) { // found a matching DOM element; put it at the right position
               if (k !== k_saved) {
-                this.el.insertBefore(this.el.childNodes[k], this.el.childNodes[k_saved]);
+                this.innerEl.insertBefore(this.innerEl.childNodes[k], this.innerEl.childNodes[k_saved]);
               }
               // create view object if it does not exist yet (even if the HTML element exist)
               var vo;
-              if (!this.el.childNodes[k_saved]._wlView) {
+              if (!this.innerEl.childNodes[k_saved]._wlView) {
                 vo = pluginManager.createView(repository.get(childId, this.data.attributes.version), {
-                  el: this.el.childNodes[k_saved],
+                  innerEl: this.innerEl.childNodes[k_saved],
                   parent: this
                 });
               } else { // or get existing view
-                vo = this.el.childNodes[k_saved]._wlView;
+                vo = this.innerEl.childNodes[k_saved]._wlView;
               }
 
               // check if we have registered another view under the same id
@@ -117,9 +117,9 @@ var GroupView = ObjView.extend({
           parent: this
         });
         if (empty) {
-          this.el.appendChild(newView.elWrapper);
+          this.innerEl.appendChild(newView.outerEl);
         } else {
-          this.el.insertBefore(newView.elWrapper, this.el.childNodes[k]);
+          this.innerEl.insertBefore(newView.outerEl, this.innerEl.childNodes[k]);
         }
         //if (this.childInfo[childId]) console.warn("Apparently DOM element for child id " + childId + " of parent " + this.data.attributes.id + " got deleted. ");
         // create childInfo for new view (may already exist with same info)
@@ -133,7 +133,7 @@ var GroupView = ObjView.extend({
       // we checked/added all object in data.children. Are there more children in DOM left?
       !empty && _k_nextChild();
     while (!empty) { // some objects need to be deleted (only removes dom elements of wl objects)
-      var vo = this.el.childNodes[k]._wlView;
+      var vo = this.innerEl.childNodes[k]._wlView;
       if (!vo) {
         console.log('FIXME: ignoring uninitialized layerjs object in children list.');
         _k_nextChild();
@@ -142,7 +142,7 @@ var GroupView = ObjView.extend({
       vo.data.off('change', this._myChildListenerCallback); // remove child change listener
       delete this.childNames[vo.data.attributes.name];
       delete this.childNodes[vo.data.attributes.id];
-      this.el.childNodes[k].remove(); // remove child from dom
+      this.innerEl.childNodes[k].remove(); // remove child from dom
       _k_nextChild(); // next wl object
     }
 
@@ -231,7 +231,7 @@ var GroupView = ObjView.extend({
 
     var attr = childView.data.attributes,
       diff = childView.data.changedAttributes || childView.data.attributes,
-      el = childView.elWrapper;
+      el = childView.outerEl;
 
     var css = {};
     'x' in diff && attr.x !== undefined && (css.left = attr.x + 'px');

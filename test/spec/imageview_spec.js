@@ -34,7 +34,7 @@ describe("ImageView", function() {
     var view = new ImageView(data);
     view.render();
 
-    var element = view.el;
+    var element = view.innerEl;
 
     expect(element.getAttribute('src')).toBe(WL.imagePath + data.attributes.src);
   });
@@ -44,7 +44,7 @@ describe("ImageView", function() {
     var view = new ImageView(data);
     view.render();
 
-    var element = view.el;
+    var element = view.innerEl;
 
     expect(element.getAttribute('alt')).toBe(data.attributes.alt);
   });
