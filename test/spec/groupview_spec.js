@@ -113,7 +113,7 @@ describe("GroupView", function() {
       var parentView = new GroupView(data);
       expect(parentView._myChildListenerCallback).toBeDefined();
 
-      var childView = parentView.childInfo[data.attributes.children[0]].view;
+      var childView = parentView.getChildView(data.attributes.children[0]);
       expect(childView.parent).toBe(parentView);
 
       childView.data.set('x', 20);

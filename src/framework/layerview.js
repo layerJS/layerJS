@@ -68,7 +68,7 @@ var LayerView = GroupView.extend({
       transition = framename;
       framename = transition.frame;
     };
-    transition = transition || {};
+    transition = transition || {type: 'default'};
     framename = framename || transition.framename;
     if (!framename) throw "transformTo: no frame given";
     var frame = this.getChildViewByName(framename);

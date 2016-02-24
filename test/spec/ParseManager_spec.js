@@ -61,7 +61,6 @@ describe('ParseMananger', function() {
       "</div>" +
       "</div>" +
       "</body></html>");
-debugger;
     parseManager.parseDocument();
 
     var stage = repository.get(1, defaults.version);
