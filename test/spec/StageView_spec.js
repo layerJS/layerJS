@@ -5,6 +5,8 @@ var LayerView = require('../../src/framework/layerview.js');
 var StageData = require('../../src/framework/stagedata.js');
 var CommonViewTests = require('./helpers/commonviewtests.js');
 var CommonGroupViewTests = require('./helpers/commongroupviewtests.js');
+var GroupView_renderChildPositionTests = require('./helpers/groupview_renderchildpositiontests.js');
+var Common_renderChildPositionTests = require('./helpers/common_renderchildpositiontests.js');
 var DatasetReader = require('./helpers/datasetreader.js');
 
 describe("StageView", function() {

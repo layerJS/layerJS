@@ -47,6 +47,18 @@ for (var x = 0; x < datasetFilenames.length; x++) {
         object.linkTarget = object.link_target;
         delete object.link_target;
       }
+
+      if (object.width != undefined && object.width.toString().indexOf('px') == -1) {
+        if (object.width.toString().indexOf('%') == -1) {
+          object.width = object.width.toString() + 'px';
+        }
+      }
+
+      if (object.height != undefined && object.height.toString().indexOf('px') == -1) {
+        if (object.height.toString().indexOf('%') == -1) {
+          object.height = object.height.toString() + 'px';
+        }
+      }
     }
 
     fileSave(datasetFileName)

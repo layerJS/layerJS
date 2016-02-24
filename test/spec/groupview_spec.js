@@ -7,6 +7,8 @@ var ObjView = require('../../src/framework/objview.js');
 var ObjData = require('../../src/framework/objdata.js');
 var CommonViewTests = require('./helpers/commonviewtests.js');
 var CommonGroupViewTests = require('./helpers/commongroupviewtests.js');
+var GroupView_renderChildPositionTests = require('./helpers/groupview_renderchildpositiontests.js');
+var Common_renderChildPositionTests = require('./helpers/common_renderchildpositiontests.js');
 var DatasetReader = require('./helpers/datasetreader.js');
 
 describe("GroupView", function() {
@@ -37,6 +39,22 @@ describe("GroupView", function() {
   });
 
   CommonGroupViewTests('groupdata_with_objdata.js', function() {
+    return {
+      data: datasetReader.readFromFile('groupdata_with_objdata.js'),
+      ViewType: GroupView,
+      parentId: 110530
+    };
+  });
+
+  Common_renderChildPositionTests('groupdata_with_objdata.js', function() {
+    return {
+      data: datasetReader.readFromFile('groupdata_with_objdata.js'),
+      ViewType: GroupView,
+      parentId: 110530
+    };
+  });
+
+  GroupView_renderChildPositionTests('groupdata_with_objdata.js', function() {
     return {
       data: datasetReader.readFromFile('groupdata_with_objdata.js'),
       ViewType: GroupView,

@@ -46,8 +46,8 @@ var commonGroupViewTests = function(scenario, initFunction) {
         for (var i = 0; i < view.innerEl.childNodes.length; i++) {
           var childNode = view.innerEl.childNodes[i];
           expect(childNode._wlView).toBeDefined();
-          var childNodeId=childNode._wlView.data.attributes.id;
-          expect(childNode.id).toBe('wl-obj-'+childNodeId);
+          var childNodeId = childNode._wlView.data.attributes.id;
+          expect(childNode.id).toBe('wl-obj-' + childNodeId);
           var childObj = repository.get(childNodeId, defaults.version);
           expect(dataObj.attributes.children).toContain(childObj.attributes.id);
           expect(childNode._wlView.data).toBe(childObj);
@@ -79,8 +79,6 @@ var commonGroupViewTests = function(scenario, initFunction) {
         }
       }
     };
-
-
   });
 };
 

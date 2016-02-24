@@ -140,120 +140,6 @@ var commonViewTests = function(scenario, initFunction) {
       expect(classAttribute).toContain(data.attributes.classes);
     });
 
-    it('will put the x property as the left property of the style of the DOM element when renderPosition is called', function() {
-      var view = new ViewType(data);
-      view.renderPosition();
-
-      var element = view.outerEl;
-      var style = element.style;
-
-      expect(element.style.left).toBe(data.attributes.x + 'px');
-    });
-
-    it('will put the y property as the top property of the style of the DOM element when renderPosition is called', function() {
-      var view = new ViewType(data);
-      view.renderPosition();
-      var element = view.outerEl;
-      var style = element.style;
-
-      expect(element.style.top).toBe(data.attributes.y + 'px');
-    });
-
-    it('when the y property is undefined the position property will be absolute of the style of the DOM element when renderPosition is called', function() {
-      data.attributes.y = undefined;
-      var view = new ViewType(data);
-      view.renderPosition();
-      var element = view.outerEl;
-      var style = element.style;
-
-      expect(element.style.position).toBe('absolute');
-    });
-
-    it('when the x property is undefined the position property will be absolute of the style of the DOM element when renderPosition is called', function() {
-      data.attributes.x = undefined;
-
-      var view = new ViewType(data);
-      view.renderPosition();
-      var element = view.outerEl;
-      var style = element.style;
-
-      expect(element.style.position).toBe('absolute');
-    });
-
-    it('when the x and y property are undefined the position property will be static of the style of the DOM element when renderPosition is called', function() {
-      data.attributes.y = undefined;
-      data.attributes.x = undefined;
-      var view = new ViewType(data);
-      view.renderPosition();
-      var element = view.outerEl;
-      var style = element.style;
-
-      expect(element.style.position).toBe('static');
-    });
-
-    it('will put a scaleX, scaleY in the transform property of the style of the DOM element will be set when renderPosition is called', function() {
-      var view = new ViewType(data);
-      view.renderPosition();
-      var element = view.outerEl;
-      var style = element.style;
-
-      expect(element.style.transform).toContain('scale(' + data.attributes.scaleX + ',' + data.attributes.scaleY + ')');
-    });
-
-    it('will put the rotation in the transform property of the style of the DOM element will be set when renderPosition is called', function() {
-      var view = new ViewType(data);
-      view.renderPosition();
-      var element = view.outerEl;
-      var style = element.style;
-
-      if (data.attributes.rotation)
-        expect(element.style.transform).toContain('rotate(' + Math.round(data.attributes.rotation) + 'deg)');
-      else
-        expect(element.style.transform).not.toContain('rotate');
-    });
-
-    it('will put the zIndex in the zIndex property of the style of the DOM element will be set when renderPosition is called', function() {
-      var view = new ViewType(data);
-      view.renderPosition();
-      var element = view.outerEl;
-      var style = element.style;
-
-      expect(element.style.zIndex).toBe(data.attributes.zIndex !== undefined ? data.attributes.zIndex.toString() : '');
-    });
-
-    it('will set the display property in the style of the DOM element when renderPosition is called', function() {
-      var view = new ViewType(data);
-      view.renderPosition();
-      var element = view.outerEl;
-      var style = element.style;
-
-      var displaySetting = data.attributes.hidden ? 'none' : '';
-
-      expect(element.style.display).toBe(displaySetting);
-    });
-
-    it('will put the width in the width property of the style of the DOM element will be set when renderPosition is called', function() {
-      var view = new ViewType(data);
-      view.renderPosition();
-      var element = view.outerEl;
-      var style = element.style;
-
-      var width = (data.attributes.width !== undefined && data.attributes.width != '') ? data.attributes.width + 'px' : '';
-
-      expect(element.style.width).toBe(width);
-    });
-
-    it('will put the height in the height property of the style of the DOM element will be set when renderPosition is called', function() {
-      var view = new ViewType(data);
-      view.renderPosition();
-      var element = view.outerEl;
-      var style = element.style;
-
-      var height = (data.attributes.height !== undefined && data.attributes.height != '') ? data.attributes.height + 'px' : '';
-
-      expect(element.style.height).toBe(height);
-    });
-
     it('will remove the linked DOM element from is parent when destroy is called', function() {
       var parent = document.createElement('div');
       var child = document.createElement('div');
@@ -339,8 +225,8 @@ var commonViewTests = function(scenario, initFunction) {
       expect(dataObject.y).toBe('25');
       expect(dataObject.hidden).toBe(true);
       expect(dataObject.zIndex).toBe('2');
-      expect(dataObject.width).toBe('100');
-      expect(dataObject.height).toBe('200');
+      expect(dataObject.width).toBe('100px');
+      expect(dataObject.height).toBe('200px');
     });
 
     it('listens for changes on its DOM element when _observerCounter is 0', function() {
@@ -355,7 +241,7 @@ var commonViewTests = function(scenario, initFunction) {
       element.className = "a_class";
       element.setAttribute('data-wl-custom', 10);
 
-      expect(data.attributes.width).toBe('55');
+      expect(data.attributes.width).toBe('55px');
       expect(data.attributes.classes).toBe('a_class');
       expect(data.attributes.custom).toBe('10');
     });
@@ -374,7 +260,7 @@ var commonViewTests = function(scenario, initFunction) {
       element.className = "a_class";
       element.setAttribute('data-wl-custom', 10);
 
-      expect(data.attributes.width).not.toBe('55');
+      expect(data.attributes.width).not.toBe('55px');
       expect(data.attributes.classes).not.toBe('a_class');
       expect(data.attributes.custom).not.toBe('10');
     });

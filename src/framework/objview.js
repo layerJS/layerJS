@@ -33,7 +33,6 @@ var ObjView = Kern.EventManager.extend({
     var that = this;
     // The change event must change the properties of the HTMLElement el.
     this.data.on('change', function(model) {
-      //that._renderPosition();
       if (model.changedAttributes.hasOwnProperty('width') || model.changedAttributes.hasOwnProperty('height')) that._fixedDimensions();
       that.render();
 
@@ -163,31 +162,6 @@ var ObjView = Kern.EventManager.extend({
     }
 
     this.isRendered = true;
-
-    this.enableObserver();
-  },
-
-  /**
-   * Position the view's element using it's data's positional attributes.
-   */
-  renderPosition: function(options) {
-    options = options || {};
-    this.disableObserver();
-    var attr = this.data.attributes,
-      diff = this.data.changedAttributes || this.data.attributes,
-      el = this.innerEl;
-
-    var css = {};
-    'x' in diff && attr.x !== undefined && (css.left = attr.x + 'px');
-    'y' in diff && attr.y !== undefined && (css.top = attr.y + 'px');
-    ('x' in diff || 'y' in diff) && (css.position = (attr.x !== undefined || attr.y !== undefined ? "absolute" : "static"));
-    ('scaleX' in diff || 'scaleY' in diff || 'rotation' in diff) && (css.transform = "scale(" + attr.scaleX + "," + attr.scaleY + ")" + (attr.rotation ? " rotate(" + Math.round(attr.rotation) + "deg)" : ""));
-    'zIndex' in diff && attr.zIndex !== undefined && (css.zIndex = attr.zIndex);
-    'hidden' in diff && (css.display = attr.hidden ? 'none' : '');
-    'width' in diff && attr.width !== undefined && (css.width = attr.width + 'px');
-    'height' in diff && attr.height !== undefined && (css.height = attr.height + 'px');
-
-    Kern._extend(el.style, css);
 
     this.enableObserver();
   },
@@ -381,8 +355,8 @@ var ObjView = Kern.EventManager.extend({
     if (style.zIndex)
       data.zIndex = style.zIndex;
 
-    data.width = style.width != '' ? style.width.replace('px', '') : ''
-    data.height = style.height != '' ? style.height.replace('px', '') : '';
+    data.width = style.width;
+    data.height = style.height;
 
     return data;
   }

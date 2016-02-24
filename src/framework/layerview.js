@@ -98,8 +98,7 @@ var LayerView = GroupView.extend({
    * @returns {Type} Description
    */
   _renderChildPosition(childView) {
-    this.disableObserver();
-
+    childView.disableObserver();
     var attr = childView.data.attributes,
       diff = childView.data.changedAttributes || childView.data.attributes,
       el = childView.outerEl;
@@ -108,7 +107,7 @@ var LayerView = GroupView.extend({
     'width' in diff && attr.width !== undefined && (css.width = attr.width);
     'height' in diff && attr.height !== undefined && (css.height = attr.height);
     Kern._extend(el.style, css);
-    this.enableObserver();
+    childView.enableObserver();
   }
 }, {
   Model: LayerData,
