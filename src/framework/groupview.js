@@ -22,19 +22,19 @@ var GroupView = ObjView.extend({
   constructor: function(dataModel, options) {
     options = options || {};
     var that = this;
-    this.childInfo = {};
-    this.childNames = {};
+    this._childViews = {};
+    this._childNames = {};
     // create listener to child changes. need different callbacks for each instance in order to remove listeners separately from child data objects
     this._myChildListenerCallback = function(model) {
-      var view = that.childInfo[model.attributes.id];
+      var view = that._childViews[model.attributes.id];
       if (!view) throw "listing to datamodel changes that does not have a childview " + model.attributes.id + " in this group " + this.data.attributes.id;
       that._renderChildPosition(view);
       if (model.changedAttributes.hasOwnProperty('name')) { // did name change?
-        var names = Object.keys(that.childInfo);
+        var names = Object.keys(that._childViews);
         for (var i = 0; i < names.length; i++) { // delete old reference
-          if (that.childInfo[names[i]] == view) delete that.childInfo[names[i]];
+          if (that._childViews[names[i]] == view) delete that._childViews[names[i]];
         }
-        if (model.attributes.name) this.childNames[model.attributes.name] = view;
+        if (model.attributes.name) this._childNames[model.attributes.name] = view;
       }
     }
 
@@ -106,13 +106,13 @@ var GroupView = ObjView.extend({
               }
 
               // check if we have registered another view under the same id
-              if (this.childInfo[childId]) {
-                if (this.childInfo[childId] != vo) throw "duplicate child id " + childId + " in group " + this.data.attributes.id + ".";
+              if (this._childViews[childId]) {
+                if (this._childViews[childId] != vo) throw "duplicate child id " + childId + " in group " + this.data.attributes.id + ".";
               } else {
-                // create childInfo which indicates which view we have for each id. This is also used for checking whether we registered a change callback already.
-                this.childInfo[childId] = vo;
+                // create _childViews which indicates which view we have for each id. This is also used for checking whether we registered a change callback already.
+                this._childViews[childId] = vo;
                 vo.data.on('change', this._myChildListenerCallback); // attach child change listener
-                if (vo.data.attributes.name) this.childNames[vo.data.attributes.name] = vo;
+                if (vo.data.attributes.name) this._childNames[vo.data.attributes.name] = vo;
               }
               // Note: if the HTML was present, we don't render positions
               _k_reset(k_saved);
@@ -123,8 +123,8 @@ var GroupView = ObjView.extend({
           _k_reset(k_saved);
         }
         // no fitting element found -> create new view and element
-        // we may already have a view supplied in childInfo if it was moved here via attachView()
-        var newView = this.childInfo[childId] || pluginManager.createView(repository.get(childId, this.data.attributes.version), {
+        // we may already have a view supplied in _childViews if it was moved here via attachView()
+        var newView = this._childViews[childId] || pluginManager.createView(repository.get(childId, this.data.attributes.version), {
           parent: this
         });
         // new HMTL element: append or place at current position
@@ -133,10 +133,10 @@ var GroupView = ObjView.extend({
         } else {
           this.innerEl.insertBefore(newView.outerEl, this.innerEl.childNodes[k]);
         }
-        // create childInfo for new view (may already exist with same info)
-        this.childInfo[childId] = newView;
+        // create _childViews for new view (may already exist with same info)
+        this._childViews[childId] = newView;
         // set name
-        if (newView.data.attributes.name) this.childNames[newView.data.attributes.name] = newView;
+        if (newView.data.attributes.name) this._childNames[newView.data.attributes.name] = newView;
         newView.data.on('change', this._myChildListenerCallback); // attach child change listener
         this._renderChildPosition(newView);
       }
@@ -149,7 +149,7 @@ var GroupView = ObjView.extend({
         continue;
       }
       vo.data.off('change', this._myChildListenerCallback); // remove child change listener
-      delete this.childNames[vo.data.attributes.name];
+      delete this._childNames[vo.data.attributes.name];
       delete this.childNodes[vo.data.attributes.id];
       this.innerEl.childNodes[k].remove(); // remove child from dom
       _k_nextChild(); // next wl object
@@ -164,8 +164,8 @@ var GroupView = ObjView.extend({
    * @returns {ObjView} the view object
    */
   getChildView: function(childId) {
-    if (!this.childInfo.hasOwnProperty(childId)) throw "unknown child " + childId + " in group " + this.data.attributes.id;
-    return this.childInfo[childId];
+    if (!this._childViews.hasOwnProperty(childId)) throw "unknown child " + childId + " in group " + this.data.attributes.id;
+    return this._childViews[childId];
   },
   /**
    * return view by name property
@@ -174,8 +174,8 @@ var GroupView = ObjView.extend({
    * @returns {ObjView} the view object
    */
   getChildViewByName: function(name) {
-    if (!this.childNames.hasOwnProperty(name)) throw "unknown child with name " + name + " in group " + this.data.attributes.id;
-    return this.childNames[name];
+    if (!this._childNames.hasOwnProperty(name)) throw "unknown child with name " + name + " in group " + this.data.attributes.id;
+    return this._childNames[name];
   },
   /**
    * Attach a new view object as a child. This updates the this.data.children property, so don't do that manually.
@@ -188,8 +188,8 @@ var GroupView = ObjView.extend({
   attachView: function(newView) {
     var childId = newView.data.attributes.id;
 
-    if (!this.childInfo[childId]) {
-      this.childInfo[childId] = newView;
+    if (!this._childViews[childId]) {
+      this._childViews[childId] = newView;
       newView.setParent(this);
       this.data.addChild(childId); // this will eventually trigger _buildChildren which sets up everything for this group
     }
@@ -254,7 +254,7 @@ var GroupView = ObjView.extend({
     if (options.forceRender && this.data.attributes.children) {
       var length = this.data.attributes.children.length;
       for (var i = 0; i < length; i++)
-        this.childInfo[this.data.attributes.children[i]].render(options)
+        this._childViews[this.data.attributes.children[i]].render(options)
     }
 
     this.enableObserver();
