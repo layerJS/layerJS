@@ -245,6 +245,20 @@ var ObjView = Kern.EventManager.extend({
 
     this.outerEl.parentNode.removeChild(this.outerEl);
   },
+  enableDataObserver: function() {
+    if (!this.hasOwnProperty('_dataObserverCounter')) {
+      this._dataObserverCounter = 0
+    } else if (this._dataObserverCounter > 0) {
+      this._dataObserverCounter--;
+    }
+  },
+  disableDataObserver: function() {
+    if (!this.hasOwnProperty('_dataObserverCounter')) {
+      this._dataObserverCounter = 0
+    }
+
+    this._dataObserverCounter++;
+  },
   enableObserver: function() {
     if (!this.hasOwnProperty('_observerCounter')) {
       this._observerCounter = 0
