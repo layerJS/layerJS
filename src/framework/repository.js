@@ -1,3 +1,4 @@
+'use strict';
 var WL = require('./wl.js');
 var defaults = require('./defaults.js');
 var Kern = require('../kern/Kern.js');
@@ -13,7 +14,9 @@ var Repository = Kern.EventManager.extend({
    */
   constructor: function(data, version) {
     this.versions = {};
-    if (data) this.importJSON(data, version);
+    if (data) {
+      this.importJSON(data, version);
+    }
   },
   /**
    * import model repository from JSON Array (or map with {id: model} entries)
@@ -25,19 +28,20 @@ var Repository = Kern.EventManager.extend({
   importJSON: function(data, version) {
     if (!data) throw "no ModelRepository or data given";
     if (!version) throw "no version to create given";
-    if (this.versions.hasOwnProperty(version)) throw "version already present in repository"
+    if (this.versions.hasOwnProperty(version)) throw "version already present in repository";
     var models = [];
     if (Array.isArray(data)) {
       for (var i = 0; i < data.length; i++) {
         models.push(pluginManager.createModel(data[i]));
       }
-    } else if (typeof data == 'string') {
+    } else if (typeof data === 'string') {
       for (var k in Object.keys(data)) {
-        var obj = data[k];
-        if (obj.attributes.id && obj.attributes.id != k) throw "id mismatch in JSON data"
-        obj.attributes.id = k;
-        models.push(pluginManager.createModel(data[i]));
-
+        if (data.hasOwnProperty(k)) {
+          var obj = data[k];
+          if (obj.attributes.id && obj.attributes.id !== k) throw "id mismatch in JSON data";
+          obj.attributes.id = k;
+          models.push(pluginManager.createModel(data[k]));
+        }
       }
     }
     this.versions[version] = new Kern.ModelRepository(data);
@@ -50,7 +54,7 @@ var Repository = Kern.EventManager.extend({
    */
   clear: function(version) {
     if (version !== undefined) {
-      this.versions[version] = new Kern.ModelRepository(data);
+      this.versions[version] = new Kern.ModelRepository();
     } else {
       this.versions = {};
     }
@@ -74,10 +78,10 @@ var Repository = Kern.EventManager.extend({
    * @returns {string} the id
    */
   getId: function() {
-    if (this.previous == undefined)
+    if (this.previous === undefined)
       this.previous = 0;
 
-    var next = (new Date).getTime();
+    var next = (new Date()).getTime();
 
     if (next <= this.previous) {
       next = this.previous + 1;

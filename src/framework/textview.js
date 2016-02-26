@@ -17,8 +17,9 @@ var TextView = ObjView.extend({
       noRender: true
     }));
 
-    if (!options.noRender && (options.forceRender || !options.el))
+    if (!options.noRender && (options.forceRender || !options.el)) {
       this.render();
+    }
   },
   render: function(options) {
     options = options || {};

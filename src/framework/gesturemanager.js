@@ -21,9 +21,9 @@ var GestureManager = function() {
       y = e.changedTouches[0].pageY;
     } else {
       if (e.pageX === undefined && e.clientX !== undefined) {
-        eventDoc = e.target.ownerDocument || document;
-        doc = eventDoc.documentElement;
-        body = eventDoc.body;
+        var eventDoc = e.target.ownerDocument || document;
+        var doc = eventDoc.documentElement;
+        var body = eventDoc.body;
         e.pageX = e.clientX + (doc && doc.scrollLeft || body && body.scrollLeft || 0) - (doc && doc.clientLeft || body && body.clientLeft || 0);
         e.pageY = e.clientY + (doc && doc.scrollTop || body && body.scrollTop || 0) - (doc && doc.clientTop || body && body.clientTop || 0);
       }
@@ -52,25 +52,23 @@ var GestureManager = function() {
    *
    * @param {Object} e - event
    */
-  var endTouchHandler = function(e, callBack) {
+  var endTouchHandler = function(element, e) {
     var direction;
     var touchEnd = getTouchLocation(e);
     var distanceX = touchEnd.x - touchStart.x,
       distanceY = touchEnd.y - touchStart.y;
 
     if (Math.abs(distanceX) >= Math.abs(distanceY)) {
-      direction = (distanceX < 0) ? 'left' : 'right'
+      direction = (distanceX < 0) ? 'left' : 'right';
     } else { // 2nd condition for vertical swipe met
-      direction = (distanceY < 0) ? 'up' : 'down'
+      direction = (distanceY < 0) ? 'up' : 'down';
     }
-
-    if (null != callBack || undefined != callBack) {
-      callBack(direction);
-    }
+    
+    eventHandler(element, direction);
   };
 
   var lastGesture;
-  var wheelListener = function(e, callBack) {
+  var wheelListener = function(element, e) {
 
     var gesture = (lastGesture && new Date().getTime() - lastGesture.startTime <= 300) ? lastGesture : undefined,
       delta = 0,
@@ -94,7 +92,7 @@ var GestureManager = function() {
       delta = 0;
       // on my version of Firefox the a deprecated scroll api is
       // only implented sending axis values and only one delta.
-    } else if (e.axis == 1) {
+    } else if (e.axis === 1) {
       deltaX = delta;
       delta = 0;
     }
@@ -110,14 +108,14 @@ var GestureManager = function() {
       var distanceX = gesture.deltaX + deltaX,
         distanceY = gesture.delta + delta;
       var direction;
-      if (distanceX != 0) {
-        direction = (distanceX < 0) ? 'left' : 'right'
-      } else if (distanceY != 0) { // 2nd condition for vertical swipe met
-        direction = (distanceY > 0) ? 'up' : 'down'
+      if (distanceX !== 0) {
+        direction = (distanceX < 0) ? 'left' : 'right';
+      } else if (distanceY !== 0) { // 2nd condition for vertical swipe met
+        direction = (distanceY > 0) ? 'up' : 'down';
       }
 
       if (direction)
-        callBack(direction);
+        eventHandler(element, direction);
     } else {
       lastGesture = {
         startTime: new Date().getTime(),
@@ -127,80 +125,80 @@ var GestureManager = function() {
     }
   };
 
-  var addEventListeners = function(element, callBack) {
+  var addEventListeners = function(element) {
 
     element.addEventListener('touchstart', startTouchHandler, false);
     element.addEventListener('mouseDown', startTouchHandler, false);
 
     element.addEventListener('touchmove', function(e) {
-      e.preventDefault() // prevent scrolling when inside DIV
-    }, false)
+      e.preventDefault(); // prevent scrolling when inside DIV
+    }, false);
 
     element.addEventListener('touchend', function(e) {
-      endTouchHandler(e, callBack)
+      endTouchHandler(element, e);
     }, false);
     element.addEventListener('mouseUp', function(e) {
-      endTouchHandler(e, callBack)
+      endTouchHandler(element, e);
     }, false);
 
     element.addEventListener('mousewheel', function(e) {
-      wheelListener(e, callBack)
+      wheelListener(element, e);
     }, false);
     element.addEventListener('DOMMouseScroll ', function(e) {
-      wheelListener(e, callBack)
+      wheelListener(element, e);
     }, false);
   };
 
-  this.register = function() {
+  var eventHandler = function(element, direction) {
+    //console.log(layerElement._wlView);
+    var layerView = element._wlView;
+    var currentFrameView = layerView.currentFrame;
+    var targetFrameName = null;
+    console.log(direction);
 
+    switch (direction) {
+      case 'up':
+        if (currentFrameView.data.attributes.neighbors && typeof currentFrameView.data.attributes.neighbors.u === 'string') {
+          targetFrameName = currentFrameView.data.attributes.neighbors.u;
+        }
+        break;
+      case 'down':
+        if (currentFrameView.data.attributes.neighbors && typeof currentFrameView.data.attributes.neighbors.d === 'string') {
+          targetFrameName = currentFrameView.data.attributes.neighbors.d;
+        }
+        break;
+      case 'left':
+        if (currentFrameView.data.attributes.neighbors && typeof currentFrameView.data.attributes.neighbors.l === 'string') {
+          targetFrameName = currentFrameView.data.attributes.neighbors.l;
+        }
+        break;
+      case 'right':
+        if (currentFrameView.data.attributes.neighbors && typeof currentFrameView.data.attributes.neighbors.r === 'string') {
+          targetFrameName = currentFrameView.data.attributes.neighbors.r;
+        }
+        break;
+      default:
+    }
+
+    if (null !== targetFrameName) {
+      console.log('current framename ' + currentFrameView.data.attributes.name);
+      console.log('target framename ' + targetFrameName);
+
+      layerView.transitionTo({
+        framename: targetFrameName,
+        type: direction
+      });
+    }
+  };
+
+  this.register = function() {
     var layerElements = document.querySelectorAll("[data-wl-type='layer']");
     var length = layerElements.length;
 
     for (var i = 0; i < length; i++) {
-      var layerElement = layerElements[i];
-      addEventListeners(layerElement, function(direction) {
-        //console.log(layerElement._wlView);
-        var layerView = layerElement._wlView;
-        var currentFrameView = layerView.currentFrame;
-        var targetFrameName = null;
-        console.log(direction);
-
-        switch (direction) {
-          case 'up':
-            if (currentFrameView.data.attributes.neighbors && typeof currentFrameView.data.attributes.neighbors.u == 'string') {
-              targetFrameName = currentFrameView.data.attributes.neighbors.u;
-            }
-            break;
-          case 'down':
-            if (currentFrameView.data.attributes.neighbors && typeof currentFrameView.data.attributes.neighbors.d == 'string') {
-              targetFrameName = currentFrameView.data.attributes.neighbors.d;
-            }
-            break;
-          case 'left':
-            if (currentFrameView.data.attributes.neighbors && typeof currentFrameView.data.attributes.neighbors.l == 'string') {
-              targetFrameName = currentFrameView.data.attributes.neighbors.l;
-            }
-            break;
-          case 'right':
-            if (currentFrameView.data.attributes.neighbors && typeof currentFrameView.data.attributes.neighbors.r == 'string') {
-              targetFrameName = currentFrameView.data.attributes.neighbors.r;
-            }
-            break;
-          default:
-        }
-
-        if (null != targetFrameName) {
-          console.log('current framename ' + currentFrameView.data.attributes.name);
-          console.log('target framename ' + targetFrameName);
-
-          layerView.transitionTo({
-            framename: targetFrameName,
-            type: direction
-          })
-        }
-      });
+      addEventListeners(layerElements[i]);
     }
-  }
+  };
 };
 WL.gestureManager = new GestureManager();
 module.exports = WL.gestureManager;

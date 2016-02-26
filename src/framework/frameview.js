@@ -1,6 +1,6 @@
 'use strict';
 var Kern = require('../kern/Kern.js');
-var pluginManager = require('./pluginmanager.js')
+var pluginManager = require('./pluginmanager.js');
 var FrameData = require('./framedata.js');
 var GroupView = require('./groupview.js');
 var Kern = require('../kern/Kern.js');
@@ -110,7 +110,7 @@ var FrameView = GroupView.extend({
         } else {
           d.scale = stageWidth / (d.frameWidth - this.attributes['elastic-left'] - this.attributes['elastic-right']);
           d.shiftX = this.attributes['elastic-left'];
-        };
+        }
         d.isScrollY = true;
         break;
       case 'elastic-height':
@@ -122,7 +122,7 @@ var FrameView = GroupView.extend({
         } else {
           d.scale = stageHeight / (d.frameHeight - this.attributes['elastic-top'] - this.attributes['elastic-bottom']);
           d.shiftX = this.attributes['elastic-top'];
-        };
+        }
         d.isScrollX = true;
         break;
       case 'responsive':
@@ -237,7 +237,7 @@ var FrameView = GroupView.extend({
       //     if (d.scrollY > d.maxScrollY) d.scrollY = d.maxScrollY;
       //   }
     }
-    return this.transformData = d;
+    return (this.transformData = d);
   }
 }, {
   Model: FrameData,

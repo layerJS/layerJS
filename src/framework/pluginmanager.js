@@ -1,3 +1,4 @@
+'use strict';
 var WL = require('./wl.js');
 var Kern = require('../kern/Kern.js');
 
@@ -25,7 +26,6 @@ var PluginManager = Kern.EventManager.extend({
    */
   createView: function(model, options) {
     var ObjView = require('./ObjView.js');
-
     // return existing view if the provided element already has one
     if (options && options.el && options.el._wlView && options.el._wlView instanceof ObjView) {
       return options.el._wlView;
@@ -44,14 +44,15 @@ var PluginManager = Kern.EventManager.extend({
    * @returns {ObjView} the view object of type ObjView or a sub class
    */
   createViewByType: function(type, options) {
+    var ObjView = require('./ObjView.js');
     // return existing view if the provided element already has one
     if (options && options.el && options.el._wlView && options.el._wlView instanceof ObjView) {
       return options.el._wlView;
     }
     if (this.map.hasOwnProperty(type)) {
-      return new(this.map[type].view)(model, options);
+      return new(this.map[type].view)({ }, options);
     }
-    throw "no constructor found for objects of type '" + model.attributes.type + "'";
+    throw "no constructor found for objects of type '" + type + "'";
   },
   /**
    * create a data model based on a json object (and it's type property)

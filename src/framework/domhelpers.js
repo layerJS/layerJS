@@ -1,3 +1,4 @@
+'use strict';
 var DomHelpers = {
   /**
    * wrap all children of element into a wrapper element
@@ -33,35 +34,35 @@ var DomHelpers = {
    */
   detectBrowser: function() {
     var match;
-    if (typeof navigator == 'undefined') {
+    if (typeof navigator === 'undefined') {
       this.browser = 'node';
       return;
     }
-    if (match = navigator.userAgent.match(/Edge\/([0-9]*)/)) {
+    if ((match = navigator.userAgent.match(/Edge\/([0-9]*)/))) {
       this.vendorPrefix = '-ms-';
       this.browserVersion = match[1];
       this.browser = "edge";
-    } else if (match = navigator.userAgent.match(/MSIE ([0-9]*)/)) {
+    } else if ((match = navigator.userAgent.match(/MSIE ([0-9]*)/))) {
       this.vendorPrefix = '-ms-';
       this.browserVersion = match[1];
       this.browser = "ie";
-    } else if (match = navigator.userAgent.match(/Trident.*rv\:([0-9]*)/)) {
+    } else if ((match = navigator.userAgent.match(/Trident.*rv\:([0-9]*)/))) {
       this.vendorPrefix = '-ms-';
       this.browserVersion = match[1];
       this.browser = "ie";
-    } else if (match = navigator.userAgent.match(/Chrome\/([0-9]*)/)) {
+    } else if ((match = navigator.userAgent.match(/Chrome\/([0-9]*)/))) {
       this.vendorPrefix = '-webkit-';
       this.browserVersion = match[1];
       this.browser = "chrome";
-    } else if (match = navigator.userAgent.match(/Firefox\/([0-9]*)/)) {
+    } else if ((match = navigator.userAgent.match(/Firefox\/([0-9]*)/))) {
       this.vendorPrefix = '-moz-';
       this.browserVersion = match[1];
       this.browser = "firefox";
-    } else if (match = navigator.userAgent.match(/Safari\/([0-9]*)/)) {
+    } else if ((match = navigator.userAgent.match(/Safari\/([0-9]*)/))) {
       this.vendorPrefix = '-webkit-';
       this.browserVersion = match[1];
       this.browser = "safari";
-    } else if (match = navigator.userAgent.match(/AppleWebKit/)) {
+    } else if ((match = navigator.userAgent.match(/AppleWebKit/))) {
       this.vendorPrefix = '-webkit-';
       this.browserVersion = 0;
       this.browser = "webkit";
@@ -83,7 +84,7 @@ var DomHelpers = {
    * @returns {void}
    */
   postAnimationFrame: function(callback) {
-    rf = window.requestAnimationFrame || function(cb) {
+    var rf = window.requestAnimationFrame || function(cb) {
       setTimeout(cb, 1000 / 60);
     };
     rf(function() {
@@ -104,7 +105,8 @@ var DomHelpers = {
       if (nodes[i]._wlView) return nodes[i]._wlView;
     }
   }
-}
+};
+
 DomHelpers.detectBrowser();
 DomHelpers.calculatePrefixes(['transform', 'transform-origin']);
 

@@ -23,7 +23,7 @@ var LayerView = GroupView.extend({
     // we need to create the divs here instead of in the Objview constructor
     this.outerEl = options.el || document.createElement(dataModel.attributes.tag || 'div');
     // do we already have a scroller div?
-    var hasScroller = this.outerEl.childNodes.length == 1 && this.outerEl.childNodes[0].getAttribute('data-wl-helper') == 'scroller';
+    var hasScroller = this.outerEl.childNodes.length === 1 && this.outerEl.childNodes[0].getAttribute('data-wl-helper') === 'scroller';
     this.innerEl = this.outerEl;
     // should we not have a scroller?
     if (hasScroller && !dataModel.attributes.nativeScroll) $.unwrapChildren(this.outerEl);
@@ -44,15 +44,17 @@ var LayerView = GroupView.extend({
     // this is my stage and add listener to keep it updated
     this.stage = this.parent;
     this.on('parent', function() {
-      that.stage = that.parent
-        // FIXME trigger adaption to new stage
+      that.stage = that.parent;
+      // FIXME trigger adaption to new stage
     });
     // set current frame from data object or take first child
     this.currentFrame = (this.data.attributes.defaultFrame && this.findChildView(this.data.attributes.defaultFrame)) || (this.data.attributes.children[0] && this.getChildView(this.data.attributes.children[0]));
-    if (!options.noRender && (options.forceRender || !options.el)) this.render();
+    if (!options.noRender && (options.forceRender || !options.el)) {
+      this.render();
+    }
 
     if (this.stage && this.currentFrame) this.stage.waitForDimensions().then(function() {
-      that.layout.init(that.stage)
+      that.layout.init(that.stage);
     });
   },
   /**
@@ -67,8 +69,10 @@ var LayerView = GroupView.extend({
     if (typeof framename === 'object') {
       transition = framename;
       framename = transition.frame;
+    }
+    transition = transition || {
+      type: 'default'
     };
-    transition = transition || {type: 'default'};
     framename = framename || transition.framename;
     if (!framename) throw "transformTo: no frame given";
     var frame = this.getChildViewByName(framename);
@@ -97,15 +101,19 @@ var LayerView = GroupView.extend({
    * @param {ObjView} childView - the child view that has changed
    * @returns {Type} Description
    */
-  _renderChildPosition(childView) {
+  _renderChildPosition: function(childView) {
     childView.disableObserver();
     var attr = childView.data.attributes,
       diff = childView.data.changedAttributes || childView.data.attributes,
       el = childView.outerEl;
     var css = {};
     // just do width & height for now; FIXME
-    'width' in diff && attr.width !== undefined && (css.width = attr.width);
-    'height' in diff && attr.height !== undefined && (css.height = attr.height);
+    if ('width' in diff && attr.width !== undefined) {
+      css.width = attr.width;
+    }
+    if ('height' in diff && attr.height !== undefined) {
+      css.height = attr.height;
+    }
     Kern._extend(el.style, css);
     childView.enableObserver();
   }

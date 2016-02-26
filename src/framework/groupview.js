@@ -1,8 +1,7 @@
 'use strict';
 var Kern = require('../kern/Kern.js');
-var WL = require('./wl.js');
 var pluginManager = require('./pluginmanager.js');
-var repository = require('./repository.js');
+var repository = require('./repository.js'); // jshint ignore:line
 var ObjView = require('./objview.js');
 var GroupData = require('./groupdata.js');
 /**
@@ -32,11 +31,15 @@ var GroupView = ObjView.extend({
       if (model.changedAttributes.hasOwnProperty('name')) { // did name change?
         var names = Object.keys(that._childViews);
         for (var i = 0; i < names.length; i++) { // delete old reference
-          if (that._childViews[names[i]] == view) delete that._childViews[names[i]];
+          if (that._childViews[names[i]] === view) {
+            delete that._childViews[names[i]];
+          }
         }
-        if (model.attributes.name) this._childNames[model.attributes.name] = view;
+        if (model.attributes.name) {
+          this._childNames[model.attributes.name] = view;
+        }
       }
-    }
+    };
 
     ObjView.call(this, dataModel, Kern._extend({}, options, {
       noRender: true
@@ -52,6 +55,7 @@ var GroupView = ObjView.extend({
     if (!options.noRender && (options.forceRender || !options.el))
       this.render();
   },
+  // jshint ignore:start
   /**
    * Syncronise the DOM child nodes with the data IDs in the data's
    * children array.
@@ -157,6 +161,7 @@ var GroupView = ObjView.extend({
 
     this.enableObserver();
   },
+  // jshint ignore:end
   /**
    * return child ObjView for a given child id
    *
@@ -226,14 +231,37 @@ var GroupView = ObjView.extend({
       el = childView.outerEl;
 
     var css = {};
-    'x' in diff && attr.x !== undefined && (css.left = attr.x + 'px');
-    'y' in diff && attr.y !== undefined && (css.top = attr.y + 'px');
-    ('x' in diff || 'y' in diff) && (css.position = (attr.x !== undefined || attr.y !== undefined ? "absolute" : "static"));
-    ('scaleX' in diff || 'scaleY' in diff || 'rotation' in diff) && (css.transform = "scale(" + attr.scaleX + "," + attr.scaleY + ")" + (attr.rotation ? " rotate(" + Math.round(attr.rotation) + "deg)" : ""));
-    'zIndex' in diff && attr.zIndex !== undefined && (css.zIndex = attr.zIndex);
-    'hidden' in diff && (css.display = attr.hidden ? 'none' : '');
-    'width' in diff && attr.width !== undefined && (css.width = attr.width);
-    'height' in diff && attr.height !== undefined && (css.height = attr.height);
+    if ('x' in diff && attr.x !== undefined) {
+      css.left = attr.x + 'px';
+    }
+
+    if ('y' in diff && attr.y !== undefined) {
+      css.top = attr.y + 'px';
+    }
+
+    if ('x' in diff || 'y' in diff) {
+      css.position = (attr.x !== undefined || attr.y !== undefined ? "absolute" : "static");
+    }
+
+    if ('scaleX' in diff || 'scaleY' in diff || 'rotation' in diff) {
+      css.transform = "scale(" + attr.scaleX + "," + attr.scaleY + ")" + (attr.rotation ? " rotate(" + Math.round(attr.rotation) + "deg)" : "");
+    }
+
+    if ('zIndex' in diff && attr.zIndex !== undefined) {
+      css.zIndex = attr.zIndex;
+    }
+
+    if ('hidden' in diff) {
+      css.display = attr.hidden ? 'none' : '';
+    }
+
+    if ('width' in diff && attr.width !== undefined) {
+      css.width = attr.width;
+    }
+
+    if ('height' in diff && attr.height !== undefined) {
+      css.height = attr.height;
+    }
 
     childView.disableObserver();
     Kern._extend(el.style, css);
@@ -254,7 +282,7 @@ var GroupView = ObjView.extend({
     if (options.forceRender && this.data.attributes.children) {
       var length = this.data.attributes.children.length;
       for (var i = 0; i < length; i++)
-        this._childViews[this.data.attributes.children[i]].render(options)
+        this._childViews[this.data.attributes.children[i]].render(options);
     }
 
     this.enableObserver();

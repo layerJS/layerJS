@@ -1,4 +1,4 @@
-var WL = require('../wl.js');
+'use strict';
 var Kern = require('../../kern/Kern.js');
 
 /**

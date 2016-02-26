@@ -1,3 +1,4 @@
+'use strict';
 require("./kern/kern.js");
 require("./framework/wl.js");
 
@@ -29,7 +30,7 @@ require("./framework/layerview.js");
 require("./framework/frameview.js");
 require("./framework/stageview.js");
 
-WL.init = function(){
+WL.init = function() {
   WL.parseManager.parseDocument();
   WL.gestureManager.register();
-}
+};

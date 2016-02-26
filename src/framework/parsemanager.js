@@ -1,3 +1,4 @@
+'use strict';
 var WL = require('./wl.js');
 var ObjView = require('./objview.js');
 var repository = require('./repository.js');
@@ -27,7 +28,8 @@ var ParseManager = function() {
       parentDataObject.children = [];
     }
 
-    for (var i = 0; i < length; i++) {
+    var i;
+    for (i = 0; i < length; i++) {
       var childElement = children[i];
       var type;
 
@@ -45,11 +47,11 @@ var ParseManager = function() {
       }
     }
 
-    var length = nonLayerJsChildren.length;
-    for (var i = 0; i < length; i++) {
+    length = nonLayerJsChildren.length;
+    for (i = 0; i < length; i++) {
       parseChildren(parentDataObject, nonLayerJsChildren[i], dataObjects, options);
     }
-  }
+  };
 
   /**
    * Parses a DOM element to a data object.
@@ -61,7 +63,7 @@ var ParseManager = function() {
   var getDataObject = function(element) {
     var dataObject = ObjView.parse(element);
 
-    if (dataObject.id == undefined) {
+    if (dataObject.id === undefined) {
       dataObject.id = repository.getId();
       element.setAttribute('data-wl-id', dataObject.id);
     }
@@ -88,10 +90,11 @@ var ParseManager = function() {
     var stageIDs = [];
     var dataObjects = [];
     var length = stageElements.length;
+    var index, stageElement, dataObject;
 
-    for (var index = 0; index < length; index++) {
-      var stageElement = stageElements[index];
-      var dataObject = getDataObject(stageElement);
+    for (index = 0; index < length; index++) {
+      stageElement = stageElements[index];
+      dataObject = getDataObject(stageElement);
       stageIDs.push(dataObject.id);
       dataObject.children = [];
 
@@ -101,12 +104,13 @@ var ParseManager = function() {
         parseChildren(dataObject, stageElement, dataObjects, options);
       }
     }
+
     repository.importJSON(dataObjects, options.version || defaults.version);
-    for (var index = 0; index < length; index++) {
-      var stageElement = stageElements[index];
-      var dataObject = repository.get(stageIDs[index], options.version || defaults.version)
+    for (index = 0; index < length; index++) {
+      stageElement = stageElements[index];
+      dataObject = repository.get(stageIDs[index], options.version || defaults.version);
       if (!stageElement._wlView) {
-        var v = new StageView(dataObject, {
+        new StageView(dataObject, {
           el: stageElement
         });
       }

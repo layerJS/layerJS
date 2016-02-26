@@ -1,7 +1,7 @@
 'use strict';
 var $ = require('./domhelpers.js');
 var Kern = require('../kern/Kern.js');
-var pluginManager = require('./pluginmanager.js')
+var pluginManager = require('./pluginmanager.js');
 var ObjData = require('./objdata.js');
 
 /**
@@ -112,12 +112,14 @@ var ObjView = Kern.EventManager.extend({
       var classes = 'object-default object-' + this.data.get('type');
       // this.ui && (classes += ' object-ui');
       // this.ontop && (classes += ' object-ontop');
-      attr.classes && (classes += ' ' + attr.classes);
+      if (attr.classes) {
+        classes += ' ' + attr.classes;
+      }
       outerEl.className = classes;
     }
 
     // When the object is an anchor, set the necessary attributes
-    if (this.data.attributes.tag.toUpperCase() == 'A') {
+    if (this.data.attributes.tag.toUpperCase() === 'A') {
       if ('linkTo' in diff)
         outerEl.setAttribute('href', this.data.attributes.linkTo);
 
@@ -137,7 +139,7 @@ var ObjView = Kern.EventManager.extend({
     var selector = (attr.elementId && "#" + attr.elementId) || "#wl-obj-" + attr.id;
     var oldSelector = (diff.elementId && "#" + diff.elementId) || (diff.id && "#wl-obj-" + diff.id) || selector;
 
-    if (('style' in diff) || (selector != oldSelector)) {
+    if (('style' in diff) || (selector !== oldSelector)) {
       var styleElement = document.getElementById('wl-obj-css');
       if (!styleElement) {
         styleElement = document.createElement('style');
@@ -247,28 +249,28 @@ var ObjView = Kern.EventManager.extend({
   },
   enableDataObserver: function() {
     if (!this.hasOwnProperty('_dataObserverCounter')) {
-      this._dataObserverCounter = 0
+      this._dataObserverCounter = 0;
     } else if (this._dataObserverCounter > 0) {
       this._dataObserverCounter--;
     }
   },
   disableDataObserver: function() {
     if (!this.hasOwnProperty('_dataObserverCounter')) {
-      this._dataObserverCounter = 0
+      this._dataObserverCounter = 0;
     }
 
     this._dataObserverCounter++;
   },
   enableObserver: function() {
     if (!this.hasOwnProperty('_observerCounter')) {
-      this._observerCounter = 0
+      this._observerCounter = 0;
     } else if (this._observerCounter > 0) {
       this._observerCounter--;
     }
   },
   disableObserver: function() {
     if (!this.hasOwnProperty('_observerCounter')) {
-      this._observerCounter = 0
+      this._observerCounter = 0;
     }
 
     this._observerCounter++;
@@ -281,7 +283,7 @@ var ObjView = Kern.EventManager.extend({
     var that = this;
 
     if (window.MutationObserver) {
-      this._observer = new MutationObserver(function(mutation) {
+      this._observer = new MutationObserver(function() {
         that._domElementChanged();
       });
 
@@ -294,19 +296,19 @@ var ObjView = Kern.EventManager.extend({
     } else {
       this._observer = {};
 
-      this.outerEl.addEventListener("DOMAttrModified", function(ev) {
+      this.outerEl.addEventListener("DOMAttrModified", function() {
         that._domElementChanged();
       }, false);
 
-      this.outerEl.addEventListener("DOMAttributeNameChanged", function(ev) {
+      this.outerEl.addEventListener("DOMAttributeNameChanged", function() {
         that._domElementChanged();
       }, false);
 
-      this.outerEl.addEventListener("DOMCharacterDataModified", function(ev) {
+      this.outerEl.addEventListener("DOMCharacterDataModified", function() {
         that._domElementChanged();
       }, false);
 
-      this.outerEl.addEventListener("DOMElementNameChanged", function(ev) {
+      this.outerEl.addEventListener("DOMElementNameChanged", function() {
         that._domElementChanged();
       }, false);
     }
@@ -317,13 +319,15 @@ var ObjView = Kern.EventManager.extend({
    * @return {void}
    */
   _domElementChanged: function() {
-    if (this._observerCounter != 0) return;
+    if (this._observerCounter !== 0) return;
 
     var dataObject = ObjView.parse(this.outerEl);
 
     this.data.silence();
     for (var data in dataObject) {
-      this.data.set(data, dataObject[data]);
+      if (dataObject.hasOwnProperty(data)) {
+        this.data.set(data, dataObject[data]);
+      }
     }
     this.data.ignore();
   }
@@ -346,14 +350,14 @@ var ObjView = Kern.EventManager.extend({
 
     for (var index = 0; index < length; index++) {
       var attribute = attributes[index];
-      if (attribute.name.indexOf('data-wl-') != -1) {
+      if (attribute.name.indexOf('data-wl-') !== -1) {
         data[attribute.name.replace('data-wl-', '')] = attribute.value;
       }
     }
 
     data.classes = element.className.replace("object-default object-" + data.type, "");
 
-    if (data.tag.toUpperCase() == 'A') {
+    if (data.tag.toUpperCase() === 'A') {
       data.linkTo = element.getAttribute('href');
       data.linkTarget = element.getAttribute('target');
     }
@@ -364,8 +368,8 @@ var ObjView = Kern.EventManager.extend({
       data.x = style.left.replace('px', '');
     if (style.top)
       data.y = style.top.replace('px', '');
-    if (style.display == 'none')
-      data.hidden = style.display == 'none';
+    if (style.display === 'none')
+      data.hidden = style.display === 'none';
     if (style.zIndex)
       data.zIndex = style.zIndex;
 
