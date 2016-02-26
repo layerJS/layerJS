@@ -78,129 +78,126 @@ var PlainLayout = LayerLayout.extend({
    * @returns {Promise} will fire when pre  transform to target frame is applied
    */
   prepareTransition: function(frame, type, currentTransformData, targetTransformData) {
-      // call the transition type function to calculate all frame positions/transforms
-      var t = this.transitions[type](type, PlainLayout.DT, currentTransformData, targetTransformData);
-      // var currentFrameCenterX = stageWidth / 2 + currentTransformData.shiftX + currentTransformData.scrollX;
-      // var currentFrameCenterY = stageHeight / 2 + currentTransformData.shiftY + currentTransformData.scrollY;
-      // var currentFrameCenterX = stageWidth / 2 + currentTransformData.shiftX + currentTransformData.scrollX;
-      // var currentFrameCenterY = stageHeight / 2 + currentTransformData.shiftY + currentTransformData.scrollY;
-      // create a promise that will wait for the transform being applied
-      var finished = new Kern.Promise();
-      // apply pre position to target frame
-      Kern._extend(frame.outerEl.style, {
-        transition: 'none',
-        visibility: 'initial'
-      }, t.t0);
-      console.log(t.t0);
-      $.postAnimationFrame(function() {
-        console.log('resolve');
-        finished.resolve(t);
-      });
-      return finished;
-    }
-    // jshint ignore:start
-    ,
+    // call the transition type function to calculate all frame positions/transforms
+    var t = this.transitions[type](type, PlainLayout.DT, currentTransformData, targetTransformData);
+    // var currentFrameCenterX = stageWidth / 2 + currentTransformData.shiftX + currentTransformData.scrollX;
+    // var currentFrameCenterY = stageHeight / 2 + currentTransformData.shiftY + currentTransformData.scrollY;
+    // var currentFrameCenterX = stageWidth / 2 + currentTransformData.shiftX + currentTransformData.scrollX;
+    // var currentFrameCenterY = stageHeight / 2 + currentTransformData.shiftY + currentTransformData.scrollY;
+    // create a promise that will wait for the transform being applied
+    var finished = new Kern.Promise();
+    // apply pre position to target frame
+    Kern._extend(frame.outerEl.style, {
+      transition: 'none',
+      visibility: 'initial'
+    }, t.t0);
+    console.log(t.t0);
+    $.postAnimationFrame(function() {
+      console.log('resolve');
+      finished.resolve(t);
+    });
+    return finished;
+  },
   swipeTransition: function(type, which, currentTransformData, targetTransformData) {
-      var t = {};
-      var x, y;
-      // target frame transform time 1
-      if (which & PlainLayout.TT1) {
-        x = -targetTransformData.shiftX - targetTransformData.scrollX;
-        y = -targetTransformData.shiftY - targetTransformData.scrollY;
-        t.t1 = {
-          transform: "translate3d(" + x + "px," + y + "px,0px) scale(" + targetTransformData.scale + ")",
-          'transform-origin': "0 0"
-        };
-      }
-      switch (type) {
-        case 'left':
-          // target frame transform time 0
-          if (which & PlainLayout.TT0) {
-            x = currentTransformData.width - currentTransformData.shiftX - currentTransformData.scrollX;
-            y = -targetTransformData.shiftY - targetTransformData.scrollY;
-            t.t0 = {
-              transform: "translate3d(" + x + "px," + y + "px,0px) scale(" + targetTransformData.scale + ")",
-              'transform-origin': "0 0"
-            };
-          }
-          // current frame transform time 1
-          if (which & PlainLayout.CT1) {
-            x = -targetTransformData.width + currentTransformData.shiftX + currentTransformData.scrollX;
-            y = -currentTransformData.shiftY - currentTransformData.scrollY;
-            t.c1 = {
-              transform: "translate3d(" + x + "px," + y + "px,0px) scale(" + currentTransformData.scale + ")",
-              'transform-origin': "0 0"
-            };
-          }
-          break;
-
-        case 'right':
-          // target frame transform time 0
-          if (which & PlainLayout.TT0) {
-            x = -currentTransformData.width + currentTransformData.shiftX + currentTransformData.scrollX;
-            y = -targetTransformData.shiftY - targetTransformData.scrollY;
-            t.t0 = {
-              transform: "translate3d(" + x + "px," + y + "px,0px) scale(" + targetTransformData.scale + ")",
-              'transform-origin': "0 0"
-            };
-          }
-          // current frame transform time 1
-          if (which & PlainLayout.CT1) {
-            x = targetTransformData.width - currentTransformData.shiftX - currentTransformData.scrollX;
-            y = currentTransformData.shiftY + currentTransformData.scrollY;
-            t.c1 = {
-              transform: "translate3d(" + x + "px," + y + "px,0px) scale(" + currentTransformData.scale + ")",
-              'transform-origin': "0 0"
-            };
-          }
-          break;
-
-        case 'down':
-          // target frame transform time 0
-          if (which & PlainLayout.TT0) {
-            x = -targetTransformData.shiftX - targetTransformData.scrollX;
-            y = -(currentTransformData.height > targetTransformData.height ? currentTransformData.height : targetTransformData.height) + currentTransformData.shiftY + currentTransformData.scrollY;
-            t.t0 = {
-              transform: "translate3d(" + x + "px," + y + "px,0px) scale(" + targetTransformData.scale + ")",
-              'transform-origin': "0 0"
-            };
-          }
-          // current frame transform time 1
-          if (which & PlainLayout.CT1) {
-            x = currentTransformData.shiftX + currentTransformData.scrollX;
-            y = (currentTransformData.height > targetTransformData.height ? currentTransformData.height : targetTransformData.height) - currentTransformData.shiftY - currentTransformData.scrollY;
-            t.c1 = {
-              transform: "translate3d(" + x + "px," + y + "px,0px) scale(" + currentTransformData.scale + ")",
-              'transform-origin': "0 0"
-            };
-          }
-          break;
-
-        case 'up':
-          // target frame transform time 0
-          if (which & PlainLayout.TT0) {
-            x = -targetTransformData.shiftX - targetTransformData.scrollX;
-            y = (currentTransformData.height > targetTransformData.height ? currentTransformData.height : targetTransformData.height) - targetTransformData.shiftY - targetTransformData.scrollY;
-            t.t0 = {
-              transform: "translate3d(" + x + "px," + y + "px,0px) scale(" + targetTransformData.scale + ")",
-              'transform-origin': "0 0"
-            };
-          }
-          // current frame transform time 1
-          if (which & PlainLayout.CT1) {
-            x = -currentTransformData.shiftX - currentTransformData.scrollY;
-            y = -(currentTransformData.height > targetTransformData.height ? currentTransformData.height : targetTransformData.height) - currentTransformData.shiftY - currentTransformData.scrollY;
-            t.c1 = {
-              transform: "translate3d(" + x + "px," + y + "px,0px) scale(" + currentTransformData.scale + ")",
-              'transform-origin': "0 0"
-            };
-          }
-          break;
-      }
-
-      return t;
+    var t = {};
+    var x, y;
+    // target frame transform time 1
+    if (which & PlainLayout.TT1) { // jshint ignore:line
+      x = -targetTransformData.shiftX - targetTransformData.scrollX;
+      y = -targetTransformData.shiftY - targetTransformData.scrollY;
+      t.t1 = {
+        transform: "translate3d(" + x + "px," + y + "px,0px) scale(" + targetTransformData.scale + ")",
+        'transform-origin': "0 0"
+      };
     }
-    // jshint ignore:end
+    switch (type) {
+      case 'left':
+        // target frame transform time 0
+        if (which & PlainLayout.TT0) { // jshint ignore:line
+          x = currentTransformData.width - currentTransformData.shiftX - currentTransformData.scrollX;
+          y = -targetTransformData.shiftY - targetTransformData.scrollY;
+          t.t0 = {
+            transform: "translate3d(" + x + "px," + y + "px,0px) scale(" + targetTransformData.scale + ")",
+            'transform-origin': "0 0"
+          };
+        }
+        // current frame transform time 1
+        if (which & PlainLayout.CT1) { // jshint ignore:line
+          x = -targetTransformData.width + currentTransformData.shiftX + currentTransformData.scrollX;
+          y = -currentTransformData.shiftY - currentTransformData.scrollY;
+          t.c1 = {
+            transform: "translate3d(" + x + "px," + y + "px,0px) scale(" + currentTransformData.scale + ")",
+            'transform-origin': "0 0"
+          };
+        }
+        break;
+
+      case 'right':
+        // target frame transform time 0
+        if (which & PlainLayout.TT0) { // jshint ignore:line
+          x = -currentTransformData.width + currentTransformData.shiftX + currentTransformData.scrollX;
+          y = -targetTransformData.shiftY - targetTransformData.scrollY;
+          t.t0 = {
+            transform: "translate3d(" + x + "px," + y + "px,0px) scale(" + targetTransformData.scale + ")",
+            'transform-origin': "0 0"
+          };
+        }
+        // current frame transform time 1
+        if (which & PlainLayout.CT1) { // jshint ignore:line
+          x = targetTransformData.width - currentTransformData.shiftX - currentTransformData.scrollX;
+          y = currentTransformData.shiftY + currentTransformData.scrollY;
+          t.c1 = {
+            transform: "translate3d(" + x + "px," + y + "px,0px) scale(" + currentTransformData.scale + ")",
+            'transform-origin': "0 0"
+          };
+        }
+        break;
+
+      case 'down':
+        // target frame transform time 0
+        if (which & PlainLayout.TT0) { // jshint ignore:line
+          x = -targetTransformData.shiftX - targetTransformData.scrollX;
+          y = -(currentTransformData.height > targetTransformData.height ? currentTransformData.height : targetTransformData.height) + currentTransformData.shiftY + currentTransformData.scrollY;
+          t.t0 = {
+            transform: "translate3d(" + x + "px," + y + "px,0px) scale(" + targetTransformData.scale + ")",
+            'transform-origin': "0 0"
+          };
+        }
+        // current frame transform time 1
+        if (which & PlainLayout.CT1) { // jshint ignore:line
+          x = currentTransformData.shiftX + currentTransformData.scrollX;
+          y = (currentTransformData.height > targetTransformData.height ? currentTransformData.height : targetTransformData.height) - currentTransformData.shiftY - currentTransformData.scrollY;
+          t.c1 = {
+            transform: "translate3d(" + x + "px," + y + "px,0px) scale(" + currentTransformData.scale + ")",
+            'transform-origin': "0 0"
+          };
+        }
+        break;
+
+      case 'up':
+        // target frame transform time 0
+        if (which & PlainLayout.TT0) { // jshint ignore:line
+          x = -targetTransformData.shiftX - targetTransformData.scrollX;
+          y = (currentTransformData.height > targetTransformData.height ? currentTransformData.height : targetTransformData.height) - targetTransformData.shiftY - targetTransformData.scrollY;
+          t.t0 = {
+            transform: "translate3d(" + x + "px," + y + "px,0px) scale(" + targetTransformData.scale + ")",
+            'transform-origin': "0 0"
+          };
+        }
+        // current frame transform time 1
+        if (which & PlainLayout.CT1) { // jshint ignore:line
+          x = -currentTransformData.shiftX - currentTransformData.scrollY;
+          y = -(currentTransformData.height > targetTransformData.height ? currentTransformData.height : targetTransformData.height) - currentTransformData.shiftY - currentTransformData.scrollY;
+          t.c1 = {
+            transform: "translate3d(" + x + "px," + y + "px,0px) scale(" + currentTransformData.scale + ")",
+            'transform-origin': "0 0"
+          };
+        }
+        break;
+    }
+
+    return t;
+  }
 }, {
   // constants for requesting calculation of transforms for frame transitions
   TT0: 1, // target frame transform time 0

@@ -55,7 +55,6 @@ var GroupView = ObjView.extend({
     if (!options.noRender && (options.forceRender || !options.el))
       this.render();
   },
-  // jshint ignore:start
   /**
    * Syncronise the DOM child nodes with the data IDs in the data's
    * children array.
@@ -68,22 +67,26 @@ var GroupView = ObjView.extend({
   _buildChildren: function() {
 
     this.disableObserver(); // dont react to DOM changes on this element
-    var that = this;
+    var that = this; // jshint ignore:line
     var empty;
     var childIds = this.data.attributes.children;
     var k = -1; // index in childNodes;
-    var nodeId;
+    var nodeId; // layerjs id of current HMTL element
+    var vo; // view object created for current element
+
     var _k_nextChild = function() { // find next DOM child node that is a wl-element
+      // jshint ignore:start
       k++;
       var elem;
       while (!(empty = !(k < that.innerEl.childNodes.length)) && (elem = that.innerEl.childNodes[k]) && (elem.nodeType != 1 || !(nodeId = (elem._wlView && elem._wlView.data.attributes.id) || elem.getAttribute('data-wl-id')))) {
         k++;
       }
-    }
+      // jshint ignore:end
+    };
     var _k_reset = function(k_orig) { // set k to k_orig and fix "empty" and "nodeId"
       k = k_orig - 1;
       _k_nextChild();
-    }
+    };
     _bc_outer:
       for (var i = 0; i < childIds.length; i++) {
         var childId = childIds[i];
@@ -94,12 +97,11 @@ var GroupView = ObjView.extend({
           // check if we can find it at the current position in DOM or in the remaining DOM children
           var k_saved = k; // save current position in DOM children list
           while (!empty) {
-            if (nodeId == childId) { // found a matching DOM element; put it at the right position
+            if (nodeId === childId) { // found a matching DOM element; put it at the right position
               if (k !== k_saved) {
                 this.innerEl.insertBefore(this.innerEl.childNodes[k], this.innerEl.childNodes[k_saved]);
               }
               // create view object if it does not exist yet (even if the HTML element exist)
-              var vo;
               if (!this.innerEl.childNodes[k_saved]._wlView) {
                 vo = pluginManager.createView(repository.get(childId, this.data.attributes.version), {
                   el: this.innerEl.childNodes[k_saved],
@@ -111,7 +113,7 @@ var GroupView = ObjView.extend({
 
               // check if we have registered another view under the same id
               if (this._childViews[childId]) {
-                if (this._childViews[childId] != vo) throw "duplicate child id " + childId + " in group " + this.data.attributes.id + ".";
+                if (this._childViews[childId] !== vo) throw "duplicate child id " + childId + " in group " + this.data.attributes.id + ".";
               } else {
                 // create _childViews which indicates which view we have for each id. This is also used for checking whether we registered a change callback already.
                 this._childViews[childId] = vo;
@@ -144,24 +146,26 @@ var GroupView = ObjView.extend({
         newView.data.on('change', this._myChildListenerCallback); // attach child change listener
         this._renderChildPosition(newView);
       }
-      // we checked/added all object in data.children. Are there more children in DOM left?
-      !empty && _k_nextChild();
-    while (!empty) { // some objects need to be deleted (only removes dom elements of wl objects)
-      var vo = this.innerEl.childNodes[k]._wlView;
-      if (!vo) { // this object has not been parsed yet, leave it there
-        _k_nextChild();
-        continue;
-      }
-      vo.data.off('change', this._myChildListenerCallback); // remove child change listener
-      delete this._childNames[vo.data.attributes.name];
-      delete this.childNodes[vo.data.attributes.id];
-      this.innerEl.childNodes[k].remove(); // remove child from dom
-      _k_nextChild(); // next wl object
-    }
 
+    // we checked/added all object in data.children. Are there more childNodes in DOM left?
+    if (!empty) {
+      _k_nextChild();
+
+      while (!empty) { // some objects need to be deleted (only removes dom elements of wl objects)
+        vo = this.innerEl.childNodes[k]._wlView;
+        if (!vo) { // this object has not been parsed yet, leave it there
+          _k_nextChild();
+          continue;
+        }
+        vo.data.off('change', this._myChildListenerCallback); // remove child change listener
+        delete this._childNames[vo.data.attributes.name];
+        delete this.childNodes[vo.data.attributes.id];
+        this.innerEl.childNodes[k].remove(); // remove child from dom
+        _k_nextChild(); // next wl object
+      }
+    }
     this.enableObserver();
   },
-  // jshint ignore:end
   /**
    * return child ObjView for a given child id
    *

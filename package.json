@@ -24,6 +24,7 @@
     "build:compressed": "mkdirp dist && browserify -e src/layerjs.js | uglifyjs -c -m -o dist/layerjs.js && npm run build:copywithversionnumber",
     "build:copywithversionnumber": "node ./.build/copywithversionnumber.js",
 
+    "pretest": "npm run jshint",
     "test": "jasmine JASMINE_CONFIG_PATH=./test/spec/support/jasmine.json",
 
     "correctDatasets" : "node ./test/scripts/correctDatasets.js"
