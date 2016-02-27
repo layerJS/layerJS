@@ -261,7 +261,6 @@
       /**
        * constructor of the Model
        * @param {Object} attributes prefills attributes (not copied)
-       * @return {Object} this object
        */
       constructor: function(attributes) {
         // call super constructor
@@ -269,7 +268,6 @@
         this.silent = false; // fire events on every "set"
         this.history = false; // don't track changes
         this.attributes = _extendKeepDeepCopy(attributes || {}, this.defaults || {}); // initialize attributes if given (don't fire change events); Note: this keeps the original attributes object.
-        return this;
       },
       /**
        * changedAttributes will have original values of attributes in event handlers if called
@@ -346,20 +344,18 @@
        * @param {Object} attributes {attribute: value}
        */
       set: function(attributes) {
-        if (attributes === null) {
-          return this;
-        }
-        if (typeof attributes !== 'object') { // support set(attribute, value) syntax
-          this._set.apply(this, arguments);
-        } else { // support set({attribute: value}) syntax
-          for (var prop in attributes) {
-            if (attributes.hasOwnProperty(prop)) {
-              this._set(prop, attributes[prop]);
+        if (attributes !== null) {
+          if (typeof attributes !== 'object') { // support set(attribute, value) syntax
+            this._set.apply(this, arguments);
+          } else { // support set({attribute: value}) syntax
+            for (var prop in attributes) {
+              if (attributes.hasOwnProperty(prop)) {
+                this._set(prop, attributes[prop]);
+              }
             }
           }
+          this._fire();
         }
-        this._fire();
-        return this;
       },
       /**
        * internal function setting a single attribute
@@ -424,7 +420,6 @@
       /**
        * delete the specified attribute
        * @param {string} attribute the attribute to be removed
-       * @return {Object} this object
        */
       unset: function(attribute) {
         if (!this.changedAttributes) this.changedAttributes = {};
@@ -441,7 +436,6 @@
         this.deletedAttributes[attribute] = true;
         delete this.attributes[attribute];
         this._fire();
-        return this;
       },
       /**
        * get the value of an attrbute
@@ -520,7 +514,6 @@
             this._add(model, nid, options.noEvents);
           }
         }
-        return this;
       },
       /**
        * internal function to add model. sets event listeners and triggers events
@@ -541,12 +534,10 @@
         if (!noEvents) {
           this.trigger('add', model, this);
         }
-        return this;
       },
       /**
        * removes a model(s) from this Repository
        * @param {String|Model|Array} model in id (string) or Model or an Array of those to be removed
-       * @return {Object} this object
        */
       remove: function(model) {
         if (Array.isArray(model)) { // if array loop over array
@@ -568,7 +559,6 @@
           }
           this.trigger("remove", oldmodel, this);
         }
-        return this;
       },
       /**
        * handler listening to changes of the models in the repository
