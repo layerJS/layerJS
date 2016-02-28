@@ -16,8 +16,8 @@ var ObjView = Kern.EventManager.extend({
     Kern.EventManager.call(this);
     options = options || {};
     // dataobject must exist
-    if (!dataModel) throw "data object mus exist when creating a view";
-    this.data = dataModel;
+    this.data = this.data || dataModel || (options.el && this.parse(options.el));
+    if (!this.data) throw "data object must exist when creating a view";
     // parent if defined
     this.parent = options.parent;
     // DOM element, take either the one provide by a sub constructor, provided in options, or create new
@@ -232,6 +232,61 @@ var ObjView = Kern.EventManager.extend({
 
     }
     return p;
+  },
+  /**
+   * Will create a dataobject based on a DOM element
+   *
+   * @param {element} DOM element to needs to be parsed
+   * @return  {data} a javascript data object
+   */
+  parse: function(element) {
+    var index;
+    var data = {
+      tag: element.tagName
+    };
+
+    var attributes = element.attributes;
+    var length = attributes.length;
+
+    for (index = 0; index < length; index++) {
+      var attribute = attributes[index];
+      if (attribute.name.indexOf('data-wl-') === 0) {
+        data[attribute.name.replace('data-wl-', '')] = attribute.value;
+      }
+    }
+
+    data.classes = element.className.replace("object-default object-" + data.type, ""); //FIXME: remove old webpgr classes
+
+    if (data.tag.toUpperCase() === 'A') {
+      data.linkTo = element.getAttribute('href');
+      data.linkTarget = element.getAttribute('target');
+    }
+
+    var style = element.style;
+
+    if (style.left) {
+      data.x = style.left;
+    }
+    if (style.top) {
+      data.y = style.top;
+    }
+    if (style.display === 'none') {
+      data.hidden = true;
+    }
+    if (style.zIndex) {
+      data.zIndex = style.zIndex;
+    }
+
+    data.width = style.width;
+    if (!data.width && element.getAttribute('width')){ // only a limited set of elements support the width attribute
+      data.width=element.getAttribute('width');
+    }
+    data.height = style.height;
+    if (!data.height && element.getAttribute('height')){ // only a limited set of elements support the width attribute
+      data.height=element.getAttribute('height');
+    }
+
+    return new this.constructor.Model(data); // this will find the correct data object class which will also set the correct type.
   },
   /**
    * ##destroy

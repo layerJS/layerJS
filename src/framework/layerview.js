@@ -33,6 +33,9 @@ var LayerView = GroupView.extend({
       this.innerEl = $.wrapChildren(this.outerEl);
       hasScroller = true;
     }
+    if (hasScroller) {
+      this.innerEl= this.outerEl.childNodes[0];
+    }
     // mark scroller as scroller in HTML
     if (hasScroller) this.innerEl.setAttribute('data-wl-helper', 'scroller');
     // call super constructor

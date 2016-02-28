@@ -72,6 +72,18 @@ var Repository = Kern.EventManager.extend({
     return this.versions[version].get(id);
   },
   /**
+   * add a data model to the repository of the specified version
+   *
+   * @param {ObjData} model - the model to be added
+   * @param {string} version - the version of the repository/model
+   * @returns {void}
+   */
+  add: function(model, version) {
+    version = version || defaults.version;
+    if (!this.versions[version]) throw "version not available"; // FIXME: need to fetch new versions at some point
+    this.versions[version].add(model);
+  },
+  /**
    * Generates an id for a data object. This id should be unique
    * This method should be looked at in the future.
    *
