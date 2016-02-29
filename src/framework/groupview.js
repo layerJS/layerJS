@@ -188,13 +188,16 @@ var GroupView = ObjView.extend({
     var data;
     for (i = 0; i < cn.length; i++) {
       var elem = cn[i];
+      if (elem.nodeType !== 1) {
+        continue;
+      }
       nodeId = (elem._wlView && elem._wlView.data.attributes.id) || elem.getAttribute('data-wl-id');
       try {
         data = nodeId && repository.get(nodeId, this.data.attributes.version);
       } catch (e) {
         data = undefined;
       }
-      nodeType = (cn[k]._wlView && cn[k]._wlView.data.attributes.type) || cn[k].getAttribute('data-wl-type');
+      nodeType = (elem._wlView && elem._wlView.data.attributes.type) || elem.getAttribute('data-wl-type');
       if (nodeId && (data || nodeType)) {
         // search for nodeId in data.children
         var k_saved = k;
