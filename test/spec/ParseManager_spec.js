@@ -2,7 +2,7 @@ var jsdom = require('jsdom').jsdom;
 var WL = require('../../src/framework/wl.js');
 var defaults = require('../../src/framework/defaults.js');
 
-describe('ParseMananger', function() {
+xdescribe('ParseMananger', function() {
 
   var repository = WL.repository;
   var parseManager = WL.parseManager;

@@ -2,6 +2,7 @@
 var $ = require('./domhelpers.js');
 var Kern = require('../kern/Kern.js');
 var pluginManager = require('./pluginmanager.js');
+var repository = require('./repository.js');
 var ObjData = require('./objdata.js');
 
 /**
@@ -278,14 +279,19 @@ var ObjView = Kern.EventManager.extend({
     }
 
     data.width = style.width;
-    if (!data.width && element.getAttribute('width')){ // only a limited set of elements support the width attribute
-      data.width=element.getAttribute('width');
+    if (!data.width && element.getAttribute('width')) { // only a limited set of elements support the width attribute
+      data.width = element.getAttribute('width');
     }
     data.height = style.height;
-    if (!data.height && element.getAttribute('height')){ // only a limited set of elements support the width attribute
-      data.height=element.getAttribute('height');
+    if (!data.height && element.getAttribute('height')) { // only a limited set of elements support the width attribute
+      data.height = element.getAttribute('height');
     }
-
+    // modify existing data object if present
+    if (this.data) {
+      this.data.set(data);
+    } else {
+      data.id = repository.getId(); // if we don't have an data object we must create an id.
+    }
     return new this.constructor.Model(data); // this will find the correct data object class which will also set the correct type.
   },
   /**

@@ -159,8 +159,8 @@ var GroupView = ObjView.extend({
         }
         vo.data.off('change', this._myChildListenerCallback); // remove child change listener
         delete this._childNames[vo.data.attributes.name];
-        delete this.childNodes[vo.data.attributes.id];
-        this.innerEl.childNodes[k].remove(); // remove child from dom
+        delete this._childViews[vo.data.attributes.id];
+        this.innerEl.removeChild(this.innerEl.childNodes[k]); // remove child from dom
         _k_nextChild(); // next wl object
       }
     }
