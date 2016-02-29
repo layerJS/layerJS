@@ -63,7 +63,7 @@ var GestureManager = function() {
     } else { // 2nd condition for vertical swipe met
       direction = (distanceY < 0) ? 'up' : 'down';
     }
-    
+
     eventHandler(element, direction);
   };
 
@@ -103,26 +103,38 @@ var GestureManager = function() {
       if (e.deltaX) deltaX = e.deltaX / 120;
       if (e.wheelDeltaX) deltaX = e.wheelDeltaX / 120;
     }
-
     if (gesture) {
       var distanceX = gesture.deltaX + deltaX,
         distanceY = gesture.delta + delta;
-      var direction;
-      if (distanceX !== 0) {
-        direction = (distanceX < 0) ? 'left' : 'right';
-      } else if (distanceY !== 0) { // 2nd condition for vertical swipe met
-        direction = (distanceY > 0) ? 'up' : 'down';
+      var fired = gesture.fired;
+      if (Math.abs(distanceX) + Math.abs(distanceY) > 2 && !fired) {
+        var direction;
+        if (Math.abs(distanceX) > Math.abs(distanceY)) {
+          direction = (distanceX < 0) ? 'left' : 'right';
+        } else { // 2nd condition for vertical swipe met
+          direction = (distanceY > 0) ? 'up' : 'down';
+        }
+        console.log("tg + >", distanceX, distanceY);
+        if (direction) {
+          eventHandler(element, direction);
+        }
+        fired = true;
       }
-
-      if (direction)
-        eventHandler(element, direction);
+      lastGesture = {
+        startTime: new Date().getTime(),
+        deltaX: distanceX,
+        delta: distanceY,
+        fired: fired
+      };
     } else {
       lastGesture = {
         startTime: new Date().getTime(),
         deltaX: deltaX,
-        delta: delta
+        delta: delta,
+        fired: false
       };
     }
+    e.preventDefault();
   };
 
   var addEventListeners = function(element) {
@@ -149,6 +161,7 @@ var GestureManager = function() {
     }, false);
   };
 
+  // Note: this function needs to be integrated into LayerView later
   var eventHandler = function(element, direction) {
     //console.log(layerElement._wlView);
     var layerView = element._wlView;
@@ -190,7 +203,7 @@ var GestureManager = function() {
       });
     }
   };
-
+  // this will be done by the layer itself later
   this.register = function() {
     var layerElements = document.querySelectorAll("[data-wl-type='layer']");
     var length = layerElements.length;
