@@ -112,7 +112,7 @@ var GestureManager = function() {
         if (Math.abs(distanceX) > Math.abs(distanceY)) {
           direction = (distanceX < 0) ? 'left' : 'right';
         } else { // 2nd condition for vertical swipe met
-          direction = (distanceY > 0) ? 'up' : 'down';
+          direction = (distanceY > 0) ? 'down' : 'up';
         }
         console.log("tg + >", distanceX, distanceY);
         if (direction) {

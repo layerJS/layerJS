@@ -71,7 +71,7 @@ var dataset = [{
   }, {
     id: 'n1',
     type: 'text',
-    content: 'Hallo',
+    content: '<h1>Hallo</h1><br>Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.',
     style: 'width:100%;height:50px;background-color:rgba(255,255,255,0.6);line-height:50px;padding-left:50px;'
   }, {
     id: 'c1',
