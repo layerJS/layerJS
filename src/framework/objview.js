@@ -289,10 +289,10 @@ var ObjView = Kern.EventManager.extend({
     // modify existing data object if present
     if (this.data) {
       this.data.set(data);
-    } else {
+    } else if (data.id === undefined){
       data.id = repository.getId(); // if we don't have an data object we must create an id.
     }
-    return new this.constructor.Model(data); // this will find the correct data object class which will also set the correct type.
+    return this.data ? this.data : new this.constructor.Model(data); // this will find the correct data object class which will also set the correct type.
   },
   /**
    * ##destroy
