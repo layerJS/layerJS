@@ -195,6 +195,13 @@ describe("GroupView", function() {
   ViewsGroup_parseChildrenTests({
     ViewType: GroupView,
     viewTypeName: 'GroupView',
-    type: 'group'
+    type: 'group',
+    HTML: "<div id='100' data-wl-id='100' data-wl-type='group'>" +
+      "<div id='element1'></div>" +
+      "<div id='101' data-wl-id='101' data-wl-type='text'></div>" +
+      "<div id='element2'></div>" +
+      "<div id='102' data-wl-id='102' data-wl-type='text'></div>" +
+      "<div id='element3'></div>",
+    expectedChildren: ['101', '102']
   });
 });
