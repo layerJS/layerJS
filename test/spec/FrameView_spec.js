@@ -9,9 +9,9 @@ var Common_renderChildPositionTests = require('./helpers/common_renderchildposit
 var DatasetReader = require('./helpers/datasetreader.js');
 
 var ViewsCommonParseTests = require('./helpers/views/common/parsetests.js');
+var ViewsGroup_parseChildrenTests = require('./helpers/views/group/_parseChildrentests.js');
 
 describe("FrameView", function() {
-
   var datasetReader = new DatasetReader();
 
   /*
@@ -22,6 +22,7 @@ describe("FrameView", function() {
       };
     });
   */
+
   CommonGroupViewTests('simple_framedata.js', function() {
     return {
       data: datasetReader.readFromFile('simple_framedata.js'),
@@ -52,4 +53,9 @@ describe("FrameView", function() {
     type: 'frame'
   });
 
+  ViewsGroup_parseChildrenTests({
+    ViewType: FrameView,
+    viewTypeName: 'FrameView',
+    type: 'frame'
+  });
 })

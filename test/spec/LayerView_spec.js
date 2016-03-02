@@ -9,6 +9,8 @@ var Common_renderChildPositionTests = require('./helpers/common_renderchildposit
 var DatasetReader = require('./helpers/datasetreader.js');
 
 var ViewsCommonParseTests = require('./helpers/views/common/parsetests.js');
+var ViewsGroup_parseChildrenTests = require('./helpers/views/group/_parseChildrentests.js');
+
 
 describe("LayerView", function() {
   var datasetReader = new DatasetReader();
@@ -21,6 +23,7 @@ describe("LayerView", function() {
       };
     });
 */
+
   CommonGroupViewTests('simple_layerdata.js', function() {
     return {
       data: datasetReader.readFromFile('simple_layerdata.js'),
@@ -60,4 +63,12 @@ describe("LayerView", function() {
     type: 'layer'
   });
   */
+
+  ViewsGroup_parseChildrenTests({
+    ViewType: LayerView,
+    viewTypeName: 'LayerView',
+    type: 'layer'
+  });
+
+
 })
