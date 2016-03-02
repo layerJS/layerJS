@@ -36,6 +36,12 @@ var TextView = ObjView.extend({
     }
 
     this.enableObserver();
+  },
+  parse: function(element) {
+    var dataModel = ObjView.prototype.parse.call(this, element);
+    dataModel.attributes.content = element.innerHTML;
+
+    return dataModel;
   }
 }, {
   Model: TextData,

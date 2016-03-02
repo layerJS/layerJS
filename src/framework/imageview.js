@@ -40,8 +40,18 @@ var ImageView = ObjView.extend({
     }
 
     this.enableObserver();
-  }
+  },
+  parse: function(element) {
+    var dataModel = ObjView.prototype.parse.call(this, element);
 
+    var src = element.getAttribute('src');
+    var alt = element.getAttribute('alt');
+
+    dataModel.attributes.src = src ? src.replace(WL.imagePath, '') : undefined;
+    dataModel.attributes.alt = alt ? alt : undefined;
+
+    return dataModel;
+  }
 }, {
   Model: ImageData,
   parse: function(element) {

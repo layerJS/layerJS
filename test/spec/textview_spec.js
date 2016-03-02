@@ -48,14 +48,14 @@ describe("TextView", function() {
     expect(dataObject.content).toBe('some content');
   });
 
-  xit('the Parse method will add an content property to the data object', function() {
+  it('the Parse method will add an content property to the data object', function() {
     var element = document.createElement('div');
     element.innerHTML = 'some content';
 
     var textView = new TextView(new TextView.Model({}));
-    var dataObject = textView.parse(element);
+    var dataModel = textView.parse(element);
 
-    expect(dataObject.content).toBe('some content');
+    expect(dataModel.attributes.content).toBe('some content');
   });
 
   ViewsCommonParseTests({

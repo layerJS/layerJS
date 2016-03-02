@@ -69,14 +69,24 @@ describe("ImageView", function() {
     expect(dataObject.src).toBe('some source');
   });
 
-  xit('the Parse method will add an src property to the data object', function() {
+  it('the parse method will add an src property to the data object', function() {
     var element = document.createElement('img');
     element.setAttribute('src', 'some source');
 
-    var imageView = new imageView(new imageView.Model({}));
-    var dataObject = imageView.parse(element);
+    var imageView = new ImageView(new ImageView.Model({ }));
+    var dataModel = imageView.parse(element);
 
-    expect(dataObject.src).toBe('some source');
+    expect(dataModel.attributes.src).toBe('some source');
+  });
+
+  it('the parse method will add an alt property to the data object', function() {
+    var element = document.createElement('img');
+    element.setAttribute('alt', 'some alt');
+
+    var imageView = new ImageView(new ImageView.Model({ }));
+    var dataModel = imageView.parse(element);
+
+    expect(dataModel.attributes.alt).toBe('some alt');
   });
 
   ViewsCommonParseTests({
