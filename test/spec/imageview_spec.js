@@ -6,6 +6,8 @@ var ImageView = require('../../src/framework/imageview.js');
 var pluginManager = require('../../src/framework/pluginmanager.js');
 var WL = require('../../src/framework/wl.js');
 
+var ViewsCommonParseTests = require('./helpers/views/common/_parsetests.js');
+
 describe("ImageView", function() {
 
   var datasetReader = new DatasetReader();
@@ -65,6 +67,22 @@ describe("ImageView", function() {
     var dataObject = ImageView.parse(element);
 
     expect(dataObject.src).toBe('some source');
+  });
+
+  xit('the Parse method will add an src property to the data object', function() {
+    var element = document.createElement('img');
+    element.setAttribute('src', 'some source');
+
+    var imageView = new imageView(new imageView.Model({}));
+    var dataObject = imageView.parse(element);
+
+    expect(dataObject.src).toBe('some source');
+  });
+
+  ViewsCommonParseTests({
+    ViewType: ImageView,
+    viewTypeName: 'ImageView',
+    type: 'image'
   });
 
 });

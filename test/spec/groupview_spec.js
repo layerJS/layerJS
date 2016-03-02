@@ -11,6 +11,8 @@ var GroupView_renderChildPositionTests = require('./helpers/groupview_renderchil
 var Common_renderChildPositionTests = require('./helpers/common_renderchildpositiontests.js');
 var DatasetReader = require('./helpers/datasetreader.js');
 
+var ViewsCommonParseTests = require('./helpers/views/common/_parsetests.js');
+
 describe("GroupView", function() {
 
   var datasetReader = new DatasetReader();
@@ -182,4 +184,11 @@ describe("GroupView", function() {
     expect(order['element1']<order['102']).toBe(true);
     expect(order['101']<order['element3']).toBe(true);
   });
+
+  ViewsCommonParseTests({
+      ViewType: GroupView,
+      viewTypeName: 'GroupView',
+      type: 'group'
+    });
+
 });

@@ -1,9 +1,10 @@
+    //jshint ignore:start
 'use strict';
 var WL = require('./wl.js');
 var ObjView = require('./objview.js');
 var repository = require('./repository.js');
 var defaults = require('./defaults.js');
-var StageView = require('./stageview.js');
+var pluginManager = require('./pluginmanager.js');
 
 var ParseManager = function() {
 
@@ -87,37 +88,32 @@ var ParseManager = function() {
     options.lookInNonLayerJsElements = options.lookInNonLayerJsElements || false;
 
     var stageElements = document.querySelectorAll("[data-wl-type='stage']");
-    var stageIDs = [];
-    var dataObjects = [];
+  //  var stageIDs = [];
+//    var dataObjects = [];
     var length = stageElements.length;
-    var index, stageElement, dataObject;
+    var index, stageElement;
 
     for (index = 0; index < length; index++) {
       stageElement = stageElements[index];
-      dataObject = getDataObject(stageElement);
+      var stageView = pluginManager.createView('stage', {el: stageElement});
+
+  /*    dataObject = getDataObject(stageElement);
       stageIDs.push(dataObject.id);
       dataObject.children = [];
 
-      dataObjects.push(dataObject);
+      dataObjects.push(dataObject);*/
 
-      if (options.stopAt !== 'stage') {
-        parseChildren(dataObject, stageElement, dataObjects, options);
-      }
+    //  if (options.stopAt !== 'stage') {
+  //      parseChildren(dataObject, stageElement, dataObjects, options);
+//}
     }
 
     repository.importJSON(dataObjects, options.version || defaults.version);
-    for (index = 0; index < length; index++) {
-      stageElement = stageElements[index];
-      dataObject = repository.get(stageIDs[index], options.version || defaults.version);
-      if (!stageElement._wlView) {
-        new StageView(dataObject, {
-          el: stageElement
-        });
-      }
-    }
+
   };
 };
 
 
 WL.parseManager = new ParseManager();
 module.exports = WL.parseManager;
+    //jshint ignore:end

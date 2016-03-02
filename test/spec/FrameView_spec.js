@@ -8,6 +8,8 @@ var GroupView_renderChildPositionTests = require('./helpers/groupview_renderchil
 var Common_renderChildPositionTests = require('./helpers/common_renderchildpositiontests.js');
 var DatasetReader = require('./helpers/datasetreader.js');
 
+var ViewsCommonParseTests = require('./helpers/views/common/_parsetests.js');
+
 describe("FrameView", function() {
 
   var datasetReader = new DatasetReader();
@@ -42,6 +44,12 @@ describe("FrameView", function() {
       ViewType: FrameView,
       parentId: 110529
     };
+  });
+
+  ViewsCommonParseTests({
+    ViewType: FrameView,
+    viewTypeName: 'FrameView',
+    type: 'frame'
   });
 
 })

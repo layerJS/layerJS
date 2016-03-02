@@ -5,6 +5,8 @@ var TextData = require('../../src/framework/textdata.js');
 var TextView = require('../../src/framework/textview.js');
 var pluginManager = require('../../src/framework/pluginmanager.js');
 
+var ViewsCommonParseTests = require('./helpers/views/common/_parsetests.js');
+
 describe("TextView", function() {
 
   var datasetReader = new DatasetReader();
@@ -44,5 +46,21 @@ describe("TextView", function() {
     var dataObject = TextView.parse(element);
 
     expect(dataObject.content).toBe('some content');
+  });
+
+  xit('the Parse method will add an content property to the data object', function() {
+    var element = document.createElement('div');
+    element.innerHTML = 'some content';
+
+    var textView = new TextView(new TextView.Model({}));
+    var dataObject = textView.parse(element);
+
+    expect(dataObject.content).toBe('some content');
+  });
+
+  ViewsCommonParseTests({
+    ViewType: TextView,
+    viewTypeName: 'TextView',
+    type: 'text'
   });
 });

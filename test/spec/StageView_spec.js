@@ -9,6 +9,8 @@ var GroupView_renderChildPositionTests = require('./helpers/groupview_renderchil
 var Common_renderChildPositionTests = require('./helpers/common_renderchildpositiontests.js');
 var DatasetReader = require('./helpers/datasetreader.js');
 
+var ViewsCommonParseTests = require('./helpers/views/common/_parsetests.js');
+
 describe("StageView", function() {
 
   var document, window, $;
@@ -37,6 +39,12 @@ describe("StageView", function() {
       ViewType: StageView,
       parentId: 1
     };
+  });
+
+  ViewsCommonParseTests({
+    ViewType: StageView,
+    viewTypeName: 'StageView',
+    type: 'stage'
   });
 
 

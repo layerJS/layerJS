@@ -286,13 +286,27 @@ var ObjView = Kern.EventManager.extend({
     if (!data.height && element.getAttribute('height')) { // only a limited set of elements support the width attribute
       data.height = element.getAttribute('height');
     }
+
+    if (data.id === undefined) {
+      data.id = repository.getId(); // if we don't have an data object we must create an id.
+    }
+
     // modify existing data object if present
     if (this.data) {
       this.data.set(data);
-    } else if (data.id === undefined){
-      data.id = repository.getId(); // if we don't have an data object we must create an id.
     }
-    return this.data ? this.data : new this.constructor.Model(data); // this will find the correct data object class which will also set the correct type.
+
+    var returnedDataObject = this.data ? this.data : new this.constructor.Model(data); // this will find the correct data object class which will also set the correct type
+
+    if (!repository.hasVersion(returnedDataObject.attributes.version)) {
+      repository.createVersion(returnedDataObject.attributes.version);
+    }
+
+    if (!repository.contains(returnedDataObject.attributes.id, returnedDataObject.attributes.version)) {
+      repository.add(returnedDataObject, returnedDataObject.attributes.version);
+    }
+
+    return returnedDataObject;
   },
   /**
    * ##destroy

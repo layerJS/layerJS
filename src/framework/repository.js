@@ -84,6 +84,19 @@ var Repository = Kern.EventManager.extend({
     this.versions[version].add(model);
   },
   /**
+   * Check if a specific model is already added to a certain version
+   *
+   * @param {string} id
+   * @param {string} version - the version of the repository/model
+   * @returns {bool}
+   */
+  contains: function(id, version) {
+    version = version || defaults.version;
+    if (!this.versions[version]) throw "version not available"; // FIXME: need to fetch new versions at some point
+
+    return this.versions[version].models[id] !==undefined;
+  },
+  /**
    * Generates an id for a data object. This id should be unique
    * This method should be looked at in the future.
    *
@@ -101,6 +114,24 @@ var Repository = Kern.EventManager.extend({
 
     this.previous = next;
     return next.toString();
+  },
+  /**
+   * Will check if a specific version is added to the repository
+   *
+   * @param {string} version - the version of the repository
+   * @returns {bool} the id
+   */
+  hasVersion: function(version) {
+    return this.versions[version] !== undefined;
+  },
+  /**
+   * Will create a new version in the repository
+   *
+   * @param {string} version - the version of the repository
+   */
+  createVersion: function(version) {
+    if (this.versions[version]) throw "version already exists";
+    this.versions[version] = new Kern.ModelRepository();
   }
 });
 // initialialize repository
