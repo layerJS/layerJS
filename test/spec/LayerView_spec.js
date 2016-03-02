@@ -8,7 +8,7 @@ var GroupView_renderChildPositionTests = require('./helpers/groupview_renderchil
 var Common_renderChildPositionTests = require('./helpers/common_renderchildpositiontests.js');
 var DatasetReader = require('./helpers/datasetreader.js');
 
-var ViewsCommonParseTests = require('./helpers/views/common/_parsetests.js');
+var ViewsCommonParseTests = require('./helpers/views/common/parsetests.js');
 
 describe("LayerView", function() {
   var datasetReader = new DatasetReader();

@@ -5,7 +5,7 @@ var TextData = require('../../src/framework/textdata.js');
 var TextView = require('../../src/framework/textview.js');
 var pluginManager = require('../../src/framework/pluginmanager.js');
 
-var ViewsCommonParseTests = require('./helpers/views/common/_parsetests.js');
+var ViewsCommonParseTests = require('./helpers/views/common/parsetests.js');
 
 describe("TextView", function() {
 

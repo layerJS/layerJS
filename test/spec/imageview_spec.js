@@ -6,7 +6,7 @@ var ImageView = require('../../src/framework/imageview.js');
 var pluginManager = require('../../src/framework/pluginmanager.js');
 var WL = require('../../src/framework/wl.js');
 
-var ViewsCommonParseTests = require('./helpers/views/common/_parsetests.js');
+var ViewsCommonParseTests = require('./helpers/views/common/parsetests.js');
 
 describe("ImageView", function() {
 

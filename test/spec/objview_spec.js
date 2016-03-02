@@ -4,7 +4,7 @@ var ObjData = require('../../src/framework/objdata.js');
 var DatasetReader = require('./helpers/datasetreader.js');
 var CommonViewTests = require('./helpers/Commonviewtests.js');
 
-var ViewsCommonParseTests = require('./helpers/views/common/_parsetests.js');
+var ViewsCommonParseTests = require('./helpers/views/common/parsetests.js');
 
 describe("ObjView", function() {
 

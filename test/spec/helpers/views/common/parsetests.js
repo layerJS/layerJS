@@ -7,7 +7,7 @@ module.exports = function(options) {
   var DataType = ViewType.Model;
   var type = options.type;
 
-  describe(options.viewTypeName + ": _parse =>", function() {
+  describe(options.viewTypeName + ": parse =>", function() {
 
     var element;
     var repository = WL.repository;
