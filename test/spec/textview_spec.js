@@ -43,15 +43,6 @@ describe("TextView", function() {
     var element = document.createElement('div');
     element.innerHTML = 'some content';
 
-    var dataObject = TextView.parse(element);
-
-    expect(dataObject.content).toBe('some content');
-  });
-
-  it('the Parse method will add an content property to the data object', function() {
-    var element = document.createElement('div');
-    element.innerHTML = 'some content';
-
     var textView = new TextView(new TextView.Model({}));
     var dataModel = textView.parse(element);
 

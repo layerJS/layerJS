@@ -50,13 +50,7 @@ var TextView = ObjView.extend({
     return dataModel;
   }
 }, {
-  Model: TextData,
-  parse: function(element) {
-    var data = ObjView.parse(element);
-    data.content = element.innerHTML;
-
-    return data;
-  }
+  Model: TextData
 });
 
 

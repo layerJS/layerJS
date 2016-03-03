@@ -62,7 +62,7 @@ module.exports = function(options) {
       expect(data.attributes.type).toBe(type);
       expect(data.attributes.version).toBe(defaults.version);
       expect(data.attributes.tag).toBe('A');
-      expect(data.attributes.classes).toBe(' someClass');
+      expect(data.attributes.classes).toBe('someClass');
       expect(data.attributes.linkTo).toBe('url');
       expect(data.attributes.linkTarget).toBe('_self');
       expect(data.attributes.x).toBe('50px');
@@ -85,7 +85,7 @@ module.exports = function(options) {
       expect(returnedData.attributes.type).toBe(type);
       expect(returnedData.attributes.version).toBe(defaults.version);
       expect(returnedData.attributes.tag).toBe('A');
-      expect(returnedData.attributes.classes).toBe(' someClass');
+      expect(returnedData.attributes.classes).toBe('someClass');
       expect(returnedData.attributes.linkTo).toBe('url');
       expect(returnedData.attributes.linkTarget).toBe('_self');
       expect(returnedData.attributes.x).toBe('50px');
@@ -122,7 +122,7 @@ module.exports = function(options) {
       expect(data.attributes.type).toBe(type);
       expect(data.attributes.version).toBe(defaults.version);
       expect(data.attributes.tag).toBe('A');
-      expect(data.attributes.classes).toBe(' someClass');
+      expect(data.attributes.classes).toBe('someClass');
       expect(data.attributes.linkTo).toBe('url');
       expect(data.attributes.linkTarget).toBe('_self');
       expect(data.attributes.x).toBe('50px');

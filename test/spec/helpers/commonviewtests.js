@@ -178,56 +178,7 @@ var commonViewTests = function(scenario, initFunction) {
       } else {
         expect(element.hasAttribute('target')).toBeFalsy();
       }
-    });
-
-    it('will contain a Parse method to read the data from a DOM element', function() {
-      expect(ViewType.parse).toBeDefined();
-    });
-
-    it('the Parse method will return a data object with all the data-wl-* attributes from a DOM element', function() {
-      var element = document.createElement('a');
-      element.setAttribute('data-wl-someThing', '1');
-      element.setAttribute('data-wl-someThingElse', '2');
-      element.setAttribute('data-custom', '3');
-
-      var dataObject = ViewType.parse(element);
-
-      expect(dataObject).toBeDefined();
-      expect(dataObject.something).toBe('1');
-      expect(dataObject.somethingelse).toBe('2');
-      expect(dataObject.custom).toBeUndefined();
-    });
-
-    it('the Parse method will return a data object based on a DOM element', function() {
-      var element = document.createElement('a');
-      element.setAttribute('data-wl-id', 1);
-      element.setAttribute('data-wl-type', data.attributes.type);
-      element.style.display = 'none';
-      element.style.zIndex = 2;
-      element.style.width = '100px';
-      element.style.height = '200px';
-      element.style.left = '50px';
-      element.style.top = '25px';
-      element.className = 'object-default object-' + data.attributes.type + ' someClass';
-      element.setAttribute('href', 'url');
-      element.setAttribute('target', '_self');
-
-      var dataObject = ViewType.parse(element);
-
-      expect(dataObject).toBeDefined();
-      expect(dataObject.id).toBe('1');
-      expect(dataObject.type).toBe(data.attributes.type);
-      expect(dataObject.tag).toBe('A');
-      expect(dataObject.classes).toBe(' someClass');
-      expect(dataObject.linkTo).toBe('url');
-      expect(dataObject.linkTarget).toBe('_self');
-      expect(dataObject.x).toBe('50');
-      expect(dataObject.y).toBe('25');
-      expect(dataObject.hidden).toBe(true);
-      expect(dataObject.zIndex).toBe('2');
-      expect(dataObject.width).toBe('100px');
-      expect(dataObject.height).toBe('200px');
-    });
+    });  
 
     it('listens for changes on its DOM element when _observerCounter is 0', function() {
       var view = new ViewType(data);

@@ -29,8 +29,7 @@ var StageView = GroupView.extend({
   }
 
 }, {
-  Model: StageData,
-  parse: GroupView.parse
+  Model: StageData
 });
 pluginManager.registerType('stage', StageView);
 module.exports = StageView;

@@ -59,18 +59,7 @@ var ImageView = ObjView.extend({
     return dataModel;
   }
 }, {
-  Model: ImageData,
-  parse: function(element) {
-    var data = ObjView.parse(element);
-
-    var src = element.getAttribute('src');
-    var alt = element.getAttribute('alt');
-
-    data.src = src ? src.replace(WL.imagePath, '') : undefined;
-    data.alt = alt ? alt : undefined;
-
-    return data;
-  }
+  Model: ImageData
 });
 
 

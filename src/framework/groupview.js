@@ -438,8 +438,7 @@ var GroupView = ObjView.extend({
   },
 
 }, {
-  Model: GroupData,
-  parse: ObjView.parse
+  Model: GroupData
 });
 
 

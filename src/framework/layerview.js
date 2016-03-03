@@ -138,8 +138,7 @@ var LayerView = GroupView.extend({
     return dataModel;
   }
 }, {
-  Model: LayerData,
-  parse: GroupView.parse
+  Model: LayerData
 });
 
 pluginManager.registerType('layer', LayerView);

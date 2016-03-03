@@ -256,7 +256,7 @@ var ObjView = Kern.EventManager.extend({
       }
     }
 
-    data.classes = element.className.replace("object-default object-" + data.type, ""); //FIXME: remove old webpgr classes
+    data.classes = element.className.replace("object-default object-" + data.type + " ", ""); //FIXME: remove old webpgr classes
 
     if (data.tag.toUpperCase() === 'A') {
       data.linkTo = element.getAttribute('href');
@@ -396,7 +396,7 @@ var ObjView = Kern.EventManager.extend({
   _domElementChanged: function() {
     if (this._observerCounter !== 0) return;
 
-    var dataObject = ObjView.parse(this.outerEl);
+    var dataObject = this.parse(this.outerEl);
 
     this.data.silence();
     for (var data in dataObject) {
@@ -408,51 +408,7 @@ var ObjView = Kern.EventManager.extend({
   }
 }, {
   // save model class as static variable
-  Model: ObjData,
-  /**
-   * Will create a dataobject based on a DOM element
-   *
-   * @param {element} DOM element to needs to be parsed
-   * @return  {data} a javascript data object
-   */
-  parse: function(element) {
-    var data = {
-      tag: element.tagName
-    };
-
-    var attributes = element.attributes;
-    var length = attributes.length;
-
-    for (var index = 0; index < length; index++) {
-      var attribute = attributes[index];
-      if (attribute.name.indexOf('data-wl-') !== -1) {
-        data[attribute.name.replace('data-wl-', '')] = attribute.value;
-      }
-    }
-
-    data.classes = element.className.replace("object-default object-" + data.type, "");
-
-    if (data.tag.toUpperCase() === 'A') {
-      data.linkTo = element.getAttribute('href');
-      data.linkTarget = element.getAttribute('target');
-    }
-
-    var style = element.style;
-
-    if (style.left)
-      data.x = style.left.replace('px', '');
-    if (style.top)
-      data.y = style.top.replace('px', '');
-    if (style.display === 'none')
-      data.hidden = style.display === 'none';
-    if (style.zIndex)
-      data.zIndex = style.zIndex;
-
-    data.width = style.width;
-    data.height = style.height;
-
-    return data;
-  }
+  Model: ObjData
 });
 
 

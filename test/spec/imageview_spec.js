@@ -51,29 +51,11 @@ describe("ImageView", function() {
     expect(element.getAttribute('alt')).toBe(data.attributes.alt);
   });
 
-  it('the Parse method will add an alt property to the data object', function() {
-    var element = document.createElement('img');
-    element.setAttribute('alt', 'some alt');
-
-    var dataObject = ImageView.parse(element);
-
-    expect(dataObject.alt).toBe('some alt');
-  });
-
-  it('the Parse method will add an src property to the data object', function() {
-    var element = document.createElement('img');
-    element.setAttribute('src', 'some source');
-
-    var dataObject = ImageView.parse(element);
-
-    expect(dataObject.src).toBe('some source');
-  });
-
   it('the parse method will add an src property to the data object', function() {
     var element = document.createElement('img');
     element.setAttribute('src', 'some source');
 
-    var imageView = new ImageView(new ImageView.Model({ }));
+    var imageView = new ImageView(new ImageView.Model({}));
     var dataModel = imageView.parse(element);
 
     expect(dataModel.attributes.src).toBe('some source');
@@ -83,7 +65,7 @@ describe("ImageView", function() {
     var element = document.createElement('img');
     element.setAttribute('alt', 'some alt');
 
-    var imageView = new ImageView(new ImageView.Model({ }));
+    var imageView = new ImageView(new ImageView.Model({}));
     var dataModel = imageView.parse(element);
 
     expect(dataModel.attributes.alt).toBe('some alt');
