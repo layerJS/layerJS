@@ -49,9 +49,13 @@ var GroupView = ObjView.extend({
       if (!this._dataObserverCounter) that._buildChildren(); // update DOM when data.children changes
     }).bind(this));
 
-    this._buildChildren();
-    this._parseChildren();
+    if (this.data.attributes.children && this.data.attributes.children.length > 0) {
+      this._buildChildren();
+    }
 
+    if (this.innerEl.childNodes.length > 0) {
+      this._parseChildren();
+    }
 
     if (!options.noRender && (options.forceRender || !options.el))
       this.render();
