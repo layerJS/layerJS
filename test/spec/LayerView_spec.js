@@ -15,14 +15,14 @@ var ViewsGroup_parseChildrenTests = require('./helpers/views/group/_parseChildre
 describe("LayerView", function() {
   var datasetReader = new DatasetReader();
 
-/*
-    CommonViewTests(function() {
-      return {
-          data: datasetReader.readFromFile('simple_layerdata.js')[0],
-          ViewType : LayerView
-      };
-    });
-*/
+  /*
+      CommonViewTests(function() {
+        return {
+            data: datasetReader.readFromFile('simple_layerdata.js')[0],
+            ViewType : LayerView
+        };
+      });
+  */
 
   CommonGroupViewTests('simple_layerdata.js', function() {
     return {
@@ -56,18 +56,25 @@ describe("LayerView", function() {
     };
   });
 
-/*
-  ViewsCommonParseTests({
-    ViewType: LayerView,
-    viewTypeName: 'LayerView',
-    type: 'layer'
+  xdescribe("will run when the layerView parse method runs", function() {
+    ViewsCommonParseTests({
+      ViewType: LayerView,
+      viewTypeName: 'LayerView',
+      type: 'layer'
+    });
   });
-  */
 
   ViewsGroup_parseChildrenTests({
     ViewType: LayerView,
     viewTypeName: 'LayerView',
-    type: 'layer'
+    type: 'layer',
+    HTML: "<div id='100' data-wl-id='100' data-wl-type='layer'>" +
+      "<div id='element1'></div>" +
+      "<div id='101' data-wl-id='101' data-wl-type='frame'></div>" +
+      "<div id='element2'></div>" +
+      "<div id='102' data-wl-id='102' data-wl-type='frame'></div>" +
+      "<div id='element3'></div>",
+    expectedChildren: ['101', '102']
   });
 
 

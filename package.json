@@ -25,7 +25,7 @@
     "build:copywithversionnumber": "node ./.build/copywithversionnumber.js",
 
     "pretest": "npm run jshint",
-    "test": "jasmine test/spec/groupview_spec.js JASMINE_CONFIG_PATH=./test/spec/support/jasmine.json",
+    "test": "jasmine JASMINE_CONFIG_PATH=./test/spec/support/jasmine.json",
 
     "correctDatasets" : "node ./test/scripts/correctDatasets.js"
   }

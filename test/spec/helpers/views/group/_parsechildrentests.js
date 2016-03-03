@@ -1,5 +1,6 @@
 module.exports = function(options) {
 
+  var WL = require('../../../../../src/framework/wl.js');
   var ViewType = options.ViewType;
   var DataType = ViewType.Model;
   var type = options.type;
@@ -24,10 +25,16 @@ module.exports = function(options) {
       var view = new ViewType(data, {
         el: element
       });
-
+            
       view._parseChildren();
 
       expect(data.attributes.children).toEqual(expectedChildren);
+
+      var length = expectedChildren.length;
+
+      for (var i = 0; i < length; i++) {
+        expect(WL.repository.contains(expectedChildren[i], data.attributes.version)).toBeTruthy();
+      }
     });
 
   });
