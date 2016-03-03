@@ -1,119 +1,27 @@
-    //jshint ignore:start
 'use strict';
 var WL = require('./wl.js');
-var ObjView = require('./objview.js');
-var repository = require('./repository.js');
-var defaults = require('./defaults.js');
 var pluginManager = require('./pluginmanager.js');
 
 var ParseManager = function() {
-
   /**
-   * Parses the children of a specific DOM element and add the children
-   * to the parent data object
-   * Asks the repository for an id if it is not provided
+   * Parses a document for layerJs object
    *
-   * @param {Object} parentDataObject - the data object for the passed element
-   * @param {HTMLElement} element - parent element
-   * @param {Array} dataObjects - A list of all found data objects, new ones are added to this collection
-   * @param {Object} options - an options object
    * @returns {void}
    */
-  var parseChildren = function(parentDataObject, element, dataObjects, options) {
-    var children = element.children;
-    var length = children.length;
-
-    var nonLayerJsChildren = [];
-
-    if (!parentDataObject.children) {
-      parentDataObject.children = [];
-    }
-
-    var i;
-    for (i = 0; i < length; i++) {
-      var childElement = children[i];
-      var type;
-
-      if (childElement.hasAttribute('data-wl-type') && (type = childElement.getAttribute('data-wl-type')) !== 'stage') {
-
-        var childData = getDataObject(childElement);
-        parentDataObject.children.push(childData.id);
-        dataObjects.push(childData);
-
-        if (type !== options.stopAt) {
-          parseChildren(childData, childElement, dataObjects, options);
-        }
-      } else if (options.lookInNonLayerJsElements && !childElement.hasAttribute('data-wl-type')) {
-        nonLayerJsChildren.push(childElement);
-      }
-    }
-
-    length = nonLayerJsChildren.length;
-    for (i = 0; i < length; i++) {
-      parseChildren(parentDataObject, nonLayerJsChildren[i], dataObjects, options);
-    }
-  };
-
-  /**
-   * Parses a DOM element to a data object.
-   * Asks the repository for an id if it is not provided
-   *
-   * @param {Object} element - a DOM element
-   * @returns {Object} a data object
-   */
-  var getDataObject = function(element) {
-    var dataObject = ObjView.parse(element);
-
-    if (dataObject.id === undefined) {
-      dataObject.id = repository.getId();
-      element.setAttribute('data-wl-id', dataObject.id);
-    }
-
-    return dataObject;
-  };
-
-  /**
-   * Parses a document for layerJs objects and adds them to the repository
-   *
-   * @param {Object} options - an options object
-   * @returns {void}
-   */
-  this.parseDocument = function(options) {
-    options = options || {
-      stopAt: 'frame',
-      lookInNonLayerJsElements: false
-    };
-
-    options.stopAt = options.stopAt || 'frame';
-    options.lookInNonLayerJsElements = options.lookInNonLayerJsElements || false;
+  this.parseDocument = function() {
 
     var stageElements = document.querySelectorAll("[data-wl-type='stage']");
-  //  var stageIDs = [];
-//    var dataObjects = [];
+
     var length = stageElements.length;
-    var index, stageElement;
 
-    for (index = 0; index < length; index++) {
-      stageElement = stageElements[index];
-      var stageView = pluginManager.createView('stage', {el: stageElement});
-
-  /*    dataObject = getDataObject(stageElement);
-      stageIDs.push(dataObject.id);
-      dataObject.children = [];
-
-      dataObjects.push(dataObject);*/
-
-    //  if (options.stopAt !== 'stage') {
-  //      parseChildren(dataObject, stageElement, dataObjects, options);
-//}
+    for (var index = 0; index < length; index++) {
+      pluginManager.createView('stage', {
+        el: stageElements[index]
+      });
     }
-
-    repository.importJSON(dataObjects, options.version || defaults.version);
-
   };
 };
 
 
 WL.parseManager = new ParseManager();
 module.exports = WL.parseManager;
-    //jshint ignore:end
