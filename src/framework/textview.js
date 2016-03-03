@@ -37,6 +37,12 @@ var TextView = ObjView.extend({
 
     this.enableObserver();
   },
+  /**
+   * Will create a dataobject based on a DOM element
+   *
+   * @param {element} DOM element to needs to be parsed
+   * @return  {data} a javascript data object
+   */
   parse: function(element) {
     var dataModel = ObjView.prototype.parse.call(this, element);
     dataModel.attributes.content = element.innerHTML;
