@@ -124,6 +124,18 @@ var LayerView = GroupView.extend({
     }
     Kern._extend(el.style, css);
     childView.enableObserver();
+  },
+  /**
+   * Will create a dataobject based on a DOM element
+   *
+   * @param {element} DOM element to needs to be parsed
+   * @return  {data} a javascript data object
+   */
+  parse: function(element) {
+    var dataModel = GroupView.prototype.parse.call(this, element);
+    dataModel.attributes.nativeScroll = element.childNodes.length === 1 && element.childNodes[0].getAttribute('data-wl-helper') === 'scroller';
+
+    return dataModel;
   }
 }, {
   Model: LayerData,

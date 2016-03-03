@@ -62,6 +62,28 @@ describe("LayerView", function() {
     type: 'layer'
   });
 
+  it('the Parse method will set nativeScroll to true if a scroller is found in the DOM element', function() {
+    var element = document.createElement('div');
+    element.innerHTML = "<div data-wl-helper='scroller'/>";
+
+
+    var layerView = new LayerView(new LayerView.Model({}));
+    var dataModel = layerView.parse(element);
+
+    expect(dataModel.attributes.nativeScroll).toBeTruthy();
+  });
+
+  it('the Parse method will set nativeScroll to false if no scroller is found in the DOM element', function() {
+    var element = document.createElement('div');
+    element.innerHTML = "<div/>";
+
+
+    var layerView = new LayerView(new LayerView.Model({}));
+    var dataModel = layerView.parse(element);
+
+    expect(dataModel.attributes.nativeScroll).toBeFalsy();
+  });
+
   ViewsGroup_parseChildrenTests({
     ViewType: LayerView,
     viewTypeName: 'LayerView',
