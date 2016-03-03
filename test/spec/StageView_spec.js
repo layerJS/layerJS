@@ -49,18 +49,16 @@ describe("StageView", function() {
     type: 'stage'
   });
 
-  xdescribe("will run when the layerView parse method runs", function() {
-    ViewsGroup_parseChildrenTests({
-      ViewType: StageView,
-      viewTypeName: 'StageView',
-      type: 'stage',
-      HTML: "<div id='100' data-wl-id='100' data-wl-type='stage'>" +
-        "<div id='element1'></div>" +
-        "<div id='101' data-wl-id='101' data-wl-type='layer'></div>" +
-        "<div id='element2'></div>" +
-        "<div id='102' data-wl-id='102' data-wl-type='layer'></div>" +
-        "<div id='element3'></div>",
-      expectedChildren: ['101', '102']
-    });
+  ViewsGroup_parseChildrenTests({
+    ViewType: StageView,
+    viewTypeName: 'StageView',
+    type: 'stage',
+    HTML: "<div id='100' data-wl-id='100' data-wl-type='stage'>" +
+      "<div id='element1'></div>" +
+      "<div id='101' data-wl-id='101' data-wl-type='layer'></div>" +
+      "<div id='element2'></div>" +
+      "<div id='102' data-wl-id='102' data-wl-type='layer'></div>" +
+      "<div id='element3'></div>",
+    expectedChildren: ['101', '102']
   });
 })

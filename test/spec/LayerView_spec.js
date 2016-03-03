@@ -56,12 +56,10 @@ describe("LayerView", function() {
     };
   });
 
-  xdescribe("will run when the layerView parse method runs", function() {
-    ViewsCommonParseTests({
-      ViewType: LayerView,
-      viewTypeName: 'LayerView',
-      type: 'layer'
-    });
+  ViewsCommonParseTests({
+    ViewType: LayerView,
+    viewTypeName: 'LayerView',
+    type: 'layer'
   });
 
   ViewsGroup_parseChildrenTests({

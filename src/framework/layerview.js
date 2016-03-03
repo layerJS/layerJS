@@ -19,30 +19,35 @@ var LayerView = GroupView.extend({
     var that = this;
     this.frames = {};
     this.inTransform = false;
-    this.layout = new(layoutManager.get(dataModel.attributes.layoutType))(this);
-    // we need to create the divs here instead of in the Objview constructor
-    this.outerEl = options.el || document.createElement(dataModel.attributes.tag || 'div');
-    // do we already have a scroller div?
-    var hasScroller = this.outerEl.childNodes.length === 1 && this.outerEl.childNodes[0].getAttribute('data-wl-helper') === 'scroller';
-    this.innerEl = this.outerEl;
-    // should we not have a scroller?
-    if (hasScroller && !dataModel.attributes.nativeScroll) $.unwrapChildren(this.outerEl);
-    // should we have a scroller but don't have one?
-    if (!hasScroller && dataModel.attributes.nativeScroll) {
-      // set el to scroller
-      this.innerEl = $.wrapChildren(this.outerEl);
-      hasScroller = true;
-    }
-    if (hasScroller) {
-      this.innerEl= this.outerEl.childNodes[0];
-    }
-    // mark scroller as scroller in HTML
-    if (hasScroller) this.innerEl.setAttribute('data-wl-helper', 'scroller');
-    // call super constructor
 
+
+    if (dataModel) {
+      // we need to create the divs here instead of in the Objview constructor
+      this.outerEl = options.el || document.createElement(dataModel.attributes.tag || 'div');
+      // do we already have a scroller div?
+      var hasScroller = this.outerEl.childNodes.length === 1 && this.outerEl.childNodes[0].getAttribute('data-wl-helper') === 'scroller';
+      this.innerEl = this.outerEl;
+      // should we not have a scroller?
+      if (hasScroller && !dataModel.attributes.nativeScroll) $.unwrapChildren(this.outerEl);
+      // should we have a scroller but don't have one?
+      if (!hasScroller && dataModel.attributes.nativeScroll) {
+        // set el to scroller
+        this.innerEl = $.wrapChildren(this.outerEl);
+        hasScroller = true;
+      }
+      if (hasScroller) {
+        this.innerEl = this.outerEl.childNodes[0];
+      }
+      // mark scroller as scroller in HTML
+      if (hasScroller) this.innerEl.setAttribute('data-wl-helper', 'scroller');
+    }
+
+    // call super constructor
     GroupView.call(this, dataModel, Kern._extend({}, options, {
       noRender: true
     }));
+
+    this.layout = new(layoutManager.get(this.data.attributes.layoutType))(this);
 
     // this is my stage and add listener to keep it updated
     this.stage = this.parent;
