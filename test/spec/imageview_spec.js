@@ -79,9 +79,10 @@ describe("ImageView", function() {
     var imageView = new ImageView(new ImageView.Model({}));
 
     var isFired = false;
-    imageView.data.on('change', function(model) {
+
+    imageView.render = function() {
       isFired = true;
-    });
+    };
 
     var returnedData = imageView.parse(element);
     expect(isFired).toBeFalsy();
@@ -92,5 +93,4 @@ describe("ImageView", function() {
     viewTypeName: 'ImageView',
     type: 'image'
   });
-
 });

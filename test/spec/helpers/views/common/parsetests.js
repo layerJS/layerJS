@@ -142,14 +142,13 @@ module.exports = function(options) {
       expect(data).toEqual(returnedData);
     });
 
-    it('the parse method doesn\'t generate a change event on the dataObjects', function() {
+    it('the parse method will not invoke a render when the dataObjects are updated', function() {
       var data = new DataType({});
       var view = new ViewType(data);
-
       var isFired = false;
-      data.on('change', function(model) {
+      view.render = function() {
         isFired = true;
-      });
+      };
 
       var returnedData = view.parse(element);
       expect(isFired).toBeFalsy();

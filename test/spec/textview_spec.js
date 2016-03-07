@@ -56,9 +56,9 @@ describe("TextView", function() {
     var textView = new TextView(new TextView.Model({}));
 
     var isFired = false;
-    textView.data.on('change', function(model) {
+    textView.render = function() {
       isFired = true;
-    });
+    };
 
     var returnedData = textView.parse(element);
     expect(isFired).toBeFalsy();

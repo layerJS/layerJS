@@ -34,9 +34,10 @@ var ObjView = Kern.EventManager.extend({
     var that = this;
     // The change event must change the properties of the HTMLElement el.
     this.data.on('change', function(model) {
-      if (model.changedAttributes.hasOwnProperty('width') || model.changedAttributes.hasOwnProperty('height')) that._fixedDimensions();
-      that.render();
-
+      if (!that._dataObserverCounter) {
+        if (model.changedAttributes.hasOwnProperty('width') || model.changedAttributes.hasOwnProperty('height')) that._fixedDimensions();
+        that.render();
+      }
     });
     this._fixedDimensions();
     // Only render the element when it is passed in the options
@@ -293,9 +294,9 @@ var ObjView = Kern.EventManager.extend({
 
     // modify existing data object if present
     if (this.data) {
-      this.data.silence();
+      this.disableDataObserver();
       this.data.set(data);
-      this.data.ignore();
+      this.enableDataObserver();
     }
 
     var returnedDataObject = this.data ? this.data : new this.constructor.Model(data); // this will find the correct data object class which will also set the correct type

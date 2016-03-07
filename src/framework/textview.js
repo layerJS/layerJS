@@ -45,9 +45,9 @@ var TextView = ObjView.extend({
    */
   parse: function(element) {
     var dataModel = ObjView.prototype.parse.call(this, element);
-    dataModel.silence();
+    this.disableDataObserver();
     dataModel.attributes.content = element.innerHTML;
-    dataModel.ignore();
+    this.enableDataObserver();
 
     return dataModel;
   }
