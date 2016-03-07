@@ -17,9 +17,9 @@ var LayerView = GroupView.extend({
   constructor: function(dataModel, options) {
     options = options || {};
     var that = this;
-    this.frames = {};
+    this._preparedTransitions = {};
     this.inTransform = false;
-    this.layout = new(layoutManager.get(dataModel.attributes.layoutType))(this);
+    this._layout = new(layoutManager.get(dataModel.attributes.layoutType))(this);
     // we need to create the divs here instead of in the Objview constructor
     this.outerEl = options.el || document.createElement(dataModel.attributes.tag || 'div');
     // do we already have a scroller div?
@@ -32,6 +32,12 @@ var LayerView = GroupView.extend({
       // set el to scroller
       this.innerEl = $.wrapChildren(this.outerEl);
       hasScroller = true;
+    }
+    if (hasScroller) {
+      this.innerEl = this.outerEl.childNodes[0];
+      this.outerEl.className += ' nativescroll';
+      //      Kern._extend(this.outerEl.style,{left:"0px",right:"0px",top:"0px",bottom:"0px"});
+      //      Kern._extend(this.innerEl.style,{left:"0px",right:"0px",top:"0px"});
     }
     // mark scroller as scroller in HTML
     if (hasScroller) this.innerEl.setAttribute('data-wl-helper', 'scroller');
@@ -54,8 +60,98 @@ var LayerView = GroupView.extend({
     }
 
     if (this.stage && this.currentFrame) this.stage.waitForDimensions().then(function() {
-      that.layout.init(that.stage);
+      that._layout.init(that.stage);
+      if (that.data.attributes.nativeScroll) {
+        that.innerEl.style.height = that.currentFrame.getTransformData(that.stage).height;
+      }
     });
+  },
+  /**
+   * make sure frame is rendered (i.e. has display: block)
+   * Later: make sure frame is loaded and added to document
+   * FIXME: should that go into layout?
+   *
+   * @param {Type} Name - Description
+   * @returns {Type} Description
+   */
+  _loadFrame: function(frame) {
+    var finished = new Kern.Promise();
+    if (document.body.contains(frame.outerEL) && frame.outerEL.style.display !== 'none') {
+      finished.resolve();
+    } else {
+      // FIXME: add to dom if not in dom
+      // set display block
+      frame.outerEl.style.display = 'block';
+      // frame should not be visible; opacity is the best as "visibility" can be reverted by nested elements
+      frame.outerEl.style.opacity = '0';
+      // wait until rendered;
+      $.postAnimationFrame(function() {
+        finished.resolve();
+      });
+    }
+    return finished;
+  },
+  /**
+   * Calculate all pre and post poisitions (for current frame and target frame). Place target frame at pre position
+   *
+   * @param {FrameView} frame - the target frame of the transition
+   * @param {Object} transition - the transition record
+   * @returns {Promise} promis which is resolved if target frame is positioned with value t containing the pre and post transforms
+   */
+  _prepareTransition: function(frame, transition) {
+    var that = this;
+    // check if transition is already prepared
+    var pt = this._preparedTransitions[frame.data.name];
+    if (pt && !pt._dirty) {
+      var p = new Kern.Promise();
+      p.resolve(pt);
+      return p;
+    }
+    // get target frame transformdata
+    var tfd = (pt && pt._transformData) || frame.getTransformData(that.stage, transition.startPosition);
+    // calculate target transform based on current and future scroll positions
+    var targetTransform;
+    if (frame.data.nativeScroll) {
+      // in nativescroll, the scroll position is not applied via transform, but we need to compensate for a displacement due to the different scrollTop/Left values in the current frame and the target frame. This displacement is set to 0 after correcting the scrollTop/Left in the transitionEnd listener in transitionTo()
+      var shiftX = (tfd.scrollX * tfd.scale || 0) - that.outerEl.scrollLeft;
+      var shiftY = (tfd.scrollY * tfd.scale || 0) - that.outerEl.scrollTop;
+      targetTransform = that._calculateScrollTransform(shiftX, shiftY);
+    } else {
+      // in transformscroll we add a transform representing the scroll position.
+      targetTransform = that._calculateScrollTransform(tfd.scrollX * tfd.scale, tfd.scrollY * tfd.scale);
+    }
+    // if transition was prepared but is _dirty
+    if (pt) {
+      return this._layout.updateTransition(frame, pt._layoutData, this._currentTransform, targetTransform).then(function(t) {
+        // new preposition have bee applied, now update preparedTransition record
+        delete pt._dirty;
+        pt._layoutData = t;
+        pt._transform = targetTransform;
+        return pt;
+      });
+    }
+    // we need to calculate a full
+    // ensure frame is there
+    return this._loadFrame(frame).then(function() {
+      //return a promis for setting intial target frame position
+      return that._layout.prepareTransition(frame, transition.type || "default", that._currentFrameTransformData, tfd, that._currentTransform, targetTransform);
+    }).then(function(t) {
+      // store prepared transition information
+      return (that._preparedTransitions[frame.data.name] = {
+        _transformData: tfd,
+        _transform: targetTransform,
+        _layoutData: t
+      });
+    });
+  },
+  /**
+   * internal function
+   *
+   * @param {Type} Name - Description
+   * @returns {Type} Description
+   */
+  _calculateScrollTransform: function(scrollX, scrollY) {
+    return "translate3d(" + scrollX + "px," + scrollY + "px,0px)";
   },
   /**
    * transform to a given frame in this layer with given transition
@@ -77,23 +173,23 @@ var LayerView = GroupView.extend({
     if (!framename) throw "transformTo: no frame given";
     var frame = this.getChildViewByName(framename);
     if (!frame) throw "transformTo: " + framename + " does not exist in layer";
-    var transformData = frame.getTransformData(this.stage, transition.startPosition);
-    // calculate additional shift resulting from the current native scroll.
-    var shift = {};
-    if (this.data.attributes.nativeScroll) {
-      shift.x = (transformData.scrollX || 0) - this.outerEl.scrollLeft;
-      shift.x = (transformData.scrollY || 0) - this.outerEl.scrollTop;
-      transformData.scrollX = 0; // should we save that somewhere? can scrollTop/LEft change during transition? probably.
-      transformData.scrollY = 0;
-      // shoud we remove maxScroll* ?
-    }
-    this.inTransform = true;
     var that = this;
-    this.layout.transitionTo(frame, transition, this.currentFrame.getTransformData(this.stage), transformData).then(function() {
-      // now that the transform finished we have to update the shift (transform ) and the scrollTop/Left and update length when native scrolling
-      that.inTransform = false;
+    this._prepareTransition(frame, transition).then(function(preparedTransition) {
+      that.inTransform = true;
+      that._layout.executeTransition(frame, transition, preparedTransition._layoutData, that._currentTransform, preparedTransition._transform).then(function() {
+        // now that the transform finished we have to update the shift (transform ) and the scrollTop/Left and update length when native scrolling
+        console.log(that.currentFrame.data.attributes.name);
+        that.inTransform = false;
+        if (that.data.attributes.nativeScroll) {
+          that.innerEl.style.height = that.currentFrame.getTransformData(that.stage).height;
+        }
+      });
+      // set information of new current frame
+      // NOTE: this happens before the transition ends!
+      that.currentFrame = frame;
+      that._currentFrameTransformData = preparedTransition._transformData;
+      that._currentTransform = preparedTransition._transform;
     });
-    this.currentFrame = frame;
   },
   /**
    * overriden default behavior of groupview
@@ -103,18 +199,7 @@ var LayerView = GroupView.extend({
    */
   _renderChildPosition: function(childView) {
     childView.disableObserver();
-    var attr = childView.data.attributes,
-      diff = childView.data.changedAttributes || childView.data.attributes,
-      el = childView.outerEl;
-    var css = {};
-    // just do width & height for now; FIXME
-    if ('width' in diff && attr.width !== undefined) {
-      css.width = attr.width;
-    }
-    if ('height' in diff && attr.height !== undefined) {
-      css.height = attr.height;
-    }
-    Kern._extend(el.style, css);
+    this._layout.positionFrame(childView);
     childView.enableObserver();
   }
 }, {
