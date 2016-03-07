@@ -176,7 +176,7 @@ var ObjView = Kern.EventManager.extend({
   applyStyles: function() {
     this.disableObserver();
     var len = arguments.length;
-    for (var j = 1; j < len; j++) {
+    for (var j = 0; j < len; j++) {
       var props = Object.keys(arguments[j]); // this does not run through the prototype chain; also does not return special
       for (var i = 0; i < props.length; i++) {
         this.outerEl.style[$.cssPrefix[props[i]] || props[i]] = arguments[j][props[i]];
