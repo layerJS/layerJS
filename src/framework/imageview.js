@@ -53,8 +53,10 @@ var ImageView = ObjView.extend({
     var src = element.getAttribute('src');
     var alt = element.getAttribute('alt');
 
+    dataModel.silence();
     dataModel.attributes.src = src ? src.replace(WL.imagePath, '') : undefined;
     dataModel.attributes.alt = alt ? alt : undefined;
+    dataModel.ignore();
 
     return dataModel;
   }

@@ -51,7 +51,7 @@ module.exports = function(options) {
       expect(dataObject).toBeDefined();
     });
 
-    it('has a parse methode that will update the current dataObject and will return it', function() {
+    it('has a parse method that will update the current dataObject and will return it', function() {
       var data = new DataType({});
       var view = new ViewType(data);
       var returnedData = view.parse(element);
@@ -73,7 +73,7 @@ module.exports = function(options) {
       expect(data.attributes.height).toBe('200px');
     });
 
-    it('when the view doesn\'t have a  dataObject set,the parse methode will create a new dataObject return it', function() {
+    it('when the view doesn\'t have a  dataObject set,the parse method will create a new dataObject return it', function() {
       var data = new DataType({});
       var view = new ViewType(data);
       view.data = null;
@@ -110,7 +110,7 @@ module.exports = function(options) {
       expect(data.attributes.custom).toBeUndefined();
     });
 
-    it('has a parse methode doesn\' t find a data-wl-id, it will create one', function() {
+    it('has a parse method doesn\' t find a data-wl-id, it will create one', function() {
       var data = new DataType({});
       var view = new ViewType(data);
       element.removeAttribute('data-wl-id');
@@ -133,13 +133,26 @@ module.exports = function(options) {
       expect(data.attributes.height).toBe('200px');
     });
 
-    it('the parse methode will add the dataObjects to the repository if it isn\'t already added', function() {
+    it('the parse method  will add the dataObjects to the repository if it isn\'t already added', function() {
       var view = new ViewType(new DataType({}));
 
       var returnedData = view.parse(element);
       var data = repository.get(returnedData.attributes.id, returnedData.attributes.version);
 
       expect(data).toEqual(returnedData);
+    });
+
+    it('the parse method doesn\'t generate a change event on the dataObjects', function() {
+      var data = new DataType({});
+      var view = new ViewType(data);
+
+      var isFired = false;
+      data.on('change', function(model) {
+        isFired = true;
+      });
+
+      var returnedData = view.parse(element);
+      expect(isFired).toBeFalsy();
     });
   });
 };

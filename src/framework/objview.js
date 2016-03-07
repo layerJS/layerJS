@@ -293,7 +293,9 @@ var ObjView = Kern.EventManager.extend({
 
     // modify existing data object if present
     if (this.data) {
+      this.data.silence();
       this.data.set(data);
+      this.data.ignore();
     }
 
     var returnedDataObject = this.data ? this.data : new this.constructor.Model(data); // this will find the correct data object class which will also set the correct type

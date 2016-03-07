@@ -49,6 +49,21 @@ describe("TextView", function() {
     expect(dataModel.attributes.content).toBe('some content');
   });
 
+  it('the parse method doesn\'t generate a change event on the dataObjects', function() {
+    var element = document.createElement('div');
+    element.innerHTML = 'some content';
+
+    var textView = new TextView(new TextView.Model({}));
+
+    var isFired = false;
+    textView.data.on('change', function(model) {
+      isFired = true;
+    });
+
+    var returnedData = textView.parse(element);
+    expect(isFired).toBeFalsy();
+  });
+
   ViewsCommonParseTests({
     ViewType: TextView,
     viewTypeName: 'TextView',

@@ -71,6 +71,22 @@ describe("ImageView", function() {
     expect(dataModel.attributes.alt).toBe('some alt');
   });
 
+  it('the parse method doesn\'t generate a change event on the dataObjects', function() {
+    var element = document.createElement('img');
+    element.setAttribute('alt', 'some alt');
+    element.setAttribute('src', 'some source');
+
+    var imageView = new ImageView(new ImageView.Model({}));
+
+    var isFired = false;
+    imageView.data.on('change', function(model) {
+      isFired = true;
+    });
+
+    var returnedData = imageView.parse(element);
+    expect(isFired).toBeFalsy();
+  });
+
   ViewsCommonParseTests({
     ViewType: ImageView,
     viewTypeName: 'ImageView',
