@@ -170,17 +170,18 @@ var ObjView = Kern.EventManager.extend({
   /**
    * apply CSS styles to this view
    *
-   * @param {Type} Name - Description
+   * @param {Object} arguments - List of styles that should be applied
    * @returns {Type} Description
    */
-  applyStyles: function(styles) {
+  applyStyles: function() {
     this.disableObserver();
-
-    var props = Object.keys(styles);
-    for (var i = 0; i < props.length; i++) {
-      this.outerEl.style[$.cssPrefix[props[i]] || props[i]] = styles[props[i]];
+    var len = arguments.length;
+    for (var j = 1; j < len; j++) {
+      var props = Object.keys(arguments[j]); // this does not run through the prototype chain; also does not return special
+      for (var i = 0; i < props.length; i++) {
+        this.outerEl.style[$.cssPrefix[props[i]] || props[i]] = arguments[j][props[i]];
+      }
     }
-
     this.enableObserver();
   },
   /**
