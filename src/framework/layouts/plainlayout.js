@@ -21,19 +21,23 @@ var PlainLayout = LayerLayout.extend({
     };
   },
   /**
-   * initial layout of all visible frames when this layout engine becomes active
+   * transforms immidiately to the specified frame. hides all other frames
    *
-   * @returns {Type} Description
+   * @param {FrameView} frame - the frame to activate
+   * @param {Object} transfromData - transform data of current frame
+   * @param {string} transform - a string representing the scroll transform of the current frame
+   * @returns {void}
    */
-  init: function(stage) {
+  setFrame: function(frame, transformData, transform) {
     for (var i = 0; i < this.layer.innerEl.children.length; i++) {
       this.layer.innerEl.children[i].style.display = 'none';
     }
-    if (this.layer.currentFrame) {
-      this.layer.currentFrame.outerEl.style.display = '';
-      var t = this.swipeTransition(undefined, PlainLayout.IT, null, this.layer.currentFrame.getTransformData(stage));
-      this.layer.currentFrame.applyStyles(t.t1);
-    }
+    var t = this.swipeTransition(undefined, PlainLayout.TT1, null, transformData);
+    this._applyTransform(frame, t.t1, transform, {
+      display: '',
+      opacity: 1,
+      visibility: ''
+    });
   },
   /**
    * transition to a specified frame with given transition. The transitions needs to be prepared with prepareTransition().
@@ -136,6 +140,7 @@ var PlainLayout = LayerLayout.extend({
       };
     }
     switch (type) {
+      case 'default':
       case 'left':
         // target frame transform time 0
         if (which & PlainLayout.TT0) { // jshint ignore:line
@@ -231,7 +236,6 @@ var PlainLayout = LayerLayout.extend({
   CT1: 8, // current frame transform time 0
   PT: 16, // requesting parametric form
   DT: 11, // default transforms: TT0, TT1, CT1
-  IT: 2 // for initial transform only TT1 is needed.
 });
 
 layoutManager.registerType('plain', PlainLayout);

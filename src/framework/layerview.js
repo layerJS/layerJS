@@ -58,12 +58,55 @@ var LayerView = GroupView.extend({
     if (!options.noRender && (options.forceRender || !options.el)) {
       this.render();
     }
-
-    if (this.stage && this.currentFrame) this.stage.waitForDimensions().then(function() {
-      that._layout.init(that.stage);
-      if (that.data.attributes.nativeScroll) {
-        that.innerEl.style.height = that.currentFrame.getTransformData(that.stage).height;
+    if (this.currentFrame) {
+      this.setFrame(this.currentFrame.data.attributes.name);
+    }
+  },
+  /**
+   * set current frame immidiately without transition/animation
+   *
+   * @param {string} framename - the frame to be active
+   * @returns {void}
+   */
+  setFrame: function(framename) {
+    if (!this.stage) {
+      return;
+    }
+    var that = this;
+    var frame = this.getChildViewByName(framename);
+    if (!frame) throw "transformTo: " + framename + " does not exist in layer";
+    this._loadFrame(frame).then(function() {
+      // make sure that stage (and assumably also the frame) have been rendered and hence have dimension even without fixed width/height properties.
+      // NOTE: _loadFrame() will not ensure this if the frame is already in place and has not diplay:none
+      return that.stage.waitForDimensions();
+    }).then(function() {
+      that.currentFrame = frame;
+      var tfd = that._currentFrameTransformData = frame.getTransformData(that.stage);
+      if (frame.data.attributes.nativeScroll) {
+        that._currentTransform = that._calculateScrollTransform(0, 0); // no transforms as scrolling is achieved by native scrolling
+        // set inner size to set up native scrolling
+        // FIXME: we shouldn't set the dimension in that we don't scroll
+        if (tfd.isScrollY) {
+          that.innerEl.style.height = tfd.height;
+        } else {
+          that.innerEl.style.height = "100%";
+        }
+        if (tfd.isScrollX) {
+          that.innerEl.style.width = tfd.width;
+        } else {
+          that.innerEl.style.width = "100%";
+        }
+        // apply inital scroll position
+        that.outerEl.scrollLeft = tfd.scrollX * tfd.scale;
+        that.outerEl.scrollTop = tfd.scrollY * tfd.scale;
+      } else {
+        // in transformscroll we add a transform representing the scroll position.
+        that.innerEl.style.height = 0;
+        that.innerEl.style.width = 0;
+        that._currentTransform = that._calculateScrollTransform(tfd.scrollX * tfd.scale, tfd.scrollY * tfd.scale);
       }
+      // now perfom immidiate transformation
+      that._layout.setFrame(frame, that._currentFrameTransformData, that._currentTransform);
     });
   },
   /**
@@ -76,7 +119,7 @@ var LayerView = GroupView.extend({
    */
   _loadFrame: function(frame) {
     var finished = new Kern.Promise();
-    if (document.body.contains(frame.outerEL) && frame.outerEL.style.display !== 'none') {
+    if (document.body.contains(frame.outerEl) && window.getComputedStyle(frame.outerEl).display !== 'none') {
       finished.resolve();
     } else {
       // FIXME: add to dom if not in dom
@@ -101,7 +144,7 @@ var LayerView = GroupView.extend({
   _prepareTransition: function(frame, transition) {
     var that = this;
     // check if transition is already prepared
-    var pt = this._preparedTransitions[frame.data.name];
+    var pt = this._preparedTransitions[frame.data.attributes.name];
     if (pt && !pt._dirty) {
       var p = new Kern.Promise();
       p.resolve(pt);
@@ -111,7 +154,7 @@ var LayerView = GroupView.extend({
     var tfd = (pt && pt._transformData) || frame.getTransformData(that.stage, transition.startPosition);
     // calculate target transform based on current and future scroll positions
     var targetTransform;
-    if (frame.data.nativeScroll) {
+    if (frame.data.attributes.nativeScroll) {
       // in nativescroll, the scroll position is not applied via transform, but we need to compensate for a displacement due to the different scrollTop/Left values in the current frame and the target frame. This displacement is set to 0 after correcting the scrollTop/Left in the transitionEnd listener in transitionTo()
       var shiftX = (tfd.scrollX * tfd.scale || 0) - that.outerEl.scrollLeft;
       var shiftY = (tfd.scrollY * tfd.scale || 0) - that.outerEl.scrollTop;
@@ -137,7 +180,7 @@ var LayerView = GroupView.extend({
       return that._layout.prepareTransition(frame, transition.type || "default", that._currentFrameTransformData, tfd, that._currentTransform, targetTransform);
     }).then(function(t) {
       // store prepared transition information
-      return (that._preparedTransitions[frame.data.name] = {
+      return (that._preparedTransitions[frame.data.attributes.name] = {
         _transformData: tfd,
         _transform: targetTransform,
         _layoutData: t
@@ -168,6 +211,7 @@ var LayerView = GroupView.extend({
     }
     transition = transition || {
       type: 'default'
+        // FIXME: add more default values like timing
     };
     framename = framename || transition.framename;
     if (!framename) throw "transformTo: no frame given";
