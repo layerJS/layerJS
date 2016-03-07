@@ -34,7 +34,7 @@ var FrameView = GroupView.extend({
     var d = this.transformData;
     if (!d || d.stage !== stage || (transitionStartPosition && transitionStartPosition !== d.startPosition)) {
       // calculate transformData
-      return this.calculateTransformData(stage, transitionStartPosition);
+      return (this.transformData = this.calculateTransformData(stage, transitionStartPosition));
     }
     return d;
   },
@@ -160,6 +160,7 @@ var FrameView = GroupView.extend({
           if (d.scrollY < 0) {
             d.shiftY = d.scrollY;
             d.scrollY = 0;
+            // FIXME disable isScrollY????
           }
         }
         break;
