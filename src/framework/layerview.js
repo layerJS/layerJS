@@ -58,9 +58,20 @@ var LayerView = GroupView.extend({
     if (!options.noRender && (options.forceRender || !options.el)) {
       this.render();
     }
+    // set the initial frame if possible
     if (this.currentFrame) {
       this.setFrame(this.currentFrame.data.attributes.name);
     }
+    // listen to scroll events
+    this.outerEl.addEventListener('scroll', function() {
+      var keys = Object.keys(that._preparedTransitions);
+      var i;
+      for (i = 0; i < keys.length; i++) {
+        // mark prepared transitions direty because they assume a wrong scroll transform
+        // don't delete prepared transitions because everything else is still valid
+        that._preparedTransitions[i]._dirty = true;
+      }
+    });
   },
   /**
    * set current frame immidiately without transition/animation
@@ -150,40 +161,40 @@ var LayerView = GroupView.extend({
       p.resolve(pt);
       return p;
     }
-    // get target frame transformdata
-    var tfd = (pt && pt._transformData) || frame.getTransformData(that.stage, transition.startPosition);
-    // calculate target transform based on current and future scroll positions
-    var targetTransform;
-    if (frame.data.attributes.nativeScroll) {
-      // in nativescroll, the scroll position is not applied via transform, but we need to compensate for a displacement due to the different scrollTop/Left values in the current frame and the target frame. This displacement is set to 0 after correcting the scrollTop/Left in the transitionEnd listener in transitionTo()
-      var shiftX = (tfd.scrollX * tfd.scale || 0) - that.outerEl.scrollLeft;
-      var shiftY = (tfd.scrollY * tfd.scale || 0) - that.outerEl.scrollTop;
-      targetTransform = that._calculateScrollTransform(shiftX, shiftY);
-    } else {
-      // in transformscroll we add a transform representing the scroll position.
-      targetTransform = that._calculateScrollTransform(tfd.scrollX * tfd.scale, tfd.scrollY * tfd.scale);
-    }
-    // if transition was prepared but is _dirty
-    if (pt) {
-      return this._layout.updateTransition(frame, pt._layoutData, this._currentTransform, targetTransform).then(function(t) {
-        // new preposition have bee applied, now update preparedTransition record
-        delete pt._dirty;
-        pt._layoutData = t;
-        pt._transform = targetTransform;
-        return pt;
-      });
-    }
-    // we need to calculate a full
     // ensure frame is there
     return this._loadFrame(frame).then(function() {
-      //return a promis for setting intial target frame position
-      return that._layout.prepareTransition(frame, transition.type || "default", that._currentFrameTransformData, tfd, that._currentTransform, targetTransform);
-    }).then(function(t) {
-      // store prepared transition information
-      return (that._preparedTransitions[frame.data.attributes.name] = {
-        _transformData: tfd,
-        _transform: targetTransform,
-        _layoutData: t
+      // get target frame transformdata
+      var tfd = (pt && pt._transformData) || frame.getTransformData(that.stage, transition.startPosition);
+      // calculate target transform based on current and future scroll positions
+      var targetTransform;
+      if (frame.data.attributes.nativeScroll) {
+        // in nativescroll, the scroll position is not applied via transform, but we need to compensate for a displacement due to the different scrollTop/Left values in the current frame and the target frame. This displacement is set to 0 after correcting the scrollTop/Left in the transitionEnd listener in transitionTo()
+        var shiftX = that.outerEl.scrollLeft - (tfd.scrollX * tfd.scale || 0);
+        var shiftY = that.outerEl.scrollTop - (tfd.scrollY * tfd.scale || 0);
+        targetTransform = that._calculateScrollTransform(shiftX, shiftY);
+      } else {
+        // in transformscroll we add a transform representing the scroll position.
+        targetTransform = that._calculateScrollTransform(tfd.scrollX * tfd.scale, tfd.scrollY * tfd.scale);
+      }
+      // if transition was prepared but is _dirty
+      if (pt) {
+        return this._layout.updateTransition(frame, pt._layoutData, this._currentTransform, targetTransform).then(function(t) {
+          // new preposition have bee applied, now update preparedTransition record
+          delete pt._dirty;
+          pt._layoutData = t;
+          pt._transform = targetTransform;
+          return pt;
+        });
+      }
+      // we need to calculate a full
+      //return a promise for setting intial target frame position
+      return that._layout.prepareTransition(frame, transition.type || "default", that._currentFrameTransformData, tfd, that._currentTransform, targetTransform).then(function(t) {
+        // store prepared transition information
+        return (that._preparedTransitions[frame.data.attributes.name] = {
+          _transformData: tfd,
+          _transform: targetTransform,
+          _layoutData: t
+        });
       });
     });
   },
@@ -220,17 +231,35 @@ var LayerView = GroupView.extend({
     var that = this;
     this._prepareTransition(frame, transition).then(function(preparedTransition) {
       that.inTransform = true;
+      // var ctfd = that._currentFrameTransformData;
+      var tfd = preparedTransition._transformData;
       that._layout.executeTransition(frame, transition, preparedTransition._layoutData, that._currentTransform, preparedTransition._transform).then(function() {
         // now that the transform finished we have to update the shift (transform ) and the scrollTop/Left and update length when native scrolling
         console.log(that.currentFrame.data.attributes.name);
         that.inTransform = false;
         if (that.data.attributes.nativeScroll) {
-          that.innerEl.style.height = that.currentFrame.getTransformData(that.stage).height;
+          // transform in native scroll should be 0 (was set differently during transition to compansate old scroll position)
+          that._layout.setTransform(that._calculateScrollTransform(0, 0), tfd);
+          if (tfd.isScrollY) {
+            that.innerEl.style.height = tfd.height;
+            that.outerEl.scrollTop = tfd.scrollY;
+          } else {
+            that.innerEl.style.height = "100%";
+            that.outerEl.scrollTop = 0;
+          }
+          if (tfd.isScrollX) {
+            that.innerEl.style.width = tfd.width;
+            that.outerEl.scrollLeft = tfd.scrollX;
+          } else {
+            that.innerEl.style.width = "100%";
+            that.outerEl.scrollLeft = 0;
+          }
         }
       });
       // set information of new current frame
       // NOTE: this happens before the transition ends!
       that.currentFrame = frame;
+      that._preparedTransitions = {};
       that._currentFrameTransformData = preparedTransition._transformData;
       that._currentTransform = preparedTransition._transform;
     });

@@ -105,6 +105,17 @@ var PlainLayout = LayerLayout.extend({
     return finished;
   },
   /**
+   * define the scrolling transform on current frame
+   *
+   * @param {String} transform - the scrolling transform
+   * @returns {Type} Description
+   */
+  setTransform: function(transform, currentFrameTransformData) {
+    // FIXME: layout should store the t.c0 somehow
+    var t = this.swipeTransition(undefined, PlainLayout.CT0, currentFrameTransformData, null);
+    this._applyTransform(this.layer.currentFrame, t.c0, transform);
+  },
+  /**
    * apply transform by combining the frames base transform with the added scroll transform
    *
    * @param {FrameView} frame - the frame that should be transformed
@@ -114,8 +125,8 @@ var PlainLayout = LayerLayout.extend({
    * @returns {void}
    */
   _applyTransform: function(frame, baseTransform, addedTransform, styles) {
-    frame.applyStyles(styles, baseTransform, {
-      transform: baseTransform.transform + " " + addedTransform
+    frame.applyStyles(styles || {}, baseTransform, {
+      transform: addedTransform + " " + baseTransform.transform
     });
   },
   /**
@@ -139,6 +150,14 @@ var PlainLayout = LayerLayout.extend({
         'transform-origin': "0 0"
       };
     }
+    if (which & PlainLayout.CT0) { // jshint ignore:line
+      x = -currentFrameTransformData.shiftX;
+      y = -currentFrameTransformData.shiftY;
+      t.c0 = {
+        transform: "translate3d(" + x + "px," + y + "px,0px) scale(" + currentFrameTransformData.scale + ")",
+        'transform-origin': "0 0"
+      };
+    }
     switch (type) {
       case 'default':
       case 'left':
@@ -147,6 +166,7 @@ var PlainLayout = LayerLayout.extend({
           x = currentFrameTransformData.width - currentFrameTransformData.shiftX;
           y = -targetFrameTransformData.shiftY;
           t.t0 = {
+            // FIXME: translate and scale may actually be swapped here, not tested yet as shift was always zero so far!!!
             transform: "translate3d(" + x + "px," + y + "px,0px) scale(" + targetFrameTransformData.scale + ")",
             'transform-origin': "0 0"
           };
