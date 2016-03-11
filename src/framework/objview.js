@@ -253,7 +253,25 @@ var ObjView = Kern.EventManager.extend({
     for (index = 0; index < length; index++) {
       var attribute = attributes[index];
       if (attribute.name.indexOf('data-wl-') === 0) {
-        data[attribute.name.replace('data-wl-', '')] = attribute.value;
+        var attributeName = attribute.name.replace('data-wl-', '');
+
+        attributeName = attributeName.replace(/(\-[a-z])/g, function($1) {
+          return $1.toUpperCase().replace('-', '');
+        });
+
+        if (attributeName.indexOf('.') === -1) {
+          data[attributeName] = attribute.value;
+        } else {
+          var attributeNames = attributeName.split('.');
+          var attributesNamesLength = attributeNames.length;
+          var attributeObj = data;
+          for (var i = 0; i < attributesNamesLength; i++) {
+            if (!attributeObj.hasOwnProperty(attributeNames[i])) {
+              attributeObj[attributeNames[i]] = (i === attributesNamesLength - 1) ? attribute.value : {};
+            }
+            attributeObj = attributeObj[attributeNames[i]];
+          }
+        }
       }
     }
 

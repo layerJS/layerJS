@@ -96,18 +96,30 @@ module.exports = function(options) {
       expect(returnedData.attributes.height).toBe('200px');
     });
 
-    it('the Parse method will return a data object with all the data-wl-* attributes from a DOM element', function() {
+    it('the Parse method will return a data object with all the data-wl-* attributes (camelcased) from a DOM element', function() {
       element = document.createElement('div');
-      element.setAttribute('data-wl-someThing', '1');
-      element.setAttribute('data-wl-someThingElse', '2');
+      element.setAttribute('data-wl-some-thing', '1');
+      element.setAttribute('data-wl-some-thing-else', '2');
       element.setAttribute('data-custom', '3');
 
       var view = new ViewType(new DataType({}));
       var data = view.parse(element);
 
-      expect(data.attributes.something).toBe('1');
-      expect(data.attributes.somethingelse).toBe('2');
+      expect(data.attributes.someThing).toBe('1');
+      expect(data.attributes.someThingElse).toBe('2');
       expect(data.attributes.custom).toBeUndefined();
+    });
+
+    it('the Parse method will create a object with propertiesin the dataModel is the DOM element contains an attribute of formate data-wl-*.* ', function() {
+      element = document.createElement('div');
+      element.setAttribute('data-wl-some.thing', '1');
+      element.setAttribute('data-wl-some.thing-else', '2');
+
+      var view = new ViewType(new DataType({}));
+      var data = view.parse(element);
+
+      expect(data.attributes.some.thing).toBe('1');
+      expect(data.attributes.some.thingElse).toBe('2');
     });
 
     it('has a parse method doesn\' t find a data-wl-id, it will create one', function() {
