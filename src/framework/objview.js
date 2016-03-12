@@ -254,23 +254,24 @@ var ObjView = Kern.EventManager.extend({
       var attribute = attributes[index];
       if (attribute.name.indexOf('data-wl-') === 0) {
         var attributeName = attribute.name.replace('data-wl-', '');
+        var attributeValue = attribute.value;
+
+        if (attributeValue === 'true' || attributeValue === 'false') {
+          attributeValue = eval(attributeValue); // jshint ignore:line
+        }
 
         attributeName = attributeName.replace(/(\-[a-z])/g, function($1) {
           return $1.toUpperCase().replace('-', '');
         });
 
-        if (attributeName.indexOf('.') === -1) {
-          data[attributeName] = attribute.value;
-        } else {
-          var attributeNames = attributeName.split('.');
-          var attributesNamesLength = attributeNames.length;
-          var attributeObj = data;
-          for (var i = 0; i < attributesNamesLength; i++) {
-            if (!attributeObj.hasOwnProperty(attributeNames[i])) {
-              attributeObj[attributeNames[i]] = (i === attributesNamesLength - 1) ? attribute.value : {};
-            }
-            attributeObj = attributeObj[attributeNames[i]];
+        var attributeNames = attributeName.split('.');
+        var attributesNamesLength = attributeNames.length;
+        var attributeObj = data;
+        for (var i = 0; i < attributesNamesLength; i++) {
+          if (!attributeObj.hasOwnProperty(attributeNames[i])) {
+            attributeObj[attributeNames[i]] = (i === attributesNamesLength - 1) ? attributeValue : {};
           }
+          attributeObj = attributeObj[attributeNames[i]];
         }
       }
     }
