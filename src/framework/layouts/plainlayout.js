@@ -53,7 +53,8 @@ var PlainLayout = LayerLayout.extend({
     var finished = new Kern.Promise();
     var currentFrame = this.layer.currentFrame;
     console.log('now for real');
-    frame.outerEl.addEventListener("transitionend", function() { // FIXME needs webkitTransitionEnd etc
+    frame.outerEl.addEventListener("transitionend", function f(e) { // FIXME needs webkitTransitionEnd etc
+      e.target.removeEventListener(e.type, f); // remove event listener for transitionEnd. 
       currentFrame.applyStyles({
         transition: '',
         display: ''
