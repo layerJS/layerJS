@@ -2,7 +2,7 @@ var jsdom = require('jsdom').jsdom;
 var WL = require('../../src/framework/wl.js');
 var defaults = require('../../src/framework/defaults.js');
 
-describe('ParseMananger', function() {
+xdescribe('ParseMananger', function() {
 
   var repository = WL.repository;
   var parseManager = WL.parseManager;
@@ -55,12 +55,13 @@ describe('ParseMananger', function() {
     setHtml("<html><head><style id='wl-obj-css'></style></head><body>" +
       "<div data-wl-id='1' data-wl-type='stage'>" +
       "<div data-wl-id='2' data-wl-type='layer'>" +
-      "<div data-wl-id='3' data-wl-type='frame'>" +
+      "<div data-wl-id='3' data-wl-type='frame' data-wl-name='default'>" +
       "<div data-wl-id='4' data-wl-type='text'></div>" +
       "</div>" +
       "</div>" +
       "</div>" +
       "</body></html>");
+      debugger;
     parseManager.parseDocument();
 
     var stage = repository.get(1, defaults.version);
@@ -86,7 +87,7 @@ describe('ParseMananger', function() {
     setHtml("<html><head><style id='wl-obj-css'></style></head><body>" +
       "<div data-wl-id='1' data-wl-type='stage'>" +
       "<div data-wl-id='2' data-wl-type='layer'>" +
-      "<div data-wl-id='3' data-wl-type='frame'>" +
+      "<div data-wl-id='3' data-wl-type='frame' data-wl-name='default'>" +
       "<div data-wl-id='4' data-wl-type='text'></div>" +
       "</div>" +
       "</div>" +
