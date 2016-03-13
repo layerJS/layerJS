@@ -258,7 +258,8 @@ var LayerView = GroupView.extend({
         that.inTransform = false;
         if (that.data.attributes.nativeScroll) {
           // transform in native scroll should be 0 (was set differently during transition to compansate old scroll position)
-          that._layout.setTransform(that._calculateScrollTransform(0, 0), tfd);
+          var currentTransform = that._currentTransform = that._calculateScrollTransform(0, 0);
+          that._layout.setTransform(currentTransform, tfd);
           if (tfd.isScrollY) {
             that.innerEl.style.height = tfd.height;
             that.outerEl.scrollTop = tfd.scrollY;

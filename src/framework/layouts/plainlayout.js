@@ -54,10 +54,10 @@ var PlainLayout = LayerLayout.extend({
     var currentFrame = this.layer.currentFrame;
     console.log('now for real');
     frame.outerEl.addEventListener("transitionend", function f(e) { // FIXME needs webkitTransitionEnd etc
-      e.target.removeEventListener(e.type, f); // remove event listener for transitionEnd. 
+      e.target.removeEventListener(e.type, f); // remove event listener for transitionEnd.
       currentFrame.applyStyles({
         transition: '',
-        display: ''
+        display: 'none'
       });
       frame.applyStyles({
         transition: ''
@@ -70,7 +70,7 @@ var PlainLayout = LayerLayout.extend({
     this._applyTransform(currentFrame, t.c1, currentTransform, {
       transition: '2s'
     });
-    currentFrame.applyStyles(t.c1);
+    // currentFrame.applyStyles(t.c1);
     return finished;
   },
   /**
