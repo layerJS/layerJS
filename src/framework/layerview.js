@@ -199,6 +199,25 @@ var LayerView = GroupView.extend({
     });
   },
   /**
+   * temporary function that indicates whether scrolling in a "direction" is possible. This function is obsolete as the gesture handling will be different in future.
+   *
+   * @param {string} direction - direction of gesture e.g. "up"
+   * @returns {Boolean} true if it would scroll.
+   */
+  gestureCanScroll: function(direction) {
+    var tfd = this._currentFrameTransformData;
+    if (direction === 'up' && tfd.isScrollY && this.outerEl.scrollTop > 0) {
+      return true;
+    } else if (direction === 'down' && tfd.isScrollY && this.outerEl.scrollTop < tfd.maxScrollY) {
+      return true;
+    } else if (direction === 'left' && tfd.isScrollX && this.outerEl.scrollLeft > 0) {
+      return true;
+    } else if (direction === 'right' && tfd.isScrollX && this.outerEl.scrollLeft < tfd.maxScrollX) {
+      return true;
+    }
+    return false;
+  },
+  /**
    * internal function
    *
    * @param {Type} Name - Description

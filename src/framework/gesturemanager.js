@@ -64,7 +64,7 @@ var GestureManager = function() {
       direction = (distanceY < 0) ? 'up' : 'down';
     }
 
-    eventHandler(element, direction);
+    eventHandler(element, direction, e);
   };
 
   var lastGesture;
@@ -116,7 +116,7 @@ var GestureManager = function() {
         }
         console.log("tg + >", distanceX, distanceY);
         if (direction) {
-          eventHandler(element, direction);
+          eventHandler(element, direction, e);
         }
         fired = true;
       }
@@ -134,7 +134,7 @@ var GestureManager = function() {
         fired: false
       };
     }
-    e.preventDefault();
+    //e.preventDefault();
   };
 
   var addEventListeners = function(element) {
@@ -142,8 +142,8 @@ var GestureManager = function() {
     element.addEventListener('touchstart', startTouchHandler, false);
     element.addEventListener('mouseDown', startTouchHandler, false);
 
-    element.addEventListener('touchmove', function(e) {
-      e.preventDefault(); // prevent scrolling when inside DIV
+    element.addEventListener('touchmove', function(e) { // jshint ignore:line
+      //e.preventDefault(); // prevent scrolling when inside DIV
     }, false);
 
     element.addEventListener('touchend', function(e) {
@@ -162,13 +162,16 @@ var GestureManager = function() {
   };
 
   // Note: this function needs to be integrated into LayerView later
-  var eventHandler = function(element, direction) {
+  var eventHandler = function(element, direction, e) {
     //console.log(layerElement._wlView);
     var layerView = element._wlView;
     var currentFrameView = layerView.currentFrame;
     var targetFrameName = null;
     console.log(direction);
-
+    if (layerView.gestureCanScroll(direction)) {
+      return;
+    }
+    e.preventDefault();
     switch (direction) {
       case 'up':
         if (currentFrameView.data.attributes.neighbors && typeof currentFrameView.data.attributes.neighbors.u === 'string') {

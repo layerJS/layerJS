@@ -32,6 +32,8 @@
   <script src="../../dist/layerjs.js"></script>
   <script>
     WL.init();
+    document.querySelector('[data-wl-name="main"]')._wlView.data.set('neighbors',{l:'second',r:'second'});
+    document.querySelector('[data-wl-name="second"]')._wlView.data.set('neighbors',{l:'main',r:'main'});
     var frames = ['main', 'second'];
     var findex = 0;
     document.getElementById('next').addEventListener('click', function() {
