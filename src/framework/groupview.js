@@ -29,14 +29,14 @@ var GroupView = ObjView.extend({
       if (!view) throw "listing to datamodel changes that does not have a childview " + model.attributes.id + " in this group " + this.data.attributes.id;
       that._renderChildPosition(view);
       if (model.changedAttributes.hasOwnProperty('name')) { // did name change?
-        var names = Object.keys(that._childViews);
+        var names = Object.keys(that._childNames);
         for (var i = 0; i < names.length; i++) { // delete old reference
           if (that._childViews[names[i]] === view) {
             delete that._childViews[names[i]];
           }
         }
         if (model.attributes.name) {
-          this._childNames[model.attributes.name] = view;
+          that._childNames[model.attributes.name] = view;
         }
       }
     };
@@ -46,7 +46,10 @@ var GroupView = ObjView.extend({
     }));
 
     this.data.on('change:children', (function() {
-      if (!this._dataObserverCounter) that._buildChildren(); // update DOM when data.children changes
+      if (!this._dataObserverCounter) {
+        that._buildChildren(); // update DOM when data.children changes
+        that.render();
+      }
     }).bind(this));
 
     if (this.data.attributes.children && this.data.attributes.children.length > 0) {
@@ -58,7 +61,7 @@ var GroupView = ObjView.extend({
     }
 
     if (!options.noRender && (options.forceRender || !options.el))
-      this.render();
+      this.render(options);
   },
   /**
    * Syncronise the DOM child nodes with the data IDs in the data's
@@ -149,7 +152,7 @@ var GroupView = ObjView.extend({
         // set name
         if (newView.data.attributes.name) this._childNames[newView.data.attributes.name] = newView;
         newView.data.on('change', this._myChildListenerCallback); // attach child change listener
-        this._renderChildPosition(newView);
+        //this._renderChildPosition(newView);
       }
 
     // we checked/added all object in data.children. Are there more childNodes in DOM left?
@@ -378,17 +381,23 @@ var GroupView = ObjView.extend({
    * @returns {Type} Description
    */
   render: function(options) {
+    var i;
     options = options || {};
     this.disableObserver();
 
     ObjView.prototype.render.call(this, options);
 
-    if (options.forceRender && this.data.attributes.children) {
-      var length = this.data.attributes.children.length;
-      for (var i = 0; i < length; i++)
-        this._childViews[this.data.attributes.children[i]].render(options);
+    if (!this.data.changedAttributes || this.data.changedAttributes.children) {
+      var views = Object.keys(this._childViews);
+      var length = views.length;
+      for (i = 0; i < length; i++) {
+        var childView = this._childViews[views[i]];
+        if (options.forceRender) {
+          childView.render(options);
+        }
+        this._renderChildPosition(childView);
+      }
     }
-
     this.enableObserver();
   },
   /**
