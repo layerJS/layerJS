@@ -241,8 +241,7 @@ var FrameView = GroupView.extend({
     return (this.transformData = d);
   }
 }, {
-  Model: FrameData,
-  parse: GroupView.parse
+  Model: FrameData
 });
 
 pluginManager.registerType('frame', FrameView);

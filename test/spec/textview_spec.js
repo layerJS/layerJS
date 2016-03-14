@@ -5,6 +5,8 @@ var TextData = require('../../src/framework/textdata.js');
 var TextView = require('../../src/framework/textview.js');
 var pluginManager = require('../../src/framework/pluginmanager.js');
 
+var ViewsCommonParseTests = require('./helpers/views/common/parsetests.js');
+
 describe("TextView", function() {
 
   var datasetReader = new DatasetReader();
@@ -41,8 +43,30 @@ describe("TextView", function() {
     var element = document.createElement('div');
     element.innerHTML = 'some content';
 
-    var dataObject = TextView.parse(element);
+    var textView = new TextView(new TextView.Model({}));
+    var dataModel = textView.parse(element);
 
-    expect(dataObject.content).toBe('some content');
+    expect(dataModel.attributes.content).toBe('some content');
+  });
+
+  it('the parse method doesn\'t generate a change event on the dataObjects', function() {
+    var element = document.createElement('div');
+    element.innerHTML = 'some content';
+
+    var textView = new TextView(new TextView.Model({}));
+
+    var isFired = false;
+    textView.render = function() {
+      isFired = true;
+    };
+
+    var returnedData = textView.parse(element);
+    expect(isFired).toBeFalsy();
+  });
+
+  ViewsCommonParseTests({
+    ViewType: TextView,
+    viewTypeName: 'TextView',
+    type: 'text'
   });
 });

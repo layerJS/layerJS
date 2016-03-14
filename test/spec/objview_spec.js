@@ -4,6 +4,8 @@ var ObjData = require('../../src/framework/objdata.js');
 var DatasetReader = require('./helpers/datasetreader.js');
 var CommonViewTests = require('./helpers/Commonviewtests.js');
 
+var ViewsCommonParseTests = require('./helpers/views/common/parsetests.js');
+
 describe("ObjView", function() {
 
   var datasetReader = new DatasetReader();
@@ -13,6 +15,12 @@ describe("ObjView", function() {
     document = global.document = jsdom("<html><head><style id='wl-obj-css'></style></head><body><div id='outer'><div id='6'></div><div id='7'></div></div></body></html>");
     window = global.window = document.defaultView;
     $ = document.querySelector;
+  });
+
+  ViewsCommonParseTests({
+    ViewType: ObjView,
+    viewTypeName: 'ObjView',
+    type: 'node'
   });
 
   CommonViewTests('simple_objdata.js', function() {

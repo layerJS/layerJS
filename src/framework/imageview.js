@@ -40,21 +40,28 @@ var ImageView = ObjView.extend({
     }
 
     this.enableObserver();
-  }
-
-}, {
-  Model: ImageData,
+  },
+  /**
+   * Will create a dataobject based on a DOM element
+   *
+   * @param {element} DOM element to needs to be parsed
+   * @return  {data} a javascript data object
+   */
   parse: function(element) {
-    var data = ObjView.parse(element);
+    var dataModel = ObjView.prototype.parse.call(this, element);
 
     var src = element.getAttribute('src');
     var alt = element.getAttribute('alt');
 
-    data.src = src ? src.replace(WL.imagePath, '') : undefined;
-    data.alt = alt ? alt : undefined;
+    this.disableDataObserver();
+    dataModel.attributes.src = src ? src.replace(WL.imagePath, '') : undefined;
+    dataModel.attributes.alt = alt ? alt : undefined;
+    this.enableDataObserver();
 
-    return data;
+    return dataModel;
   }
+}, {
+  Model: ImageData
 });
 
 

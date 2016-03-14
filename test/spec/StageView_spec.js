@@ -9,6 +9,10 @@ var GroupView_renderChildPositionTests = require('./helpers/groupview_renderchil
 var Common_renderChildPositionTests = require('./helpers/common_renderchildpositiontests.js');
 var DatasetReader = require('./helpers/datasetreader.js');
 
+var ViewsCommonParseTests = require('./helpers/views/common/parsetests.js');
+var ViewsGroup_parseChildrenTests = require('./helpers/views/group/_parseChildrentests.js');
+
+
 describe("StageView", function() {
 
   var document, window, $;
@@ -39,5 +43,22 @@ describe("StageView", function() {
     };
   });
 
+  ViewsCommonParseTests({
+    ViewType: StageView,
+    viewTypeName: 'StageView',
+    type: 'stage'
+  });
 
+  ViewsGroup_parseChildrenTests({
+    ViewType: StageView,
+    viewTypeName: 'StageView',
+    type: 'stage',
+    HTML: "<div id='100' data-wl-id='100' data-wl-type='stage'>" +
+      "<div id='element1'></div>" +
+      "<div id='101' data-wl-id='101' data-wl-type='layer'></div>" +
+      "<div id='element2'></div>" +
+      "<div id='102' data-wl-id='102' data-wl-type='layer'></div>" +
+      "<div id='element3'></div>",
+    expectedChildren: ['101', '102']
+  });
 })

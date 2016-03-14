@@ -19,33 +19,36 @@ var LayerView = GroupView.extend({
     var that = this;
     this._preparedTransitions = {};
     this.inTransform = false;
-    this._layout = new(layoutManager.get(dataModel.attributes.layoutType))(this);
-    // we need to create the divs here instead of in the Objview constructor
-    this.outerEl = options.el || document.createElement(dataModel.attributes.tag || 'div');
-    // do we already have a scroller div?
+
+    var tag = 'div';
+
+    if (dataModel) {
+      tag = dataModel.attributes.tag;
+    }
+    this.outerEl = options.el || document.createElement(tag);
+
     var hasScroller = this.outerEl.childNodes.length === 1 && this.outerEl.childNodes[0].getAttribute('data-wl-helper') === 'scroller';
     this.innerEl = this.outerEl;
-    // should we not have a scroller?
-    if (hasScroller && !dataModel.attributes.nativeScroll) $.unwrapChildren(this.outerEl);
+
+    // call super constructor
+    GroupView.call(this, dataModel, Kern._extend({}, options, {
+      noRender: true
+    }));
+
+    if (hasScroller && !this.data.attributes.nativeScroll) $.unwrapChildren(this.outerEl);
     // should we have a scroller but don't have one?
-    if (!hasScroller && dataModel.attributes.nativeScroll) {
+    if (!hasScroller && this.data.attributes.nativeScroll) {
       // set el to scroller
       this.innerEl = $.wrapChildren(this.outerEl);
       hasScroller = true;
     }
     if (hasScroller) {
       this.innerEl = this.outerEl.childNodes[0];
-      this.outerEl.className += ' nativescroll';
-      //      Kern._extend(this.outerEl.style,{left:"0px",right:"0px",top:"0px",bottom:"0px"});
-      //      Kern._extend(this.innerEl.style,{left:"0px",right:"0px",top:"0px"});
     }
     // mark scroller as scroller in HTML
     if (hasScroller) this.innerEl.setAttribute('data-wl-helper', 'scroller');
-    // call super constructor
 
-    GroupView.call(this, dataModel, Kern._extend({}, options, {
-      noRender: true
-    }));
+    this.layout = new(layoutManager.get(this.data.attributes.layoutType))(this);
 
     // this is my stage and add listener to keep it updated
     this.stage = this.parent;
@@ -285,6 +288,19 @@ var LayerView = GroupView.extend({
     });
   },
   /**
+   * Will render
+   *
+   * @param {object} render options
+   */
+  render: function(options) {
+    GroupView.prototype.render.call(this, options);
+    this.disableObserver();
+
+    this.outerEl.setAttribute('data-wl-native-scroll', this.data.attributes.nativeScroll);
+
+    this.enableObserver();
+  },
+  /**
    * overriden default behavior of groupview
    *
    * @param {ObjView} childView - the child view that has changed
@@ -296,8 +312,7 @@ var LayerView = GroupView.extend({
     childView.enableObserver();
   }
 }, {
-  Model: LayerData,
-  parse: GroupView.parse
+  Model: LayerData
 });
 
 pluginManager.registerType('layer', LayerView);

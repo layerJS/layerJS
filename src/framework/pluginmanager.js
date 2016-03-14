@@ -25,34 +25,20 @@ var PluginManager = Kern.EventManager.extend({
    * @returns {ObjView} the view object of type ObjView or a sub class
    */
   createView: function(model, options) {
-    var ObjView = require('./ObjView.js');
     // return existing view if the provided element already has one
-    if (options && options.el && options.el._wlView && options.el._wlView instanceof ObjView) {
+    if (options && options.el && options.el._wlView) {
       return options.el._wlView;
     }
-    if (model.attributes.type && this.map.hasOwnProperty(model.attributes.type)) {
+    if (typeof model === 'string') {
+      var type = model;
+      if (this.map.hasOwnProperty(type)) {
+        return new(this.map[type].view)(null, options);
+      }
+      throw "no constructor found for objects of type '" + type + "'";
+    } else if (model.attributes.type && this.map.hasOwnProperty(model.attributes.type)) {
       return new(this.map[model.attributes.type].view)(model, options);
     }
     throw "no constructor found for objects of type '" + model.attributes.type + "'";
-  },
-  /**
-   * create a View without data object, just by type. The data model will be inferred from the element by parsing.
-   *
-   * @param {string} type - the type to be created
-   * @param {Object} options  -create options
-   * @param {HTMLElement} options.el - the element of the view
-   * @returns {ObjView} the view object of type ObjView or a sub class
-   */
-  createViewByType: function(type, options) {
-    var ObjView = require('./ObjView.js');
-    // return existing view if the provided element already has one
-    if (options && options.el && options.el._wlView && options.el._wlView instanceof ObjView) {
-      return options.el._wlView;
-    }
-    if (this.map.hasOwnProperty(type)) {
-      return new(this.map[type].view)({ }, options);
-    }
-    throw "no constructor found for objects of type '" + type + "'";
   },
   /**
    * create a data model based on a json object (and it's type property)

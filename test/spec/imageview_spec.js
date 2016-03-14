@@ -6,6 +6,8 @@ var ImageView = require('../../src/framework/imageview.js');
 var pluginManager = require('../../src/framework/pluginmanager.js');
 var WL = require('../../src/framework/wl.js');
 
+var ViewsCommonParseTests = require('./helpers/views/common/parsetests.js');
+
 describe("ImageView", function() {
 
   var datasetReader = new DatasetReader();
@@ -49,22 +51,46 @@ describe("ImageView", function() {
     expect(element.getAttribute('alt')).toBe(data.attributes.alt);
   });
 
-  it('the Parse method will add an alt property to the data object', function() {
-    var element = document.createElement('img');
-    element.setAttribute('alt', 'some alt');
-
-    var dataObject = ImageView.parse(element);
-
-    expect(dataObject.alt).toBe('some alt');
-  });
-
-  it('the Parse method will add an src property to the data object', function() {
+  it('the parse method will add an src property to the data object', function() {
     var element = document.createElement('img');
     element.setAttribute('src', 'some source');
 
-    var dataObject = ImageView.parse(element);
+    var imageView = new ImageView(new ImageView.Model({}));
+    var dataModel = imageView.parse(element);
 
-    expect(dataObject.src).toBe('some source');
+    expect(dataModel.attributes.src).toBe('some source');
   });
 
+  it('the parse method will add an alt property to the data object', function() {
+    var element = document.createElement('img');
+    element.setAttribute('alt', 'some alt');
+
+    var imageView = new ImageView(new ImageView.Model({}));
+    var dataModel = imageView.parse(element);
+
+    expect(dataModel.attributes.alt).toBe('some alt');
+  });
+
+  it('the parse method doesn\'t generate a change event on the dataObjects', function() {
+    var element = document.createElement('img');
+    element.setAttribute('alt', 'some alt');
+    element.setAttribute('src', 'some source');
+
+    var imageView = new ImageView(new ImageView.Model({}));
+
+    var isFired = false;
+
+    imageView.render = function() {
+      isFired = true;
+    };
+
+    var returnedData = imageView.parse(element);
+    expect(isFired).toBeFalsy();
+  });
+
+  ViewsCommonParseTests({
+    ViewType: ImageView,
+    viewTypeName: 'ImageView',
+    type: 'image'
+  });
 });

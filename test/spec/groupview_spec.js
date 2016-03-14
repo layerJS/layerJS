@@ -11,6 +11,9 @@ var GroupView_renderChildPositionTests = require('./helpers/groupview_renderchil
 var Common_renderChildPositionTests = require('./helpers/common_renderchildpositiontests.js');
 var DatasetReader = require('./helpers/datasetreader.js');
 
+var ViewsCommonParseTests = require('./helpers/views/common/parsetests.js');
+var ViewsGroup_parseChildrenTests = require('./helpers/views/group/_parseChildrentests.js');
+
 describe("GroupView", function() {
 
   var datasetReader = new DatasetReader();
@@ -171,15 +174,34 @@ describe("GroupView", function() {
 
     parentData.set('children', ['102', '101']);
 
-    var order={};
-    for (var i=0;i<parentElement.children.length;i++){
-      order[parentElement.children[i].id]=i;
+    var order = {};
+    for (var i = 0; i < parentElement.children.length; i++) {
+      order[parentElement.children[i].id] = i;
     }
     // these tests are only topological as the reordering of the layerJS children does not uniquely define a reordering of all elements.
-    expect(order['102']<order['101']).toBe(true);
-    expect(order['element1']<order['element2']).toBe(true);
-    expect(order['element2']<order['element3']).toBe(true);
-    expect(order['element1']<order['102']).toBe(true);
-    expect(order['101']<order['element3']).toBe(true);
+    expect(order['102'] < order['101']).toBe(true);
+    expect(order['element1'] < order['element2']).toBe(true);
+    expect(order['element2'] < order['element3']).toBe(true);
+    expect(order['element1'] < order['102']).toBe(true);
+    expect(order['101'] < order['element3']).toBe(true);
+  });
+
+  ViewsCommonParseTests({
+    ViewType: GroupView,
+    viewTypeName: 'GroupView',
+    type: 'group'
+  });
+
+  ViewsGroup_parseChildrenTests({
+    ViewType: GroupView,
+    viewTypeName: 'GroupView',
+    type: 'group',
+    HTML: "<div id='100' data-wl-id='100' data-wl-type='group'>" +
+      "<div id='element1'></div>" +
+      "<div id='101' data-wl-id='101' data-wl-type='text'></div>" +
+      "<div id='element2'></div>" +
+      "<div id='102' data-wl-id='102' data-wl-type='text'></div>" +
+      "<div id='element3'></div>",
+    expectedChildren: ['101', '102']
   });
 });

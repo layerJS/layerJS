@@ -2,6 +2,7 @@
 var $ = require('./domhelpers.js');
 var Kern = require('../kern/Kern.js');
 var pluginManager = require('./pluginmanager.js');
+var repository = require('./repository.js');
 var ObjData = require('./objdata.js');
 
 /**
@@ -16,8 +17,8 @@ var ObjView = Kern.EventManager.extend({
     Kern.EventManager.call(this);
     options = options || {};
     // dataobject must exist
-    if (!dataModel) throw "data object mus exist when creating a view";
-    this.data = dataModel;
+    this.data = this.data || dataModel || (options.el && this.parse(options.el));
+    if (!this.data) throw "data object must exist when creating a view";
     // parent if defined
     this.parent = options.parent;
     // DOM element, take either the one provide by a sub constructor, provided in options, or create new
@@ -33,9 +34,10 @@ var ObjView = Kern.EventManager.extend({
     var that = this;
     // The change event must change the properties of the HTMLElement el.
     this.data.on('change', function(model) {
-      if (model.changedAttributes.hasOwnProperty('width') || model.changedAttributes.hasOwnProperty('height')) that._fixedDimensions();
-      that.render();
-
+      if (!that._dataObserverCounter) {
+        if (model.changedAttributes.hasOwnProperty('width') || model.changedAttributes.hasOwnProperty('height')) that._fixedDimensions();
+        that.render();
+      }
     });
     this._fixedDimensions();
     // Only render the element when it is passed in the options
@@ -235,6 +237,101 @@ var ObjView = Kern.EventManager.extend({
     return p;
   },
   /**
+   * Will create a dataobject based on a DOM element
+   *
+   * @param {element} DOM element to needs to be parsed
+   * @return  {data} a javascript data object
+   */
+  parse: function(element) {
+    var index;
+    var data = {
+      tag: element.tagName
+    };
+
+    var attributes = element.attributes;
+    var length = attributes.length;
+
+    for (index = 0; index < length; index++) {
+      var attribute = attributes[index];
+      if (attribute.name.indexOf('data-wl-') === 0) {
+        var attributeName = attribute.name.replace('data-wl-', '');
+        var attributeValue = attribute.value;
+
+        if (attributeValue === 'true' || attributeValue === 'false') {
+          attributeValue = eval(attributeValue); // jshint ignore:line
+        }
+
+        attributeName = attributeName.replace(/(\-[a-z])/g, function($1) {
+          return $1.toUpperCase().replace('-', '');
+        });
+
+        var attributeNames = attributeName.split('.');
+        var attributesNamesLength = attributeNames.length;
+        var attributeObj = data;
+        for (var i = 0; i < attributesNamesLength; i++) {
+          if (!attributeObj.hasOwnProperty(attributeNames[i])) {
+            attributeObj[attributeNames[i]] = (i === attributesNamesLength - 1) ? attributeValue : {};
+          }
+          attributeObj = attributeObj[attributeNames[i]];
+        }
+      }
+    }
+
+    data.classes = element.className.replace("object-default object-" + data.type + " ", ""); //FIXME: remove old webpgr classes
+
+    if (data.tag.toUpperCase() === 'A') {
+      data.linkTo = element.getAttribute('href');
+      data.linkTarget = element.getAttribute('target');
+    }
+
+    var style = element.style;
+
+    if (style.left) {
+      data.x = style.left;
+    }
+    if (style.top) {
+      data.y = style.top;
+    }
+    if (style.display === 'none') {
+      data.hidden = true;
+    }
+    if (style.zIndex) {
+      data.zIndex = style.zIndex;
+    }
+
+    data.width = style.width;
+    if (!data.width && element.getAttribute('width')) { // only a limited set of elements support the width attribute
+      data.width = element.getAttribute('width');
+    }
+    data.height = style.height;
+    if (!data.height && element.getAttribute('height')) { // only a limited set of elements support the width attribute
+      data.height = element.getAttribute('height');
+    }
+
+    if (data.id === undefined) {
+      data.id = repository.getId(); // if we don't have an data object we must create an id.
+    }
+
+    // modify existing data object if present
+    if (this.data) {
+      this.disableDataObserver();
+      this.data.set(data);
+      this.enableDataObserver();
+    }
+
+    var returnedDataObject = this.data ? this.data : new this.constructor.Model(data); // this will find the correct data object class which will also set the correct type
+
+    if (!repository.hasVersion(returnedDataObject.attributes.version)) {
+      repository.createVersion(returnedDataObject.attributes.version);
+    }
+
+    if (!repository.contains(returnedDataObject.attributes.id, returnedDataObject.attributes.version)) {
+      repository.add(returnedDataObject, returnedDataObject.attributes.version);
+    }
+
+    return returnedDataObject;
+  },
+  /**
    * ##destroy
    * This element was requested to be deleted completly; before the delete happens
    * an event is triggerd on which this function id bound (in `initialialize`). It
@@ -322,7 +419,7 @@ var ObjView = Kern.EventManager.extend({
   _domElementChanged: function() {
     if (this._observerCounter !== 0) return;
 
-    var dataObject = ObjView.parse(this.outerEl);
+    var dataObject = this.parse(this.outerEl);
 
     this.data.silence();
     for (var data in dataObject) {
@@ -334,51 +431,7 @@ var ObjView = Kern.EventManager.extend({
   }
 }, {
   // save model class as static variable
-  Model: ObjData,
-  /**
-   * Will create a dataobject based on a DOM element
-   *
-   * @param {element} DOM element to needs to be parsed
-   * @return  {data} a javascript data object
-   */
-  parse: function(element) {
-    var data = {
-      tag: element.tagName
-    };
-
-    var attributes = element.attributes;
-    var length = attributes.length;
-
-    for (var index = 0; index < length; index++) {
-      var attribute = attributes[index];
-      if (attribute.name.indexOf('data-wl-') !== -1) {
-        data[attribute.name.replace('data-wl-', '')] = attribute.value;
-      }
-    }
-
-    data.classes = element.className.replace("object-default object-" + data.type, "");
-
-    if (data.tag.toUpperCase() === 'A') {
-      data.linkTo = element.getAttribute('href');
-      data.linkTarget = element.getAttribute('target');
-    }
-
-    var style = element.style;
-
-    if (style.left)
-      data.x = style.left.replace('px', '');
-    if (style.top)
-      data.y = style.top.replace('px', '');
-    if (style.display === 'none')
-      data.hidden = style.display === 'none';
-    if (style.zIndex)
-      data.zIndex = style.zIndex;
-
-    data.width = style.width;
-    data.height = style.height;
-
-    return data;
-  }
+  Model: ObjData
 });
 
 
