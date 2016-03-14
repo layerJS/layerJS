@@ -324,7 +324,9 @@
           return;
         }
         // trigger change event if something has changed
-        if (this.firing) throw "Eventmanager: already firing.";
+        if (this.firing) {
+          throw "Eventmanager: already firing.";
+        }
         this.firing = true;
         var that = this;
         if (this.changedAttributes) {

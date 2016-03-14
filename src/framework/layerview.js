@@ -27,6 +27,7 @@ var LayerView = GroupView.extend({
     }
     this.outerEl = options.el || document.createElement(tag);
 
+
     var hasScroller = this.outerEl.childNodes.length === 1 && this.outerEl.childNodes[0].getAttribute('data-wl-helper') === 'scroller';
     this.innerEl = this.outerEl;
 
@@ -34,6 +35,7 @@ var LayerView = GroupView.extend({
     GroupView.call(this, dataModel, Kern._extend({}, options, {
       noRender: true
     }));
+    this._layout = new(layoutManager.get(this.data.attributes.layoutType))(this);
 
     if (hasScroller && !this.data.attributes.nativeScroll) $.unwrapChildren(this.outerEl);
     // should we have a scroller but don't have one?
@@ -44,11 +46,11 @@ var LayerView = GroupView.extend({
     }
     if (hasScroller) {
       this.innerEl = this.outerEl.childNodes[0];
+      this.outerEl.className += ' nativescroll'; // this will be used to add the correct style via css style sheet
     }
     // mark scroller as scroller in HTML
     if (hasScroller) this.innerEl.setAttribute('data-wl-helper', 'scroller');
 
-    this.layout = new(layoutManager.get(this.data.attributes.layoutType))(this);
 
     // this is my stage and add listener to keep it updated
     this.stage = this.parent;
