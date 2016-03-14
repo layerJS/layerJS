@@ -113,6 +113,20 @@ describe("EventManager", function() {
     this.e.trigger('testevent');
     expect(this.eventcalled).toBe(2);
   });
+  it('doesn\'t trigger events when sender equals itself', function() {
+    that = this;
+    that.e.on('testevent', function() {
+      that.eventcalled++;
+    }, {
+      ignoreSender: that
+    });
+    this.e.triggerBy(that, 'testevent');
+    this.e.triggerBy(that, 'testevent');
+    expect(this.eventcalled).toBe(0);
+
+    this.e.triggerBy({}, 'testevent');
+    expect(this.eventcalled).toBe(1);
+  });
   it('can trigger events with parameters', function() {
     that = this;
     that.e.on('testevent', function(a, b) {
@@ -121,6 +135,29 @@ describe("EventManager", function() {
     this.e.trigger('testevent', 3, 1);
     this.e.trigger('testevent', 4, 2);
     expect(this.eventcalled).toBe(11);
+  });
+  it('can trigger events once', function() {
+    that = this;
+    that.e.once('testevent', function() {
+      that.eventcalled++;
+    });
+    this.e.trigger('testevent');
+    this.e.trigger('testevent');
+    expect(this.eventcalled).toBe(1);
+  });
+  it('doesn\'t trigger events once when sender equals itself', function() {
+    that = this;
+    that.e.once('testevent', function() {
+      that.eventcalled++;
+    }, {
+      ignoreSender: that
+    });
+    this.e.triggerBy(that, 'testevent');
+    this.e.triggerBy(that, 'testevent');
+    expect(this.eventcalled).toBe(0);
+
+    this.e.triggerBy({}, 'testevent');
+    expect(this.eventcalled).toBe(1);
   });
   it('can trigger events once', function() {
     that = this;
@@ -209,7 +246,7 @@ describe("EventManager", function() {
     expect(this.e.once("change", function() {})).toBe(this.e);
     expect(this.e.trigger("change")).toBe(this.e);
     expect(this.e.off("change")).toBe(this.e);
-  })
+  });
 });
 
 
@@ -465,21 +502,39 @@ describe('Model', function() {
   it("when ignore is called after silence, all changes that where made between aren't triggerd", function() {
     var m = new Kern.Model();
     var that = this;
-     var called = 0;
-     m.on('change', function() {
-       called++;
-     });
+    var called = 0;
+    m.on('change', function() {
+      called++;
+    });
 
-     m.silence();
-     m.set('a', 1);
-     m.ignore();
+    m.silence();
+    m.set('a', 1);
+    m.ignore();
 
-     expect(m.changedAttributes).toBeUndefined();
-     expect(called).toBe(0);
+    expect(m.changedAttributes).toBeUndefined();
+    expect(called).toBe(0);
 
-     m.set('a', 2);
-     expect(called).toBe(1);
-   });
+    m.set('a', 2);
+    expect(called).toBe(1);
+  });
+  it("when the sender equals the ignoreSender, the change events aren't triggerd", function() {
+    var m = new Kern.Model();
+    var that = this;
+    var called = 0;
+    m.on('change', function() {
+      called++;
+    }, {
+      ignoreSender: that
+    });
+
+    m.setBy(that, 'a', 1)
+
+    expect(m.changedAttributes).toBeUndefined();
+    expect(called).toBe(0);
+
+    m.setBy({}, 'a', 2);
+    expect(called).toBe(1);
+  });
 });
 
 describe("ModelRepository", function() {
@@ -592,7 +647,7 @@ describe("ModelRepository", function() {
     expect(cnt).toBe(0);
     expect(model.__listeners__.change.length).toBe(0); // that's interal poking and shouldn't be public interface. If it breaks fix the test.
   });
-  it('can contain a lot of models', function(){
+  it('can contain a lot of models', function() {
     var data = {};
     for (var i = 0; i < 10000; i++) {
       data['x' + i] = data3;
