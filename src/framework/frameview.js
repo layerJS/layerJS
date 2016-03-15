@@ -1,21 +1,21 @@
 'use strict';
 var Kern = require('../kern/Kern.js');
-var pluginManager = require('./pluginmanager.js')
+var pluginManager = require('./pluginmanager.js');
 var FrameData = require('./framedata.js');
-var CGroupView = require('./cgroupview.js');
+var GroupView = require('./groupview.js');
 var Kern = require('../kern/Kern.js');
 
 /**
  * A View which can have child views
  * @param {FrameData} dataModel
  * @param {object}        options
- * @extends CGroupView
+ * @extends GroupView
  */
-var FrameView = CGroupView.extend({
+var FrameView = GroupView.extend({
   constructor: function(dataModel, options) {
     options = options || {};
     this.transformData = undefined;
-    CGroupView.call(this, dataModel, Kern._extend({}, options, {
+    GroupView.call(this, dataModel, Kern._extend({}, options, {
       noRender: true
     }));
 
@@ -34,7 +34,7 @@ var FrameView = CGroupView.extend({
     var d = this.transformData;
     if (!d || d.stage !== stage || (transitionStartPosition && transitionStartPosition !== d.startPosition)) {
       // calculate transformData
-      return this.calculateTransformData(stage, transitionStartPosition);
+      return (this.transformData = this.calculateTransformData(stage, transitionStartPosition));
     }
     return d;
   },
@@ -110,7 +110,7 @@ var FrameView = CGroupView.extend({
         } else {
           d.scale = stageWidth / (d.frameWidth - this.attributes['elastic-left'] - this.attributes['elastic-right']);
           d.shiftX = this.attributes['elastic-left'];
-        };
+        }
         d.isScrollY = true;
         break;
       case 'elastic-height':
@@ -122,23 +122,23 @@ var FrameView = CGroupView.extend({
         } else {
           d.scale = stageHeight / (d.frameHeight - this.attributes['elastic-top'] - this.attributes['elastic-bottom']);
           d.shiftX = this.attributes['elastic-top'];
-        };
+        }
         d.isScrollX = true;
         break;
       case 'responsive':
         d.scale = 1;
-        this.el.style.width = d.frameWidth = stageWidth;
-        this.el.style.height = d.frameHeight = stageHeight;
+        this.innerEl.style.width = d.frameWidth = stageWidth;
+        this.innerEl.style.height = d.frameHeight = stageHeight;
         break;
       case 'responsive-width':
         d.scale = 1;
         d.isScrollY = true;
-        this.el.style.width = d.frameWidth = stageWidth;
+        this.innerEl.style.width = d.frameWidth = stageWidth;
         break;
       case 'responsive-height':
         d.scale = 1;
         d.isScrollX = true;
-        this.el.style.height = d.frameHeight = stageHeight;
+        this.innerEl.style.height = d.frameHeight = stageHeight;
         break;
       default:
         throw "unkown fitTo type '" + this.attributes.fitTo + "'";
@@ -160,6 +160,7 @@ var FrameView = CGroupView.extend({
           if (d.scrollY < 0) {
             d.shiftY = d.scrollY;
             d.scrollY = 0;
+            // FIXME disable isScrollY????
           }
         }
         break;
@@ -237,11 +238,10 @@ var FrameView = CGroupView.extend({
       //     if (d.scrollY > d.maxScrollY) d.scrollY = d.maxScrollY;
       //   }
     }
-    return this.transformData = d;
+    return (this.transformData = d);
   }
 }, {
-  Model: FrameData,
-  parse: CGroupView.parse
+  Model: FrameData
 });
 
 pluginManager.registerType('frame', FrameView);

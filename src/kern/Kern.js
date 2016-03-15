@@ -1,4 +1,5 @@
 'use strict';
+//jshint unused:false
 
 // Copyright (c) 2015, Thomas Handorf, ThomasHandorf@gmail.com, all rights reserverd.
 
@@ -13,7 +14,7 @@
     var _extend = function(obj) {
       var len = arguments.length;
       if (len < 2) throw ("too few arguments in _extend");
-      if (obj == null) throw ("no object provided in _extend");
+      if (obj === null) throw ("no object provided in _extend");
       // run through extending objects
       for (var i = 1; i < len; i++) {
         var props = Object.keys(arguments[i]); // this does not run through the prototype chain; also does not return special properties like length or prototype
@@ -32,7 +33,7 @@
     var _extendKeep = function(obj) {
       var len = arguments.length;
       if (len < 2) throw ("too few arguments in _extend");
-      if (obj == null) throw ("no object provided in _extend");
+      if (obj === null) throw ("no object provided in _extend");
       // run through extending objects
       for (var i = 1; i < len; i++) {
         var props = Object.keys(arguments[i]); // this does not run through the prototype chain; also does not return special properties like length or prototype
@@ -50,9 +51,10 @@
      * @returns {obj} a fresh copy of the object
      */
     var _deepCopy = function(obj) {
-      if (typeof obj == 'object') {
+      if (typeof obj === 'object') {
+        var temp;
         if (Array.isArray(obj)) {
-          var temp = [];
+          temp = [];
           for (var i = obj.length - 1; i >= 0; i--) {
             temp[i] = _deepCopy(obj[i]);
           }
@@ -61,9 +63,11 @@
         if (obj === null) {
           return null;
         }
-        var temp = {};
+        temp = {};
         for (var k in Object.keys(obj)) {
-          temp[k] = _deepCopy(obj[k]);
+          if (obj.hasOwnProperty(k)) {
+            temp[k] = _deepCopy(obj[k]);
+          }
         }
         return temp;
       }
@@ -78,7 +82,7 @@
     var _extendKeepDeepCopy = function(obj) {
       var len = arguments.length;
       if (len < 2) throw ("too few arguments in _extend");
-      if (obj == null) throw ("no object provided in _extend");
+      if (obj === null) throw ("no object provided in _extend");
       // run through extending objects
       for (var i = 1; i < len; i++) {
         var props = Object.keys(arguments[i]); // this does not run through the prototype chain; also does not return special properties like length or prototype
@@ -135,12 +139,14 @@
        * register event listerner
        * @param {string} event event name
        * @param {Function} callback the callback function
+       * @param {Object} options { ignoreSender: this }
        * @return {Object} this object
        */
-      on: function(event, callback) {
+      on: function(event, callback, options) {
         this.__listeners__[event] = this.__listeners__[event] || [];
         this.__listeners__[event].push({
-          callback: callback
+          callback: callback,
+          options: options || {}
         });
         return this;
       },
@@ -148,15 +154,16 @@
        * register event listerner. will be called only once, then unregistered.
        * @param {string} event event name
        * @param {Function} callback the callback function
+       * @param {Object} options { ignoreSender: this }
        * @return {Object} this object
        */
-      once: function(event, callback) {
+      once: function(event, callback, options) {
         var that = this;
         var helper = function() {
           callback.apply(this, arguments);
           that.off(event, helper);
-        }
-        this.on(event, helper);
+        };
+        this.on(event, helper, options);
         return this;
       },
       /**
@@ -166,11 +173,12 @@
        * @return {Object} this object
        */
       off: function(event, callback) {
+        var i;
         if (event) {
           if (callback) {
             // remove specific call back for given event
-            for (var i = 0; i < this.__listeners__[event].length; i++) {
-              if (this.__listeners__[event][i].callback == callback) {
+            for (i = 0; i < this.__listeners__[event].length; i++) {
+              if (this.__listeners__[event][i].callback === callback) {
                 this.__listeners__[event].splice(i, 1);
               }
             }
@@ -182,12 +190,13 @@
           if (callback) {
             // remove specific callback in all event
             for (var ev in this.__listeners__) {
-              for (var i = 0; i < this.__listeners__[ev].length; i++) {
-                if (this.__listeners__[ev][i].callback == callback) {
-                  this.__listeners__[ev].splice(i, 1);
+              if (this.__listeners__.hasOwnProperty(ev)) {
+                for (i = 0; i < this.__listeners__[ev].length; i++) {
+                  if (this.__listeners__[ev][i].callback === callback) {
+                    this.__listeners__[ev].splice(i, 1);
+                  }
                 }
               }
-
             }
           } else {
             // remove all callbacks from all events
@@ -205,6 +214,36 @@
       trigger: function(event) {
         if (this.__listeners__[event]) {
           for (var i = 0; i < this.__listeners__[event].length; i++) {
+
+            // copy arguments as we need to remove the first argument (event)
+            // and arguments is read only
+            var length = arguments.length;
+            var args = new Array(length - 1);
+            for (var j = 0; j < length - 1; j++) {
+              args[j] = arguments[j + 1];
+            }
+            // call the callback
+            this.__listeners__[event][i].callback.apply(this, args);
+          }
+        }
+        return this;
+      },
+      /**
+       * trigger an event
+       * @param {object} object that fired the event
+       * @param {string} event event name
+       * @param {...} arguments further arguments
+       * @return {object} this object
+       */
+      triggerBy: function(sender, event) {
+        if (this.__listeners__[event]) {
+          for (var i = 0; i < this.__listeners__[event].length; i++) {
+
+            // check if the sender equals the ignoreSender from the options
+            if (null !== sender && null !== this.__listeners__[event][i].options.ignoreSender && this.__listeners__[event][i].options.ignoreSender === sender) {
+              break;
+            }
+
             // copy arguments as we need to remove the first argument (event)
             // and arguments is read only
             var length = arguments.length;
@@ -237,14 +276,15 @@
           var length = args.length;
           var length2 = arguments.length;
           var args2 = new Array(length + length2);
-          for (var j = 0; j < length; j++) {
+          var j;
+          for (j = 0; j < length; j++) {
             args2[j] = args[j];
           }
-          for (var j = 0; j < length2; j++) {
+          for (j = 0; j < length2; j++) {
             args2[j + length] = arguments[j];
           }
-          callback.apply(context, args2)
-        }
+          callback.apply(context, args2);
+        };
       }
     });
     /**
@@ -254,7 +294,6 @@
       /**
        * constructor of the Model
        * @param {Object} attributes prefills attributes (not copied)
-       * @return {Object} this object
        */
       constructor: function(attributes) {
         // call super constructor
@@ -262,7 +301,6 @@
         this.silent = false; // fire events on every "set"
         this.history = false; // don't track changes
         this.attributes = _extendKeepDeepCopy(attributes || {}, this.defaults || {}); // initialize attributes if given (don't fire change events); Note: this keeps the original attributes object.
-        return this;
       },
       /**
        * changedAttributes will have original values of attributes in event handlers if called
@@ -304,30 +342,46 @@
        * @return {Boolean} true if event was fired (not silenced)
        */
       fire: function() {
+        return this.fireBy(null);
+      },
+      /**
+       * fire change events manually after setting attributes
+       * @param {Object} object the fired the event
+       * @return {Boolean} true if event was fired (not silenced)
+       */
+      fireBy: function(sender) {
         if (this.silent > 0) {
           this.silent--;
         }
-        this._fire();
+        this._fire(sender);
         return !this.silent;
       },
       /**
        * internal fire function (also used by set)
+       * @param {Object} object the fired the event
        * @return {[type]} [description]
        */
-      _fire: function() {
+      _fire: function(sender) {
         if (this.silent) {
           return;
         }
         // trigger change event if something has changed
-        if (this.firing) throw "Eventmanager: already firing."
-        this.firing=true;
+        if (this.firing) {
+          throw "Eventmanager: already firing.";
+        }
+        this.firing = true;
         var that = this;
         if (this.changedAttributes) {
           Object.keys(this.changedAttributes).forEach(function(attr) {
             that.trigger("change:" + attr, that, that.attributes[attr]);
           });
         }
-        this.trigger("change", this);
+
+        if (sender) {
+          this.triggerBy(sender, "change", this);
+        } else {
+          this.trigger("change", this);
+        }
         delete this.firing;
         delete this.changedAttributes;
         delete this.newAttributes;
@@ -336,23 +390,43 @@
       /**
        * set a property or several properties and fires change events
        * set(attributes) and set(attribute, value) syntax supported
+       * @param {Object} sender
+       * @param {Object} attributes {attribute: value}
+       */
+      setBy: function(sender, attributes) {
+        if (attributes !== null) {
+          if (typeof attributes !== 'object') { // support set(attribute, value) syntax
+            this._set.apply(this, arguments);
+          } else { // support set({attribute: value}) syntax
+            for (var prop in attributes) {
+              if (attributes.hasOwnProperty(prop)) {
+                this._set(prop, attributes[prop]);
+              }
+            }
+          }
+
+          this._fire(sender);
+        }
+      },
+      /**
+       * set a property or several properties and fires change events
+       * set(attributes) and set(attribute, value) syntax supported
        * @param {Object} attributes {attribute: value}
        */
       set: function(attributes) {
-        if (attributes == null) {
-          return this;
-        }
-        if (typeof attributes !== 'object') { // support set(attribute, value) syntax
-          this._set.apply(this, arguments);
-        } else { // support set({attribute: value}) syntax
-          for (var prop in attributes) {
-            if (attributes.hasOwnProperty(prop)) {
-              this._set(prop, attributes[prop]);
+        if (attributes !== null) {
+          if (typeof attributes !== 'object') { // support set(attribute, value) syntax
+            this._set.apply(this, arguments);
+          } else { // support set({attribute: value}) syntax
+            for (var prop in attributes) {
+              if (attributes.hasOwnProperty(prop)) {
+                this._set(prop, attributes[prop]);
+              }
             }
           }
+
+          this._fire(null);
         }
-        this._fire();
-        return this;
       },
       /**
        * internal function setting a single attribute
@@ -373,7 +447,7 @@
         }
         if (this.checkdiff) {
           str = JSON.stringify(this.attributes[attribute]);
-          if (str == JSON.stringify(value)) {
+          if (str === JSON.stringify(value)) {
             return;
           }
         }
@@ -400,7 +474,7 @@
        */
       update: function(attribute) {
         if (!this.silent) {
-          throw ('You cannot use update method without manually firing change events.')
+          throw ('You cannot use update method without manually firing change events.');
         }
         if (!this.changedAttributes) this.changedAttributes = {};
         // only save first value of attribute when accumulating change events
@@ -417,7 +491,6 @@
       /**
        * delete the specified attribute
        * @param {string} attribute the attribute to be removed
-       * @return {Object} this object
        */
       unset: function(attribute) {
         if (!this.changedAttributes) this.changedAttributes = {};
@@ -434,7 +507,6 @@
         this.deletedAttributes[attribute] = true;
         delete this.attributes[attribute];
         this._fire();
-        return this;
       },
       /**
        * get the value of an attrbute
@@ -443,7 +515,7 @@
        * @return {Object} returns the value
        */
       get: function(attribute) {
-        return this.attributes[attribute]
+        return this.attributes[attribute];
       }
     });
     /**
@@ -467,12 +539,12 @@
         var that = this;
         this.modelChangeHandler = function() {
           that._modelChangeHandler.apply(that, arguments);
-        }
+        };
         if (Array.isArray(data)) {
           this.add(data, {
             noEvents: true
           });
-        } else if (typeof data == "object") {
+        } else if (typeof data === "object") {
           this.add(data, {
             isHash: true,
             noEvents: true
@@ -485,34 +557,34 @@
        * @param {object} options options.id allows to specify the id; options.isHash allows adding object of objects {id1: {}, id2: {}}
        */
       add: function(data, options) {
-        var model;
+        var model, i;
         options = options || {};
         if (options.isHash) { // interpret as {id1: {}, id2: {}}
-          for (var i in data) {
-            this.add(data[i], {
-              id: i
-            });
+          for (i in data) {
+            if (data.hasOwnProperty(i)) {
+              this.add(data[i], {
+                id: i
+              });
+            }
           }
         } else if (Array.isArray(data)) { // if array loop over array
-          for (var i = 0; i < data.length; i++) {
+          for (i = 0; i < data.length; i++) {
             this.add(data[i]);
-          };
+          }
         } else {
+          var nid;
           if (data instanceof this.model) { // model given
             model = data;
-            var nid = (options && options.id) || model.attributes[this.idattr]; // id given as param or in model?
+            nid = (options && options.id) || model.attributes[this.idattr]; // id given as param or in model?
             if (!nid) throw ('model with no id "' + this.idattr + '"');
             this._add(model, nid, options.noEvents);
-          } else if (typeof data == 'object') { // interpret as (single) json data
-            var nid = (options && options.id) || data[this.idattr]; // id given as param or in json?
+          } else if (typeof data === 'object') { // interpret as (single) json data
+            nid = (options && options.id) || data[this.idattr]; // id given as param or in json?
             if (!nid) throw ('model with no id "' + this.idattr + '"');
-            var model = new this.model(data);
+            model = new this.model(data);
             this._add(model, nid, options.noEvents);
-          } else { // interpret as id
-
           }
         }
-        return this;
       },
       /**
        * internal function to add model. sets event listeners and triggers events
@@ -523,26 +595,26 @@
         if (this.models.hasOwnProperty(id)) {
           throw ('cannot add model with same id');
         }
-        if (model.attributes[this.idattr] && (model.attributes[this.idattr] != id)) {
+        if (model.attributes[this.idattr] && (model.attributes[this.idattr] !== id)) {
           throw ('adding model with wrong id');
         }
         // do not use bindContext, too slow!!!
         // model.on('change', this.callbacks[id] = this.bindContext(this._modelChangeHandler, this));
         model.on('change', this.modelChangeHandler);
         this.models[id] = model;
-        noEvents || this.trigger('add', model, this);
-        return this;
+        if (!noEvents) {
+          this.trigger('add', model, this);
+        }
       },
       /**
        * removes a model(s) from this Repository
        * @param {String|Model|Array} model in id (string) or Model or an Array of those to be removed
-       * @return {Object} this object
        */
       remove: function(model) {
         if (Array.isArray(model)) { // if array loop over array
           for (var i = 0; i < model.length; i++) {
             this.remove(model[i]);
-          };
+          }
         } else {
           var oldmodel;
           if (model instanceof this.model) { // model given?
@@ -558,14 +630,13 @@
           }
           this.trigger("remove", oldmodel, this);
         }
-        return this;
       },
       /**
        * handler listening to changes of the models in the repository
        * @param {Object} model the model being changed
        */
       _modelChangeHandler: function(model) {
-        this.trigger("change", model) //FIXME make backbone compatible
+        this.trigger("change", model); //FIXME make backbone compatible
       },
       /**
        * return number of objects in repository
@@ -580,7 +651,7 @@
        */
       get: function(id) {
         if (!this.models[id]) {
-          throw "model "+id+" not in repository";
+          throw "model " + id + " not in repository";
         }
         return this.models[id];
       }
@@ -650,10 +721,10 @@
               result.then(function(value) {
                 that.nextPromise.resolve(value);
               }, function(reason) {
-                that.nextPromise.reject(reason)
+                that.nextPromise.reject(reason);
               });
             } else {
-              that.nextPromise.resolve(result)
+              that.nextPromise.resolve(result);
             }
           } catch (e) {
             this.nextPromise.reject(e);
@@ -666,7 +737,7 @@
     });
 
     return Kern;
-  }
+  };
 
   // export to the outside
   //

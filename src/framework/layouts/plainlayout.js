@@ -1,4 +1,4 @@
-var WL = require('../wl.js');
+'use strict';
 var $ = require('../domhelpers.js');
 var Kern = require('../../kern/Kern.js');
 var layoutManager = require('../layoutmanager.js');
@@ -18,54 +18,59 @@ var PlainLayout = LayerLayout.extend({
       right: this.swipeTransition,
       up: this.swipeTransition,
       down: this.swipeTransition
-    }
+    };
   },
   /**
-   * initial layout of all visible frames when this layout engine becomes active
+   * transforms immidiately to the specified frame. hides all other frames
    *
-   * @returns {Type} Description
+   * @param {FrameView} frame - the frame to activate
+   * @param {Object} transfromData - transform data of current frame
+   * @param {string} transform - a string representing the scroll transform of the current frame
+   * @returns {void}
    */
-  init: function(stage) {
-    for (var i = 0; i < this.layer.el.children.length; i++) {
-      this.layer.el.children[i].style.visibility = 'hidden';
+  setFrame: function(frame, transformData, transform) {
+    for (var i = 0; i < this.layer.innerEl.children.length; i++) {
+      this.layer.innerEl.children[i].style.display = 'none';
     }
-    if (this.layer.currentFrame) {
-      var t = this.swipeTransition(undefined, PlainLayout.IT, null, this.layer.currentFrame.getTransformData(stage))
-      this.layer.currentFrame.applyStyles(t.t1);
-      this.layer.currentFrame.elWrapper.style.visibility = 'initial';
-    }
+    var t = this.swipeTransition(undefined, PlainLayout.TT1, null, transformData);
+    this._applyTransform(frame, t.t1, transform, {
+      display: '',
+      opacity: 1,
+      visibility: ''
+    });
   },
   /**
-   * transition to a specified frame with given transition
+   * transition to a specified frame with given transition. The transitions needs to be prepared with prepareTransition().
    *
    * @param {ViewFrame} frame - the target frame
    * @param {Object} transition - the transition object
+   * @param {Object} t - the record containing pre and post transforms
+   * @param {string} currentTransform - a string representing the scroll transform of the current frame
+   * @param {string} targetTransform - a string representing the scroll transform of the target frame
    * @returns {Type} Description
    */
-  transitionTo: function(frame, transition, currentTransformData, targetTransformData) {
+  executeTransition: function(frame, transition, t, currentTransform, targetTransform) {
     var finished = new Kern.Promise();
     var currentFrame = this.layer.currentFrame;
-    this.prepareTransition(frame, transition.type, currentTransformData, targetTransformData).then(function(t) {
-      console.log('now for real');
+    console.log('now for real');
+    frame.outerEl.addEventListener("transitionend", function f(e) { // FIXME needs webkitTransitionEnd etc
+      e.target.removeEventListener(e.type, f); // remove event listener for transitionEnd.
       currentFrame.applyStyles({
-        transition: '2s'
+        transition: '',
+        display: 'none'
       });
       frame.applyStyles({
-        transition: '2s'
+        transition: ''
       });
-      frame.elWrapper.addEventListener("transitionEnd", function() { // FIXME needs webkitTransitionEnd etc
-        currentFrame.applyStyles({
-          transition: 'none',
-          visibility: 'hidden'
-        });
-        frame.applyStyles({
-          transition: 'none'
-        });
-        finished.resolve();
-      });
-      frame.applyStyles(t.t1);
-      currentFrame.applyStyles(t.c1);
+      finished.resolve();
     });
+    this._applyTransform(frame, t.t1, targetTransform, {
+      transition: '2s'
+    });
+    this._applyTransform(currentFrame, t.c1, currentTransform, {
+      transition: '2s'
+    });
+    // currentFrame.applyStyles(t.c1);
     return finished;
   },
   /**
@@ -74,79 +79,126 @@ var PlainLayout = LayerLayout.extend({
    * make sure targetFrame is at pre position
    *
    * @param {ViewFrame} frame - the target frame
-   * @param {Object} transition - the transition object
-   * @returns {Promise} will fire when pre  transform to target frame is applied
+   * @param {string} type - the transition type
+   * @param {Object} currentFrameTransformData - transform data of current frame
+   * @param {Object} targetFrameTransformData - transform data of target frame
+   * @param {string} currentTransform - a string representing the scroll transform of the current frame
+   * @param {string} targetTransform - a string representing the scroll transform of the target frame
+   * @returns {Promise} will fire when pre transform to target frame is applied
    */
-  prepareTransition: function(frame, type, currentTransformData, targetTransformData) {
+  prepareTransition: function(frame, type, currentFrameTransformData, targetFrameTransformData, currentTransform, targetTransform) {
     // call the transition type function to calculate all frame positions/transforms
-    var t = this.transitions[type](type, PlainLayout.DT, currentTransformData, targetTransformData);
-    // var currentFrameCenterX = stageWidth / 2 + currentTransformData.shiftX + currentTransformData.scrollX;
-    // var currentFrameCenterY = stageHeight / 2 + currentTransformData.shiftY + currentTransformData.scrollY;
-    // var currentFrameCenterX = stageWidth / 2 + currentTransformData.shiftX + currentTransformData.scrollX;
-    // var currentFrameCenterY = stageHeight / 2 + currentTransformData.shiftY + currentTransformData.scrollY;
+    var t = this.transitions[type](type, PlainLayout.DT, currentFrameTransformData, targetFrameTransformData);
     // create a promise that will wait for the transform being applied
     var finished = new Kern.Promise();
     // apply pre position to target frame
-    Kern._extend(frame.elWrapper.style, {
-      transition: 'none',
-      visibility: 'initial'
-    }, t.t0);
+    this._applyTransform(frame, t.t0, targetTransform, {
+      transition: '',
+      opacity: '1',
+      visibility: ''
+    });
     console.log(t.t0);
+    // wait until new postions are rendered then resolve promise
     $.postAnimationFrame(function() {
       console.log('resolve');
       finished.resolve(t);
     });
     return finished;
   },
-  swipeTransition: function(type, which, currentTransformData, targetTransformData) {
-    var t = {};
+  /**
+   * define the scrolling transform on current frame
+   *
+   * @param {String} transform - the scrolling transform
+   * @returns {Type} Description
+   */
+  setTransform: function(transform, currentFrameTransformData) {
+    // FIXME: layout should store the t.c0 somehow
+    var t = this.swipeTransition(undefined, PlainLayout.CT0, currentFrameTransformData, null);
+    this._applyTransform(this.layer.currentFrame, t.c0, transform);
+  },
+  /**
+   * apply transform by combining the frames base transform with the added scroll transform
+   *
+   * @param {FrameView} frame - the frame that should be transformed
+   * @param {Object} baseTransform - a plain object containing the styles for the frame transform
+   * @param {String} addedTransform - a string to be added to the "transform" style which represents the scroll transform
+   * @param {Object} styles - additional styles for example for transition timing.
+   * @returns {void}
+   */
+  _applyTransform: function(frame, baseTransform, addedTransform, styles) {
+    frame.applyStyles(styles || {}, baseTransform, {
+      transform: addedTransform + " " + baseTransform.transform
+    });
+  },
+  /**
+   * calculates pre and post positions for simple swipe transitions.
+   *
+   * @param {string} type - the transition type (e.g. "left")
+   * @param {Integer} which - Boolean mask describing which positions need to be calculated
+   * @param {Object} currentFrameTransformData - transform data of current frame
+   * @param {Object} targetFrameTransformData - transform data of target frame
+   * @returns {Object} the "t" record containing pre and post transforms
+   */
+  swipeTransition: function(type, which, currentFrameTransformData, targetFrameTransformData) {
+    var t = {}; // record taking pre and post positions
+    var x, y;
     // target frame transform time 1
-    if (which & PlainLayout.TT1) {
-      var x = -targetTransformData.shiftX - targetTransformData.scrollX;
-      var y = -targetTransformData.shiftY - targetTransformData.scrollY;
+    if (which & PlainLayout.TT1) { // jshint ignore:line
+      x = -targetFrameTransformData.shiftX;
+      y = -targetFrameTransformData.shiftY;
       t.t1 = {
-        transform: "translate3d(" + x + "px," + y + "px,0px) scale(" + targetTransformData.scale + ")",
+        transform: "translate3d(" + x + "px," + y + "px,0px) scale(" + targetFrameTransformData.scale + ")",
+        'transform-origin': "0 0"
+      };
+    }
+    if (which & PlainLayout.CT0) { // jshint ignore:line
+      x = -currentFrameTransformData.shiftX;
+      y = -currentFrameTransformData.shiftY;
+      t.c0 = {
+        transform: "translate3d(" + x + "px," + y + "px,0px) scale(" + currentFrameTransformData.scale + ")",
         'transform-origin': "0 0"
       };
     }
     switch (type) {
+      case 'default':
       case 'left':
         // target frame transform time 0
-        if (which & PlainLayout.TT0) {
-          var x = currentTransformData.width - currentTransformData.shiftX - currentTransformData.scrollX;
-          var y = -targetTransformData.shiftY - targetTransformData.scrollY;
+        if (which & PlainLayout.TT0) { // jshint ignore:line
+          x = currentFrameTransformData.width - currentFrameTransformData.shiftX;
+          y = -targetFrameTransformData.shiftY;
           t.t0 = {
-            transform: "translate3d(" + x + "px," + y + "px,0px) scale(" + targetTransformData.scale + ")",
+            // FIXME: translate and scale may actually be swapped here, not tested yet as shift was always zero so far!!!
+            transform: "translate3d(" + x + "px," + y + "px,0px) scale(" + targetFrameTransformData.scale + ")",
             'transform-origin': "0 0"
           };
         }
         // current frame transform time 1
-        if (which & PlainLayout.CT1) {
-          var x = -targetTransformData.width + currentTransformData.shiftX + currentTransformData.scrollX;
-          var y = -currentTransformData.shiftY - currentTransformData.scrollY;
+        if (which & PlainLayout.CT1) { // jshint ignore:line
+          x = -targetFrameTransformData.width + currentFrameTransformData.shiftX;
+          y = -currentFrameTransformData.shiftY;
           t.c1 = {
-            transform: "translate3d(" + x + "px," + y + "px,0px) scale(" + currentTransformData.scale + ")",
+            transform: "translate3d(" + x + "px," + y + "px,0px) scale(" + currentFrameTransformData.scale + ")",
             'transform-origin': "0 0"
           };
         }
         break;
-        
+
       case 'right':
         // target frame transform time 0
-        if (which & PlainLayout.TT0) {
-          var x = -currentTransformData.width + currentTransformData.shiftX + currentTransformData.scrollX;
-          var y = -targetTransformData.shiftY - targetTransformData.scrollY;
+        if (which & PlainLayout.TT0) { // jshint ignore:line
+          x = -currentFrameTransformData.width + currentFrameTransformData.shiftX;
+          y = -targetFrameTransformData.shiftY;
           t.t0 = {
-            transform: "translate3d(" + x + "px," + y + "px,0px) scale(" + targetTransformData.scale + ")",
+            transform: "translate3d(" + x + "px," + y + "px,0px) scale(" + targetFrameTransformData.scale + ")",
             'transform-origin': "0 0"
           };
         }
         // current frame transform time 1
-        if (which & PlainLayout.CT1) {
-          var x = targetTransformData.width - currentTransformData.shiftX - currentTransformData.scrollX;
-          var y = currentTransformData.shiftY + currentTransformData.scrollY;
+        if (which & PlainLayout.CT1) { // jshint ignore:line
+          x = targetFrameTransformData.width - currentFrameTransformData.shiftX;
+          y = currentFrameTransformData.shiftY;
           t.c1 = {
-            transform: "translate3d(" + x + "px," + y + "px,0px) scale(" + currentTransformData.scale + ")",
+            transform: "translate3d(" + x + "px," + y + "px,0px) scale(" + currentFrameTransformData.scale + ")",
             'transform-origin': "0 0"
           };
         }
@@ -154,20 +206,20 @@ var PlainLayout = LayerLayout.extend({
 
       case 'down':
         // target frame transform time 0
-        if (which & PlainLayout.TT0) {
-          var x = -targetTransformData.shiftX - targetTransformData.scrollX;
-          var y = -currentTransformData.height + currentTransformData.shiftY + currentTransformData.scrollY;
+        if (which & PlainLayout.TT0) { // jshint ignore:line
+          x = -targetFrameTransformData.shiftX;
+          y = -(currentFrameTransformData.height > targetFrameTransformData.height ? currentFrameTransformData.height : targetFrameTransformData.height) + currentFrameTransformData.shiftY;
           t.t0 = {
-            transform: "translate3d(" + x + "px," + y + "px,0px) scale(" + targetTransformData.scale + ")",
+            transform: "translate3d(" + x + "px," + y + "px,0px) scale(" + targetFrameTransformData.scale + ")",
             'transform-origin': "0 0"
           };
         }
         // current frame transform time 1
-        if (which & PlainLayout.CT1) {
-          var x = currentTransformData.shiftX + currentTransformData.scrollX;
-          var y = targetTransformData.height - currentTransformData.shiftY - currentTransformData.scrollY;
+        if (which & PlainLayout.CT1) { // jshint ignore:line
+          x = currentFrameTransformData.shiftX;
+          y = (currentFrameTransformData.height > targetFrameTransformData.height ? currentFrameTransformData.height : targetFrameTransformData.height) - currentFrameTransformData.shiftY;
           t.c1 = {
-            transform: "translate3d(" + x + "px," + y + "px,0px) scale(" + currentTransformData.scale + ")",
+            transform: "translate3d(" + x + "px," + y + "px,0px) scale(" + currentFrameTransformData.scale + ")",
             'transform-origin': "0 0"
           };
         }
@@ -175,25 +227,26 @@ var PlainLayout = LayerLayout.extend({
 
       case 'up':
         // target frame transform time 0
-        if (which & PlainLayout.TT0) {
-          var x = -targetTransformData.shiftX - targetTransformData.scrollX;
-          var y = currentTransformData.height - targetTransformData.shiftY - targetTransformData.scrollY;
+        if (which & PlainLayout.TT0) { // jshint ignore:line
+          x = -targetFrameTransformData.shiftX;
+          y = (currentFrameTransformData.height > targetFrameTransformData.height ? currentFrameTransformData.height : targetFrameTransformData.height) - targetFrameTransformData.shiftY;
           t.t0 = {
-            transform: "translate3d(" + x + "px," + y + "px,0px) scale(" + targetTransformData.scale + ")",
+            transform: "translate3d(" + x + "px," + y + "px,0px) scale(" + targetFrameTransformData.scale + ")",
             'transform-origin': "0 0"
           };
         }
         // current frame transform time 1
-        if (which & PlainLayout.CT1) {
-          var x = -currentTransformData.shiftX - currentTransformData.scrollY;
-          var y = -targetTransformData.height - currentTransformData.shiftY - currentTransformData.scrollY;
+        if (which & PlainLayout.CT1) { // jshint ignore:line
+          x = -currentFrameTransformData.shiftX;
+          y = -(currentFrameTransformData.height > targetFrameTransformData.height ? currentFrameTransformData.height : targetFrameTransformData.height) - currentFrameTransformData.shiftY;
           t.c1 = {
-            transform: "translate3d(" + x + "px," + y + "px,0px) scale(" + currentTransformData.scale + ")",
+            transform: "translate3d(" + x + "px," + y + "px,0px) scale(" + currentFrameTransformData.scale + ")",
             'transform-origin': "0 0"
           };
         }
         break;
     }
+
     return t;
   }
 }, {
@@ -204,7 +257,6 @@ var PlainLayout = LayerLayout.extend({
   CT1: 8, // current frame transform time 0
   PT: 16, // requesting parametric form
   DT: 11, // default transforms: TT0, TT1, CT1
-  IT: 2 // for initial transform only TT1 is needed.
 });
 
 layoutManager.registerType('plain', PlainLayout);

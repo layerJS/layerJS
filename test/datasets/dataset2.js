@@ -67,6 +67,4 @@ Nam liber tempor cum soluta nobis eleifend option congue nihil imperdiet doming 
     type: 'text',
     style: 'max-width:800px;padding:50px;'
   }
-
-
 ]

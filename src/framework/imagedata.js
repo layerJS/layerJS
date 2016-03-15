@@ -1,16 +1,16 @@
 'use strict';
 var Kern = require('../kern/Kern.js');
-var CobjData = require('./cobjdata.js');
+var ObjData = require('./objdata.js');
 /**
- * #CimageData
+ * #ImageData
  * This data type will contain all the information to render a image
  * @type {Model}
  */
-var CimageData = CobjData.extend({
-  defaults: Kern._extend({}, CobjData.prototype.defaults, {
+var ImageData = ObjData.extend({
+  defaults: Kern._extend({}, ObjData.prototype.defaults, {
     type: 'image',
     tag: 'img'
   })
 });
 
-module.exports = CimageData;
+module.exports = ImageData;

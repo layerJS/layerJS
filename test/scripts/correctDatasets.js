@@ -1,5 +1,5 @@
 var datasetFilenames = [
-  "test/spec/datasets/simple_ctextdata.js", "test/datasets/dataset1.js", "test/spec/datasets/cgroupdata_with_cobjdata.js", "test/spec/datasets/simple_cgroupdata.js", "test/spec/datasets/simple_cimagedata.js", "test/spec/datasets/simple_cobjdata.js", "test/spec/datasets/simple_ctextdata.js", "test/spec/datasets/simple_framedata.js", "test/spec/datasets/simple_layerdata.js", "test/spec/datasets/simple_stagedata.js", "test/spec/datasets/test_data_set.js", "test/spec/datasets/anchor_cobjdata.js", "test/spec/datasets/anchor_cgroupdata.js"
+  "test/spec/datasets/simple_textdata.js", "test/datasets/dataset1.js", "test/spec/datasets/groupdata_with_objdata.js", "test/spec/datasets/simple_groupdata.js", "test/spec/datasets/simple_imagedata.js", "test/spec/datasets/simple_objdata.js", "test/spec/datasets/simple_textdata.js", "test/spec/datasets/simple_framedata.js", "test/spec/datasets/simple_layerdata.js", "test/spec/datasets/simple_stagedata.js", "test/spec/datasets/test_data_set.js", "test/spec/datasets/anchor_objdata.js", "test/spec/datasets/anchor_groupdata.js"
 ];
 
 var fileSave = require('file-save');
@@ -46,6 +46,14 @@ for (var x = 0; x < datasetFilenames.length; x++) {
       if (object.link_target != undefined) {
         object.linkTarget = object.link_target;
         delete object.link_target;
+      }
+
+      if (object.width != undefined && object.width.toString().indexOf('px') == -1 && object.width.toString().indexOf('%') == -1 && && object.width.toString().indexOf('em') == -1) {
+        object.width = object.width.toString() + 'px';
+      }
+
+      if (object.height != undefined && object.height.toString().indexOf('px') == -1 && object.height.toString().indexOf('%') == -1 && object.height.toString().indexOf('em') == -1) {
+        object.height = object.height.toString() + 'px';
       }
     }
 

@@ -1,20 +1,20 @@
 'use strict';
-var CobjView = require('./cobjview.js');
-var CimageData = require('./cimagedata.js');
+var ObjView = require('./objview.js');
+var ImageData = require('./imagedata.js');
 var pluginManager = require('./pluginmanager.js');
 var Kern = require('../kern/Kern.js');
 var WL = require('./wl.js');
 
 /**
  * A View which can render images
- * @param {CimageData} dataModel
+ * @param {ImageData} dataModel
  * @param {object}        options
- * @extends CobjView
+ * @extends ObjView
  */
-var CimageView = CobjView.extend({
+var ImageView = ObjView.extend({
   constructor: function(dataModel, options) {
     options = options || {};
-    CobjView.call(this, dataModel, Kern._extend({}, options, {
+    ObjView.call(this, dataModel, Kern._extend({}, options, {
       noRender: true
     }));
 
@@ -27,9 +27,9 @@ var CimageView = CobjView.extend({
 
     var attr = this.data.attributes,
       diff = this.data.changedAttributes || this.data.attributes,
-      el = this.el;
+      el = this.outerEl;
 
-    CobjView.prototype.render.call(this, options);
+    ObjView.prototype.render.call(this, options);
 
     if ('src' in diff) {
       el.setAttribute("src", WL.imagePath + attr.src);
@@ -40,23 +40,28 @@ var CimageView = CobjView.extend({
     }
 
     this.enableObserver();
-  }
-
-}, {
-  Model: CimageData,
+  },
+  /**
+   * Will create a dataobject based on a DOM element
+   *
+   * @param {element} DOM element to needs to be parsed
+   * @return  {data} a javascript data object
+   */
   parse: function(element) {
-    var data = CobjView.parse(element);
+    ObjView.prototype.parse.call(this, element);
 
     var src = element.getAttribute('src');
     var alt = element.getAttribute('alt');
 
-    data.src = src ? src.replace(WL.imagePath, '') : undefined;
-    data.alt = alt ? alt : undefined;
-
-    return data;
+    this.disableDataObserver();
+    this.data.set("src", src ? src.replace(WL.imagePath, '') : undefined);
+    this.data.set("alt", alt ? alt : undefined);
+    this.enableDataObserver();
   }
+}, {
+  Model: ImageData
 });
 
 
-pluginManager.registerType('image', CimageView);
-module.exports = CimageView;
+pluginManager.registerType('image', ImageView);
+module.exports = ImageView;

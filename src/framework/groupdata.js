@@ -1,14 +1,14 @@
 'use strict';
 var Kern = require('../kern/Kern.js');
-var CobjData = require('./cobjdata.js');
+var ObjData = require('./objdata.js');
 /**
- * An extension of CobjData that adds the children property which is an
- * array of CobjData IDs
+ * An extension of ObjData that adds the children property which is an
+ * array of ObjData IDs
  *
- * @extends CobjData
+ * @extends ObjData
  */
-var CgroupData = CobjData.extend({
-  defaults: Kern._extend({}, CobjData.prototype.defaults, {
+var GroupData = ObjData.extend({
+  defaults: Kern._extend({}, ObjData.prototype.defaults, {
     type: 'group',
     children: [],
     tag: 'div'
@@ -46,4 +46,4 @@ var CgroupData = CobjData.extend({
   }
 });
 
-module.exports = CgroupData;
+module.exports = GroupData;

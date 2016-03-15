@@ -2,11 +2,11 @@
 var Kern = require('../kern/Kern.js');
 var defaults = require('./defaults.js');
 /**
- * #CobjData
+ * #ObjData
  * This is the base data Model for all Webpgr objects.
  * @type {Model}
  */
-var CobjData = Kern.Model.extend({
+var ObjData = Kern.Model.extend({
   // these are the default attributes, these attributes will be synced with the server
   // plugins should extend these attributes when they need to store values on the server
   // all attributes that are not in here linke `this.ontop` are internal attributes that
@@ -70,4 +70,4 @@ var CobjData = Kern.Model.extend({
   // dontSetSize: false,
 });
 
-module.exports = CobjData;
+module.exports = ObjData;

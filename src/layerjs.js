@@ -1,3 +1,4 @@
+'use strict';
 require("./kern/kern.js");
 require("./framework/wl.js");
 
@@ -8,26 +9,28 @@ require("./framework/repository.js");
 require("./framework/parsemanager.js");
 require("./framework/layouts/layerlayout.js");
 require("./framework/layouts/plainlayout.js");
-require("./framework/gesturehandler.js");
+require("./framework/gesturemanager.js");
 
 /* data objects*/
 require("./framework/defaults.js");
-require("./framework/cobjdata.js");
-require("./framework/cimagedata.js");
-require("./framework/cgroupdata.js");
+require("./framework/objdata.js");
+require("./framework/imagedata.js");
+require("./framework/textdata.js");
+require("./framework/groupdata.js");
 require("./framework/framedata.js");
 require("./framework/layerdata.js");
 require("./framework/stagedata.js");
 
 /* view objects*/
-require("./framework/cobjview.js");
-require("./framework/cimageview.js");
-require("./framework/ctextview.js");
-require("./framework/cgroupview.js");
+require("./framework/objview.js");
+require("./framework/imageview.js");
+require("./framework/textview.js");
+require("./framework/groupview.js");
 require("./framework/layerview.js");
 require("./framework/frameview.js");
 require("./framework/stageview.js");
 
-WL.init = function(){
+WL.init = function() {
   WL.parseManager.parseDocument();
-}
+  WL.gestureManager.register();
+};

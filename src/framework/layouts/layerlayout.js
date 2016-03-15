@@ -1,4 +1,4 @@
-var WL = require('../wl.js');
+'use strict';
 var Kern = require('../../kern/Kern.js');
 
 /**
@@ -18,6 +18,28 @@ var LayerLayout = Kern.EventManager.extend({
     Kern.EventManager.call(this);
     if (!layer) throw "provide a layer";
     this.layer = layer;
+  },
+  /**
+   * this functions puts a frame at its default position
+   * Note: by default this only renders width and height, but no position or transforms.
+   * Width and height are needed for getting the frame transform data
+   *
+   * @param {FrameView} frame - the frame to be positioned
+   * @returns {void}
+   */
+  positionFrame: function(frame) {
+    var attr = frame.data.attributes,
+      diff = frame.data.changedAttributes || frame.data.attributes,
+      el = frame.outerEl;
+    var css = {};
+    // just do width & height for now; FIXME
+    if ('width' in diff && attr.width !== undefined) {
+      css.width = attr.width;
+    }
+    if ('height' in diff && attr.height !== undefined) {
+      css.height = attr.height;
+    }
+    Kern._extend(el.style, css);
   },
   /**
    * get the width of associated stage. Use this method in sub classes to be compatible with changing interfaces in layer/stage
@@ -50,7 +72,7 @@ var LayerLayout = Kern.EventManager.extend({
    * @param {Type} Name - Description
    * @returns {Type} Description
    */
-  getStage: function(){
+  getStage: function() {
     return this.layer.stage;
   }
 });

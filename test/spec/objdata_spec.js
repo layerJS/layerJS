@@ -1,11 +1,11 @@
-var CobjData = require('../../src/framework/cobjdata.js');
-describe("CobjData", function() {
+var ObjData = require('../../src/framework/objdata.js');
+describe("ObjData", function() {
   it('can be created', function() {
-    var c = new CobjData();
+    var c = new ObjData();
     expect(c).not.toBeUndefined();
   });
   it('has default values', function() {
-    var c = new CobjData();
+    var c = new ObjData();
     expect(c.attributes.scaleX).toBe(1);
     expect(c.attributes.width).toBeUndefined;
   });
@@ -28,7 +28,7 @@ describe("CobjData", function() {
       "disallow": {},
       "id": 110534
     };
-    var c = new CobjData(data);
+    var c = new ObjData(data);
     expect(c.attributes.scaleX).toBe(1);
     expect(c.attributes.width).toBe('64px');
   });
