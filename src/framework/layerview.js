@@ -59,7 +59,7 @@ var LayerView = GroupView.extend({
       // FIXME trigger adaption to new stage
     });
     // set current frame from data object or take first child
-    this.currentFrame = (this.data.attributes.defaultFrame && this.findChildView(this.data.attributes.defaultFrame)) || (this.data.attributes.children[0] && this.getChildView(this.data.attributes.children[0]));
+    this.currentFrame = (this.data.attributes.defaultFrame && this.getChildViewByName(this.data.attributes.defaultFrame)) || (this.data.attributes.children[0] && this.getChildView(this.data.attributes.children[0]));
     if (!options.noRender && (options.forceRender || !options.el)) {
       this.render();
     }
