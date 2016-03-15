@@ -44,12 +44,10 @@ var TextView = ObjView.extend({
    * @return  {data} a javascript data object
    */
   parse: function(element) {
-    var dataModel = ObjView.prototype.parse.call(this, element);
+    ObjView.prototype.parse.call(this, element);
     this.disableDataObserver();
-    dataModel.attributes.content = element.innerHTML;
+    this.data.set("content", element.innerHTML);
     this.enableDataObserver();
-
-    return dataModel;
   }
 }, {
   Model: TextData

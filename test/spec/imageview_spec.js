@@ -55,20 +55,18 @@ describe("ImageView", function() {
     var element = document.createElement('img');
     element.setAttribute('src', 'some source');
 
-    var imageView = new ImageView(new ImageView.Model({}));
-    var dataModel = imageView.parse(element);
+    var imageView = new ImageView(new ImageView.Model({}), {el:element});
 
-    expect(dataModel.attributes.src).toBe('some source');
+    expect(imageView.data.attributes.src).toBe('some source');
   });
 
   it('the parse method will add an alt property to the data object', function() {
     var element = document.createElement('img');
     element.setAttribute('alt', 'some alt');
 
-    var imageView = new ImageView(new ImageView.Model({}));
-    var dataModel = imageView.parse(element);
+    var imageView = new ImageView(new ImageView.Model({}), {el:element});
 
-    expect(dataModel.attributes.alt).toBe('some alt');
+    expect(imageView.data.attributes.alt).toBe('some alt');
   });
 
   it('the parse method doesn\'t generate a change event on the dataObjects', function() {
@@ -84,7 +82,7 @@ describe("ImageView", function() {
       isFired = true;
     };
 
-    var returnedData = imageView.parse(element);
+    imageView.parse(element);
     expect(isFired).toBeFalsy();
   });
 

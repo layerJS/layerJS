@@ -17,8 +17,29 @@ var ObjView = Kern.EventManager.extend({
     Kern.EventManager.call(this);
     options = options || {};
     // dataobject must exist
-    this.data = this.data || dataModel || (options.el && this.parse(options.el));
+    this.data = this.data || dataModel || options.el && new this.constructor.Model();
     if (!this.data) throw "data object must exist when creating a view";
+    this.disableDataObserver();
+    // if element is given, parse the element to fill data object
+    this.data.silence();
+    if (options.el) {
+      this.parse(options.el);
+    }
+    // copy version from parent
+    if (options.parent && options.parent.data.attributes.version) {
+      this.data.set("version", options.parent.data.attributes.version);
+    }
+    if (this.data.attributes.id === undefined) {
+      this.data.set("id", repository.getId()); // if we don't have an data object we must create an id.
+    }
+    this.data.fire();
+    // register data object with repository
+    if (this.data.attributes.version && !repository.hasVersion(this.data.attributes.version)) {
+      repository.createVersion(this.data.attributes.version);
+    }
+    if (!repository.contains(this.data.attributes.id, this.data.attributes.version)) {
+      repository.add(this.data, this.data.attributes.version);
+    }
     // parent if defined
     this.parent = options.parent;
     // DOM element, take either the one provide by a sub constructor, provided in options, or create new
@@ -46,6 +67,8 @@ var ObjView = Kern.EventManager.extend({
 
     this._createObserver();
     this.enableObserver();
+    this.enableDataObserver();
+
   },
   _fixedDimensions: function() {
     var match;
@@ -299,37 +322,23 @@ var ObjView = Kern.EventManager.extend({
       data.zIndex = style.zIndex;
     }
 
-    data.width = style.width;
+    if (style.width !== undefined) {
+      data.width = style.width; //FIXME: how to deal with this?
+    }
     if (!data.width && element.getAttribute('width')) { // only a limited set of elements support the width attribute
       data.width = element.getAttribute('width');
     }
-    data.height = style.height;
+    if (style.height !== undefined) {
+      data.height = style.height;
+    }
     if (!data.height && element.getAttribute('height')) { // only a limited set of elements support the width attribute
       data.height = element.getAttribute('height');
     }
+    this.disableDataObserver();
+    // modify existing data object, don't trigger any change events to ourselves
+    this.data.set(data);
+    this.enableDataObserver();
 
-    if (data.id === undefined) {
-      data.id = repository.getId(); // if we don't have an data object we must create an id.
-    }
-
-    // modify existing data object if present
-    if (this.data) {
-      this.disableDataObserver();
-      this.data.set(data);
-      this.enableDataObserver();
-    }
-
-    var returnedDataObject = this.data ? this.data : new this.constructor.Model(data); // this will find the correct data object class which will also set the correct type
-
-    if (!repository.hasVersion(returnedDataObject.attributes.version)) {
-      repository.createVersion(returnedDataObject.attributes.version);
-    }
-
-    if (!repository.contains(returnedDataObject.attributes.id, returnedDataObject.attributes.version)) {
-      repository.add(returnedDataObject, returnedDataObject.attributes.version);
-    }
-
-    return returnedDataObject;
   },
   /**
    * ##destroy

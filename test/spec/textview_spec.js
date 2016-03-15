@@ -43,10 +43,11 @@ describe("TextView", function() {
     var element = document.createElement('div');
     element.innerHTML = 'some content';
 
-    var textView = new TextView(new TextView.Model({}));
-    var dataModel = textView.parse(element);
+    var textView = new TextView(new TextView.Model({}), {
+      el: element
+    });
 
-    expect(dataModel.attributes.content).toBe('some content');
+    expect(textView.data.attributes.content).toBe('some content');
   });
 
   it('the parse method doesn\'t generate a change event on the dataObjects', function() {
