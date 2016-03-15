@@ -428,15 +428,7 @@ var ObjView = Kern.EventManager.extend({
   _domElementChanged: function() {
     if (this._observerCounter !== 0) return;
 
-    var dataObject = this.parse(this.outerEl);
-
-    this.data.silence();
-    for (var data in dataObject) {
-      if (dataObject.hasOwnProperty(data)) {
-        this.data.set(data, dataObject[data]);
-      }
-    }
-    this.data.ignore();
+    this.parse(this.outerEl);
   }
 }, {
   // save model class as static variable
