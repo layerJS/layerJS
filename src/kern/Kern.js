@@ -107,6 +107,12 @@
     var Base = Kern.Base = function() {
 
     };
+    // create a contructor with a (function) name
+    function createNamedConstructor(name, constructor) {
+      // wrapper function created dynamically constructor to allow instances to be identified in the debugger
+      var fn = new Function('c', 'return function ' + name + '(){c.apply(this, arguments)}'); //jshint ignore:line
+      return fn(constructor);
+    }
     // this function can extend classes; it's a class function, not a object method
     Base.extend = function(prototypeProperties, staticProperties) {
       // create child as a constructor function which is
@@ -118,6 +124,10 @@
       var child = (prototypeProperties.hasOwnProperty('constructor') ? prototypeProperties.constructor : function() {
         return parent.apply(this, arguments); // Note: here "this" is actually the object (instance)
       });
+      // name constructor (for beautiful stacktraces) if name is given
+      if (staticProperties && staticProperties.className) {
+        child = createNamedConstructor(staticProperties.className, child);
+      }
       delete prototypeProperties.constructor; // this should not be set again.
       // create an instance of parent and assign it to childs prototype
       child.prototype = Object.create(parent.prototype); // NOTE: this does not call the parent's constructor (instead of "new parent()")

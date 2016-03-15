@@ -98,6 +98,17 @@ describe("Kern", function() {
     expect(testObject1.attributes.child.name).toEqual('childname');
     expect(testObject2.attributes.child.name).toBeUndefined();
   });
+  it('can name classes', function() {
+    var testClass = Kern.Model.extend({
+      defaults: {
+        child: {}
+      }
+    }, {
+      className: 'TestClass'
+    });
+    var t = new testClass();
+    expect(t.constructor.name).toBe('TestClass');
+  });
 });
 describe("EventManager", function() {
   beforeEach(function() {
