@@ -139,12 +139,14 @@
        * register event listerner
        * @param {string} event event name
        * @param {Function} callback the callback function
+       * @param {Object} options { ignoreSender: this }
        * @return {Object} this object
        */
-      on: function(event, callback) {
+      on: function(event, callback, options) {
         this.__listeners__[event] = this.__listeners__[event] || [];
         this.__listeners__[event].push({
-          callback: callback
+          callback: callback,
+          options: options || {}
         });
         return this;
       },
@@ -152,15 +154,16 @@
        * register event listerner. will be called only once, then unregistered.
        * @param {string} event event name
        * @param {Function} callback the callback function
+       * @param {Object} options { ignoreSender: this }
        * @return {Object} this object
        */
-      once: function(event, callback) {
+      once: function(event, callback, options) {
         var that = this;
         var helper = function() {
           callback.apply(this, arguments);
           that.off(event, helper);
         };
-        this.on(event, helper);
+        this.on(event, helper, options);
         return this;
       },
       /**
@@ -211,6 +214,36 @@
       trigger: function(event) {
         if (this.__listeners__[event]) {
           for (var i = 0; i < this.__listeners__[event].length; i++) {
+
+            // copy arguments as we need to remove the first argument (event)
+            // and arguments is read only
+            var length = arguments.length;
+            var args = new Array(length - 1);
+            for (var j = 0; j < length - 1; j++) {
+              args[j] = arguments[j + 1];
+            }
+            // call the callback
+            this.__listeners__[event][i].callback.apply(this, args);
+          }
+        }
+        return this;
+      },
+      /**
+       * trigger an event
+       * @param {object} object that fired the event
+       * @param {string} event event name
+       * @param {...} arguments further arguments
+       * @return {object} this object
+       */
+      triggerBy: function(sender, event) {
+        if (this.__listeners__[event]) {
+          for (var i = 0; i < this.__listeners__[event].length; i++) {
+
+            // check if the sender equals the ignoreSender from the options
+            if (null !== sender && null !== this.__listeners__[event][i].options.ignoreSender && this.__listeners__[event][i].options.ignoreSender === sender) {
+              break;
+            }
+
             // copy arguments as we need to remove the first argument (event)
             // and arguments is read only
             var length = arguments.length;
@@ -309,17 +342,26 @@
        * @return {Boolean} true if event was fired (not silenced)
        */
       fire: function() {
+        return this.fireBy(null);
+      },
+      /**
+       * fire change events manually after setting attributes
+       * @param {Object} object the fired the event
+       * @return {Boolean} true if event was fired (not silenced)
+       */
+      fireBy: function(sender) {
         if (this.silent > 0) {
           this.silent--;
         }
-        this._fire();
+        this._fire(sender);
         return !this.silent;
       },
       /**
        * internal fire function (also used by set)
+       * @param {Object} object the fired the event
        * @return {[type]} [description]
        */
-      _fire: function() {
+      _fire: function(sender) {
         if (this.silent) {
           return;
         }
@@ -334,11 +376,37 @@
             that.trigger("change:" + attr, that, that.attributes[attr]);
           });
         }
-        this.trigger("change", this);
+
+        if (sender) {
+          this.triggerBy(sender, "change", this);
+        } else {
+          this.trigger("change", this);
+        }
         delete this.firing;
         delete this.changedAttributes;
         delete this.newAttributes;
         delete this.deletedAttributes;
+      },
+      /**
+       * set a property or several properties and fires change events
+       * set(attributes) and set(attribute, value) syntax supported
+       * @param {Object} sender
+       * @param {Object} attributes {attribute: value}
+       */
+      setBy: function(sender, attributes) {
+        if (attributes !== null) {
+          if (typeof attributes !== 'object') { // support set(attribute, value) syntax
+            this._set.apply(this, arguments);
+          } else { // support set({attribute: value}) syntax
+            for (var prop in attributes) {
+              if (attributes.hasOwnProperty(prop)) {
+                this._set(prop, attributes[prop]);
+              }
+            }
+          }
+
+          this._fire(sender);
+        }
       },
       /**
        * set a property or several properties and fires change events
@@ -356,7 +424,8 @@
               }
             }
           }
-          this._fire();
+
+          this._fire(null);
         }
       },
       /**
