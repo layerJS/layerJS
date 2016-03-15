@@ -56,7 +56,9 @@ var ObjView = Kern.EventManager.extend({
     // The change event must change the properties of the HTMLElement el.
     this.data.on('change', function(model) {
       if (!that._dataObserverCounter) {
-        if (model.changedAttributes.hasOwnProperty('width') || model.changedAttributes.hasOwnProperty('height')) that._fixedDimensions();
+        if (model.changedAttributes.hasOwnProperty('width') || model.changedAttributes.hasOwnProperty('height')) {
+          that._fixedDimensions();
+        }
         that.render();
       }
     });
@@ -390,8 +392,18 @@ var ObjView = Kern.EventManager.extend({
     var that = this;
 
     if (window.MutationObserver) {
-      this._observer = new MutationObserver(function() {
-        that._domElementChanged();
+      this._observer = new MutationObserver(function(mutations) {
+        var i;
+        var trigger = false;
+        for (i = 0; i < mutations.length; i++) {
+          // FIXME: do a similar thing for DOMChangeListeners below
+          if (!(mutations[i].type === "attributes" && mutations[i].attributeName === 'styles')) {
+            trigger = true;
+          }
+        }
+        if (trigger) {
+          that._domElementChanged();
+        }
       });
 
       this._observer.observe(this.outerEl, {

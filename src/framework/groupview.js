@@ -334,8 +334,7 @@ var GroupView = ObjView.extend({
   _renderChildPosition: function(childView) {
 
     var attr = childView.data.attributes,
-      diff = childView.data.changedAttributes || childView.data.attributes,
-      el = childView.outerEl;
+      diff = childView.data.changedAttributes || childView.data.attributes;
 
     var css = {};
     if ('x' in diff && attr.x !== undefined) {
@@ -369,10 +368,7 @@ var GroupView = ObjView.extend({
     if ('height' in diff && attr.height !== undefined) {
       css.height = attr.height;
     }
-
-    childView.disableObserver();
-    Kern._extend(el.style, css);
-    childView.enableObserver();
+    childView.applyStyles(css);
   },
   /**
    * render the group. Uses objview.render to display changes to the object.

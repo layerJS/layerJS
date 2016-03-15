@@ -294,14 +294,14 @@ var LayerView = GroupView.extend({
    *
    * @param {object} render options
    */
-  render: function(options) {
-    GroupView.prototype.render.call(this, options);
-    this.disableObserver();
-
-    this.outerEl.setAttribute('data-wl-native-scroll', this.data.attributes.nativeScroll);
-
-    this.enableObserver();
-  },
+  // render: function(options) {
+  //   GroupView.prototype.render.call(this, options);
+  //   this.disableObserver();
+  //
+  //   this.outerEl.setAttribute('data-wl-native-scroll', this.data.attributes.nativeScroll);
+  //
+  //   this.enableObserver();
+  // },
   /**
    * overriden default behavior of groupview
    *
