@@ -23,6 +23,10 @@ var GroupView = ObjView.extend({
     var that = this;
     this._childViews = {};
     this._childNames = {};
+
+    ObjView.call(this, dataModel, Kern._extend({}, options, {
+      noRender: true
+    }));
     // create listener to child changes. need different callbacks for each instance in order to remove listeners separately from child data objects
     this._myChildListenerCallback = function(model) {
       var view = that._childViews[model.attributes.id];
@@ -40,10 +44,6 @@ var GroupView = ObjView.extend({
         }
       }
     };
-
-    ObjView.call(this, dataModel, Kern._extend({}, options, {
-      noRender: true
-    }));
 
     this.data.on('change:children', (function() {
       if (!this._dataObserverCounter) {
