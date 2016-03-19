@@ -29,7 +29,7 @@ var LayerView = GroupView.extend({
 
 
     var hasScroller = this.outerEl.childNodes.length === 1 && this.outerEl.childNodes[0].getAttribute('data-wl-helper') === 'scroller';
-    this.innerEl = this.outerEl;
+    this.innerEl = hasScroller ? this.outerEl.childNodes[0] : this.outerEl;
 
     // call super constructor
     GroupView.call(this, dataModel, Kern._extend({}, options, {
