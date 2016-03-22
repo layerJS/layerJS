@@ -9,14 +9,17 @@
     "rimraf": "latest",
     "jsdom": "latest",
     "mkdirp": "latest",
-    "file-save" : "latest",
-    "uglifyjs" : "latest",
-    "fs-extra" : "latest",
-    "jshint" : "latest"
+    "file-save": "latest",
+    "uglifyjs": "latest",
+    "fs-extra": "latest",
+    "jshint": "latest",
+    "protractor": "latest"
   },
   "scripts": {
     "clean": "rimraf dist/*",
     "jshint": "jshint src",
+
+    "postinstall": "webdriver-manager update --standalone",
 
     "prebuild": "npm run clean && npm run test",
     "build": "npm run build:scripts -s",
@@ -25,8 +28,12 @@
     "build:copywithversionnumber": "node ./.build/copywithversionnumber.js",
 
     "pretest": "npm run jshint",
-    "test": "jasmine JASMINE_CONFIG_PATH=./test/spec/support/jasmine.json",
+    "test": "jasmine test/spec/transition_spec.js JASMINE_CONFIG_PATH=./test/spec/support/jasmine.json",
 
-    "correctDatasets" : "node ./test/scripts/correctDatasets.js"
+
+    "correctDatasets": "node ./test/scripts/correctDatasets.js",
+
+    "webdriverManagerStart": "webdriver-manager start",
+    "e2eTest": "./node_modules/.bin/protractor protractorconfig.js"
   }
 }
