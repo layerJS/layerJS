@@ -57,6 +57,7 @@ describe("PlainLayout", function() {
             expect(f1_display).toBe('none');
             expect(f2_display).toBe('block');
             expect(stage_dimensions.width).toBe(f2_dimensions.width);
+            expect(f1_dimensions.left).toBeLessThan(-(stage_dimensions.width - 1));
             expect(f1_dimensions.left + f1_dimensions.width).toBeLessThan(1);
             expect(f2_dimensions.left + f2_dimensions.width).toBeGreaterThan(0);
           });
@@ -176,7 +177,7 @@ describe("PlainLayout", function() {
 
             expect(f1_display).toBe('none');
             expect(f2_display).toBe('block');
-            
+
             expect(stage_dimensions.width).toBe(f2_dimensions.width);
             expect(f1_dimensions.top).toBeGreaterThan(stage_dimensions.top + stage_dimensions.height -1);
             expect(f2_dimensions.top).toBeGreaterThan(stage_dimensions.top-1);
