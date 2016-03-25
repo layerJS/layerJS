@@ -104,7 +104,7 @@ describe("PlainLayout", function() {
     });
   });
 
-  it('can transition a frame up', function() {
+ it('can transition a frame up', function() {
 
     browser.get('plainlayout/plainlayout.html').then(function() {
 
@@ -137,8 +137,9 @@ describe("PlainLayout", function() {
             expect(f2_display).toBe('block');
 
             expect(stage_dimensions.width).toBe(f2_dimensions.width);
-            expect(f1_dimensions.top).toBeLessThan(stage_dimensions.top);
+            expect(f1_dimensions.top).toBeLessThan(stage_dimensions.top - stage_dimensions.height + 1);
             expect(f2_dimensions.top).toBeGreaterThan(stage_dimensions.top-1);
+            expect(f2_dimensions.top).toBeLessThan(stage_dimensions.top + stage_dimensions.height);
           });
         });
     });
@@ -175,10 +176,11 @@ describe("PlainLayout", function() {
 
             expect(f1_display).toBe('none');
             expect(f2_display).toBe('block');
-
+            
             expect(stage_dimensions.width).toBe(f2_dimensions.width);
-            expect(f1_dimensions.top).toBeGreaterThan(f2_dimensions.height-1);
+            expect(f1_dimensions.top).toBeGreaterThan(stage_dimensions.top + stage_dimensions.height -1);
             expect(f2_dimensions.top).toBeGreaterThan(stage_dimensions.top-1);
+            expect(f2_dimensions.top).toBeLessThan(stage_dimensions.top + stage_dimensions.height);
           });
         });
     });

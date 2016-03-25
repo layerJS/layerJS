@@ -13,11 +13,17 @@ var PlainLayout = LayerLayout.extend({
    */
   constructor: function(layer) {
     LayerLayout.call(this, layer);
+    var that = this;
+
+    var swipeTransition = function(type, which, currentFrameTransformData, targetFrameTransformData) {
+      return that.swipeTransition(type, which, currentFrameTransformData, targetFrameTransformData);
+    };
+
     this.transitions = {
-      left: this.swipeTransition,
-      right: this.swipeTransition,
-      up: this.swipeTransition,
-      down: this.swipeTransition
+      left: swipeTransition,
+      right: swipeTransition,
+      up: swipeTransition,
+      down: swipeTransition
     };
   },
   /**
@@ -164,7 +170,7 @@ var PlainLayout = LayerLayout.extend({
       case 'left':
         // target frame transform time 0
         if (which & PlainLayout.TT0) { // jshint ignore:line
-          x = currentFrameTransformData.width - currentFrameTransformData.shiftX;
+          x = Math.max(this.getStageWidth(), currentFrameTransformData.width) - currentFrameTransformData.shiftX;
           y = -targetFrameTransformData.shiftY;
           t.t0 = {
             // FIXME: translate and scale may actually be swapped here, not tested yet as shift was always zero so far!!!
@@ -174,7 +180,7 @@ var PlainLayout = LayerLayout.extend({
         }
         // current frame transform time 1
         if (which & PlainLayout.CT1) { // jshint ignore:line
-          x = -targetFrameTransformData.width + currentFrameTransformData.shiftX;
+          x = -Math.max(this.getStageWidth(), targetFrameTransformData.width) + currentFrameTransformData.shiftX;
           y = -currentFrameTransformData.shiftY;
           t.c1 = {
             transform: "translate3d(" + x + "px," + y + "px,0px) scale(" + currentFrameTransformData.scale + ")",
@@ -186,7 +192,7 @@ var PlainLayout = LayerLayout.extend({
       case 'right':
         // target frame transform time 0
         if (which & PlainLayout.TT0) { // jshint ignore:line
-          x = -currentFrameTransformData.width + currentFrameTransformData.shiftX;
+          x = -Math.max(this.getStageWidth(), currentFrameTransformData.width) + currentFrameTransformData.shiftX;
           y = -targetFrameTransformData.shiftY;
           t.t0 = {
             transform: "translate3d(" + x + "px," + y + "px,0px) scale(" + targetFrameTransformData.scale + ")",
@@ -195,7 +201,7 @@ var PlainLayout = LayerLayout.extend({
         }
         // current frame transform time 1
         if (which & PlainLayout.CT1) { // jshint ignore:line
-          x = targetFrameTransformData.width - currentFrameTransformData.shiftX;
+          x = Math.max(this.getStageWidth(), targetFrameTransformData.width) - currentFrameTransformData.shiftX;
           y = currentFrameTransformData.shiftY;
           t.c1 = {
             transform: "translate3d(" + x + "px," + y + "px,0px) scale(" + currentFrameTransformData.scale + ")",
@@ -208,7 +214,7 @@ var PlainLayout = LayerLayout.extend({
         // target frame transform time 0
         if (which & PlainLayout.TT0) { // jshint ignore:line
           x = -targetFrameTransformData.shiftX;
-          y = -(currentFrameTransformData.height > targetFrameTransformData.height ? currentFrameTransformData.height : targetFrameTransformData.height) + currentFrameTransformData.shiftY;
+          y = -Math.max(this.getStageHeight(), currentFrameTransformData.height, targetFrameTransformData.height) + currentFrameTransformData.shiftY;
           t.t0 = {
             transform: "translate3d(" + x + "px," + y + "px,0px) scale(" + targetFrameTransformData.scale + ")",
             'transform-origin': "0 0"
@@ -217,7 +223,8 @@ var PlainLayout = LayerLayout.extend({
         // current frame transform time 1
         if (which & PlainLayout.CT1) { // jshint ignore:line
           x = currentFrameTransformData.shiftX;
-          y = (currentFrameTransformData.height > targetFrameTransformData.height ? currentFrameTransformData.height : targetFrameTransformData.height) - currentFrameTransformData.shiftY;
+          y = Math.max(this.getStageHeight(), currentFrameTransformData.height, targetFrameTransformData.height) - currentFrameTransformData.shiftY;
+
           t.c1 = {
             transform: "translate3d(" + x + "px," + y + "px,0px) scale(" + currentFrameTransformData.scale + ")",
             'transform-origin': "0 0"
@@ -229,7 +236,8 @@ var PlainLayout = LayerLayout.extend({
         // target frame transform time 0
         if (which & PlainLayout.TT0) { // jshint ignore:line
           x = -targetFrameTransformData.shiftX;
-          y = (currentFrameTransformData.height > targetFrameTransformData.height ? currentFrameTransformData.height : targetFrameTransformData.height) - targetFrameTransformData.shiftY;
+          y = Math.max(this.getStageHeight(), currentFrameTransformData.height, targetFrameTransformData.height) - targetFrameTransformData.shiftY;
+
           t.t0 = {
             transform: "translate3d(" + x + "px," + y + "px,0px) scale(" + targetFrameTransformData.scale + ")",
             'transform-origin': "0 0"
@@ -238,7 +246,7 @@ var PlainLayout = LayerLayout.extend({
         // current frame transform time 1
         if (which & PlainLayout.CT1) { // jshint ignore:line
           x = -currentFrameTransformData.shiftX;
-          y = -(currentFrameTransformData.height > targetFrameTransformData.height ? currentFrameTransformData.height : targetFrameTransformData.height) - currentFrameTransformData.shiftY;
+          y = -Math.max(this.getStageHeight(), currentFrameTransformData.height, targetFrameTransformData.height) - currentFrameTransformData.shiftY;
           t.c1 = {
             transform: "translate3d(" + x + "px," + y + "px,0px) scale(" + currentFrameTransformData.scale + ")",
             'transform-origin': "0 0"
