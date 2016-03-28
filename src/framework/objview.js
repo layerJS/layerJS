@@ -230,6 +230,22 @@ var ObjView = Kern.EventManager.extend({
     return this.outerEl.offsetHeight || this.fixedHeight;
   },
   /**
+   * returns the X coordinate.
+   *
+   * @returns {number} x
+   */
+  x: function() {
+    return this.outerEl.getBoundingClientRect().left || 0;
+  },
+  /**
+   * returns the Y coordinate.
+   *
+   * @returns {number} y
+   */
+  y: function() {
+    return this.outerEl.getBoundingClientRect().top || 0;
+  },
+  /**
    * make sure element has reliable dimensions, either by being rendered or by having fixed dimensions
    *
    * @returns {Promise} the promise which becomes fulfilled if dimensions are availabe

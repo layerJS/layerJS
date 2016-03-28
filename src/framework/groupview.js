@@ -290,6 +290,25 @@ var GroupView = ObjView.extend({
     return this._childNames[name];
   },
   /**
+   * return all the child views
+   *
+   * @returns {array} the view object
+   */
+  getChildViews: function() {
+
+    var childViews = [];
+    var index = 0;
+
+    for (var childName in this._childNames) {
+      if (this._childNames.hasOwnProperty(childName)) {
+        childViews[index++] = this._childNames[childName];
+      }
+    }
+
+    return childViews;
+  },
+
+  /**
    * Attach a new view object as a child. This updates the this.data.children property, so don't do that manually.
    * This method is the only way to attach an existing view to the parent. If a child is added solely in the dataobject,
    * a new view object is generated via the plugin manager.

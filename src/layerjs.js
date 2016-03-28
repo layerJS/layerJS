@@ -9,6 +9,7 @@ require("./framework/repository.js");
 require("./framework/parsemanager.js");
 require("./framework/layouts/layerlayout.js");
 require("./framework/layouts/plainlayout.js");
+require("./framework/layouts/canvaslayout.js");
 require("./framework/gesturemanager.js");
 
 /* data objects*/

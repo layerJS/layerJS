@@ -178,7 +178,7 @@ var commonViewTests = function(scenario, initFunction) {
       } else {
         expect(element.hasAttribute('target')).toBeFalsy();
       }
-    });  
+    });
 
     it('listens for changes on its DOM element when _observerCounter is 0', function() {
       var view = new ViewType(data);
