@@ -1,5 +1,4 @@
 'use strict';
-var $ = require('../domhelpers.js');
 var Kern = require('../../kern/Kern.js');
 var layoutManager = require('../layoutmanager.js');
 var LayerLayout = require('./layerlayout.js');
@@ -13,7 +12,6 @@ var CanvasLayout = LayerLayout.extend({
    */
   constructor: function(layer) {
     LayerLayout.call(this, layer);
-    var that = this;
   },
   /**
    * transforms immidiately to the specified frame.
@@ -23,14 +21,10 @@ var CanvasLayout = LayerLayout.extend({
    * @param {string} transform - a string representing the scroll transform of the current frame
    * @returns {void}
    */
+  /*jshint unused: true*/
   setFrame: function(frame, transformData, transform) {
+    /*jshint unused: false*/
 
-    /*  var t = this.swipeTransition(undefined, PlainLayout.TT1, null, transformData);
-      this._applyTransform(frame, t.t1, transform, {
-        display: '',
-        opacity: 1,
-        visibility: ''
-      });*/
     this.executeTransition(frame, null, null, null, transformData);
 
   },
@@ -46,52 +40,48 @@ var CanvasLayout = LayerLayout.extend({
    */
   executeTransition: function(frame, transition, t, currentTransformData, targetTransformData) {
     var finished = new Kern.Promise();
-    var currentFrame = this.layer.currentFrame;
 
     var transformation = {};
     var frameTransformData = frame.getTransformData(this.layer.stage);
-    /*var frameX = frame.x() * -1;
-    var frameY = frame.y() * -1;
-    */
 
-    var frameX = (frame.data.attributes.x !== undefined && frame.data.attributes.x.replace('px','') || 0)  * -1;
-    var frameY = (frame.data.attributes.y !== undefined && frame.data.attributes.y.replace('px','') || 0) * -1;
+    var targetFrameX = (parseInt(frame.data.attributes.x) || 0) * -1;
+    var targetFrameY = (parseInt(frame.data.attributes.y) || 0) * -1;
 
     transformation[frame.data.attributes.id] = {
-      // FIXME: translate and scale may actually be swapped here, not tested yet as shift was always zero so far!!!
-      transform: "translate3d(" + (frameX) + "px," + frameY + "px,0px) scale(" + frameTransformData.scale + ")",
+      transform: "translate3d(0px,0px,0px) scale(" + frameTransformData.scale + ")",
       'transform-origin': "0 0"
     };
 
     var frames = this.layer.getChildViews();
     var framesLength = frames.length;
+    var childFrame;
 
     for (var i = 0; i < framesLength; i++) {
-      var childFrame = frames[i];
+      childFrame = frames[i];
       if (!transformation.hasOwnProperty(childFrame.data.attributes.id)) {
-        var transformData = childFrame.getTransformData(this.layer.stage);
+        var frameX = (parseInt(childFrame.data.attributes.x) || 0) + targetFrameX;
+        var frameY = (parseInt(childFrame.data.attributes.y) || 0) + targetFrameY;
 
         transformation[childFrame.data.attributes.id] = {
-          // FIXME: translate and scale may actually be swapped here, not tested yet as shift was always zero so far!!!
-          transform: "translate3d(" + frameX + "px," + frameY + "px,0px) scale(1)",
+          transform: "translate3d(" + frameX + "px," + frameY + "px,0px) scale(" + 1 + ")",
           'transform-origin': "0 0"
         };
       }
     }
-    ;
+
     setTimeout(function() {
       finished.resolve();
     }, 2000);
 
-    for (var i = 0; i < framesLength; i++) {
-      var childFrame = frames[i];
+    for (var index = 0; index < framesLength; index++) {
+      childFrame = frames[index];
       if (transformation.hasOwnProperty(childFrame.data.attributes.id)) {
         if (childFrame.data.attributes.id === frame.data.attributes.id) {
           this._applyTransform(childFrame, transformation[childFrame.data.attributes.id], targetTransformData, {
             transition: '2s'
           });
         } else {
-          this._applyTransform(childFrame, transformation[childFrame.data.attributes.id], "", {
+          this._applyTransform(childFrame, transformation[childFrame.data.attributes.id], transformation[frame.data.attributes.id].transform, {
             transition: '2s'
           });
         }
@@ -113,8 +103,9 @@ var CanvasLayout = LayerLayout.extend({
    * @param {string} targetTransform - a string representing the scroll transform of the target frame
    * @returns {Promise} will fire when pre transform to target frame is applied
    */
+  /*jshint unused: true*/
   prepareTransition: function(frame, type, currentFrameTransformData, targetFrameTransformData, currentTransform, targetTransform) {
-
+    /*jshint unused: false*/
     var finished = new Kern.Promise();
     finished.resolve({});
 
@@ -126,10 +117,12 @@ var CanvasLayout = LayerLayout.extend({
    * @param {String} transform - the scrolling transform
    * @returns {Type} Description
    */
+  /*jshint unused: true*/
   setTransform: function(transform, currentFrameTransformData) {
+    /*jshint unused: false*/
     // FIXME: layout should store the t.c0 somehow
-    var t = this.swipeTransition(undefined, PlainLayout.CT0, currentFrameTransformData, null);
-    this._applyTransform(this.layer.currentFrame, t.c0, transform);
+    //var t = this.swipeTransition(undefined, PlainLayout.CT0, currentFrameTransformData, null);
+    //this._applyTransform(this.layer.currentFrame, t.c0, transform);
   },
   /**
    * apply transform by combining the frames base transform with the added scroll transform

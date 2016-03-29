@@ -39,12 +39,7 @@ var LayerLayout = Kern.EventManager.extend({
     if ('height' in diff && attr.height !== undefined) {
       css.height = attr.height;
     }
-    if('x' in diff && attr.x !== undefined){
-      css.left = attr.x;
-    }
-    if ('y' in diff && attr.y !== undefined){
-      css.top = attr.y;
-    }
+    
     Kern._extend(el.style, css);
   },
   /**
