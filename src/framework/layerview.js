@@ -36,6 +36,7 @@ var LayerView = GroupView.extend({
       noRender: true
     }));
     this._layout = new(layoutManager.get(this.data.attributes.layoutType))(this);
+    // this._transformer = this._transformer || new ScrollTransformer();
 
     if (hasScroller && !this.data.attributes.nativeScroll) $.unwrapChildren(this.outerEl);
     // should we have a scroller but don't have one?
@@ -310,7 +311,7 @@ var LayerView = GroupView.extend({
    */
   _renderChildPosition: function(childView) {
     childView.disableObserver();
-    this._layout.positionFrame(childView);
+    this._layout.renderFramePosition(childView, this._currentTransform);
     childView.enableObserver();
   }
 }, {

@@ -297,11 +297,10 @@ var GroupView = ObjView.extend({
   getChildViews: function() {
 
     var childViews = [];
-    var index = 0;
 
     for (var childName in this._childNames) {
       if (this._childNames.hasOwnProperty(childName)) {
-        childViews[index++] = this._childNames[childName];
+        childViews.push(this._childNames[childName]);
       }
     }
 

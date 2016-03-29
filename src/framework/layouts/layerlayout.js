@@ -27,7 +27,7 @@ var LayerLayout = Kern.EventManager.extend({
    * @param {FrameView} frame - the frame to be positioned
    * @returns {void}
    */
-  positionFrame: function(frame) {
+  renderFramePosition: function(frame) {
     var attr = frame.data.attributes,
       diff = frame.data.changedAttributes || frame.data.attributes,
       el = frame.outerEl;
@@ -39,7 +39,6 @@ var LayerLayout = Kern.EventManager.extend({
     if ('height' in diff && attr.height !== undefined) {
       css.height = attr.height;
     }
-    
     Kern._extend(el.style, css);
   },
   /**
