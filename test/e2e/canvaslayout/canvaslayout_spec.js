@@ -7,6 +7,20 @@ describe("CanvasLayout", function() {
     browser.driver.manage().window().setSize(800, 600);
   });
 
+  /*
+    function sin(x) {
+      return Math.sin(x / 180 * Math.PI);
+    }
+
+    function cos(x) {
+      return Math.cos(x / 180 * Math.PI);
+    }
+
+    function rotate(x, y, a) {
+      var x2 = cos(a) * x - sin(a) * y;
+      var y2 = sin(a) * x + cos(a) * y;
+      return [x2, y2];
+    }*/
 
   it('will transition to a frame and will apply a transform on all frames within the layer', function() {
     browser.get('canvasLayout/canvaslayout.html').then(function() {
@@ -36,7 +50,6 @@ describe("CanvasLayout", function() {
             utilities.getScale('thirth')
           ]).then(function(data) {
 
-            console.log(data);
             var stage_dimensions = data[0];
             var f1_display = data[1];
             var f1_dimensions = data[2];
@@ -52,12 +65,15 @@ describe("CanvasLayout", function() {
             expect(f2_display).toBe('block');
             expect(f3_display).toBe('block');
             expect(stage_dimensions.width).toBe(f2_dimensions.width);
-            expect(f1_dimensions.left / f1_scale).toBeWithinRange(-500 - 1, -500 + 1);
-            expect(f1_dimensions.top / f1_scale).toBeWithinRange(-100 - 1, -100 + 1);
-            expect(f2_dimensions.left).toBe(0);
-            expect(f2_dimensions.top).toBe(0);
-            expect(f3_dimensions.left / f3_scale).toBeWithinRange(-150 - 1, -150 + 1);
-            expect(f3_dimensions.top / f3_scale).toBeWithinRange(-90 - 1, -90 + 1);
+            expect(f1_dimensions.left.toFixed(0)).toBe('-272');
+            expect(f1_dimensions.top.toFixed(0)).toBe('-54');
+            expect(f1_scale.toFixed(4)).toBe('0.5444');
+            expect(f2_dimensions.left.toFixed(0)).toBe('0');
+            expect(f2_dimensions.top.toFixed(0)).toBe('0');
+            expect(f2_scale.toFixed(4)).toBe('0.5444');
+            expect(f3_dimensions.left.toFixed(0)).toBe('-94');
+            expect(f3_dimensions.top.toFixed(0)).toBe('-49');
+            expect(f3_scale.toFixed(4)).toBe('0.2722');
           });
         });
       });
@@ -103,16 +119,20 @@ describe("CanvasLayout", function() {
             var f3_dimensions = data[8];
             var f3_scale = data[9];
 
+
             expect(f1_display).toBe('block');
             expect(f2_display).toBe('block');
             expect(f3_display).toBe('block');
-            expect(stage_dimensions.width).toBe(f2_dimensions.width);
-            expect(f1_dimensions.left / f1_scale).toBeWithinRange(-350 - 1, -350 + 1);
-            expect(f1_dimensions.top / f1_scale).toBeWithinRange(-10 - 1, -10 + 1);
-            expect(f2_dimensions.left / f2_scale).toBeWithinRange(150 - 1, 150 + 1);
-            expect(f2_dimensions.top / f2_scale).toBeWithinRange(90 - 1, 90 + 1);
-            expect(f3_dimensions.left).toBe(0);
-            expect(f3_dimensions.top).toBe(0);
+            //expect(stage_dimensions.width).toBe(f2_dimensions.width);
+            expect(f1_dimensions.left.toFixed(0)).toBe('-168');
+            expect(f1_dimensions.top.toFixed(0)).toBe('-32');
+            expect(f1_scale.toFixed(4)).toBe('0.5444');
+            expect(f2_dimensions.left.toFixed(0)).toBe('95');
+            expect(f2_dimensions.top.toFixed(0)).toBe( '-390');
+            expect(f2_scale.toFixed(4)).toBe('0.5444');
+            expect(f3_dimensions.left.toFixed(0)).toBe('-0');
+            expect(f3_dimensions.top.toFixed(0)).toBe('0');
+            expect(f3_scale.toFixed(4)).toBe('0.2722');
           });
         });
       });
