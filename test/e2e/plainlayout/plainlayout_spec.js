@@ -1,29 +1,11 @@
+var utilities = require('../helpers/utilities.js');
+
 describe("PlainLayout", function() {
 
   beforeEach(function() {
     // window size can be set
     browser.driver.manage().window().setSize(800, 600);
   });
-
-  function transitionTo(layerId, frameName, transition) {
-    return browser.driver.executeAsyncScript(function(layerId, frameName, transition, callBack) {
-      WL.select('#' + layerId).transitionTo(frameName, transition);
-      window.setTimeout(callBack, 5000);
-    }, layerId, frameName, transition);
-  }
-
-  function getBoundingClientRect(elementId) {
-    return browser.driver.executeAsyncScript(function(elementId, callBack) {
-      var el = window.document.getElementById(elementId);
-      var orgDisplay = el.style.display;
-
-      el.style.display = 'block';
-      var result = el.getBoundingClientRect();
-      el.style.display = orgDisplay;
-
-      callBack(result);
-    }, elementId);
-  }
 
   it('can transition a frame to the left', function() {
 
@@ -37,16 +19,16 @@ describe("PlainLayout", function() {
       expect(f1.getCssValue('display')).toBe('block');
       expect(f2.getCssValue('display')).toBe('none');
 
-      transitionTo('layer1', 'second', {
+      utilities.transitionTo('layer1', 'second', {
           type: 'left'
         })
         .then(function() {
           protractor.promise.all([
-            getBoundingClientRect('root'),
+            utilities.getBoundingClientRect('root'),
             f1.getCssValue('display'),
-            getBoundingClientRect('main'),
+            utilities.getBoundingClientRect('main'),
             f2.getCssValue('display'),
-            getBoundingClientRect('second')
+            utilities.getBoundingClientRect('second')
           ]).then(function(data) {
             var stage_dimensions = data[0];
             var f1_display = data[1];
@@ -77,16 +59,16 @@ describe("PlainLayout", function() {
       expect(f1.getCssValue('display')).toBe('block');
       expect(f2.getCssValue('display')).toBe('none');
 
-      transitionTo('layer1', 'second', {
+      utilities.transitionTo('layer1', 'second', {
           type: 'right'
         })
         .then(function() {
           protractor.promise.all([
-            getBoundingClientRect('root'),
+            utilities.getBoundingClientRect('root'),
             f1.getCssValue('display'),
-            getBoundingClientRect('main'),
+            utilities.getBoundingClientRect('main'),
             f2.getCssValue('display'),
-            getBoundingClientRect('second')
+            utilities.getBoundingClientRect('second')
           ]).then(function(data) {
             var stage_dimensions = data[0];
             var f1_display = data[1];
@@ -105,7 +87,7 @@ describe("PlainLayout", function() {
     });
   });
 
- it('can transition a frame up', function() {
+  it('can transition a frame up', function() {
 
     browser.get('plainlayout/plainlayout.html').then(function() {
 
@@ -117,16 +99,16 @@ describe("PlainLayout", function() {
       expect(f1.getCssValue('display')).toBe('block');
       expect(f2.getCssValue('display')).toBe('none');
 
-      transitionTo('layer1', 'second', {
+      utilities.transitionTo('layer1', 'second', {
           type: 'up'
         })
         .then(function() {
           protractor.promise.all([
-            getBoundingClientRect('root'),
+            utilities.getBoundingClientRect('root'),
             f1.getCssValue('display'),
-            getBoundingClientRect('main'),
+            utilities.getBoundingClientRect('main'),
             f2.getCssValue('display'),
-            getBoundingClientRect('second')
+            utilities.getBoundingClientRect('second')
           ]).then(function(data) {
             var stage_dimensions = data[0];
             var f1_display = data[1];
@@ -139,7 +121,7 @@ describe("PlainLayout", function() {
 
             expect(stage_dimensions.width).toBe(f2_dimensions.width);
             expect(f1_dimensions.top).toBeLessThan(stage_dimensions.top - stage_dimensions.height + 1);
-            expect(f2_dimensions.top).toBeGreaterThan(stage_dimensions.top-1);
+            expect(f2_dimensions.top).toBeGreaterThan(stage_dimensions.top - 1);
             expect(f2_dimensions.top).toBeLessThan(stage_dimensions.top + stage_dimensions.height);
           });
         });
@@ -158,16 +140,16 @@ describe("PlainLayout", function() {
       expect(f1.getCssValue('display')).toBe('block');
       expect(f2.getCssValue('display')).toBe('none');
 
-      transitionTo('layer1', 'second', {
+      utilities.transitionTo('layer1', 'second', {
           type: 'down'
         })
         .then(function() {
           protractor.promise.all([
-            getBoundingClientRect('root'),
+            utilities.getBoundingClientRect('root'),
             f1.getCssValue('display'),
-            getBoundingClientRect('main'),
+            utilities.getBoundingClientRect('main'),
             f2.getCssValue('display'),
-            getBoundingClientRect('second')
+            utilities.getBoundingClientRect('second')
           ]).then(function(data) {
             var stage_dimensions = data[0];
             var f1_display = data[1];
@@ -179,8 +161,8 @@ describe("PlainLayout", function() {
             expect(f2_display).toBe('block');
 
             expect(stage_dimensions.width).toBe(f2_dimensions.width);
-            expect(f1_dimensions.top).toBeGreaterThan(stage_dimensions.top + stage_dimensions.height -1);
-            expect(f2_dimensions.top).toBeGreaterThan(stage_dimensions.top-1);
+            expect(f1_dimensions.top).toBeGreaterThan(stage_dimensions.top + stage_dimensions.height - 1);
+            expect(f2_dimensions.top).toBeGreaterThan(stage_dimensions.top - 1);
             expect(f2_dimensions.top).toBeLessThan(stage_dimensions.top + stage_dimensions.height);
           });
         });
