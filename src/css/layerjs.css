@@ -22,7 +22,9 @@
   left: 0px;
   bottom: 0px;
   right: 0px;
+  width: auto;
   width: initial;
+  height: auto;
   height: initial;
   overflow: auto;
 }
