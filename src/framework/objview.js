@@ -61,7 +61,7 @@ var ObjView = Kern.EventManager.extend({
         }
         that.render();
       }
-    });
+    }, {ignoreSender: that});
     this._fixedDimensions();
     // Only render the element when it is passed in the options
     if (!options.noRender && (options.forceRender || !options.el))
@@ -228,7 +228,7 @@ var ObjView = Kern.EventManager.extend({
    */
   height: function() {
     return this.outerEl.offsetHeight || this.fixedHeight;
-  },  
+  },
   /**
    * make sure element has reliable dimensions, either by being rendered or by having fixed dimensions
    *
@@ -338,7 +338,7 @@ var ObjView = Kern.EventManager.extend({
     }
     this.disableDataObserver();
     // modify existing data object, don't trigger any change events to ourselves
-    this.data.set(data);
+    this.data.setBy(this, data);
     this.enableDataObserver();
 
   },

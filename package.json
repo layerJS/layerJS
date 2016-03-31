@@ -6,6 +6,7 @@
   "devDependencies": {
     "browserify": "latest",
     "jasmine": "latest",
+    "jasmine-expect" : "latest",
     "rimraf": "latest",
     "jsdom": "latest",
     "mkdirp": "latest",
