@@ -20,7 +20,7 @@
     "clean": "rimraf dist/*",
     "jshint": "jshint src",
 
-    "postinstall": "webdriver-manager update --standalone",
+    "postinstall": "webdriver-manager update --standalone && webdriver-manager update --ie",
 
     "prebuild": "npm run clean && npm run test",
     "build": "npm run build:scripts -s",
