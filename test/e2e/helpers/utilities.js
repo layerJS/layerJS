@@ -44,4 +44,26 @@ utilities.getScale = function(elementId) {
   }, elementId);
 };
 
+utilities.getRotation = function(elementId) {
+  return browser.driver.executeAsyncScript(function(elementId, callback) {
+    var el = document.getElementById(elementId);
+    var st = window.getComputedStyle(el, null);
+    var tr = st.getPropertyValue("-webkit-transform") ||
+      st.getPropertyValue("-moz-transform") ||
+      st.getPropertyValue("-ms-transform") ||
+      st.getPropertyValue("-o-transform") ||
+      st.getPropertyValue("transform") ||
+      "FAIL";
+
+    var values = tr.split('(')[1].split(')')[0].split(',');
+    var a = values[0];
+    var b = values[1];
+    var c = values[2];
+    var d = values[3];
+
+    var radians = Math.atan2(b, a);
+    callback(Math.round(radians * (180 / Math.PI)));
+  }, elementId);
+};
+
 module.exports = utilities;
