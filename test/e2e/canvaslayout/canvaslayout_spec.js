@@ -137,7 +137,7 @@ describe("CanvasLayout", function() {
             expect(f1_display).toBe('block');
             expect(f2_display).toBe('block');
             expect(f3_display).toBe('block');
-            //expect(stage_dimensions.width).toBe(f2_dimensions.width);
+            //expect(stage_dimensions.width).toBe(f3_dimensions.width);
             expect(f1_dimensions.left).toBeWithinRange(-169, -167);
             expect(f1_dimensions.top).toBeWithinRange(-33, -31);
             expect(f1_scale).toBeWithinRange(0.544, 0.546);
