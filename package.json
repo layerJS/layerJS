@@ -30,6 +30,7 @@
 
     "pretest": "npm run jshint",
     "test": "jasmine JASMINE_CONFIG_PATH=./test/spec/support/jasmine.json",
+    "debugtest": "node debug `which jasmine` JASMINE_CONFIG_PATH=./test/spec/support/jasmine.json",
 
 
     "correctDatasets": "node ./test/scripts/correctDatasets.js",
