@@ -26,6 +26,8 @@ var ObjView = Kern.EventManager.extend({
       this.parse(options.el);
     }
     // copy version from parent
+    // FIXME: how can we get a different version in a child? Needed maybe for editor.
+    // FIXME(cont): can't test for this.data.attributes.version as this will be 'default'
     if (options.parent && options.parent.data.attributes.version) {
       this.data.set("version", options.parent.data.attributes.version);
     }
@@ -74,12 +76,12 @@ var ObjView = Kern.EventManager.extend({
   },
   _fixedDimensions: function() {
     var match;
-    if (this.data.width && (match = this.data.width.match(/(.*)px/))) {
+    if (this.data.attributes.width && (match = this.data.attributes.width.match(/(.*)px/))) {
       this.fixedWidth = parseInt(match[1]);
     } else {
       delete this.fixedWidth;
     }
-    if (this.data.height && (match = this.data.height.match(/(.*)px/))) {
+    if (this.data.attributes.height && (match = this.data.attributes.height.match(/(.*)px/))) {
       this.fixedHeight = parseInt(match[1]);
     } else {
       delete this.fixedHeight;
