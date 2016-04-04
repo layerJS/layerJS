@@ -247,9 +247,9 @@
             // copy arguments as we need to remove the first argument (event)
             // and arguments is read only
             var length = arguments.length;
-            var args = new Array(length - 1);
-            for (var j = 0; j < length - 1; j++) {
-              args[j] = arguments[j + 1];
+            var args = new Array(length - 2);
+            for (var j = 0; j < length - 2; j++) {
+              args[j] = arguments[j + 2];
             }
             // call the callback
             this.__listeners__[event][i].callback.apply(this, args);
@@ -442,7 +442,7 @@
         // check whether this is a new attribute
         if (!this.attributes.hasOwnProperty(attribute)) {
           if (!this.changedAttributes) this.changedAttributes = {};
-          this.changedAttributes[attribute] = undefined;
+          this.changedAttributes[attribute] = !this.history || undefined;
           if (!this.newAttributes) this.newAttributes = {};
           this.newAttributes[attribute] = true;
           // set the value

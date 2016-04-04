@@ -124,7 +124,6 @@ module.exports = function(options) {
     });
 
     it('the parse method will add the dataObjects to the repository if it isn\'t already added', function() {
-      debugger;
       var view = new ViewType(null, {
         el: element
       });

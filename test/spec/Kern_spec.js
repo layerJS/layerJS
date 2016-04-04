@@ -134,7 +134,8 @@ describe("EventManager", function() {
     });
     this.e.trigger('testevent', 3, 1);
     this.e.trigger('testevent', 4, 2);
-    expect(this.eventcalled).toBe(11);
+    this.e.triggerBy({}, 'testevent', 2, 7);
+    expect(this.eventcalled).toBe(25);
   });
   it('can trigger events once', function() {
     that = this;
@@ -564,6 +565,22 @@ describe('Model', function() {
     m.setBy({}, 'a', 2);
     expect(called).toBe(3);
     expect(m.attributes.a).toBe(2);
+  });
+  it("gets 'this' model as parameter in change handler", function() {
+    var m = new Kern.Model();
+    var that = this;
+    var called = 0;
+    var modelChanged;
+    m.on('change', function(model) {
+      modelChanged = model.changedAttributes.hasOwnProperty('a');
+      called++;
+    });
+
+    m.setBy(that, 'a', 1)
+
+    expect(called).toBe(1);
+    expect(modelChanged).toBe(true);
+
   });
 });
 
