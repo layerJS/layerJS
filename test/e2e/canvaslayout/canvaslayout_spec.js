@@ -22,7 +22,7 @@ describe("CanvasLayout", function() {
       return [x2, y2];
     }*/
 
-  it('will transition to a frame and will apply a transform on all frames within the layer', function() {
+  it('will transition to a frame and will apply a transform on all frames within the layer (1)', function() {
     browser.get('canvasLayout/canvaslayout.html').then(function() {
       browser.sleep(3000).then(function() {
         var stage = element(by.id('root'));
@@ -71,17 +71,17 @@ describe("CanvasLayout", function() {
             expect(f2_display).toBe('block');
             expect(f3_display).toBe('block');
             expect(stage_dimensions.width).toBe(f2_dimensions.width);
-            expect(f1_dimensions.left).toBeWithinRange(-273, -272);
-            expect(f1_dimensions.top).toBeWithinRange(-55, -54);
-            expect(f1_scale).toBeWithinRange(0.544, 0.546);
+            expect(f1_dimensions.left).toBeWithinRange(-278, -272);
+            expect(f1_dimensions.top).toBeWithinRange(-56, -54);
+            expect(f1_scale).toBeWithinRange(0.544, 0.556);
             expect(f1_rotation).toBe(0);
             expect(f2_dimensions.left).toBeWithinRange(0, 0.5);
             expect(f2_dimensions.top).toBeWithinRange(0, 0.5);
-            expect(f2_scale).toBeWithinRange(0.544, 0.546);
+            expect(f2_scale).toBeWithinRange(0.544, 0.556);
             expect(f2_rotation).toBe(0);
-            expect(f3_dimensions.left).toBeWithinRange(-96, -93);
+            expect(f3_dimensions.left).toBeWithinRange(-97, -93);
             expect(f3_dimensions.top).toBeWithinRange(-50, -49);
-            expect(f3_scale).toBeWithinRange(0.272, 0.273);
+            expect(f3_scale).toBeWithinRange(0.272, 0.278);
             expect(f3_rotation).toBe(30);
           });
         });
@@ -89,7 +89,7 @@ describe("CanvasLayout", function() {
     });
   });
 
-  it('will transition to a frame and will apply a transform on all frames within the layer', function() {
+  it('will transition to a frame and will apply a transform on all frames within the layer (2)', function() {
     browser.get('canvasLayout/canvaslayout.html').then(function() {
       browser.sleep(3000).then(function() {
         var stage = element(by.id('root'));
@@ -138,17 +138,17 @@ describe("CanvasLayout", function() {
             expect(f2_display).toBe('block');
             expect(f3_display).toBe('block');
             //expect(stage_dimensions.width).toBe(f3_dimensions.width);
-            expect(f1_dimensions.left).toBeWithinRange(-169, -167);
+            expect(f1_dimensions.left).toBeWithinRange(-172, -167);
             expect(f1_dimensions.top).toBeWithinRange(-33, -31);
-            expect(f1_scale).toBeWithinRange(0.544, 0.546);
+            expect(f1_scale).toBeWithinRange(0.544, 0.556);
             expect(f1_rotation).toBe(-30);
-            expect(f2_dimensions.left).toBeWithinRange(93, 96);
-            expect(f2_dimensions.top).toBeWithinRange(-392, -390);
-            expect(f2_scale).toBeWithinRange(0.544, 0.546);
+            expect(f2_dimensions.left).toBeWithinRange(93, 98);
+            expect(f2_dimensions.top).toBeWithinRange(-399, -390);
+            expect(f2_scale).toBeWithinRange(0.544, 0.556);
             expect(f2_rotation).toBe(-30);
             expect(f3_dimensions.left).toBeWithinRange(-0.5, 0);
             expect(f3_dimensions.top).toBeWithinRange(0, 0.5);
-            expect(f3_scale).toBeWithinRange(0.272, 0.273);
+            expect(f3_scale).toBeWithinRange(0.272, 0.278);
             expect(f3_rotation).toBe(0);
           });
         });

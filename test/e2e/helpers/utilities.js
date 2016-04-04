@@ -32,15 +32,14 @@ utilities.getScale = function(elementId) {
       st.getPropertyValue("-o-transform") ||
       st.getPropertyValue("transform") ||
       "FAIL";
-
+    tr = tr.replace(/(\d)\,(\d)/g, "$1.$2"); // fix for weird commata in matrix fields in chrome on mac
     var values = tr.split('(')[1].split(')')[0].split(',');
     var a = values[0];
     var b = values[1];
     var c = values[2];
     var d = values[3];
 
-
-    callBack(Math.sqrt(a * a + b * b));
+    callBack(Math.sqrt(a * a + b * b), tr);
   }, elementId);
 };
 
@@ -55,6 +54,7 @@ utilities.getRotation = function(elementId) {
       st.getPropertyValue("transform") ||
       "FAIL";
 
+    tr = tr.replace(/(\d)\,(\d)/g, "$1.$2"); // fix for weird commata in matrix fields in chrome on mac
     var values = tr.split('(')[1].split(')')[0].split(',');
     var a = values[0];
     var b = values[1];
