@@ -531,9 +531,39 @@ describe('Model', function() {
 
     expect(m.changedAttributes).toBeUndefined();
     expect(called).toBe(0);
+    expect(m.attributes.a).toBe(1);
+    called = 0;
 
     m.setBy({}, 'a', 2);
     expect(called).toBe(1);
+    expect(m.attributes.a).toBe(2);
+  });
+  it("when one listener ignores the sender, other listeners are still called", function() {
+    var m = new Kern.Model();
+    var that = this;
+    var called = 0;
+    m.on('change', function() {
+      called++;
+    });
+    m.on('change', function() {
+      called++;
+    }, {
+      ignoreSender: that
+    });
+    m.on('change', function() {
+      called++;
+    });
+
+    m.setBy(that, 'a', 1)
+
+    expect(m.changedAttributes).toBeUndefined();
+    expect(called).toBe(2);
+    expect(m.attributes.a).toBe(1);
+
+    called = 0;
+    m.setBy({}, 'a', 2);
+    expect(called).toBe(3);
+    expect(m.attributes.a).toBe(2);
   });
 });
 

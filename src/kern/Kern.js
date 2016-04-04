@@ -229,8 +229,8 @@
         return this;
       },
       /**
-       * trigger an event
-       * @param {object} object that fired the event
+       * trigger an event. This also notes the object or channel that sends the event. This is compared to the ignoreSender option provided during the .on() registration.
+       * @param {object} object/channel that fired the event. You can use the object (e.g. this) or just a string that identifies a channel as long as it is consitien with what you have specified as ignoreSender option when registering the listener.
        * @param {string} event event name
        * @param {...} arguments further arguments
        * @return {object} this object
@@ -240,8 +240,8 @@
           for (var i = 0; i < this.__listeners__[event].length; i++) {
 
             // check if the sender equals the ignoreSender from the options
-            if (null !== sender && null !== this.__listeners__[event][i].options.ignoreSender && this.__listeners__[event][i].options.ignoreSender === sender) {
-              break;
+            if (this.__listeners__[event][i].options.ignoreSender && this.__listeners__[event][i].options.ignoreSender === sender) {
+              continue;
             }
 
             // copy arguments as we need to remove the first argument (event)
@@ -342,7 +342,11 @@
        * @return {Boolean} true if event was fired (not silenced)
        */
       fire: function() {
-        return this.fireBy(null);
+        if (this.silent > 0) {
+          this.silent--;
+        }
+        this._fire();
+        return !this.silent;
       },
       /**
        * fire change events manually after setting attributes
@@ -396,7 +400,7 @@
       setBy: function(sender, attributes) {
         if (attributes !== null) {
           if (typeof attributes !== 'object') { // support set(attribute, value) syntax
-            this._set.apply(this, arguments);
+            this._set.call(this, arguments[1], arguments[2]);
           } else { // support set({attribute: value}) syntax
             for (var prop in attributes) {
               if (attributes.hasOwnProperty(prop)) {
@@ -425,11 +429,11 @@
             }
           }
 
-          this._fire(null);
+          this._fire();
         }
       },
       /**
-       * internal function setting a single attribute
+       * internal function setting a single attribute; this does not fire events
        * @param {string} attribute attribute name
        * @param {Object} value the value
        */
