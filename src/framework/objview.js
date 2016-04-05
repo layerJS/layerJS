@@ -74,6 +74,14 @@ var ObjView = Kern.EventManager.extend({
     this.enableDataObserver();
 
   },
+  /**
+   * checks if the data object contains fixed width and height and provides those in the properties
+   * fixedWidth and fixedHeight. This allows certain functions (like getTransformData) to calculate
+   * geometries before this element is rendered. Those properties should be accessed via the .width()
+   * and height() methods which also consider the rendered dimensions.
+   *
+   * @returns {void}
+   */
   _fixedDimensions: function() {
     var match;
     if (this.data.attributes.width && (match = this.data.attributes.width.match(/(.*)px/))) {

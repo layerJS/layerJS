@@ -39,10 +39,11 @@ var FrameView = GroupView.extend({
     return d;
   },
   /**
-   * calculate transform data (scale, scoll position and displacement) when fitting current frame into associated stage
+   * calculate transform data (scale, scoll position and displacement) when fitting current frame into associated stage.
+   * Note: this ignores the frame's scale and rotation property which have to be dealt with in the layer layout if necessary.
    *
    * @param {StageView} stage - the stage to be fit into
-   * @param {Transtion} transition - optional, the transition data for the current transition
+   * @param {string} [transitionStartPosition] - the scroll position at start
    * @returns {TransformData} the transform data
    */
   calculateTransformData: function(stage, transitionStartPosition) {

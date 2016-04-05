@@ -102,7 +102,7 @@ var CanvasLayout = LayerLayout.extend({
     var targetFrameX = (parseInt(frame.data.attributes.x, 10) || 0);
     var targetFrameY = (parseInt(frame.data.attributes.y, 10) || 0);
 
-    var transform = "scale(" + targetFrameTransformData.scale + ") rotate(" + (-frame.data.attributes.rotation || 0) + "deg) translate3d(" + (-targetFrameX) + "px," + (-targetFrameY) + "px,0px)";
+    var transform = "scale(" + targetFrameTransformData.scale / (frame.data.attributes.scaleX || 1) + "," + targetFrameTransformData.scale / (frame.data.attributes.scaleY || 1) + ") rotate(" + (-frame.data.attributes.rotation || 0) + "deg) translate3d(" + (-targetFrameX) + "px," + (-targetFrameY) + "px,0px)";
 
     var finished = new Kern.Promise();
     finished.resolve(transform);
