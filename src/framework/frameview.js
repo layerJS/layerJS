@@ -102,28 +102,28 @@ var FrameView = GroupView.extend({
         }
         break;
       case 'elastic-width':
-        if (stageWidth < d.frameWidth && stageWidth > d.frameWidth - this.attributes['elastic-left'] - this.attributes['elastic-right']) {
+        if (stageWidth < d.frameWidth && stageWidth > d.frameWidth - this.data.attributes.elasticLeft - this.data.attributes.elasticRight) {
           d.scale = 1;
-          d.shiftX = this.attributes['elastic-left'] * (d.frameWidth - stageWidth) / (this.attributes['elastic-left'] + this.attributes['elastic-right']);
+          d.shiftX = this.data.attributes.elasticLeft * (d.frameWidth - stageWidth) / (this.data.attributes.elasticLeft + this.data.attributes.elasticRight);
         } else if (stageWidth > d.frameWidth) {
           d.scale = stageWidth / d.frameWidth;
         } else {
-          d.scale = stageWidth / (d.frameWidth - this.attributes['elastic-left'] - this.attributes['elastic-right']);
-          d.shiftX = this.attributes['elastic-left'];
+          d.scale = stageWidth / (d.frameWidth - this.data.attributes.elasticLeft - this.data.attributes.elasticRight);
+          d.shiftX = this.data.attributes.elasticLeft;
         }
         d.isScrollY = true;
         break;
       case 'elastic-height':
-        if (stageHeight < d.frameHeight && stageHeight > d.frameHeight - this.attributes['elastic-top'] - this.attributes['elastic-bottom']) {
+        if (stageHeight < d.frameHeight && stageHeight > d.frameHeight - this.data.attributes.elasticTop - this.data.attributes.elasticBottom) {
           d.scale = 1;
-          d.shiftY = this.attributes['elastic-top'] * (d.frameHeight - stageHeight) / (this.attributes['elastic-top'] + this.attributes['elastic-bottom']);
+          d.shiftY = this.data.attributes.elasticTop * (d.frameHeight - stageHeight) / (this.data.attributes.elasticTop + this.data.attributes.elasticBottom);
         } else if (stageHeight > d.frameHeight) {
           d.scale = stageHeight / d.frameHeight;
         } else {
-          d.scale = stageHeight / (d.frameHeight - this.attributes['elastic-top'] - this.attributes['elastic-bottom']);
-          d.shiftX = this.attributes['elastic-top'];
+          d.scale = stageHeight / (d.frameHeight - this.data.attributes.elasticTop - this.data.attributes.elasticBottom);
+          d.shiftY = this.data.attributes.elasticTop;
         }
-        d.isScrollX = true;
+        d.isScrollY = true;
         break;
       case 'responsive':
         d.scale = 1;
