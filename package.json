@@ -6,7 +6,7 @@
   "devDependencies": {
     "browserify": "latest",
     "jasmine": "latest",
-    "jasmine-expect" : "latest",
+    "jasmine-expect": "latest",
     "rimraf": "latest",
     "jsdom": "latest",
     "mkdirp": "latest",
@@ -14,7 +14,8 @@
     "uglifyjs": "latest",
     "fs-extra": "latest",
     "jshint": "latest",
-    "protractor": "latest"
+    "protractor": "latest",
+    "perfcollector.js": "latest"
   },
   "scripts": {
     "clean": "rimraf dist/*",

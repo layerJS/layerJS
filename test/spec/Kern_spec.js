@@ -1,6 +1,7 @@
 // Copyright (c) 2015, Thomas Handorf, ThomasHandorf@gmail.com, all rights reserverd.
 
 Kern = (typeof Kern !== 'undefined' ? Kern : require('../../src/kern/Kern.js'));
+var Perfcollector = require("perfcollector.js");
 
 describe("Kern", function() {
   it('can crate an EventManager', function() {
@@ -592,6 +593,35 @@ describe('Model', function() {
     expect(called).toBe(1);
     expect(modelChanged).toBe(true);
 
+  });
+
+  it("Performance test Model.set vs Model.setBy", function() {
+    var m = new Kern.Model();
+    var that = this;
+
+    m.on('change', function() {}, {
+      ignoreSender: that
+    });
+
+    var perfs = Perfcollector.create().enable();
+
+    var timerSet = perfs.start("set");
+    for (var i = 0; i < 10000; i++) {
+      m.set('a', i);
+    }
+    timerSet.end().logToConsole();
+
+    var timerSetBy = perfs.start("setBy with different sender");
+    for (var i = 0; i < 10000; i++) {
+      m.set({}, 'b', i);
+    }
+    timerSetBy.end().logToConsole();
+
+    var timerSetBySameSender = perfs.start("setBy with same sender");
+    for (var i = 0; i < 10000; i++) {
+      m.set(that, 'c', i);
+    }
+    timerSetBySameSender.end().logToConsole();
   });
 });
 
