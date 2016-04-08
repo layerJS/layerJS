@@ -34,7 +34,7 @@ var PlainLayout = LayerLayout.extend({
    * @param {string} transform - a string representing the scroll transform of the current frame
    * @returns {void}
    */
-  setFrame: function(frame, transformData, transform) {
+  showFrame: function(frame, transformData, transform) {
     for (var i = 0; i < this.layer.innerEl.children.length; i++) {
       this.layer.innerEl.children[i].style.display = 'none';
     }
