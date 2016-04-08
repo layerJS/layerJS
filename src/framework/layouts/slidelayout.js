@@ -4,9 +4,9 @@ var Kern = require('../../kern/Kern.js');
 var layoutManager = require('../layoutmanager.js');
 var LayerLayout = require('./layerlayout.js');
 
-var PlainLayout = LayerLayout.extend({
+var SlideLayout = LayerLayout.extend({
   /**
-   * initalize PlainLayout with a layer
+   * initalize SlideLayout with a layer
    *
    * @param {Type} Name - Description
    * @returns {Type} Description
@@ -38,7 +38,7 @@ var PlainLayout = LayerLayout.extend({
     for (var i = 0; i < this.layer.innerEl.children.length; i++) {
       this.layer.innerEl.children[i].style.display = 'none';
     }
-    var t = this.swipeTransition(undefined, PlainLayout.TT1, null, transformData);
+    var t = this.swipeTransition(undefined, SlideLayout.TT1, null, transformData);
     this._applyTransform(frame, t.t1, transform, {
       display: '',
       opacity: 1,
@@ -94,7 +94,7 @@ var PlainLayout = LayerLayout.extend({
    */
   prepareTransition: function(frame, type, currentFrameTransformData, targetFrameTransformData, currentTransform, targetTransform) {
     // call the transition type function to calculate all frame positions/transforms
-    var t = this.transitions[type](type, PlainLayout.DT, currentFrameTransformData, targetFrameTransformData);
+    var t = this.transitions[type](type, SlideLayout.DT, currentFrameTransformData, targetFrameTransformData);
     // create a promise that will wait for the transform being applied
     var finished = new Kern.Promise();
     // apply pre position to target frame
@@ -119,7 +119,7 @@ var PlainLayout = LayerLayout.extend({
    */
   setTransform: function(transform, currentFrameTransformData) {
     // FIXME: layout should store the t.c0 somehow
-    var t = this.swipeTransition(undefined, PlainLayout.CT0, currentFrameTransformData, null);
+    var t = this.swipeTransition(undefined, SlideLayout.CT0, currentFrameTransformData, null);
     this._applyTransform(this.layer.currentFrame, t.c0, transform);
   },
   /**
@@ -149,7 +149,7 @@ var PlainLayout = LayerLayout.extend({
     var t = {}; // record taking pre and post positions
     var x, y;
     // target frame transform time 1
-    if (which & PlainLayout.TT1) { // jshint ignore:line
+    if (which & SlideLayout.TT1) { // jshint ignore:line
       x = -targetFrameTransformData.shiftX;
       y = -targetFrameTransformData.shiftY;
       t.t1 = {
@@ -157,7 +157,7 @@ var PlainLayout = LayerLayout.extend({
         'transform-origin': "0 0"
       };
     }
-    if (which & PlainLayout.CT0) { // jshint ignore:line
+    if (which & SlideLayout.CT0) { // jshint ignore:line
       x = -currentFrameTransformData.shiftX;
       y = -currentFrameTransformData.shiftY;
       t.c0 = {
@@ -169,7 +169,7 @@ var PlainLayout = LayerLayout.extend({
       case 'default':
       case 'left':
         // target frame transform time 0
-        if (which & PlainLayout.TT0) { // jshint ignore:line
+        if (which & SlideLayout.TT0) { // jshint ignore:line
           x = Math.max(this.getStageWidth(), currentFrameTransformData.width) - currentFrameTransformData.shiftX;
           y = -targetFrameTransformData.shiftY;
           t.t0 = {
@@ -179,7 +179,7 @@ var PlainLayout = LayerLayout.extend({
           };
         }
         // current frame transform time 1
-        if (which & PlainLayout.CT1) { // jshint ignore:line
+        if (which & SlideLayout.CT1) { // jshint ignore:line
           x = -Math.max(this.getStageWidth(), targetFrameTransformData.width) + currentFrameTransformData.shiftX;
           y = -currentFrameTransformData.shiftY;
           t.c1 = {
@@ -191,7 +191,7 @@ var PlainLayout = LayerLayout.extend({
 
       case 'right':
         // target frame transform time 0
-        if (which & PlainLayout.TT0) { // jshint ignore:line
+        if (which & SlideLayout.TT0) { // jshint ignore:line
           x = -Math.max(this.getStageWidth(), currentFrameTransformData.width) + currentFrameTransformData.shiftX;
           y = -targetFrameTransformData.shiftY;
           t.t0 = {
@@ -200,7 +200,7 @@ var PlainLayout = LayerLayout.extend({
           };
         }
         // current frame transform time 1
-        if (which & PlainLayout.CT1) { // jshint ignore:line
+        if (which & SlideLayout.CT1) { // jshint ignore:line
           x = Math.max(this.getStageWidth(), targetFrameTransformData.width) - currentFrameTransformData.shiftX;
           y = currentFrameTransformData.shiftY;
           t.c1 = {
@@ -212,7 +212,7 @@ var PlainLayout = LayerLayout.extend({
 
       case 'down':
         // target frame transform time 0
-        if (which & PlainLayout.TT0) { // jshint ignore:line
+        if (which & SlideLayout.TT0) { // jshint ignore:line
           x = -targetFrameTransformData.shiftX;
           y = -Math.max(this.getStageHeight(), currentFrameTransformData.height, targetFrameTransformData.height) + currentFrameTransformData.shiftY;
           t.t0 = {
@@ -221,7 +221,7 @@ var PlainLayout = LayerLayout.extend({
           };
         }
         // current frame transform time 1
-        if (which & PlainLayout.CT1) { // jshint ignore:line
+        if (which & SlideLayout.CT1) { // jshint ignore:line
           x = currentFrameTransformData.shiftX;
           y = Math.max(this.getStageHeight(), currentFrameTransformData.height, targetFrameTransformData.height) - currentFrameTransformData.shiftY;
 
@@ -234,7 +234,7 @@ var PlainLayout = LayerLayout.extend({
 
       case 'up':
         // target frame transform time 0
-        if (which & PlainLayout.TT0) { // jshint ignore:line
+        if (which & SlideLayout.TT0) { // jshint ignore:line
           x = -targetFrameTransformData.shiftX;
           y = Math.max(this.getStageHeight(), currentFrameTransformData.height, targetFrameTransformData.height) - targetFrameTransformData.shiftY;
 
@@ -244,7 +244,7 @@ var PlainLayout = LayerLayout.extend({
           };
         }
         // current frame transform time 1
-        if (which & PlainLayout.CT1) { // jshint ignore:line
+        if (which & SlideLayout.CT1) { // jshint ignore:line
           x = -currentFrameTransformData.shiftX;
           y = -Math.max(this.getStageHeight(), currentFrameTransformData.height, targetFrameTransformData.height) - currentFrameTransformData.shiftY;
           t.c1 = {
@@ -267,6 +267,6 @@ var PlainLayout = LayerLayout.extend({
   DT: 11, // default transforms: TT0, TT1, CT1
 });
 
-layoutManager.registerType('plain', PlainLayout);
+layoutManager.registerType('slide', SlideLayout);
 
-module.exports = PlainLayout;
+module.exports = SlideLayout;
