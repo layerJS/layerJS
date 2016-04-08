@@ -5,7 +5,7 @@ var LayerLayout = require('./layerlayout.js');
 
 var CanvasLayout = LayerLayout.extend({
   /**
-   * initalize PlainLayout with a layer
+   * initalize CanvasLayout with a layer
    *
    * @param {Type} Name - Description
    * @returns {Type} Description
