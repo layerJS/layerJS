@@ -1,35 +1,21 @@
 var repository = require('../../../src/framework/repository.js');
 var defaults = require('../../../src/framework/defaults.js');
 var jsdom = require('jsdom').jsdom;
+var utilities = require("./utilities.js");
 
 var commonGroupViewTests = function(scenario, initFunction) {
   describe('(base tests for views that have children) ' + scenario, function() {
 
-    var document, window, $;
+
     var ViewType, data;
 
     beforeEach(function() {
       var init = initFunction();
       ViewType = init.ViewType;
-      repository.clear();
       repository.importJSON(init.data, defaults.version);
       data = repository.get(init.parentId, defaults.version);
+    });  
 
-      document = global.document = jsdom("<html><head><style id='wl-obj-css'></style></head><body></body></html>");
-      window = global.window = document.defaultView;
-      $ = document.querySelector;
-    });
-
-    function setHtml(html) {
-      document = global.document =
-        jsdom(html);
-      window = global.window = document.defaultView;
-      $ = document.querySelector;
-    }
-
-    afterEach(function() {
-      repository.clear();
-    });
 
     it('will add it\'s children DOM element to its own DOM element when the render method is called', function() {
       var view = new ViewType(data);

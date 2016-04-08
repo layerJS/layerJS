@@ -9,41 +9,32 @@ var CommonViewTests = require('./helpers/commonviewtests.js');
 var CommonGroupViewTests = require('./helpers/commongroupviewtests.js');
 var GroupView_renderChildPositionTests = require('./helpers/groupview_renderchildpositiontests.js');
 var Common_renderChildPositionTests = require('./helpers/common_renderchildpositiontests.js');
-var DatasetReader = require('./helpers/datasetreader.js');
 
 var ViewsCommonParseTests = require('./helpers/views/common/parsetests.js');
 var ViewsGroup_parseChildrenTests = require('./helpers/views/group/_parseChildrentests.js');
+var utilities = require('./helpers/utilities.js');
 
 describe("GroupView", function() {
 
-  var datasetReader = new DatasetReader();
-
-  var document, window, $;
-
-  beforeEach(function() {
-
-    document = global.document = jsdom("<html><head><style id='wl-obj-css'></style></head><body></body></html>");
-    window = global.window = document.defaultView;
-    $ = document.querySelector;
-  });
+  //var document = global.document;
 
   CommonViewTests('simple_groupdata.js', function() {
     return {
-      data: datasetReader.readFromFile('simple_groupdata.js')[0],
+      data: JSON.parse(JSON.stringify(require('./datasets/simple_groupdata.js')[0])),
       ViewType: GroupView
     };
   });
 
   CommonViewTests('anchor_groupdata.js', function() {
     return {
-      data: datasetReader.readFromFile('anchor_groupdata.js')[0],
+      data: JSON.parse(JSON.stringify(require('./datasets/anchor_groupdata.js')[0])),
       ViewType: GroupView
     };
   });
 
   CommonGroupViewTests('groupdata_with_objdata.js', function() {
     return {
-      data: datasetReader.readFromFile('groupdata_with_objdata.js'),
+      data: JSON.parse(JSON.stringify(require('./datasets/groupdata_with_objdata.js'))),
       ViewType: GroupView,
       parentId: 110530
     };
@@ -51,7 +42,7 @@ describe("GroupView", function() {
 
   Common_renderChildPositionTests('groupdata_with_objdata.js', function() {
     return {
-      data: datasetReader.readFromFile('groupdata_with_objdata.js'),
+      data: JSON.parse(JSON.stringify(require('./datasets/groupdata_with_objdata.js'))),
       ViewType: GroupView,
       parentId: 110530
     };
@@ -59,20 +50,20 @@ describe("GroupView", function() {
 
   GroupView_renderChildPositionTests('groupdata_with_objdata.js', function() {
     return {
-      data: datasetReader.readFromFile('groupdata_with_objdata.js'),
+      data: JSON.parse(JSON.stringify(require('./datasets/groupdata_with_objdata.js'))),
       ViewType: GroupView,
       parentId: 110530
     };
   });
 
   it("when a view that is attached using the attachView method changes, the _myChildListenerCallback should be called", function() {
-    var groupData = new GroupData(datasetReader.readFromFile('simple_groupdata.js')[0]);
+    var groupData = new GroupData(JSON.parse(JSON.stringify(require('./datasets/simple_groupdata.js')[0])));
     var groupView = new GroupView(groupData);
 
     expect(groupView._myChildListenerCallback).toBeDefined();
     spyOn(groupView, '_myChildListenerCallback');
 
-    var objData = new ObjData(datasetReader.readFromFile('simple_objdata.js')[0]);
+    var objData = new ObjData(JSON.parse(JSON.stringify(require('./datasets/simple_objdata.js')[0])));
     var objView = new ObjView(objData);
 
     groupView.attachView(objView);
@@ -84,16 +75,16 @@ describe("GroupView", function() {
   });
 
   it("when a view with a parent is attached using the attachView method changes, the _myChildListenerCallback should be called", function() {
-    var parentData = new GroupData(datasetReader.readFromFile('simple_groupdata.js')[0]);
+    var parentData = new GroupData(JSON.parse(JSON.stringify(require('./datasets/simple_groupdata.js')[0])));
     parentData.attributes.id = 123456789;
     var parentView = new GroupView(parentData);
 
-    var objData = new ObjData(datasetReader.readFromFile('simple_objdata.js')[0]);
+    var objData = new ObjData(JSON.parse(JSON.stringify(require('./datasets/simple_objdata.js')[0])));
     var objView = new ObjView(objData);
 
     parentView.attachView(objView);
 
-    var groupData = new GroupData(datasetReader.readFromFile('simple_groupdata.js')[0]);
+    var groupData = new GroupData(JSON.parse(JSON.stringify(require('./datasets/simple_groupdata.js')[0])));
     var groupView = new GroupView(groupData);
 
     expect(groupView._myChildListenerCallback).toBeDefined();
@@ -110,7 +101,7 @@ describe("GroupView", function() {
 
   it("when a childview it's data changes, the _renderChildPosition should be called", function() {
     repository.clear();
-    repository.importJSON(datasetReader.readFromFile('groupdata_with_objdata.js'), 'default');
+    repository.importJSON(JSON.parse(JSON.stringify(require('./datasets/groupdata_with_objdata.js'))), 'default');
     data = repository.get(110530, 'default');
     if (data.attributes.children.length > 0) {
       var parentView = new GroupView(data);
@@ -125,12 +116,6 @@ describe("GroupView", function() {
   });
 
   it("the order of non-layers objects will be kept correct", function() {
-    function setHtml(html) {
-      document = global.document =
-        jsdom(html);
-      window = global.window = document.defaultView;
-      $ = document.querySelector;
-    }
     var version = 'test';
     repository.clear();
 
@@ -151,14 +136,13 @@ describe("GroupView", function() {
 
     repository.importJSON(dataObjects, version);
 
-    setHtml("<html><head><style id='wl-obj-css'></style></head><body>" +
-      "<div id='100' data-wl-id='100' data-wl-type='" + data.attributes.type + "'>" +
+    utilities.setHtml("<div id='100' data-wl-id='100' data-wl-type='" + data.attributes.type + "'>" +
       "<div id='element1'></div>" +
       "<div id='101' data-wl-id='101' data-wl-type='text'></div>" +
       "<div id='element2'></div>" +
       "<div id='102' data-wl-id='102' data-wl-type='text'></div>" +
       "<div id='element3'></div>" +
-      "</div></body></html>");
+      "</div>");
 
     var parentData = repository.get(100, version);
     var parentElement = document.getElementById('100');

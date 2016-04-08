@@ -1,26 +1,14 @@
-var jsdom = require("jsdom").jsdom;
-var DatasetReader = require('./helpers/datasetreader.js');
 var CommonViewTests = require('./helpers/Commonviewtests.js');
 var TextData = require('../../src/framework/textdata.js');
 var TextView = require('../../src/framework/textview.js');
 var pluginManager = require('../../src/framework/pluginmanager.js');
-
 var ViewsCommonParseTests = require('./helpers/views/common/parsetests.js');
 
 describe("TextView", function() {
 
-  var datasetReader = new DatasetReader();
-  var document, window, $;
-
-  beforeEach(function() {
-    document = global.document = jsdom("<html><head><style id='wl-obj-css'></style></head><body></body></html>");
-    window = global.window = document.defaultView;
-    $ = document.querySelector;
-  });
-
   CommonViewTests('simple_textdata.js', function() {
     return {
-      data: datasetReader.readFromFile('simple_textdata.js')[0],
+      data: JSON.parse(JSON.stringify(require('./datasets/simple_textdata.js')[0])),
       ViewType: TextView
     };
   });
@@ -31,7 +19,7 @@ describe("TextView", function() {
   });
 
   it('will put the text attribute in the innerHTML the DOM element', function() {
-    var data = pluginManager.createModel(datasetReader.readFromFile('simple_textdata.js')[0]);
+    var data = pluginManager.createModel(JSON.parse(JSON.stringify(require('./datasets/simple_textdata.js')[0])));
     var view = new TextView(data);
     view.render();
     var element = view.innerEl;

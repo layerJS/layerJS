@@ -1,5 +1,3 @@
-var jsdom = require("jsdom").jsdom;
-var DatasetReader = require('./helpers/datasetreader.js');
 var CommonViewTests = require('./helpers/Commonviewtests.js');
 var ImageData = require('../../src/framework/imagedata.js');
 var ImageView = require('../../src/framework/imageview.js');
@@ -10,18 +8,9 @@ var ViewsCommonParseTests = require('./helpers/views/common/parsetests.js');
 
 describe("ImageView", function() {
 
-  var datasetReader = new DatasetReader();
-  var document, window, $;
-
-  beforeEach(function() {
-    document = global.document = jsdom("<html><head><style id='wl-obj-css'></style></head><body></body></html>");
-    window = global.window = document.defaultView;
-    $ = document.querySelector;
-  });
-
   CommonViewTests('simple_imagedata.js', function() {
     return {
-      data: datasetReader.readFromFile('simple_imagedata.js')[0],
+      data: JSON.parse(JSON.stringify(require('./datasets/simple_imagedata.js')[0])),
       ViewType: ImageView
     };
   });
@@ -32,7 +21,7 @@ describe("ImageView", function() {
   });
 
   it('will set the src attribute of the DOM element', function() {
-    var data = pluginManager.createModel(datasetReader.readFromFile('simple_imagedata.js')[0]);
+    var data = pluginManager.createModel(JSON.parse(JSON.stringify(require('./datasets/simple_imagedata.js')[0])));
     var view = new ImageView(data);
     view.render();
 
@@ -42,7 +31,7 @@ describe("ImageView", function() {
   });
 
   it('will set the alt attribute of the DOM element', function() {
-    var data = pluginManager.createModel(datasetReader.readFromFile('simple_imagedata.js')[0]);
+    var data = pluginManager.createModel(JSON.parse(JSON.stringify(require('./datasets/simple_imagedata.js')[0])));
     var view = new ImageView(data);
     view.render();
 

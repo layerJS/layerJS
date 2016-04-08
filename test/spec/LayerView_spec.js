@@ -1,24 +1,18 @@
-var jsdom = require("jsdom").jsdom;
-
 var LayerView = require('../../src/framework/layerview.js');
 var LayerData = require('../../src/framework/layerdata.js');
 var CommonViewTests = require('./helpers/commonviewtests.js');
 var CommonGroupViewTests = require('./helpers/commongroupviewtests.js');
 var GroupView_renderChildPositionTests = require('./helpers/groupview_renderchildpositiontests.js');
 var Common_renderChildPositionTests = require('./helpers/common_renderchildpositiontests.js');
-var DatasetReader = require('./helpers/datasetreader.js');
-
 var ViewsCommonParseTests = require('./helpers/views/common/parsetests.js');
 var ViewsGroup_parseChildrenTests = require('./helpers/views/group/_parseChildrentests.js');
 
-
 describe("LayerView", function() {
-  var datasetReader = new DatasetReader();
 
   /*
       CommonViewTests(function() {
         return {
-            data: datasetReader.readFromFile('simple_layerdata.js')[0],
+            data: JSON.parse(JSON.stringify(require('./datasets/simple_layerdata.js')[0],
             ViewType : LayerView
         };
       });
@@ -26,7 +20,7 @@ describe("LayerView", function() {
 
   CommonGroupViewTests('simple_layerdata.js', function() {
     return {
-      data: datasetReader.readFromFile('simple_layerdata.js'),
+      data: JSON.parse(JSON.stringify(require('./datasets/simple_layerdata.js'))),
       ViewType: LayerView,
       parentId: 5
     };
@@ -34,7 +28,7 @@ describe("LayerView", function() {
 
   Common_renderChildPositionTests('simple_layerdata.js', function() {
     return {
-      data: datasetReader.readFromFile('simple_layerdata.js'),
+      data: JSON.parse(JSON.stringify(require('./datasets/simple_layerdata.js'))),
       ViewType: LayerView,
       parentId: 5
     };
@@ -42,7 +36,7 @@ describe("LayerView", function() {
 
   CommonGroupViewTests('test_data_set.js', function() {
     return {
-      data: datasetReader.readFromFile('test_data_set.js'),
+      data: JSON.parse(JSON.stringify(require('./datasets/test_data_set.js'))),
       ViewType: LayerView,
       parentId: 5
     };
@@ -50,7 +44,7 @@ describe("LayerView", function() {
 
   Common_renderChildPositionTests('test_data_set.js', function() {
     return {
-      data: datasetReader.readFromFile('test_data_set.js'),
+      data: JSON.parse(JSON.stringify(require('./datasets/test_data_set.js'))),
       ViewType: LayerView,
       parentId: 5
     };

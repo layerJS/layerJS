@@ -1,28 +1,15 @@
-var jsdom = require('jsdom').jsdom;
 var WL = require('../../src/framework/wl.js');
 var defaults = require('../../src/framework/defaults.js');
+var utilities = require('./helpers/utilities.js');
+
 
 describe('ParseMananger', function() {
 
   var repository = WL.repository;
   var parseManager = WL.parseManager;
 
-  beforeEach(function() {
-    repository.clear();
-  });
-
-
-  var document, window, $;
-
-  function setHtml(html) {
-    document = global.document =
-      jsdom(html);
-    window = global.window = document.defaultView;
-    $ = document.querySelector;
-  }
-
   it('will fill add stageData to the repository from DOM elements', function() {
-    setHtml("<html><head><style id='wl-obj-css'></style></head><body><div data-wl-id='1' data-wl-type='stage'></div><div data-wl-id='2' data-wl-type='stage'><div></body></html>");
+    utilities.setHtml("<div data-wl-id='1' data-wl-type='stage'></div><div data-wl-id='2' data-wl-type='stage'>");
 
     parseManager.parseDocument();
 

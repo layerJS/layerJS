@@ -15,7 +15,8 @@
     "fs-extra": "latest",
     "jshint": "latest",
     "protractor": "latest",
-    "perfcollector.js": "latest"
+    "perfcollector.js": "latest",
+    "globule" : "latest"
   },
   "scripts": {
     "clean": "rimraf dist/*",
@@ -32,11 +33,14 @@
     "pretest": "npm run jshint",
     "test": "jasmine JASMINE_CONFIG_PATH=./test/spec/support/jasmine.json",
     "debugtest": "node debug `which jasmine` JASMINE_CONFIG_PATH=./test/spec/support/jasmine.json",
-
+    "browsertest" : "browserify ./test/specs.js > ./test/jasmine/lib/specs.js",
 
     "correctDatasets": "node ./test/scripts/correctDatasets.js",
 
     "webdriverManagerStart": "webdriver-manager start",
-    "e2eTest": "./node_modules/.bin/protractor protractorconfig.js"
+    "e2eTest": "./node_modules/.bin/protractor protractorconfig.js",
+
+    "prebuildSpecs" : "rimraf ./.build/test/dist/* && mkdirp dist",
+    "buildSpecs": "node ./.build/combinespecs.js && browserify ./.build/test/dist/globalspecs.js > ./.build/test/dist/specs.js"
   }
 }

@@ -6,18 +6,16 @@ var CommonViewTests = require('./helpers/commonviewtests.js');
 var CommonGroupViewTests = require('./helpers/commongroupviewtests.js');
 var GroupView_renderChildPositionTests = require('./helpers/groupview_renderchildpositiontests.js');
 var Common_renderChildPositionTests = require('./helpers/common_renderchildpositiontests.js');
-var DatasetReader = require('./helpers/datasetreader.js');
 
 var ViewsCommonParseTests = require('./helpers/views/common/parsetests.js');
 var ViewsGroup_parseChildrenTests = require('./helpers/views/group/_parseChildrentests.js');
 
 describe("FrameView", function() {
-  var datasetReader = new DatasetReader();
 
   /*
     CommonViewTests(function() {
       return {
-          data: datasetReader.readFromFile('simple_framedata.js')[0],
+          data: require('datasets/simple_framedata.js')[0],
           ViewType : FrameView
       };
     });
@@ -25,7 +23,7 @@ describe("FrameView", function() {
 
   CommonGroupViewTests('simple_framedata.js', function() {
     return {
-      data: datasetReader.readFromFile('simple_framedata.js'),
+      data: JSON.parse(JSON.stringify(require('./datasets/simple_framedata.js'))),
       ViewType: FrameView,
       parentId: 110529
     };
@@ -33,7 +31,7 @@ describe("FrameView", function() {
 
   Common_renderChildPositionTests('simple_framedata.js', function() {
     return {
-      data: datasetReader.readFromFile('simple_framedata.js'),
+      data: JSON.parse(JSON.stringify(require('./datasets/simple_framedata.js'))),
       ViewType: FrameView,
       parentId: 110529
     };
@@ -41,7 +39,7 @@ describe("FrameView", function() {
 
   GroupView_renderChildPositionTests('simple_framedata.js', function() {
     return {
-      data: datasetReader.readFromFile('simple_framedata.js'),
+      data: JSON.parse(JSON.stringify(require('./datasets/simple_framedata.js'))),
       ViewType: FrameView,
       parentId: 110529
     };

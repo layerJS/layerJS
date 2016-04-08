@@ -6,11 +6,6 @@ var ObjData = require('../../src/framework/objdata.js');
 describe('PluginManager', function() {
   var document, window, $;
 
-  beforeEach(function() {
-    document = global.document = jsdom("<html><head><style id='wl-obj-css'></style></head><body></body></html>");
-    window = global.window = document.defaultView;
-    $ = document.querySelector;
-  });
 
   var data = {
     "type": "node",

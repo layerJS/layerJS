@@ -1,5 +1,6 @@
 var WL = require('../../../../../src/framework/wl.js');
 var defaults = require('../../../../../src/framework/defaults.js');
+var utilities = require("../../utilities.js");
 
 module.exports = function(options) {
 
