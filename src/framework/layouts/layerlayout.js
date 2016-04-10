@@ -65,6 +65,22 @@ var LayerLayout = Kern.EventManager.extend({
     }
     return finished;
   },
+  /**
+   * get the width of associated stage. Use this method in sub classes to be compatible with changing interfaces in layer/stage
+   *
+   * @returns {number} the width
+   */
+  getStageWidth: function() {
+    return this.layer.stage.width();
+  },
+  /**
+   * get the height of associated stage. Use this method in sub classes to be compatible with changing interfaces in layer/stage
+   *
+   * @returns {number} the height
+   */
+  getStageHeight: function() {
+    return this.layer.stage.height();
+  },
   showFrame: function() {
     throw "showFrame() not implemented";
   },

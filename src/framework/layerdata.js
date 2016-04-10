@@ -9,7 +9,7 @@ var LayerData = GroupData.extend({
   defaults: Kern._extend({}, GroupData.prototype.defaults, {
     type: 'layer',
     tag: 'div',
-    layoutType: 'plain',
+    layoutType: 'slide',
     defaultFrame: undefined,
     nativeScroll: true
   })

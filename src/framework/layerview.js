@@ -140,6 +140,9 @@ var LayerView = GroupView.extend({
       });
     });
   },
+  getCurrentTransform: function() {
+    return this.currentTransform;
+  },
   /**
    * temporary function that indicates whether scrolling in a "direction" is possible. This function is obsolete as the gesture handling will be different in future.
    *

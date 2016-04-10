@@ -41,9 +41,10 @@ var CanvasLayout = LayerLayout.extend({
   /**
    * transform to a given frame in this layer with given transition
    *
-   * @param {FrameView} [frame] - frame to transition to
-   * @param {Object} [transition] - transition object
-   * @param {string} [targetTransform] - transform representing the scrolling after transition
+   * @param {FrameView} frame - frame to transition to
+   * @param {Object} transition - transition object
+   * @param {Object} targetFrameTransformData - the transformData object of the target frame
+   * @param {string} targetTransform - transform representing the scrolling after transition
    * @returns {Kern.Promise} a promise fullfilled after the transition finished. Note: if you start another transtion before the first one finished, this promise will not be resolved.
    */
   transitionTo(frame, transition, targetFrameTransformData, targetTransform) {
