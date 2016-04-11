@@ -6,6 +6,13 @@ var layoutManager = require('./layoutmanager.js');
 var LayerData = require('./layerdata.js');
 var GroupView = require('./groupview.js');
 var ScrollTransformer = require('./scrolltransformer.js');
+
+var directions2neighbors = {
+  up: 't',
+  down: 'b',
+  left: 'l',
+  right: 'r'
+};
 /**
  * A View which can have child views
  * @param {LayerData} dataModel
@@ -69,15 +76,43 @@ var LayerView = GroupView.extend({
       this.showFrame(this.currentFrame.data.attributes.name);
     }
     // listen to scroll events
-    this.outerEl.addEventListener('scroll', function() {
-      var keys = Object.keys(that._preparedTransitions);
-      var i;
-      for (i = 0; i < keys.length; i++) {
-        // mark prepared transitions direty because they assume a wrong scroll transform
-        // don't delete prepared transitions because everything else is still valid
-        that._preparedTransitions[i]._dirty = true;
-      }
+    this.on('scroll', function() { // jshint ignore:line
+      //that._layout.updateTransitions(); // FIXME: notify layout about scroll and that prepared transitions may be outdated
     });
+    /*
+    // register for gestures
+    gestureManager.register(this.layer.outerEl,function(){
+      that.gestureListener.apply(that,arguments);
+    })
+    */
+  },
+  gestureListener: function(gesture) {
+    if (gesture.first){
+      return;
+    }
+    var layerTransform = this._transformer.scrollGestureListener(gesture);
+
+    if (layerTransform === true) {
+      // native scrolling possible
+      return;
+    } else if (layerTransform) {
+      gesture.preventDefault()
+      this._layout.setLayerTransform(layerTransform);
+    } else {
+      gesture.preventDefault()
+      var cattr = this.currentFrame.data.attributes;
+      if (gesture.direction) {
+        if (cattr.neighbors && cattr.neighbors[gesture.direction]) {
+          if (gesture.last) {
+            this.transitionTo(cattr.neighbors[gesture.direction]);
+          }
+        } else {
+          // FIXME: escalate/gesture bubbling ; ignore for now
+        }
+      } else {
+        // ignore, but don't let anybody now
+      }
+    }
   },
   /**
    * show current frame immidiately without transition/animation
@@ -97,10 +132,10 @@ var LayerView = GroupView.extend({
     if (!frame) throw "transformTo: " + framename + " does not exist in layer";
     this.inTransform = true;
     this._layout.loadFrame(frame).then(function() {
-      var targetFrameTransformData = frame.getTransformData(that.stage, scrollData.startPosition);
-      that.currentTransform = that._transformer.getScrollTransform(targetFrameTransformData, scrollData.scrollX || 0, scrollData.scrollY || 0);
-      that._layout.showFrame(frame, targetFrameTransformData, that.currentTransform);
-      this.inTransform = false;
+      that.currentFrameTransformData = frame.getTransformData(that.stage, scrollData.startPosition);
+      that.currentTransform = that._transformer.getScrollTransform(that.currentFrameTransformData, scrollData.scrollX || 0, scrollData.scrollY || 0);
+      that._layout.showFrame(frame, that.currentFrameTransformData, that.currentTransform);
+      that.inTransform = false;
     });
   },
   /**
@@ -145,7 +180,7 @@ var LayerView = GroupView.extend({
           that.currentTransform = that._transformer.getScrollTransform(targetFrameTransformData, transition.scrollX || 0, transition.scrollY || 0, false);
           // apply new transform (will be 0,0 in case of native scrolling)
           that._layout.setLayerTransform(that.currentTransform);
-          this.inTransform = false;
+          that.inTransform = false;
         }
       });
       that.currentFrame = frame;

@@ -14,9 +14,20 @@ var ScrollTransformer = Kern.EventManager.extend({
    */
   constructor: function(layer) {
     Kern.EventManager.call(this);
+    var that=this;
     if (!layer) throw "provide a layer";
     this.layer = layer;
+
+    // listen to scroll events
+    this.layer.outerEl.addEventListener('scroll', function() {
+      if (that.layer.nativeScroll) {
+        that.layer.currentFrameTransformData.scrollX = that.layer.outerEl.scrollLeft;
+        that.layer.currentFrameTransformData.scrollY = that.layer.outerEl.scrollTop;
+        that.layer.trigger("scroll");
+      }
+    });
   },
+
   /**
    * returns a transform for a specified scroll position
    *
@@ -31,10 +42,10 @@ var ScrollTransformer = Kern.EventManager.extend({
    * calculate current transform based on gesture
    *
    * @param {Gesture} gesture - the input gesture to be interpreted as scroll transform
-   * @returns {string} the transform
+   * @returns {string} the transform or false to indicate no scrolling
    */
-  digestGesture: function(gesture) { //jshint ignore:line
-    // stub
+  scrollGestureListener: function(gesture) {
+    return false;
   },
   switchNativeScroll: function(nativeScroll) { //jshint ignore:line
 
