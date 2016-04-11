@@ -66,13 +66,15 @@ var SlideLayout = LayerLayout.extend({
       console.log('now for real');
       frame.outerEl.addEventListener("transitionend", function f(e) { // FIXME needs webkitTransitionEnd etc
         e.target.removeEventListener(e.type, f); // remove event listener for transitionEnd.
-        currentFrame.applyStyles({
-          transition: '',
-          display: 'none'
-        });
-        frame.applyStyles({
-          transition: ''
-        });
+        if (transition.transitionID === that.layer.transitionID) {
+          currentFrame.applyStyles({
+            transition: '',
+            display: 'none'
+          });
+          frame.applyStyles({
+            transition: ''
+          });
+        }
         finished.resolve();
       });
       that._currentFrameTransformData = targetFrameTransformData;

@@ -17,8 +17,8 @@ var LayerView = GroupView.extend({
   constructor: function(dataModel, options) {
     options = options || {};
     var that = this;
-    this._preparedTransitions = {};
-    this.inTransform = false;
+    this.inTransform = false; // indicates that transition is still being animated
+    this.transitionID = 1; // counts up every call of transitionTo();
 
     var tag = 'div';
 
@@ -95,10 +95,12 @@ var LayerView = GroupView.extend({
     var that = this;
     var frame = this.getChildViewByName(framename);
     if (!frame) throw "transformTo: " + framename + " does not exist in layer";
+    this.inTransform = true;
     this._layout.loadFrame(frame).then(function() {
       var targetFrameTransformData = frame.getTransformData(that.stage, scrollData.startPosition);
       that.currentTransform = that._transformer.getScrollTransform(targetFrameTransformData, scrollData.scrollX || 0, scrollData.scrollY || 0);
       that._layout.showFrame(frame, targetFrameTransformData, that.currentTransform);
+      this.inTransform = false;
     });
   },
   /**
@@ -127,6 +129,8 @@ var LayerView = GroupView.extend({
     var frame = this.getChildViewByName(framename);
     if (!frame) throw "transformTo: " + framename + " does not exist in layer";
     var that = this;
+    this.inTransform = true;
+    transition.transitionID = ++this.transitionID; // inc transition ID and save new ID into transition record
     // make sure frame is there such that we can calculate dimensions and transform data
     return this._layout.loadFrame(frame).then(function() {
       // calculate the layer transform for the target frame. Note: this will automatically consider native scrolling
@@ -135,10 +139,14 @@ var LayerView = GroupView.extend({
       var targetFrameTransformData = frame.getTransformData(that.stage, transition.startPosition);
       var targetTransform = that._transformer.getScrollTransform(targetFrameTransformData, transition.scrollX || 0, transition.scrollY || 0, true);
       var layoutPromise = that._layout.transitionTo(frame, transition, targetFrameTransformData, targetTransform).then(function() {
-        // this will now calculate the currect layer transform and set up scroll positions in native scroll
-        that.currentTransform = that._transformer.getScrollTransform(targetFrameTransformData, transition.scrollX || 0, transition.scrollY || 0, false);
-        // apply new transform (will be 0,0 in case of native scrolling)
-        that._layout.setLayerTransform(that.currentTransform);
+        // is this still the active transition?
+        if (transition.transitionID === that.transitionID) {
+          // this will now calculate the currect layer transform and set up scroll positions in native scroll
+          that.currentTransform = that._transformer.getScrollTransform(targetFrameTransformData, transition.scrollX || 0, transition.scrollY || 0, false);
+          // apply new transform (will be 0,0 in case of native scrolling)
+          that._layout.setLayerTransform(that.currentTransform);
+          this.inTransform = false;
+        }
       });
       that.currentFrame = frame;
       that.currentTransform = targetTransform;
