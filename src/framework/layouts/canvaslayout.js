@@ -5,7 +5,7 @@ var LayerLayout = require('./layerlayout.js');
 
 var CanvasLayout = LayerLayout.extend({
   /**
-   * initalize PlainLayout with a layer
+   * initalize CanvasLayout with a layer
    *
    * @param {Type} Name - Description
    * @returns {Type} Description
@@ -23,36 +23,32 @@ var CanvasLayout = LayerLayout.extend({
    * @returns {void}
    */
   /*jshint unused: true*/
-  setFrame: function(frame, transformData, transform) {
+  showFrame: function(frame, targetFrameTransformData, transform) {
     /*jshint unused: false*/
-    var that = this;
     transform = transform || "";
-    // call prepareTransition() with target frame data only to get the reverseTransform calculated
-    this.prepareTransition(frame, undefined, undefined, transformData, undefined, transform).then(function(reverseTransform) {
-      that._currentReverseTransform = reverseTransform;
-      var frames = that.layer.getChildViews();
-      var framesLength = frames.length;
-      var childFrame;
-      // now apply all transforms to all frames
-      for (var i = 0; i < framesLength; i++) {
-        childFrame = frames[i];
-        that._applyTransform(childFrame, reverseTransform, transform, {
-          transition: ''
-        });
-      }
-    });
+    this._reverseTransform = this._calculateReverseTransform(frame, targetFrameTransformData);
+    var frames = this.layer.getChildViews();
+    var framesLength = frames.length;
+    var childFrame;
+    // now apply all transforms to all frames
+    for (var i = 0; i < framesLength; i++) {
+      childFrame = frames[i];
+      this._applyTransform(childFrame, this._reverseTransform, transform, {
+        transition: ''
+      });
+    }
   },
   /**
-   * transition to a specified frame with given transition. The transitions needs to be prepared with prepareTransition().
+   * transform to a given frame in this layer with given transition
    *
-   * @param {ViewFrame} frame - the target frame
-   * @param {Object} transition - the transition object
-   * @param {Object} t - the record containing pre and post transforms
-   * @param {string} currentTransform - a string representing the scroll transform of the current frame
-   * @param {string} targetTransform - a string representing the scroll transform of the target frame
-   * @returns {Type} Description
+   * @param {FrameView} frame - frame to transition to
+   * @param {Object} transition - transition object
+   * @param {Object} targetFrameTransformData - the transformData object of the target frame
+   * @param {string} targetTransform - transform representing the scrolling after transition
+   * @returns {Kern.Promise} a promise fullfilled after the transition finished. Note: if you start another transtion before the first one finished, this promise will not be resolved.
    */
-  executeTransition: function(frame, transition, reverseTransform, currentTransform, targetTransform) {
+  transitionTo(frame, transition, targetFrameTransformData, targetTransform) {
+    this._reverseTransform = this._calculateReverseTransform(frame, targetFrameTransformData);
     var finished = new Kern.Promise();
 
     var frames = this.layer.getChildViews();
@@ -76,51 +72,40 @@ var CanvasLayout = LayerLayout.extend({
     // now apply all transforms to all frames
     for (var i = 0; i < framesLength; i++) {
       childFrame = frames[i];
-      this._applyTransform(childFrame, reverseTransform, targetTransform, {
-        transition: '2s'
+      this._applyTransform(childFrame, this._reverseTransform, targetTransform, {
+        transition: transition.duration
       });
     }
     return finished;
   },
   /**
-   * calculate pre and post transforms for current and target frame
-   * needed for swipes
-   * make sure targetFrame is at pre position
+   * calculate the transform that transforms a frame into the stage (almost the inverse transform to the actual frame transform)
    *
-   * @param {ViewFrame} frame - the target frame
-   * @param {string} type - the transition type
-   * @param {Object} currentFrameTransformData - transform data of current frame
-   * @param {Object} targetFrameTransformData - transform data of target frame
-   * @param {string} currentTransform - a string representing the scroll transform of the current frame
-   * @param {string} targetTransform - a string representing the scroll transform of the target frame
-   * @returns {Promise} will fire when pre transform to target frame is applied
+   * @returns {string} the calculated transform
    */
-  /*jshint unused: true*/
-  prepareTransition: function(frame, type, currentFrameTransformData, targetFrameTransformData, currentTransform, targetTransform) {
-    /*jshint unused: false*/
-
+  _calculateReverseTransform: function(frame, targetFrameTransformData) {
     var targetFrameX = (parseInt(frame.data.attributes.x, 10) || 0);
     var targetFrameY = (parseInt(frame.data.attributes.y, 10) || 0);
 
     var transform = "scale(" + targetFrameTransformData.scale / (frame.data.attributes.scaleX || 1) + "," + targetFrameTransformData.scale / (frame.data.attributes.scaleY || 1) + ") rotate(" + (-frame.data.attributes.rotation || 0) + "deg) translate3d(" + (-targetFrameX) + "px," + (-targetFrameY) + "px,0px)";
-
-    var finished = new Kern.Promise();
-    finished.resolve(transform);
-
-    return finished;
+    return transform;
   },
   /**
-   * define the scrolling transform on current frame
+   * apply new scrolling transform to layer
    *
-   * @param {String} transform - the scrolling transform
-   * @returns {Type} Description
+   * @param {string} transform - the scrolling transform
    */
-  /*jshint unused: true*/
-  setTransform: function(transform, currentFrameTransformData) {
-    /*jshint unused: false*/
-    // FIXME: layout should store the t.c0 somehow
-    //var t = this.swipeTransition(undefined, PlainLayout.CT0, currentFrameTransformData, null);
-    //this._applyTransform(this.layer.currentFrame, t.c0, transform);
+  setLayerTransform: function(transform) {
+    var frames = this.layer.getChildViews();
+    var framesLength = frames.length;
+    var childFrame;
+    // now apply all transforms to all frames
+    for (var i = 0; i < framesLength; i++) {
+      childFrame = frames[i];
+      this._applyTransform(childFrame, this._reverseTransform, transform, {
+        transition: ''
+      });
+    }
   },
   /**
    * this functions puts a frame at its default position. It's called by layer's render() renderChildPosition()
@@ -144,11 +129,11 @@ var CanvasLayout = LayerLayout.extend({
     if ('x' in diff || 'y' in diff || 'rotation' in diff) {
       // calculate frameTransform of frame and store it in this._frameTransforms
       delete this._frameTransforms[attr.id]; // this will be recalculated in _applyTransform
-      if (this._currentReverseTransform && transform) {
+      if (this._reverseTransform && transform) {
         // currentFrame is initialized -> we need to render the frame at new position
         this._applyTransform(frame, this._currentReverseTransform, this.layer.currentTransform, css);
       } {
-        // just apply width and height, everything else the first setFrame() should do
+        // just apply width and height, everything else the first showFrame() should do
         Kern._extend(el.style, css);
       }
     }
@@ -169,14 +154,6 @@ var CanvasLayout = LayerLayout.extend({
       transform: addedTransform + " " + reverseTransform + " " + (this._frameTransforms[attr.id] || (this._frameTransforms[attr.id] = "translate3d(" + (attr.x || 0) + "px," + (attr.y || 0) + "px,0px) rotate(" + (attr.rotation || 0) + "deg) scale(" + attr.scaleX + "," + attr.scaleY + ")"))
     });
   },
-}, {
-  // constants for requesting calculation of transforms for frame transitions
-  TT0: 1, // target frame transform time 0
-  TT1: 2, // target frame transform time 1
-  CT0: 4, // current frame transform time 0
-  CT1: 8, // current frame transform time 0
-  PT: 16, // requesting parametric form
-  DT: 11, // default transforms: TT0, TT1, CT1
 });
 
 layoutManager.registerType('canvas', CanvasLayout);

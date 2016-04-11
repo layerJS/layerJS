@@ -1,6 +1,6 @@
 var utilities = require('../helpers/utilities.js');
 
-describe("PlainLayout", function() {
+describe("SlideLayout", function() {
 
   beforeEach(function() {
     // window size can be set
@@ -9,7 +9,7 @@ describe("PlainLayout", function() {
 
   it('can transition a frame to the left', function() {
 
-    browser.get('plainlayout/plainlayout.html').then(function() {
+    browser.get('slidelayout/slidelayout.html').then(function() {
 
       var stage = element(by.id('root'));
       var layer2 = element(by.id('layer1'));
@@ -49,7 +49,7 @@ describe("PlainLayout", function() {
 
   it('can transition a frame to the right', function() {
 
-    browser.get('plainlayout/plainlayout.html').then(function() {
+    browser.get('slidelayout/slidelayout.html').then(function() {
 
       var stage = element(by.id('root'));
       var layer2 = element(by.id('layer1'));
@@ -89,7 +89,7 @@ describe("PlainLayout", function() {
 
   it('can transition a frame up', function() {
 
-    browser.get('plainlayout/plainlayout.html').then(function() {
+    browser.get('slidelayout/slidelayout.html').then(function() {
 
       var stage = element(by.id('root'));
       var layer2 = element(by.id('layer1'));
@@ -130,7 +130,7 @@ describe("PlainLayout", function() {
 
   it('can transition a frame down', function() {
 
-    browser.get('plainlayout/plainlayout.html').then(function() {
+    browser.get('slidelayout/slidelayout.html').then(function() {
 
       var stage = element(by.id('root'));
       var layer2 = element(by.id('layer1'));
