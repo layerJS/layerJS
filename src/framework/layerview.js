@@ -106,14 +106,16 @@ var LayerView = GroupView.extend({
    *
    * @param {string} [framename] - (optional) frame name to transition to
    * @param {Object} [transition] - (optional) transition object
-   * @returns {Kern.Promise} a promise fullfilled after the transition finished. Note: if you start another transtion before the first one finished, this promise will not be resolved.
+   * @returns {Kern.Promise} a promise fullfilled after the transition finished. Note: if you start another transition before the first one finished, this promise will not be resolved.
    */
   transitionTo: function(framename, transition) {
     // is framename  omitted?
     if (typeof framename === 'object') {
       transition = framename;
+      framename = transition.framename;
+    } else {
+      framename = framename || (transition && transition.framename);
     }
-    framename = framename || transition.framename;
     if (!framename) throw "transformTo: no frame given";
     // transition ommitted? create some default
     transition = Kern._extend({
@@ -153,7 +155,7 @@ var LayerView = GroupView.extend({
    * @returns {Boolean} true if it would scroll.
    */
   gestureCanScroll: function(direction) {
-    var tfd = this._currentFrameTransformData;
+    var tfd = this.currentFrame.getTransformData(this.stage);
     if (direction === 'up' && tfd.isScrollY && this.outerEl.scrollTop > 0) {
       return true;
     } else if (direction === 'down' && tfd.isScrollY && this.outerEl.scrollTop < tfd.maxScrollY) {
