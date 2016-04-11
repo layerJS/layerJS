@@ -59,9 +59,10 @@ var SlideLayout = LayerLayout.extend({
    */
   transitionTo: function(frame, transition, targetFrameTransformData, targetTransform) {
     var that = this;
+    var currentFrame = that.layer.currentFrame;
+    var currentTransform = that.layer.getCurrentTransform();
     return this.prepareTransition(frame, transition, targetFrameTransformData, targetTransform).then(function(t) {
       var finished = new Kern.Promise();
-      var currentFrame = that.layer.currentFrame;
       console.log('now for real');
       frame.outerEl.addEventListener("transitionend", function f(e) { // FIXME needs webkitTransitionEnd etc
         e.target.removeEventListener(e.type, f); // remove event listener for transitionEnd.
@@ -78,10 +79,10 @@ var SlideLayout = LayerLayout.extend({
       that._applyTransform(frame, that._currentFrameTransform = that._calcFrameTransform(targetFrameTransformData), targetTransform, {
         transition: transition.duration
       });
-      that._applyTransform(currentFrame, t.c1, that.layer.getCurrentTransform(), {
+      that._applyTransform(currentFrame, t.c1, currentTransform, {
         transition: transition.duration
       });
-      this._preparedTransitions = {};
+      that._preparedTransitions = {};
       return finished;
     });
   },

@@ -131,13 +131,16 @@ var LayerView = GroupView.extend({
       // getScrollIntermediateTransform will not change the current native scroll position but will calculate
       // a compensatory transform for the target scroll position.
       var targetFrameTransformData = frame.getTransformData(that.stage, transition.startPosition);
-      that.currentTransform = that._transformer.getScrollTransform(targetFrameTransformData, transition.scrollX || 0, transition.scrollY || 0, true);
-      return that._layout.transitionTo(frame, transition, targetFrameTransformData, that.currentTransform).then(function() {
+      var targetTransform = that._transformer.getScrollTransform(targetFrameTransformData, transition.scrollX || 0, transition.scrollY || 0, true);
+      var layoutPromise = that._layout.transitionTo(frame, transition, targetFrameTransformData, targetTransform).then(function() {
         // this will now calculate the currect layer transform and set up scroll positions in native scroll
-        that.currentTransform = that._transformer.getScrollIntermediateTransform(targetFrameTransformData, transition.scrollX || 0, transition.scrollY || 0);
+        that.currentTransform = that._transformer.getScrollTransform(targetFrameTransformData, transition.scrollX || 0, transition.scrollY || 0, false);
         // apply new transform (will be 0,0 in case of native scrolling)
         that._layout.setLayerTransform(that.currentTransform);
       });
+      that.currentFrame = frame;
+      that.currentTransform = targetTransform;
+      return layoutPromise;
     });
   },
   getCurrentTransform: function() {
