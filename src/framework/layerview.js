@@ -100,7 +100,7 @@ var LayerView = GroupView.extend({
       var targetFrameTransformData = frame.getTransformData(that.stage, scrollData.startPosition);
       that.currentTransform = that._transformer.getScrollTransform(targetFrameTransformData, scrollData.scrollX || 0, scrollData.scrollY || 0);
       that._layout.showFrame(frame, targetFrameTransformData, that.currentTransform);
-      this.inTransform = false;
+      that.inTransform = false;
     });
   },
   /**
@@ -145,7 +145,7 @@ var LayerView = GroupView.extend({
           that.currentTransform = that._transformer.getScrollTransform(targetFrameTransformData, transition.scrollX || 0, transition.scrollY || 0, false);
           // apply new transform (will be 0,0 in case of native scrolling)
           that._layout.setLayerTransform(that.currentTransform);
-          this.inTransform = false;
+          that.inTransform = false;
         }
       });
       that.currentFrame = frame;
