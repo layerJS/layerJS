@@ -63,7 +63,9 @@ var ObjView = Kern.EventManager.extend({
         }
         that.render();
       }
-    }, {ignoreSender: that});
+    }, {
+      ignoreSender: that
+    });
     this._fixedDimensions();
     // Only render the element when it is passed in the options
     if (!options.noRender && (options.forceRender || !options.el))
@@ -386,6 +388,14 @@ var ObjView = Kern.EventManager.extend({
     } else if (this._observerCounter > 0) {
       this._observerCounter--;
     }
+    if (window.MutationObserver && this._observerCounter === 0) {
+      this._observer.observe(this.outerEl, {
+        attributes: true,
+        childList: false,
+        characterData: true,
+        subtree: false
+      });
+    }
   },
   disableObserver: function() {
     if (!this.hasOwnProperty('_observerCounter')) {
@@ -393,6 +403,9 @@ var ObjView = Kern.EventManager.extend({
     }
 
     this._observerCounter++;
+    if (window.MutationObserver && this._observer && this._observer.disconnect) {
+      this._observer.disconnect();
+    }
   },
   _createObserver: function() {
 
