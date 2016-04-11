@@ -28,7 +28,7 @@
     "build": "npm run build:scripts -s",
     "build:scripts": "mkdirp dist && browserify -e src/layerjs.js -o dist/layerjs.js && npm run build:copywithversionnumber",
     "build:compressed": "mkdirp dist && browserify -e src/layerjs.js | uglifyjs -c -m -o dist/layerjs.js && npm run build:copywithversionnumber",
-    "build:copywithversionnumber": "node ./.build/copywithversionnumber.js",
+    "build:copywithversionnumber": "node ./scripts/copywithversionnumber.js",
 
     "pretest": "npm run jshint",
     "test": "jasmine JASMINE_CONFIG_PATH=./test/spec/support/jasmine.json",
@@ -40,7 +40,7 @@
     "webdriverManagerStart": "webdriver-manager start",
     "e2eTest": "./node_modules/.bin/protractor protractorconfig.js",
 
-    "prebuildSpecs" : "rimraf ./.build/test/dist/* && mkdirp dist",
-    "buildSpecs": "node ./.build/combinespecs.js && browserify ./.build/test/dist/globalspecs.js > ./.build/test/dist/specs.js"
+    "prebuildSpecs" : "rimraf ./build/test/js/* && mkdirp ./build/test/js",
+    "buildSpecs": "node ./test/scripts/combinespecs.js && browserify ./build/test/js/globalspecs.js > ./build/test/js/specs.js"
   }
 }
