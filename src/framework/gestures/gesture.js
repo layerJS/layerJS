@@ -1,7 +1,7 @@
 'use strict';
 var Kern = require('../../kern/kern.js');
 
-var gesture = Kern.Base.extend({
+var Gesture = Kern.Base.extend({
   constructor: function() {
     //this.altKey = false;
     //this.buttons = [false, false, false];
@@ -42,4 +42,4 @@ var gesture = Kern.Base.extend({
   }
 }, {});
 
-module.exports = gesture;
+module.exports = Gesture;
