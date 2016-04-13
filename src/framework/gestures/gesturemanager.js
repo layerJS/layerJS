@@ -17,7 +17,7 @@ var GestureManager = Kern.EventManager.extend({
     this._registerTouchEvents(layerView);
   },
   /**
-   * Will register a layerView for mouseWheel events
+   * Will register a layerView for mouse/touche events
    * @param {layerView} layerView
    */
   _registerTouchEvents: function(layerView) {
