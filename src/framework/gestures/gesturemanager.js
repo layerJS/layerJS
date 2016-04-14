@@ -18,6 +18,7 @@ var GestureManager = Kern.EventManager.extend({
    * @param {options} additiional options
    */
   register: function(element, callback, options) {
+    options = options || {};
     this._registerTouchEvents(element, callback, options);
     this._registerWheelEvents(element, callback, options);
   },
@@ -30,7 +31,7 @@ var GestureManager = Kern.EventManager.extend({
   _registerWheelEvents: function(element, callback, options) {
     var that = this;
     var wheel = function(e) {
-      return that._wheel(e, callback, options);
+      return that._wheel(e, element, callback, options);
     };
 
     element.addEventListener('wheel', wheel);
@@ -55,13 +56,17 @@ var GestureManager = Kern.EventManager.extend({
 
     if (typeof window.ontouchstart !== 'undefined') {
       element.addEventListener('touchstart', tap);
-      element.addEventListener('touchmove', drag);
       element.addEventListener('touchend', release);
+      if (options.dragging) {
+        element.addEventListener('touchmove', drag);
+      }
     }
 
     element.addEventListener('mousedown', tap);
-    element.addEventListener('mousemove', drag);
     element.addEventListener('mouseup', release);
+    if (options.dragging) {
+      element.addEventListener('mousemove', drag);
+    }
   },
   /**
    * Users starts a wheel event
@@ -154,7 +159,7 @@ var GestureManager = Kern.EventManager.extend({
     this.gesture.position.y = this._yPosition(event);
     this.gesture.shift.x = this.gesture.position.x - this.gesture.start.x;
     this.gesture.shift.y = this.gesture.position.y - this.gesture.start.y;
-    
+
     this._raiseGesture(callback);
 
     this.gesture = this.element = null;
