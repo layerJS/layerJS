@@ -17,7 +17,8 @@
   }
 
   #main {
-    position: absolute
+    position: absolute;
+    top: 100;
   }
 
   #second {
@@ -39,7 +40,9 @@
   </div>
   <script src="../../dist/layerjs.js"></script>
   <script>
-    WL.gestureManager2.register(document.getElementById('layer1'));
+    WL.gestureManager2.register(document.getElementById('layer1'), function(gesture) {      
+      console.log(gesture);
+    });
   </script>
 </body>
 
