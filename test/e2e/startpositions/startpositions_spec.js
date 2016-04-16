@@ -103,4 +103,96 @@ describe('Start Positions', function() {
       });
     });
   });
+
+
+  describe('with native-scrolling=false', function() {
+
+    describe('with fit-to=height', function() {
+
+      it('start-position=center', function() {
+        browser.get('startpositions/nativescrolling_false/fitto_height/startposition_center.html').then(function() {
+          protractor.promise.all([
+            utilities.getBoundingClientRect('stage'),
+            utilities.getBoundingClientRect('frame')
+          ]).then(function(data) {
+            var stage_dimensions = data[0];
+            var frame_dimensions = data[1];
+
+            expect(frame_dimensions.left).toBe((stage_dimensions.width - frame_dimensions.width) / 2);
+          });
+        });
+      });
+
+      it('start-position=left', function() {
+        browser.get('startpositions/nativescrolling_false/fitto_height/startposition_left.html').then(function() {
+          protractor.promise.all([
+            utilities.getBoundingClientRect('frame')
+          ]).then(function(data) {
+            var frame_dimensions = data[0];
+
+            expect(frame_dimensions.left).toBe(0);
+          });
+        });
+      });
+
+      it('start-position=right', function() {
+        browser.get('startpositions/nativescrolling_false/fitto_height/startposition_right.html').then(function() {
+          protractor.promise.all([
+            utilities.getBoundingClientRect('stage'),
+            utilities.getBoundingClientRect('frame')
+          ]).then(function(data) {
+            var stage_dimensions = data[0];
+            var frame_dimensions = data[1];
+            
+            expect(frame_dimensions.left).toBe((stage_dimensions.width - frame_dimensions.width));
+          });
+        });
+      });
+    });
+
+    describe('with fit-to=width', function() {
+
+      it('start-position=bottom', function() {
+        browser.get('startpositions/nativescrolling_false/fitto_width/startposition_bottom.html').then(function() {
+          protractor.promise.all([
+            utilities.getBoundingClientRect('stage'),
+            utilities.getBoundingClientRect('frame')
+          ]).then(function(data) {
+            var stage_dimensions = data[0];
+            var frame_dimensions = data[1];
+
+            expect(frame_dimensions.top).toBe(stage_dimensions.height - frame_dimensions.height);
+          });
+        });
+
+      });
+
+      it('start-position=center', function() {
+        browser.get('startpositions/nativescrolling_false/fitto_width/startposition_center.html').then(function() {
+          protractor.promise.all([
+            utilities.getBoundingClientRect('stage'),
+            utilities.getBoundingClientRect('frame')
+          ]).then(function(data) {
+            var stage_dimensions = data[0];
+            var frame_dimensions = data[1];
+
+            expect(frame_dimensions.top).toBe((stage_dimensions.height - frame_dimensions.height) / 2);
+          });
+        });
+      });
+
+      it('start-position=top', function() {
+        browser.get('startpositions/nativescrolling_false/fitto_width/startposition_top.html').then(function() {
+          protractor.promise.all([
+            utilities.getBoundingClientRect('frame')
+          ]).then(function(data) {
+            var frame_dimensions = data[0];
+
+            expect(frame_dimensions.top).toBe(0);
+          });
+        });
+      });
+    });
+  });
+
 });
