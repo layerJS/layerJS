@@ -1,10 +1,10 @@
 'use strict';
 var Kern = require('../../kern/kern.js');
 
-var gesture = Kern.Base.extend({
+var Gesture = Kern.Base.extend({
   constructor: function() {
     //this.altKey = false;
-    //this.buttons = [false, false, false];
+    this.buttons = [false, false, false];
     this.cancel = false; //
     this.click = false;
     //this.ctrlKey = false;
@@ -39,7 +39,14 @@ var gesture = Kern.Base.extend({
       x: 0,
       y: 0
     };
+  },
+  /**
+  * Returns how long a go the event fired
+  */
+  lifeTime: function() {
+    return new Date().getTime() - this.gesture.startTime;
+
   }
 }, {});
 
-module.exports = gesture;
+module.exports = Gesture;
