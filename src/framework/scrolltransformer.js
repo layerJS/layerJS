@@ -102,7 +102,7 @@ var ScrollTransformer = Kern.EventManager.extend({
       this.layer.innerEl.style.height = 0;
       this.layer.innerEl.style.width = 0;
       // in transformscroll we add a transform representing the scroll position.
-      return this.scrollTransform((scrollX || tfd.scrollX) * tfd.scale, (scrollY || tfd.scrollY) * tfd.scale);
+      return this.scrollTransform(-(scrollX || tfd.scrollX) * tfd.scale, -(scrollY || tfd.scrollY) * tfd.scale);
     }
   }
 });
