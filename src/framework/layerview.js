@@ -6,6 +6,7 @@ var layoutManager = require('./layoutmanager.js');
 var LayerData = require('./layerdata.js');
 var GroupView = require('./groupview.js');
 var ScrollTransformer = require('./scrolltransformer.js');
+var gestureManager = require('./gestures/gesturemanager.js');
 
 var directions2neighbors = {
   up: 't',
@@ -60,6 +61,9 @@ var LayerView = GroupView.extend({
     if (hasScroller) this.innerEl.setAttribute('data-wl-helper', 'scroller');
     this.nativeScroll = this.data.attributes.nativeScroll;
 
+    // register for gestures
+    gestureManager.register(this.outerEl,this.gestureListener.bind(this));
+
     // this is my stage and add listener to keep it updated
     this.stage = this.parent;
     this.on('parent', function() {
@@ -87,11 +91,11 @@ var LayerView = GroupView.extend({
     */
   },
   gestureListener: function(gesture) {
+    var layerTransform = this._transformer.scrollGestureListener(gesture);
+
     if (gesture.first){
       return;
     }
-    var layerTransform = this._transformer.scrollGestureListener(gesture);
-
     if (layerTransform === true) {
       // native scrolling possible
       return;

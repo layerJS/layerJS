@@ -93,12 +93,18 @@ var GestureManager = Kern.EventManager.extend({
       this.gesture.first = false;
       this.gesture.startTime = new Date().getTime();
     }
-
+    this._raiseGesture(callback); // first
+    this.gesture.first = false;
     this.gesture.wheelDelta = this._wheelDelta(event);
 
-    event.preventDefault();
-    event.stopPropagation();
-
+    this.gesture.shift = {
+      x: 0,
+      y: this.gesture.wheelDelta * 40
+    };
+    this.gesture.position = {
+      x: this.gesture.start.x + this.gesture.shift.x,
+      y: this.gesture.start.y + this.gesture.shift.y
+    };
     this._raiseGesture(callback);
 
     this.timeoutWheel = setTimeout(function() {
