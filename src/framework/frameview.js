@@ -146,12 +146,13 @@ var FrameView = GroupView.extend({
     }
     // calculate maximum scroll positions (depend on frame and stage dimensions)
     // WARN: allow negative maxScroll for now
-    if (d.isScrollY) d.maxScrollY = d.frameHeight * d.scale - stageHeight;
-    if (d.isScrollX) d.maxScrollX = d.frameWidth * d.scale - stageWidth;
+    if (d.isScrollY) d.maxScrollY = d.frameHeight - stageHeight / d.scale;
+    if (d.isScrollX) d.maxScrollX = d.frameWidth - stageWidth / d.scale;
     // define initial positioning
     // take startPosition from transition or from frame
     d.startPosition = transitionStartPosition || this.data.attributes.startPosition;
     switch (d.startPosition) {
+      case 'default':
       case 'top':
         if (d.isScrollY) d.scrollY = 0;
         break;
@@ -180,36 +181,32 @@ var FrameView = GroupView.extend({
       case 'middle': // middle and center act the same
       case 'center':
         if (d.isScrollX) {
-          d.scrollX = (d.frameWidth * d.scale - stageWidth) / 2;
+          d.scrollX = (d.frameWidth - stageWidth / d.scale) / 2;
           if (d.scrollX < 0) {
             d.shiftX = d.scrollX;
             d.scrollX = 0;
           }
         }
         if (d.isScrollY) {
-          d.scrollY = (d.frameHeight * d.scale - stageHeight) / 2;
+          d.scrollY = (d.frameHeight - stageHeight / d.scale) / 2;
           if (d.scrollY < 0) {
             d.shiftY = d.scrollY;
             d.scrollY = 0;
           }
         }
         break;
-      default:
-        // same as 'top'
-        if (d.isScrollY) d.scrollY = 0;
-        break;
     }
     // calculate actual frame width height in stage space
     d.width = d.frameWidth * d.scale;
     d.height = d.frameHeight * d.scale;
     // disable scrolling if maxscroll < 0
-    if (d.maxScrollX < 0) {
+    if (d.maxScrollX <= 0) {
       d.shiftX += d.scrollX;
       d.scrollX = 0;
       d.maxScrollX = 0;
       d.isScrollX = false;
     }
-    if (d.maxScrollY < 0) {
+    if (d.maxScrollY <= 0) {
       d.shiftY += d.scrollY;
       d.scrollY = 0;
       d.maxScrollY = 0;
