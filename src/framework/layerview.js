@@ -96,20 +96,20 @@ var LayerView = GroupView.extend({
       // native scrolling possible
       return;
     } else if (layerTransform) {
-      gesture.preventDefault()
+      gesture.preventDefault();
       this._layout.setLayerTransform(layerTransform);
     } else {
-      gesture.preventDefault()
+      gesture.preventDefault();
       var cattr = this.currentFrame.data.attributes;
       if (gesture.direction) {
-        if (cattr.neighbors && cattr.neighbors[gesture.direction]) {
+        if (cattr.neighbors && cattr.neighbors[directions2neighbors[gesture.direction]]) {
           if (gesture.last) {
-            this.transitionTo(cattr.neighbors[gesture.direction]);
+            this.transitionTo(cattr.neighbors[directions2neighbors[gesture.direction]]);
           }
-        } else {
+        } else { //jshint ignore:line
           // FIXME: escalate/gesture bubbling ; ignore for now
         }
-      } else {
+      } else { //jshint ignore:line
         // ignore, but don't let anybody now
       }
     }

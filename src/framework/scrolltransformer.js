@@ -14,7 +14,7 @@ var ScrollTransformer = Kern.EventManager.extend({
    */
   constructor: function(layer) {
     Kern.EventManager.call(this);
-    var that=this;
+    var that = this;
     if (!layer) throw "provide a layer";
     this.layer = layer;
 
@@ -45,6 +45,22 @@ var ScrollTransformer = Kern.EventManager.extend({
    * @returns {string} the transform or false to indicate no scrolling
    */
   scrollGestureListener: function(gesture) {
+    if (gesture.first) {
+      this.scrollStartX = this.layer.currentFrameTransformData.scrollX;
+      this.scrollStartY = this.layer.currentFrameTransformData.scrollY;
+      return true;
+    }
+    // first: calculate primary direction
+    if (true) { // check if can scroll
+      if (this.layer.nativeScroll) {
+        return true; //let the browser do the work
+      }
+      // project to primary direction
+      var gestureX = (gesture.direction === 'left' || gesture.direction === 'right') ? gesture.shift.x : 0;
+      var gestureY = (gesture.direction === 'up' || gesture.direction === 'down') ? gesture.shift.y : 0;
+      return this.scrollTransform(this.layer.currentFrameTransformData.scrollX = this.scrollStartX + gestureX,
+        this.layer.currentFrameTransformData.scrollY = this.scrollStartX + gestureY);
+    }
     return false;
   },
   switchNativeScroll: function(nativeScroll) { //jshint ignore:line
