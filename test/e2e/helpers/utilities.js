@@ -66,4 +66,14 @@ utilities.getRotation = function(elementId) {
   }, elementId);
 };
 
+utilities.getScroll = function(elementId) {
+  return browser.driver.executeAsyncScript(function(elementId, callback) {
+    var el = document.getElementById(elementId);
+    callback({
+      scrollTop: el.scrollTop,
+      scrollLeft: el.scrollLeft
+    });
+  }, elementId);
+};
+
 module.exports = utilities;

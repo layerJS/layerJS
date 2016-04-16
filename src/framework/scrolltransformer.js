@@ -66,9 +66,10 @@ var ScrollTransformer = Kern.EventManager.extend({
         } else {
           this.layer.innerEl.style.width = "100%";
         }
+        // TODO: Check Kenny
         // apply inital scroll position
-        this.layer.outerEl.scrollLeft = (scrollX || tfd.scrollX) * tfd.scale;
-        this.layer.outerEl.scrollTop = (scrollY || tfd.scrollY) * tfd.scale;
+        this.layer.outerEl.scrollLeft = (scrollX || tfd.scrollX);// * tfd.scale;
+        this.layer.outerEl.scrollTop = (scrollY || tfd.scrollY);// * tfd.scale;
         return this.scrollTransform(0, 0); // no transforms as scrolling is achieved by native scrolling
       }
     } else {
