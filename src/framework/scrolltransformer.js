@@ -45,9 +45,10 @@ var ScrollTransformer = Kern.EventManager.extend({
    * @returns {string} the transform or false to indicate no scrolling
    */
   scrollGestureListener: function(gesture) {
+    var tfd = this.layer.currentFrameTransformData;
     if (gesture.first) {
-      this.scrollStartX = this.layer.currentFrameTransformData.scrollX;
-      this.scrollStartY = this.layer.currentFrameTransformData.scrollY;
+      this.scrollStartX = tfd.scrollX;
+      this.scrollStartY = tfd.scrollY;
       return true;
     }
     // first: calculate primary direction
@@ -56,10 +57,50 @@ var ScrollTransformer = Kern.EventManager.extend({
         return true; //let the browser do the work
       }
       // project to primary direction
-      var gestureX = (gesture.direction === 'left' || gesture.direction === 'right') ? gesture.shift.x : 0;
-      var gestureY = (gesture.direction === 'up' || gesture.direction === 'down') ? gesture.shift.y : 0;
-      return this.scrollTransform(this.layer.currentFrameTransformData.scrollX = this.scrollStartX + gestureX,
-        this.layer.currentFrameTransformData.scrollY = this.scrollStartX + gestureY);
+      // var newX = (gesture.axis!=='y' ? this.scrollStartX - gesture.shift.x / tfd.scale : this.scrollStartX;
+      // var newY = (gesture.axis!=='x' ? this.scrollStartY - gesture.shift.y / tfd.scale : this.scrollStartY;
+      var newX = this.scrollStartX - gesture.shift.x / tfd.scale;
+      var newY = this.scrollStartY - gesture.shift.y / tfd.scale;
+      var borderX = gesture.axis === 'y', // indicate that we cannot scroll in 'x' direction
+        borderY = gesture.axis === 'x'; // indicate that we cannot scroll in 'y' direction
+      if (tfd.isScrollX) {
+        if (newX < 0) {
+          newX = 0;
+          if (this.scrollStartX === 0) {
+            borderX = true;
+          }
+        }
+        if (newX > tfd.maxScrollX) {
+          newX = tfd.maxScrollX;
+          if (this.scrollStartX === tfd.maxScrollX) {
+            borderX = true;
+          }
+        }
+      } else {
+        newX = 0;
+        borderX = true;
+      }
+      if (tfd.isScrollY) {
+        if (newY < 0) {
+          newY = 0;
+          if (this.scrollStartY === 0) {
+            borderY = true;
+          }
+        }
+        if (newY > tfd.maxScrollY) {
+          newY = tfd.maxScrollY;
+          if (this.scrollStartY === tfd.maxScrollY) {
+            borderY = true;
+          }
+        }
+      } else {
+        newY = 0;
+        borderY = true;
+      }
+      if (borderX && borderY) { // we cannot scroll -> return false to let layer go into swiping
+        return false;
+      }
+      return this.scrollTransform(-(tfd.scrollX = newX) * tfd.scale, -(tfd.scrollY = newY) * tfd.scale);
     }
     return false;
   },

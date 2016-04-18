@@ -62,7 +62,9 @@ var LayerView = GroupView.extend({
     this.nativeScroll = this.data.attributes.nativeScroll;
 
     // register for gestures
-    gestureManager.register(this.outerEl,this.gestureListener.bind(this));
+    gestureManager.register(this.outerEl, this.gestureListener.bind(this), {
+      dragging: true
+    });
 
     // this is my stage and add listener to keep it updated
     this.stage = this.parent;
@@ -93,21 +95,21 @@ var LayerView = GroupView.extend({
   gestureListener: function(gesture) {
     var layerTransform = this._transformer.scrollGestureListener(gesture);
 
-    if (gesture.first){
+    if (gesture.first) {
       return;
     }
     if (layerTransform === true) {
       // native scrolling possible
       return;
     } else if (layerTransform) {
-      gesture.preventDefault();
       this._layout.setLayerTransform(layerTransform);
+      gesture.preventDefault = true;
     } else {
-      gesture.preventDefault();
       var cattr = this.currentFrame.data.attributes;
       if (gesture.direction) {
         if (cattr.neighbors && cattr.neighbors[directions2neighbors[gesture.direction]]) {
-          if (gesture.last) {
+          gesture.preventDefault = true;
+          if (gesture.last || (gesture.wheel && gesture.shift.x+gesture.shift.y>10)) {
             this.transitionTo(cattr.neighbors[directions2neighbors[gesture.direction]]);
           }
         } else { //jshint ignore:line
