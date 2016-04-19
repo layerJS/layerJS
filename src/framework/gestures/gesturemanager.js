@@ -93,12 +93,18 @@ var GestureManager = Kern.EventManager.extend({
       this.gesture.first = false;
       this.gesture.startTime = new Date().getTime();
     }
-
+    this._raiseGesture(callback); // first
+    this.gesture.first = false;
     this.gesture.wheelDelta = this._wheelDelta(event);
 
-    event.preventDefault();
-    event.stopPropagation();
-
+    this.gesture.shift = {
+      x: 0,
+      y: this.gesture.wheelDelta * 6
+    };
+    this.gesture.position = {
+      x: this.gesture.start.x + this.gesture.shift.x,
+      y: this.gesture.start.y + this.gesture.shift.y
+    };
     this._raiseGesture(callback);
 
     this.timeoutWheel = setTimeout(function() {
@@ -117,12 +123,13 @@ var GestureManager = Kern.EventManager.extend({
    */
   _wheelDelta: function(event) {
     if (event.deltaY) {
-      return event.deltaY / 3;
+      return -event.deltaY / 3;
     } else if (event.wheelDelta) {
-      return event.wheelDelta / 120;
+      return -event.wheelDelta / 120;
     } else if (event.detail) {
-      return event.detail / 3;
+      return -event.detail / 3;
     }
+    return 0;
   },
   /**
    * Users starts a touch event
@@ -141,8 +148,6 @@ var GestureManager = Kern.EventManager.extend({
     this.gesture.click = event.type === "mousedown";
     this._raiseGesture(callback);
 
-    event.preventDefault();
-    event.stopPropagation();
     return false;
   },
   /**
@@ -163,8 +168,6 @@ var GestureManager = Kern.EventManager.extend({
     this._raiseGesture(callback);
 
     this.gesture = this.element = null;
-    event.preventDefault();
-    event.stopPropagation();
     return false;
   },
   /**
@@ -184,8 +187,6 @@ var GestureManager = Kern.EventManager.extend({
       this.gesture.shift.y = this.gesture.position.y - this.gesture.start.y;
       this._raiseGesture(callback);
     }
-    event.preventDefault();
-    event.stopPropagation();
     return false;
   },
 
@@ -221,7 +222,24 @@ var GestureManager = Kern.EventManager.extend({
    */
   _raiseGesture: function(callback) {
     if (callback && this.gesture) {
+      if (!this.gesture.direction) { // is direction locked?
+        var x = this.gesture.shift.x;
+        var y = this.gesture.shift.y;
+        if (x + y > 10) { // has it moved considerably to lock direction?
+          if (Math.abs(x) > Math.abs(y)) {
+            this.gesture.direction = (x < 0 ? 'left' : 'right');
+            this.gesture.axis = 'x';
+          } else {
+            this.gesture.direction = (y < 0 ? 'up' : 'down');
+            this.gesture.axis = 'y';
+          }
+        }
+      }
       callback(this.gesture);
+      if (this.gesture.preventDefault) { // should we stop propagation and prevent default?
+        event.preventDefault();
+        event.stopPropagation();
+      }
     }
   }
 });

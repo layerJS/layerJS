@@ -47,7 +47,7 @@ var CanvasLayout = LayerLayout.extend({
    * @param {string} targetTransform - transform representing the scrolling after transition
    * @returns {Kern.Promise} a promise fullfilled after the transition finished. Note: if you start another transtion before the first one finished, this promise will not be resolved.
    */
-  transitionTo(frame, transition, targetFrameTransformData, targetTransform) {
+  transitionTo: function(frame, transition, targetFrameTransformData, targetTransform) {
     this._reverseTransform = this._calculateReverseTransform(frame, targetFrameTransformData);
     var finished = new Kern.Promise();
 
