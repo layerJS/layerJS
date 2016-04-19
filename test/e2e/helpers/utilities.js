@@ -76,4 +76,16 @@ utilities.getScroll = function(elementId) {
   }, elementId);
 };
 
+utilities.resizeWindow = function(width, height) {
+  browser.driver.manage().window().setSize(width, height);
+};
+
+utilities.setAttribute = function(elementId, attribute, value) {
+  return browser.driver.executeAsyncScript(function(elementId, attribute, value, callBack) {
+    var el = window.document.getElementById(elementId);
+    el.setAttribute(attribute, value);
+    callBack();
+  }, elementId, attribute, value);
+};
+
 module.exports = utilities;

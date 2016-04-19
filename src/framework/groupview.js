@@ -298,9 +298,9 @@ var GroupView = ObjView.extend({
 
     var childViews = [];
 
-    for (var childName in this._childNames) {
-      if (this._childNames.hasOwnProperty(childName)) {
-        childViews.push(this._childNames[childName]);
+    for (var child in this._childViews) {
+      if (this._childViews.hasOwnProperty(child)) {
+        childViews.push(this._childViews[child]);
       }
     }
 

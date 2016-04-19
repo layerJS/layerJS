@@ -185,6 +185,20 @@ var LayerView = GroupView.extend({
     childView.disableObserver();
     this._layout.renderFramePosition(childView, this._currentTransform);
     childView.enableObserver();
+  },
+  /**
+   * Method will be invoked when a resize event is detected.
+   */
+  onResize: function() {
+    var childViews = this.getChildViews();
+    var length = childViews.length;
+    for (var i = 0; i < length; i++) {
+      var childView = childViews[i];
+      if (childView.hasOwnProperty('transformData')) {
+        childView.transformData = null;
+      }
+    }
+    this.showFrame(this.currentFrame.data.attributes.name);
   }
 }, {
   Model: LayerData
