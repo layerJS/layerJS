@@ -6,6 +6,14 @@ var layoutManager = require('./layoutmanager.js');
 var LayerData = require('./layerdata.js');
 var GroupView = require('./groupview.js');
 var ScrollTransformer = require('./scrolltransformer.js');
+var gestureManager = require('./gestures/gesturemanager.js');
+
+var directions2neighbors = {
+  up: 't',
+  down: 'b',
+  left: 'l',
+  right: 'r'
+};
 /**
  * A View which can have child views
  * @param {LayerData} dataModel
@@ -53,6 +61,11 @@ var LayerView = GroupView.extend({
     if (hasScroller) this.innerEl.setAttribute('data-wl-helper', 'scroller');
     this.nativeScroll = this.data.attributes.nativeScroll;
 
+    // register for gestures
+    gestureManager.register(this.outerEl, this.gestureListener.bind(this), {
+      dragging: true
+    });
+
     // this is my stage and add listener to keep it updated
     this.stage = this.parent;
     this.on('parent', function() {
@@ -69,15 +82,43 @@ var LayerView = GroupView.extend({
       this.showFrame(this.currentFrame.data.attributes.name);
     }
     // listen to scroll events
-    this.outerEl.addEventListener('scroll', function() {
-      var keys = Object.keys(that._preparedTransitions);
-      var i;
-      for (i = 0; i < keys.length; i++) {
-        // mark prepared transitions direty because they assume a wrong scroll transform
-        // don't delete prepared transitions because everything else is still valid
-        that._preparedTransitions[i]._dirty = true;
-      }
+    this.on('scroll', function() { // jshint ignore:line
+      //that._layout.updateTransitions(); // FIXME: notify layout about scroll and that prepared transitions may be outdated
     });
+    /*
+    // register for gestures
+    gestureManager.register(this.layer.outerEl,function(){
+      that.gestureListener.apply(that,arguments);
+    })
+    */
+  },
+  gestureListener: function(gesture) {
+    var layerTransform = this._transformer.scrollGestureListener(gesture);
+
+    if (gesture.first) {
+      return;
+    }
+    if (layerTransform === true) {
+      // native scrolling possible
+      return;
+    } else if (layerTransform) {
+      this._layout.setLayerTransform(layerTransform);
+      gesture.preventDefault = true;
+    } else {
+      var cattr = this.currentFrame.data.attributes;
+      if (gesture.direction) {
+        if (cattr.neighbors && cattr.neighbors[directions2neighbors[gesture.direction]]) {
+          gesture.preventDefault = true;
+          if (gesture.last || (gesture.wheel && gesture.shift.x+gesture.shift.y>10)) {
+            this.transitionTo(cattr.neighbors[directions2neighbors[gesture.direction]]);
+          }
+        } else { //jshint ignore:line
+          // FIXME: escalate/gesture bubbling ; ignore for now
+        }
+      } else { //jshint ignore:line
+        // ignore, but don't let anybody now
+      }
+    }
   },
   /**
    * show current frame immidiately without transition/animation
@@ -97,9 +138,9 @@ var LayerView = GroupView.extend({
     if (!frame) throw "transformTo: " + framename + " does not exist in layer";
     this.inTransform = true;
     this._layout.loadFrame(frame).then(function() {
-      var targetFrameTransformData = frame.getTransformData(that.stage, scrollData.startPosition);
-      that.currentTransform = that._transformer.getScrollTransform(targetFrameTransformData, scrollData.scrollX || 0, scrollData.scrollY || 0);
-      that._layout.showFrame(frame, targetFrameTransformData, that.currentTransform);
+      that.currentFrameTransformData = frame.getTransformData(that.stage, scrollData.startPosition);
+      that.currentTransform = that._transformer.getScrollTransform(that.currentFrameTransformData, scrollData.scrollX || 0, scrollData.scrollY || 0);
+      that._layout.showFrame(frame, that.currentFrameTransformData, that.currentTransform);
       that.inTransform = false;
     });
   },

@@ -1,0 +1,74 @@
+<head>
+  <title>Simple Example</title>
+  <link rel="stylesheet" type="text/css" href="../../src/css/layerjs.css">
+</head>
+<style>
+  body {
+    margin: 0;
+  }
+
+  [data-wl-type='stage'] {
+    margin: 0;
+    border: 1px solid gray;
+    box-shadow: 0px 0px 5px gray;
+  }
+</style>
+
+<body>
+  <table>
+    <tr>
+      <td>
+        transform scrolling
+      </td>
+      <td>
+        native scrolling
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <div id="stage3" data-wl-type="stage" style="height:500px; width:600px">
+          <div id="layer3" data-wl-type="layer" data-wl-default-frame="frame3" data-wl-native-scroll="false">
+            <div id="frame3" data-wl-type="frame" data-wl-start-position="bottom" data-wl-name="frame3" data-wl-fit-to="width" style="width:200px"> But I must explain to you how all this mistaken idea of denouncing pleasure and praising pain was born and I will give you a complete account of the system, and expound the actual teachings of the great explorer of the truth, the master-builder
+              of human happiness. No one rejects, dislikes, or avoids pleasure itself, because it is pleasure, but because those who do not know how to pursue pleasure rationally encounter consequences that are extremely painful. Nor again is there anyone
+              who loves or pursues or desires to obtain pain of itself, because it is pain, but because occasionally circumstances occur in which toil and pain can procure him some great pleasure.</div>
+          </div>
+        </div>
+      </td>
+      <td>
+        <div id="stage2" data-wl-type="stage" style="height:500px; width:600px">
+          <div id="layer2" data-wl-type="layer" data-wl-default-frame="frame2" data-wl-native-scroll="true">
+            <div id="frame2" data-wl-type="frame" data-wl-start-position="bottom" data-wl-name="frame2" data-wl-fit-to="width" style="width:200px"> But I must explain to you how all this mistaken idea of denouncing pleasure and praising pain was born and I will give you a complete account of the system, and expound the actual teachings of the great explorer of the truth, the master-builder
+              of human happiness. No one rejects, dislikes, or avoids pleasure itself, because it is pleasure, but because those who do not know how to pursue pleasure rationally encounter consequences that are extremely painful. Nor again is there anyone
+              who loves or pursues or desires to obtain pain of itself, because it is pain, but because occasionally circumstances occur in which toil and pain can procure him some great pleasure.</div>
+          </div>
+        </div>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <div id="stage3" data-wl-type="stage" style="height:500px; width:600px">
+          <div id="layer3" data-wl-type="layer" data-wl-default-frame="frame3" data-wl-native-scroll="false">
+            <div id="frame3" data-wl-type="frame" data-wl-start-position="right" data-wl-name="frame3" data-wl-fit-to="height" style="width:500px"> But I must explain to you how all this mistaken idea of denouncing pleasure and praising pain was born and I will give you a complete account of the system, and expound the actual teachings of the great explorer of the truth, the master-builder
+              of human happiness. No one rejects, dislikes, or avoids pleasure itself, because it is pleasure, but because those who do not know how to pursue pleasure rationally encounter consequences that are extremely painful. Nor again is there anyone
+              who loves or pursues or desires to obtain pain of itself, because it is pain, but because occasionally circumstances occur in which toil and pain can procure him some great pleasure.</div>
+          </div>
+        </div>
+      </td>
+      <td>
+        <div id="stage4" data-wl-type="stage" style="height:500px; width:600px">
+          <div id="layer4" data-wl-type="layer" data-wl-default-frame="frame4" data-wl-native-scroll="true">
+            <div id="frame4" data-wl-type="frame" data-wl-start-position="right" data-wl-name="frame4" data-wl-fit-to="height" style="width:500px"> But I must explain to you how all this mistaken idea of denouncing pleasure and praising pain was born and I will give you a complete account of the system, and expound the actual teachings of the great explorer of the truth, the master-builder
+              of human happiness. No one rejects, dislikes, or avoids pleasure itself, because it is pleasure, but because those who do not know how to pursue pleasure rationally encounter consequences that are extremely painful. Nor again is there anyone
+              who loves or pursues or desires to obtain pain of itself, because it is pain, but because occasionally circumstances occur in which toil and pain can procure him some great pleasure.</div>
+          </div>
+        </div>
+      </td>
+    </tr>
+  </table>
+  <script src="../../dist/layerjs.js"></script>
+  <script>
+    WL.init();
+  </script>
+</body>
+
+</html>
