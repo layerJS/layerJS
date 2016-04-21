@@ -36,8 +36,8 @@ var LayerView = GroupView.extend({
     this.outerEl = options.el || document.createElement(tag);
 
 
-    var hasScroller = this.outerEl.childNodes.length === 1 && this.outerEl.childNodes[0].getAttribute('data-wl-helper') === 'scroller';
-    this.innerEl = hasScroller ? this.outerEl.childNodes[0] : this.outerEl;
+    var hasScroller = this.outerEl.children.length === 1 && this.outerEl.children[0].getAttribute('data-wl-helper') === 'scroller';
+    this.innerEl = hasScroller ? this.outerEl.children[0] : this.outerEl;
 
     // call super constructor
     GroupView.call(this, dataModel, Kern._extend({}, options, {
@@ -54,7 +54,7 @@ var LayerView = GroupView.extend({
       hasScroller = true;
     }
     if (hasScroller) {
-      this.innerEl = this.outerEl.childNodes[0];
+      this.innerEl = this.outerEl.children[0];
       this.outerEl.className += ' nativescroll'; // this will be used to add the correct style via css style sheet
     }
     // mark scroller as scroller in HTML

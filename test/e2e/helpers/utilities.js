@@ -88,4 +88,18 @@ utilities.setAttribute = function(elementId, attribute, value) {
   }, elementId, attribute, value);
 };
 
+utilities.setStyle = function(elementId, style) {
+  return browser.driver.executeAsyncScript(function(elementId, style, callback) {
+    var el = document.getElementById(elementId);
+
+    for (var styleName in style) {
+      el.style[styleName] = style[styleName];
+    }
+
+    callback();
+  }, elementId, style);
+};
+
+
+
 module.exports = utilities;
