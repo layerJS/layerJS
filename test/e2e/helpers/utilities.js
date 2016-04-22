@@ -100,6 +100,144 @@ utilities.setStyle = function(elementId, style) {
   }, elementId, style);
 };
 
+utilities.scrollDown = function(elementId) {
+  var scroll = browser.driver.executeAsyncScript(function(elementId, callback) {
+    var el = document.getElementById(elementId);
+    var evt = document.createEvent("MouseEvents");
+    evt.initMouseEvent(
+      'wheel', // in DOMString typeArg,
+      true, // in boolean canBubbleArg,
+      true, // in boolean cancelableArg,
+      window, // in views::AbstractView viewArg,
+      120, // in long detailArg,
+      0, // in long screenXArg,
+      0, // in long screenYArg,
+      0, // in long clientXArg,
+      0, // in long clientYArg,
+      0, // in boolean ctrlKeyArg,
+      0, // in boolean altKeyArg,
+      0, // in boolean shiftKeyArg,
+      0, // in boolean metaKeyArg,
+      0, // in unsigned short buttonArg,
+      null // in EventTarget relatedTargetArg
+    );
 
+    if (el.scrollTopMax - el.scrollTop < 57) {
+      el.scrollTop = el.scrollTopMax;
+    } else {
+      el.scrollTop += 57;
+    }
+    el.dispatchEvent(evt);
+    callback();
+  }, elementId);
+
+  return scroll;
+};
+
+utilities.ScrollUp = function(elementId) {
+  var scroll = browser.driver.executeAsyncScript(function(elementId, callback) {
+    var el = document.getElementById(elementId);
+    var evt = document.createEvent("MouseEvents");
+
+    evt.initMouseEvent(
+      'wheel', // in DOMString typeArg,
+      true, // in boolean canBubbleArg,
+      true, // in boolean cancelableArg,
+      window, // in views::AbstractView viewArg,
+      -120, // in long detailArg,
+      0, // in long screenXArg,
+      0, // in long screenYArg,
+      0, // in long clientXArg,
+      0, // in long clientYArg,
+      0, // in boolean ctrlKeyArg,
+      0, // in boolean altKeyArg,
+      0, // in boolean shiftKeyArg,
+      0, // in boolean metaKeyArg,
+      0, // in unsigned short buttonArg,
+      null // in EventTarget relatedTargetArg
+    );
+
+    if (el.scrollTop < 57) {
+      el.scrollTop = 0
+    } else {
+      el.scrollTop -= 57;
+    }
+
+    el.dispatchEvent(evt);
+    callback();
+  }, elementId);
+
+  return scroll;
+};
+
+utilities.ScrollLeft = function(elementId) {
+  var scroll = browser.driver.executeAsyncScript(function(elementId, callback) {
+    var el = document.getElementById(elementId);
+    var evt = document.createEvent("MouseEvents");
+
+    evt.initMouseEvent(
+      'wheel', // in DOMString typeArg,
+      true, // in boolean canBubbleArg,
+      true, // in boolean cancelableArg,
+      window, // in views::AbstractView viewArg,
+      -120, // in long detailArg,
+      0, // in long screenXArg,
+      0, // in long screenYArg,
+      0, // in long clientXArg,
+      0, // in long clientYArg,
+      0, // in boolean ctrlKeyArg,
+      0, // in boolean altKeyArg,
+      0, // in boolean shiftKeyArg,
+      0, // in boolean metaKeyArg,
+      0, // in unsigned short buttonArg,
+      null // in EventTarget relatedTargetArg
+    );
+
+    if (el.scrollLeft < 57) {
+      el.scrollLeft = 0
+    } else {
+      el.scrollLeft -= 57;
+    }
+
+    el.dispatchEvent(evt);
+    callback();
+  }, elementId);
+
+  return scroll;
+};
+
+utilities.scrollRight = function(elementId) {
+  var scroll = browser.driver.executeAsyncScript(function(elementId, callback) {
+    var el = document.getElementById(elementId);
+    var evt = document.createEvent("MouseEvents");
+    evt.initMouseEvent(
+      'wheel', // in DOMString typeArg,
+      true, // in boolean canBubbleArg,
+      true, // in boolean cancelableArg,
+      window, // in views::AbstractView viewArg,
+      120, // in long detailArg,
+      0, // in long screenXArg,
+      0, // in long screenYArg,
+      0, // in long clientXArg,
+      0, // in long clientYArg,
+      0, // in boolean ctrlKeyArg,
+      0, // in boolean altKeyArg,
+      0, // in boolean shiftKeyArg,
+      0, // in boolean metaKeyArg,
+      0, // in unsigned short buttonArg,
+      null // in EventTarget relatedTargetArg
+    );
+
+    if (el.scrollLeftMax - el.scrollLeft < 57) {
+      el.scrollLeft = el.scrollLeftMax;
+    } else {
+      el.scrollLeft += 57;
+    }
+    el.dispatchEvent(evt);
+    callback();
+  }, elementId);
+
+  return scroll;
+};
 
 module.exports = utilities;
