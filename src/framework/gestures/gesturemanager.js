@@ -98,8 +98,8 @@ var GestureManager = Kern.EventManager.extend({
     this.gesture.wheelDelta = this._wheelDelta(event);
 
     this.gesture.shift = {
-      x: 0,
-      y: this.gesture.wheelDelta * 6
+      x: this.gesture.wheelDelta.x * 6,
+      y: this.gesture.wheelDelta.y * 6
     };
     this.gesture.position = {
       x: this.gesture.start.x + this.gesture.shift.x,
@@ -118,18 +118,26 @@ var GestureManager = Kern.EventManager.extend({
     return false;
   },
   /**
-   * return the wheel delta
+   * return the wheel delta for the x- and y-axis
    * @param {event} Actual dom event
    */
   _wheelDelta: function(event) {
-    if (event.deltaY) {
-      return -event.deltaY / 3;
-    } else if (event.wheelDelta) {
-      return -event.wheelDelta / 120;
-    } else if (event.detail) {
-      return -event.detail / 3;
+    var wheelDelta = {
+      x: 0,
+      y: 0
+    };
+
+    if (event.deltaY !== undefined && event.deltaX !== undefined) {
+      wheelDelta.y = -event.deltaY / 3;
+      wheelDelta.x = -event.deltaX / 3;
+    } else if (event.wheelDeltaY !== undefined && event.wheelDeltaX !== undefined) {
+      wheelDelta.y = -event.wheelDeltaY / 120;
+      wheelDelta.x = -event.wheelDeltaX / 120;
+    } else if (event.detail !== undefined) {
+      // doesn't have an x and y variant, so by default we use it for the y axis
+      wheelDelta.Y = -event.detail / 3;
     }
-    return 0;
+    return wheelDelta;
   },
   /**
    * Users starts a touch event

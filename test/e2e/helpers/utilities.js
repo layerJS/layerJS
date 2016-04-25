@@ -88,6 +88,18 @@ utilities.setAttribute = function(elementId, attribute, value) {
   }, elementId, attribute, value);
 };
 
+utilities.setAttributes = function(elementId, attributes) {
+  return browser.driver.executeAsyncScript(function(elementId, attributes, callBack) {
+    var el = window.document.getElementById(elementId);
+
+    for (var attribute in attributes) {
+      el.setAttribute(attribute, attributes[attribute]);
+    }
+
+    callBack();
+  }, elementId, attributes);
+};
+
 utilities.setStyle = function(elementId, style) {
   return browser.driver.executeAsyncScript(function(elementId, style, callback) {
     var el = document.getElementById(elementId);
@@ -100,142 +112,248 @@ utilities.setStyle = function(elementId, style) {
   }, elementId, style);
 };
 
-utilities.scrollDown = function(elementId) {
-  var scroll = browser.driver.executeAsyncScript(function(elementId, callback) {
-    var el = document.getElementById(elementId);
-    var evt = document.createEvent("MouseEvents");
-    evt.initMouseEvent(
-      'wheel', // in DOMString typeArg,
-      true, // in boolean canBubbleArg,
-      true, // in boolean cancelableArg,
-      window, // in views::AbstractView viewArg,
-      120, // in long detailArg,
-      0, // in long screenXArg,
-      0, // in long screenYArg,
-      0, // in long clientXArg,
-      0, // in long clientYArg,
-      0, // in boolean ctrlKeyArg,
-      0, // in boolean altKeyArg,
-      0, // in boolean shiftKeyArg,
-      0, // in boolean metaKeyArg,
-      0, // in unsigned short buttonArg,
-      null // in EventTarget relatedTargetArg
-    );
+utilities.scrollDown = function(elementId, times) {
+  times = times || 1;
 
-    if (el.scrollTopMax - el.scrollTop < 57) {
-      el.scrollTop = el.scrollTopMax;
-    } else {
-      el.scrollTop += 57;
+  var scroll = browser.driver.executeAsyncScript(function(elementId, times, callback) {
+    var el = document.getElementById(elementId);
+    for (var i = 0; i < times; i++) {
+      var evt = document.createEvent("MouseEvents");
+      evt.initMouseEvent(
+        'wheel', // in DOMString typeArg,
+        true, // in boolean canBubbleArg,
+        true, // in boolean cancelableArg,
+        window, // in views::AbstractView viewArg,
+        0, // in long detailArg,
+        0, // in long screenXArg,
+        0, // in long screenYArg,
+        0, // in long clientXArg,
+        0, // in long clientYArg,
+        0, // in boolean ctrlKeyArg,
+        0, // in boolean altKeyArg,
+        0, // in boolean shiftKeyArg,
+        0, // in boolean metaKeyArg,
+        0, // in unsigned short buttonArg,
+        null // in EventTarget relatedTargetArg
+      );
+
+      //http://stackoverflow.com/questions/5527601/normalizing-mousewheel-speed-across-browsers
+      // Opera 8.0+ (UA detection to detect Blink/v8-powered Opera)
+      var isOpera = !!window.opera || navigator.userAgent.indexOf(' OPR/') >= 0;
+      // Firefox 1.0+
+      var isFirefox = typeof InstallTrigger !== 'undefined';
+      // At least Safari 3+: "[object HTMLElementConstructor]"
+      var isSafari = Object.prototype.toString.call(window.HTMLElement).indexOf('Constructor') > 0;
+      // Internet Explorer 6-11
+      var isIE = /*@cc_on!@*/ false || !!document.documentMode;
+      // Edge 20+
+      var isEdge = !isIE && !!window.StyleMedia;
+      // Chrome 1+
+      var isChrome = !!window.chrome && !!window.chrome.webstore;
+
+      if (isSafari || isChrome) {
+        evt.wheelDeltaY = 120;
+        evt.wheelDeltaX = 0;
+      } else if (isFirefox || isOpera || isIE || isEdge) {
+        evt.deltaY = 100;
+        evt.deltaX = 0;
+      }
+
+
+      if (el.scrollTopMax - el.scrollTop < 57) {
+        el.scrollTop = el.scrollTopMax;
+      } else {
+        el.scrollTop += 57;
+      }
+      el.dispatchEvent(evt);
     }
-    el.dispatchEvent(evt);
+
     callback();
-  }, elementId);
+  }, elementId, times);
 
   return scroll;
 };
 
-utilities.ScrollUp = function(elementId) {
-  var scroll = browser.driver.executeAsyncScript(function(elementId, callback) {
+utilities.ScrollUp = function(elementId, times) {
+  times = times || 1;
+
+  var scroll = browser.driver.executeAsyncScript(function(elementId, times, callback) {
     var el = document.getElementById(elementId);
-    var evt = document.createEvent("MouseEvents");
+    for (var i = 0; i < times; i++) {
+      var evt = document.createEvent("MouseEvents");
 
-    evt.initMouseEvent(
-      'wheel', // in DOMString typeArg,
-      true, // in boolean canBubbleArg,
-      true, // in boolean cancelableArg,
-      window, // in views::AbstractView viewArg,
-      -120, // in long detailArg,
-      0, // in long screenXArg,
-      0, // in long screenYArg,
-      0, // in long clientXArg,
-      0, // in long clientYArg,
-      0, // in boolean ctrlKeyArg,
-      0, // in boolean altKeyArg,
-      0, // in boolean shiftKeyArg,
-      0, // in boolean metaKeyArg,
-      0, // in unsigned short buttonArg,
-      null // in EventTarget relatedTargetArg
-    );
+      evt.initMouseEvent(
+        'wheel', // in DOMString typeArg,
+        true, // in boolean canBubbleArg,
+        true, // in boolean cancelableArg,
+        window, // in views::AbstractView viewArg,
+        0, // in long detailArg,
+        0, // in long screenXArg,
+        0, // in long screenYArg,
+        0, // in long clientXArg,
+        0, // in long clientYArg,
+        0, // in boolean ctrlKeyArg,
+        0, // in boolean altKeyArg,
+        0, // in boolean shiftKeyArg,
+        0, // in boolean metaKeyArg,
+        0, // in unsigned short buttonArg,
+        null // in EventTarget relatedTargetArg
+      );
 
-    if (el.scrollTop < 57) {
-      el.scrollTop = 0
-    } else {
-      el.scrollTop -= 57;
+      // Opera 8.0+ (UA detection to detect Blink/v8-powered Opera)
+      var isOpera = !!window.opera || navigator.userAgent.indexOf(' OPR/') >= 0;
+      // Firefox 1.0+
+      var isFirefox = typeof InstallTrigger !== 'undefined';
+      // At least Safari 3+: "[object HTMLElementConstructor]"
+      var isSafari = Object.prototype.toString.call(window.HTMLElement).indexOf('Constructor') > 0;
+      // Internet Explorer 6-11
+      var isIE = /*@cc_on!@*/ false || !!document.documentMode;
+      // Edge 20+
+      var isEdge = !isIE && !!window.StyleMedia;
+      // Chrome 1+
+      var isChrome = !!window.chrome && !!window.chrome.webstore;
+
+      if (isSafari || isChrome) {
+        evt.wheelDeltaY = -120;
+        evt.wheelDeltaX = 0;
+      } else if (isFirefox || isOpera || isIE || isEdge) {
+        evt.deltaY = -100;
+        evt.deltaX = 0;
+      }
+
+
+      if (el.scrollTop < 57) {
+        el.scrollTop = 0
+      } else {
+        el.scrollTop -= 57;
+      }
+
+      el.dispatchEvent(evt);
     }
-
-    el.dispatchEvent(evt);
     callback();
-  }, elementId);
+  }, elementId, times);
 
   return scroll;
 };
 
-utilities.ScrollLeft = function(elementId) {
-  var scroll = browser.driver.executeAsyncScript(function(elementId, callback) {
+utilities.ScrollLeft = function(elementId, times) {
+  times = times || 1;
+
+  var scroll = browser.driver.executeAsyncScript(function(elementId, times, callback) {
     var el = document.getElementById(elementId);
-    var evt = document.createEvent("MouseEvents");
+    for (var i = 0; i < times; i++) {
+      var evt = document.createEvent("MouseEvents");
 
-    evt.initMouseEvent(
-      'wheel', // in DOMString typeArg,
-      true, // in boolean canBubbleArg,
-      true, // in boolean cancelableArg,
-      window, // in views::AbstractView viewArg,
-      -120, // in long detailArg,
-      0, // in long screenXArg,
-      0, // in long screenYArg,
-      0, // in long clientXArg,
-      0, // in long clientYArg,
-      0, // in boolean ctrlKeyArg,
-      0, // in boolean altKeyArg,
-      0, // in boolean shiftKeyArg,
-      0, // in boolean metaKeyArg,
-      0, // in unsigned short buttonArg,
-      null // in EventTarget relatedTargetArg
-    );
+      evt.initMouseEvent(
+        'wheel', // in DOMString typeArg,
+        true, // in boolean canBubbleArg,
+        true, // in boolean cancelableArg,
+        window, // in views::AbstractView viewArg,
+        0, // in long detailArg,
+        0, // in long screenXArg,
+        0, // in long screenYArg,
+        0, // in long clientXArg,
+        0, // in long clientYArg,
+        0, // in boolean ctrlKeyArg,
+        0, // in boolean altKeyArg,
+        0, // in boolean shiftKeyArg,
+        0, // in boolean metaKeyArg,
+        0, // in unsigned short buttonArg,
+        null // in EventTarget relatedTargetArg
+      );
 
-    if (el.scrollLeft < 57) {
-      el.scrollLeft = 0
-    } else {
-      el.scrollLeft -= 57;
+      // Opera 8.0+ (UA detection to detect Blink/v8-powered Opera)
+      var isOpera = !!window.opera || navigator.userAgent.indexOf(' OPR/') >= 0;
+      // Firefox 1.0+
+      var isFirefox = typeof InstallTrigger !== 'undefined';
+      // At least Safari 3+: "[object HTMLElementConstructor]"
+      var isSafari = Object.prototype.toString.call(window.HTMLElement).indexOf('Constructor') > 0;
+      // Internet Explorer 6-11
+      var isIE = /*@cc_on!@*/ false || !!document.documentMode;
+      // Edge 20+
+      var isEdge = !isIE && !!window.StyleMedia;
+      // Chrome 1+
+      var isChrome = !!window.chrome && !!window.chrome.webstore;
+
+      if (isSafari || isChrome) {
+        evt.wheelDeltaY = 0;
+        evt.wheelDeltaX = -1200;
+      } else if (isFirefox || isOpera || isIE || isEdge) {
+        evt.deltaY = 0;
+        evt.deltaX = -100;
+      }
+
+
+      if (el.scrollLeft < 57) {
+        el.scrollLeft = 0
+      } else {
+        el.scrollLeft -= 57;
+      }
+
+      el.dispatchEvent(evt);
     }
-
-    el.dispatchEvent(evt);
     callback();
-  }, elementId);
+  }, elementId, times);
 
   return scroll;
 };
 
-utilities.scrollRight = function(elementId) {
-  var scroll = browser.driver.executeAsyncScript(function(elementId, callback) {
-    var el = document.getElementById(elementId);
-    var evt = document.createEvent("MouseEvents");
-    evt.initMouseEvent(
-      'wheel', // in DOMString typeArg,
-      true, // in boolean canBubbleArg,
-      true, // in boolean cancelableArg,
-      window, // in views::AbstractView viewArg,
-      120, // in long detailArg,
-      0, // in long screenXArg,
-      0, // in long screenYArg,
-      0, // in long clientXArg,
-      0, // in long clientYArg,
-      0, // in boolean ctrlKeyArg,
-      0, // in boolean altKeyArg,
-      0, // in boolean shiftKeyArg,
-      0, // in boolean metaKeyArg,
-      0, // in unsigned short buttonArg,
-      null // in EventTarget relatedTargetArg
-    );
+utilities.scrollRight = function(elementId, times) {
+  times = times || 1;
 
-    if (el.scrollLeftMax - el.scrollLeft < 57) {
-      el.scrollLeft = el.scrollLeftMax;
-    } else {
-      el.scrollLeft += 57;
+  var scroll = browser.driver.executeAsyncScript(function(elementId, times, callback) {
+    var el = document.getElementById(elementId);
+    for (var i = 0; i < times; i++) {
+      var evt = document.createEvent("MouseEvents");
+      evt.initMouseEvent(
+        'wheel', // in DOMString typeArg,
+        true, // in boolean canBubbleArg,
+        true, // in boolean cancelableArg,
+        window, // in views::AbstractView viewArg,
+        0, // in long detailArg,
+        0, // in long screenXArg,
+        0, // in long screenYArg,
+        0, // in long clientXArg,
+        0, // in long clientYArg,
+        0, // in boolean ctrlKeyArg,
+        0, // in boolean altKeyArg,
+        0, // in boolean shiftKeyArg,
+        0, // in boolean metaKeyArg,
+        0, // in unsigned short buttonArg,
+        null // in EventTarget relatedTargetArg
+      );
+
+      // Opera 8.0+ (UA detection to detect Blink/v8-powered Opera)
+      var isOpera = !!window.opera || navigator.userAgent.indexOf(' OPR/') >= 0;
+      // Firefox 1.0+
+      var isFirefox = typeof InstallTrigger !== 'undefined';
+      // At least Safari 3+: "[object HTMLElementConstructor]"
+      var isSafari = Object.prototype.toString.call(window.HTMLElement).indexOf('Constructor') > 0;
+      // Internet Explorer 6-11
+      var isIE = /*@cc_on!@*/ false || !!document.documentMode;
+      // Edge 20+
+      var isEdge = !isIE && !!window.StyleMedia;
+      // Chrome 1+
+      var isChrome = !!window.chrome && !!window.chrome.webstore;
+
+      if (isSafari || isChrome) {
+        evt.wheelDeltaY = 0;
+        evt.wheelDeltaX = 120;
+      } else if (isFirefox || isOpera || isIE || isEdge) {
+        evt.deltaY = 0;
+        evt.deltaX = 100;
+      }
+
+
+      if (el.scrollLeftMax - el.scrollLeft < 57) {
+        el.scrollLeft = el.scrollLeftMax;
+      } else {
+        el.scrollLeft += 57;
+      }
+      el.dispatchEvent(evt);
     }
-    el.dispatchEvent(evt);
     callback();
-  }, elementId);
+  }, elementId, times);
 
   return scroll;
 };
