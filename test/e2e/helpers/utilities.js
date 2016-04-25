@@ -2,11 +2,13 @@ var utilities = {};
 
 require('jasmine-expect');
 
-utilities.transitionTo = function(layerId, frameName, transition) {
-  return browser.driver.executeAsyncScript(function(layerId, frameName, transition, callBack) {
+utilities.transitionTo = function(layerId, frameName, transition, waitTime) {
+  waitTime = waitTime || 3000;
+
+  return browser.driver.executeAsyncScript(function(layerId, frameName, transition, waitTime, callBack) {
     WL.select('#' + layerId).transitionTo(frameName, transition);
-    window.setTimeout(callBack, 5000);
-  }, layerId, frameName, transition);
+    window.setTimeout(callBack, waitTime);
+  }, layerId, frameName, transition, waitTime);
 };
 
 utilities.getBoundingClientRect = function(elementId) {
@@ -356,6 +358,10 @@ utilities.scrollRight = function(elementId, times) {
   }, elementId, times);
 
   return scroll;
+};
+
+utilities.wait = function(miliseconds) {
+  browser.sleep(miliseconds);
 };
 
 module.exports = utilities;
