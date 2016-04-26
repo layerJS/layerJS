@@ -118,7 +118,7 @@ var ScrollTransformer = Kern.EventManager.extend({
     if (this.layer.nativeScroll) {
       if (intermediate) {
         // in nativescroll, the scroll position is not applied via transform, but we need to compensate for a displacement due to the different scrollTop/Left values in the current frame and the target frame. This displacement is set to 0 after correcting the scrollTop/Left in the transitionEnd listener in transitionTo()
-        var shiftX = this.layer.outerEl.scrollLeft - ((scrollX || tfd.scrollX) * tfd.scale || 0);
+        var shiftX = 0; //this.layer.outerEl.scrollLeft - ((scrollX || tfd.scrollX) * tfd.scale || 0);
         var shiftY = this.layer.outerEl.scrollTop - ((scrollY || tfd.scrollY) * tfd.scale || 0);
         return this.scrollTransform(shiftX, shiftY);
       } else {
@@ -142,8 +142,13 @@ var ScrollTransformer = Kern.EventManager.extend({
     } else {
       this.layer.innerEl.style.height = 0;
       this.layer.innerEl.style.width = 0;
-      // in transformscroll we add a transform representing the scroll position.
-      return this.scrollTransform(-(scrollX || tfd.scrollX) * tfd.scale, -(scrollY || tfd.scrollY) * tfd.scale);
+
+      if (intermediate) {
+        return this.scrollTransform(0, -(scrollY || tfd.scrollY) * tfd.scale);
+      } else {
+        // in transformscroll we add a transform representing the scroll position.
+        return this.scrollTransform(-(scrollX || tfd.scrollX) * tfd.scale, -(scrollY || tfd.scrollY) * tfd.scale);
+      }
     }
   }
 });
