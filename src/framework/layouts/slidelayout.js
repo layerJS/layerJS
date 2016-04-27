@@ -192,13 +192,12 @@ var SlideLayout = LayerLayout.extend({
 
       case 'right':
         // target frame transform time 0
-        x = -Math.max(this.getStageWidth(), ctfd.width) + ctfd.shiftX;
-        y = -ttfd.shiftY;
+        x = -Math.max(this.getStageWidth(), ttfd.width) + ctfd.shiftX - ttfd.shiftX;
+        y = -ttfd.shiftY + ctfd.scrollY * ctfd.scale - ttfd.scrollY * ttfd.scale;
         t.t0 = "translate3d(" + x + "px," + y + "px,0px) scale(" + ttfd.scale + ")";
         // current frame transform time 1
-        x = Math.max(this.getStageWidth(), ttfd.width) - ctfd.shiftX;
-        y = ctfd.shiftY;
-        t.c1 = "translate3d(" + x + "px," + y + "px,0px) scale(" + ctfd.scale + ")";
+        y = -ctfd.shiftY - ctfd.scrollY * ctfd.scale + ttfd.scrollY * ttfd.scale;
+        t.c1 = "translate3d(" + (-x) + "px," + y + "px,0px) scale(" + ctfd.scale + ")";
         break;
 
       case 'down':
