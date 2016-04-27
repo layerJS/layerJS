@@ -208,7 +208,7 @@ var LayerView = GroupView.extend({
    * @returns {Boolean} true if it would scroll.
    */
   gestureCanScroll: function(direction) {
-    var tfd = this.currentFrame.getTransformData(this.stage);
+    var tfd = this.currentFrame.getTransformData(this.stage, undefined, true);
     if (direction === 'up' && tfd.isScrollY && this.outerEl.scrollTop > 0) {
       return true;
     } else if (direction === 'down' && tfd.isScrollY && this.outerEl.scrollTop < tfd.maxScrollY) {

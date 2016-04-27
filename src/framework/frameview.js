@@ -27,14 +27,19 @@ var FrameView = GroupView.extend({
    *
    * @param {StageView} stage - the stage to be fit into
    * @param {String} transitionStartPosition -  [optional] the transition data for the current transition, only startPosition is considered
+   * @param {Boolean} keepScroll - if true, scrollX and scrollY are not reset to their initial positions (unless transitionStartPosition requests a full recalculation)
    * @returns {TransformData} the transform data
    */
-  getTransformData: function(stage, transitionStartPosition) {
+  getTransformData: function(stage, transitionStartPosition, keepScroll) {
     // check if we can return cached version of transfromData
     var d = this.transformData;
     if (!d || d.stage !== stage || (transitionStartPosition && transitionStartPosition !== d.startPosition)) {
       // calculate transformData
       return (this.transformData = this.calculateTransformData(stage, transitionStartPosition));
+    }
+    if (!keepScroll) {
+      d.scrollX = d.initialScrollX;
+      d.scrollY = d.initialScrollY;
     }
     return d;
   },
@@ -152,7 +157,6 @@ var FrameView = GroupView.extend({
     // take startPosition from transition or from frame
     d.startPosition = transitionStartPosition || this.data.attributes.startPosition;
     switch (d.startPosition) {
-      case 'default':
       case 'top':
         if (d.isScrollY) d.scrollY = 0;
         break;
@@ -195,6 +199,10 @@ var FrameView = GroupView.extend({
           }
         }
         break;
+      default:
+        if (d.isScrollX) d.scrollX = 0;
+        if (d.isScrollY) d.scrollY = 0;
+        break;
     }
     // calculate actual frame width height in stage space
     d.width = d.frameWidth * d.scale;
@@ -236,6 +244,9 @@ var FrameView = GroupView.extend({
       //     if (d.scrollY > d.maxScrollY) d.scrollY = d.maxScrollY;
       //   }
     }
+    // save inital scroll position to be able to reset this without recalculating the full transform data
+    d.initialScrollX = d.scrollX;
+    d.initialScrollY = d.scrollY;
     return (this.transformData = d);
   }
 }, {
