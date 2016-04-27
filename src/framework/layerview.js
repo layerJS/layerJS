@@ -109,8 +109,10 @@ var LayerView = GroupView.extend({
       if (gesture.direction) {
         if (cattr.neighbors && cattr.neighbors[directions2neighbors[gesture.direction]]) {
           gesture.preventDefault = true;
-          if (gesture.last || (gesture.wheel && gesture.shift.x + gesture.shift.y > 10)) {
-            this.transitionTo(cattr.neighbors[directions2neighbors[gesture.direction]]);
+          if (gesture.last || (gesture.wheel && gesture.enoughdistance())) {
+            this.transitionTo(cattr.neighbors[directions2neighbors[gesture.direction]], {
+              type: gesture.direction
+            });
           }
         } else { //jshint ignore:line
           // FIXME: escalate/gesture bubbling ; ignore for now

@@ -41,11 +41,17 @@ var Gesture = Kern.Base.extend({
     };
   },
   /**
-  * Returns how long a go the event fired
-  */
+   * Returns how long a go the event got fired
+   */
   lifeTime: function() {
-    return new Date().getTime() - this.gesture.startTime;
+    return new Date().getTime() - this.startTime;
 
+  },
+  /**
+   * Returns if the gesture has made enough distance to lock a direction
+   */
+  enoughdistance: function() {
+    return Math.abs(this.shift.x) + Math.abs(this.shift.y) > 10;
   }
 }, {});
 
