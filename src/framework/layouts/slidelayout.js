@@ -200,27 +200,27 @@ var SlideLayout = LayerLayout.extend({
         t.c1 = "translate3d(" + (-x) + "px," + y + "px,0px) scale(" + ctfd.scale + ")";
         break;
 
-      case 'down':
-        // target frame transform time 0
-        x = -ttfd.shiftX;
-        y = -Math.max(this.getStageHeight(), ctfd.height, ttfd.height) + ctfd.shiftY;
-        t.t0 = "translate3d(" + x + "px," + y + "px,0px) scale(" + ttfd.scale + ")";
-        // current frame transform time 1
-        x = ctfd.shiftX;
-        y = Math.max(this.getStageHeight(), ctfd.height, ttfd.height) - ctfd.shiftY;
-        t.c1 = "translate3d(" + x + "px," + y + "px,0px) scale(" + ctfd.scale + ")";
-        break;
-
       case 'up':
         // target frame transform time 0
-        x = -ttfd.shiftX;
-        y = Math.max(this.getStageHeight(), ctfd.height, ttfd.height) - ttfd.shiftY;
+        y = Math.max(this.getStageHeight(), ctfd.height) - ctfd.shiftY + ttfd.shiftY;
+        x = -ttfd.shiftX + ctfd.scrollX * ctfd.scale - ttfd.scrollX * ttfd.scale;
+        // FIXME: translate and scale may actually be swapped here, not tested yet as shift was always zero so far!!!
         t.t0 = "translate3d(" + x + "px," + y + "px,0px) scale(" + ttfd.scale + ")";
         // current frame transform time 1
-        x = -ctfd.shiftX;
-        y = -Math.max(this.getStageHeight(), ctfd.height, ttfd.height) - ctfd.shiftY;
-        t.c1 = "translate3d(" + x + "px," + y + "px,0px) scale(" + ctfd.scale + ")";
+        x = -ctfd.shiftX - ctfd.scrollX * ctfd.scale + ttfd.scrollX * ttfd.scale;
+        t.c1 = "translate3d(" + x + "px," + (-y) + "px,0px) scale(" + ctfd.scale + ")";
         break;
+
+      case 'down':
+        // target frame transform time 0
+        y = -Math.max(this.getStageHeight(), ttfd.height) + ctfd.shiftY - ttfd.shiftY;
+        x = -ttfd.shiftX + ctfd.scrollX * ctfd.scale - ttfd.scrollX * ttfd.scale;
+        t.t0 = "translate3d(" + x + "px," + y + "px,0px) scale(" + ttfd.scale + ")";
+        // current frame transform time 1
+        x = -ctfd.shiftX - ctfd.scrollX * ctfd.scale + ttfd.scrollX * ttfd.scale;
+        t.c1 = "translate3d(" + x + "px," + (-y) + "px,0px) scale(" + ctfd.scale + ")";
+        break;
+        // target frame transform time 0
     }
 
     return t;
