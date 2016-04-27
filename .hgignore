@@ -1,5 +1,6 @@
 syntax: glob
 *.orig
+*.rej
 node_modules
 dist
 *.log
