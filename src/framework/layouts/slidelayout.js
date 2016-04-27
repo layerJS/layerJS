@@ -40,7 +40,6 @@ var SlideLayout = LayerLayout.extend({
     for (var i = 0; i < this.layer.innerEl.children.length; i++) {
       this.layer.innerEl.children[i].style.display = 'none';
     }
-    this._currentFrameTransformData = frameTransformData;
     this._applyTransform(frame, this._currentFrameTransform = this._calcFrameTransform(frameTransformData), transform, {
       display: '',
       opacity: 1,
@@ -60,7 +59,6 @@ var SlideLayout = LayerLayout.extend({
   transitionTo: function(frame, transition, targetFrameTransformData, targetTransform) {
     var that = this;
     var currentFrame = that.layer.currentFrame;
-    var currentTransform = that.layer.getCurrentTransform();
     return this.prepareTransition(frame, transition, targetFrameTransformData, targetTransform).then(function(t) {
       var finished = new Kern.Promise();
       console.log('now for real');
@@ -75,16 +73,22 @@ var SlideLayout = LayerLayout.extend({
             transition: ''
           });
         }
-        finished.resolve();
+        // wait until above styles are applied;
+        $.postAnimationFrame(function() {
+          finished.resolve();
+        });
       });
-      that._currentFrameTransformData = targetFrameTransformData;
       that._applyTransform(frame, that._currentFrameTransform = that._calcFrameTransform(targetFrameTransformData), targetTransform, {
         transition: transition.duration
       });
-      that._applyTransform(currentFrame, t.c1, currentTransform, {
+      that._applyTransform(currentFrame, t.c1, targetTransform, {
         transition: transition.duration
       });
       that._preparedTransitions = {};
+      // wait until post transforms are applied an signal that animation is now running.
+      $.postAnimationFrame(function() {
+        that.layer.trigger('transitionStarted');
+      });
       return finished;
     });
   },
@@ -111,9 +115,9 @@ var SlideLayout = LayerLayout.extend({
       }
     }
     // call the transition type function to calculate all frame positions/transforms
-    prep = this._preparedTransitions[frame.data.attributes.id] = this.transitions[transition.type](transition.type, this._currentFrameTransformData, targetFrameTransformData);
+    prep = this._preparedTransitions[frame.data.attributes.id] = this.transitions[transition.type](transition.type, this.layer.currentFrameTransformData, targetFrameTransformData); // WARNING: this.layer.currentFrameTransformData should still be the old one here. carefull: this.layer.currentFrameTransformData will be set by LayerView before transition ends!
     // apply pre position to target frame
-    this._applyTransform(frame, prep.t0, targetTransform, {
+    this._applyTransform(frame, prep.t0, this.layer.currentTransform, {
       transition: '',
       opacity: '1',
       visibility: ''
@@ -166,58 +170,57 @@ var SlideLayout = LayerLayout.extend({
    *
    * @param {string} type - the transition type (e.g. "left")
    * @param {Integer} which - Boolean mask describing which positions need to be calculated
-   * @param {Object} currentFrameTransformData - transform data of current frame
-   * @param {Object} targetFrameTransformData - transform data of target frame
+   * @param {Object} ctfd - currentFrameTransformData - transform data of current frame
+   * @param {Object} ttfd - targetFrameTransformData - transform data of target frame
    * @returns {Object} the "t" record containing pre and post transforms
    */
-  swipeTransition: function(type, currentFrameTransformData, targetFrameTransformData) {
+  swipeTransition: function(type, ctfd, ttfd) {
     var t = {}; // record taking pre and post positions
     var x, y;
     switch (type) {
       case 'default':
       case 'left':
         // target frame transform time 0
-        x = Math.max(this.getStageWidth(), currentFrameTransformData.width) - currentFrameTransformData.shiftX;
-        y = -targetFrameTransformData.shiftY;
+        x = Math.max(this.getStageWidth(), ctfd.width) - ctfd.shiftX + ttfd.shiftX;
+        y = -ttfd.shiftY + ctfd.scrollY * ctfd.scale - ttfd.scrollY * ttfd.scale;
         // FIXME: translate and scale may actually be swapped here, not tested yet as shift was always zero so far!!!
-        t.t0 = "translate3d(" + x + "px," + y + "px,0px) scale(" + targetFrameTransformData.scale + ")";
+        t.t0 = "translate3d(" + x + "px," + y + "px,0px) scale(" + ttfd.scale + ")";
         // current frame transform time 1
-        x = -Math.max(this.getStageWidth(), targetFrameTransformData.width) + currentFrameTransformData.shiftX;
-        y = -currentFrameTransformData.shiftY;
-        t.c1 = "translate3d(" + x + "px," + y + "px,0px) scale(" + currentFrameTransformData.scale + ")";
+        y = -ctfd.shiftY - ctfd.scrollY * ctfd.scale + ttfd.scrollY * ttfd.scale;
+        t.c1 = "translate3d(" + (-x) + "px," + y + "px,0px) scale(" + ctfd.scale + ")";
         break;
 
       case 'right':
         // target frame transform time 0
-        x = -Math.max(this.getStageWidth(), currentFrameTransformData.width) + currentFrameTransformData.shiftX;
-        y = -targetFrameTransformData.shiftY;
-        t.t0 = "translate3d(" + x + "px," + y + "px,0px) scale(" + targetFrameTransformData.scale + ")";
+        x = -Math.max(this.getStageWidth(), ctfd.width) + ctfd.shiftX;
+        y = -ttfd.shiftY;
+        t.t0 = "translate3d(" + x + "px," + y + "px,0px) scale(" + ttfd.scale + ")";
         // current frame transform time 1
-        x = Math.max(this.getStageWidth(), targetFrameTransformData.width) - currentFrameTransformData.shiftX;
-        y = currentFrameTransformData.shiftY;
-        t.c1 = "translate3d(" + x + "px," + y + "px,0px) scale(" + currentFrameTransformData.scale + ")";
+        x = Math.max(this.getStageWidth(), ttfd.width) - ctfd.shiftX;
+        y = ctfd.shiftY;
+        t.c1 = "translate3d(" + x + "px," + y + "px,0px) scale(" + ctfd.scale + ")";
         break;
 
       case 'down':
         // target frame transform time 0
-        x = -targetFrameTransformData.shiftX;
-        y = -Math.max(this.getStageHeight(), currentFrameTransformData.height, targetFrameTransformData.height) + currentFrameTransformData.shiftY;
-        t.t0 = "translate3d(" + x + "px," + y + "px,0px) scale(" + targetFrameTransformData.scale + ")";
+        x = -ttfd.shiftX;
+        y = -Math.max(this.getStageHeight(), ctfd.height, ttfd.height) + ctfd.shiftY;
+        t.t0 = "translate3d(" + x + "px," + y + "px,0px) scale(" + ttfd.scale + ")";
         // current frame transform time 1
-        x = currentFrameTransformData.shiftX;
-        y = Math.max(this.getStageHeight(), currentFrameTransformData.height, targetFrameTransformData.height) - currentFrameTransformData.shiftY;
-        t.c1 = "translate3d(" + x + "px," + y + "px,0px) scale(" + currentFrameTransformData.scale + ")";
+        x = ctfd.shiftX;
+        y = Math.max(this.getStageHeight(), ctfd.height, ttfd.height) - ctfd.shiftY;
+        t.c1 = "translate3d(" + x + "px," + y + "px,0px) scale(" + ctfd.scale + ")";
         break;
 
       case 'up':
         // target frame transform time 0
-        x = -targetFrameTransformData.shiftX;
-        y = Math.max(this.getStageHeight(), currentFrameTransformData.height, targetFrameTransformData.height) - targetFrameTransformData.shiftY;
-        t.t0 = "translate3d(" + x + "px," + y + "px,0px) scale(" + targetFrameTransformData.scale + ")";
+        x = -ttfd.shiftX;
+        y = Math.max(this.getStageHeight(), ctfd.height, ttfd.height) - ttfd.shiftY;
+        t.t0 = "translate3d(" + x + "px," + y + "px,0px) scale(" + ttfd.scale + ")";
         // current frame transform time 1
-        x = -currentFrameTransformData.shiftX;
-        y = -Math.max(this.getStageHeight(), currentFrameTransformData.height, targetFrameTransformData.height) - currentFrameTransformData.shiftY;
-        t.c1 = "translate3d(" + x + "px," + y + "px,0px) scale(" + currentFrameTransformData.scale + ")";
+        x = -ctfd.shiftX;
+        y = -Math.max(this.getStageHeight(), ctfd.height, ttfd.height) - ctfd.shiftY;
+        t.c1 = "translate3d(" + x + "px," + y + "px,0px) scale(" + ctfd.scale + ")";
         break;
     }
 

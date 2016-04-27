@@ -26,7 +26,7 @@ var FrameView = GroupView.extend({
    * get the transformData of the frame that describes how to fit the frame into the stage
    *
    * @param {StageView} stage - the stage to be fit into
-   * @param {Transtion} transition -  [optional] the transition data for the current transition, only startPosition is considered
+   * @param {String} transitionStartPosition -  [optional] the transition data for the current transition, only startPosition is considered
    * @returns {TransformData} the transform data
    */
   getTransformData: function(stage, transitionStartPosition) {

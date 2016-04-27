@@ -102,14 +102,14 @@ var LayerView = GroupView.extend({
       // native scrolling possible
       return;
     } else if (layerTransform) {
-      this._layout.setLayerTransform(layerTransform);
+      this._layout.setLayerTransform(this.currentTransform = layerTransform);
       gesture.preventDefault = true;
     } else {
       var cattr = this.currentFrame.data.attributes;
       if (gesture.direction) {
         if (cattr.neighbors && cattr.neighbors[directions2neighbors[gesture.direction]]) {
           gesture.preventDefault = true;
-          if (gesture.last || (gesture.wheel && gesture.shift.x+gesture.shift.y>10)) {
+          if (gesture.last || (gesture.wheel && gesture.shift.x + gesture.shift.y > 10)) {
             this.transitionTo(cattr.neighbors[directions2neighbors[gesture.direction]]);
           }
         } else { //jshint ignore:line
@@ -138,9 +138,9 @@ var LayerView = GroupView.extend({
     if (!frame) throw "transformTo: " + framename + " does not exist in layer";
     this.inTransform = true;
     this._layout.loadFrame(frame).then(function() {
-      that.currentFrameTransformData = frame.getTransformData(that.stage, scrollData.startPosition);
-      that.currentTransform = that._transformer.getScrollTransform(that.currentFrameTransformData, scrollData.scrollX || 0, scrollData.scrollY || 0);
-      that._layout.showFrame(frame, that.currentFrameTransformData, that.currentTransform);
+      var tfd = that.currentFrameTransformData = frame.getTransformData(that.stage, scrollData.startPosition);
+      that.currentTransform = that._transformer.getScrollTransform(tfd, scrollData.scrollX || (tfd.isScrollX && tfd.scrollX) || 0, scrollData.scrollY || (tfd.isScrollY && tfd.scrollY) || 0);
+      that._layout.showFrame(frame, tfd, that.currentTransform);
       that.inTransform = false;
     });
   },
@@ -187,8 +187,12 @@ var LayerView = GroupView.extend({
           // apply new transform (will be 0,0 in case of native scrolling)
           that._layout.setLayerTransform(that.currentTransform);
           that.inTransform = false;
+          $.postAnimationFrame(function() {
+            that.trigger('transitionFinished');
+          });
         }
       });
+      that.currentFrameTransformData = targetFrameTransformData;
       that.currentFrame = frame;
       that.currentTransform = targetTransform;
       return layoutPromise;
