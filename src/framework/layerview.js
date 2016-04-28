@@ -9,10 +9,10 @@ var ScrollTransformer = require('./scrolltransformer.js');
 var gestureManager = require('./gestures/gesturemanager.js');
 
 var directions2neighbors = {
-  up: 't',
-  down: 'b',
-  left: 'l',
-  right: 'r'
+  up: 'b',
+  down: 't',
+  left: 'r',
+  right: 'l'
 };
 /**
  * A View which can have child views
