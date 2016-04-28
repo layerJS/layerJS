@@ -234,7 +234,7 @@ var GestureManager = Kern.EventManager.extend({
       if (!this.gesture.direction) { // is direction locked?
         var x = this.gesture.shift.x;
         var y = this.gesture.shift.y;
-        if (this.gesture.enoughdistance()) { // has it moved considerably to lock direction?
+        if (this.gesture.enoughDistance()) { // has it moved considerably to lock direction?
           if (Math.abs(x) > Math.abs(y)) {
             this.gesture.direction = (x < 0 ? 'left' : 'right');
             this.gesture.axis = 'x';

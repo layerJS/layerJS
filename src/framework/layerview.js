@@ -109,7 +109,7 @@ var LayerView = GroupView.extend({
       if (gesture.direction) {
         if (cattr.neighbors && cattr.neighbors[directions2neighbors[gesture.direction]]) {
           gesture.preventDefault = true;
-          if (gesture.last || (gesture.wheel && gesture.enoughdistance())) {
+          if (gesture.last || (gesture.wheel && gesture.enoughDistance())) {
             this.transitionTo(cattr.neighbors[directions2neighbors[gesture.direction]], {
               type: gesture.direction
             });

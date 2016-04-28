@@ -50,7 +50,7 @@ var Gesture = Kern.Base.extend({
   /**
    * Returns if the gesture has made enough distance to lock a direction
    */
-  enoughdistance: function() {
+  enoughDistance: function() {
     return Math.abs(this.shift.x) + Math.abs(this.shift.y) > 10;
   }
 }, {});
