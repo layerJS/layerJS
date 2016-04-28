@@ -55,7 +55,21 @@ var ScrollTransformer = Kern.EventManager.extend({
     // first: calculate primary direction
     if (true) { // check if can scroll
       if (this.layer.nativeScroll) {
-        return true; //let the browser do the work
+        if (gesture.axis === 'y') {
+          if (gesture.shift.y > 0) {
+            return tfd.scrollY > 0;
+          } else {
+            return (tfd.maxScrollY - tfd.scrollY > 1);
+          }
+        } else if (gesture.axis === 'x') {
+          if (gesture.shift.x > 0) {
+            return tfd.scrollX > 0;
+          } else {
+            return (tfd.maxScrollX - tfd.scrollX > 1);
+          }
+        } else {
+          return true;
+        }
       }
       // project to primary direction
       // var newX = (gesture.axis!=='y' ? this.scrollStartX - gesture.shift.x / tfd.scale : this.scrollStartX;
