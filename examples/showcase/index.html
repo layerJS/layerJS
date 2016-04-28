@@ -18,21 +18,24 @@
     #stage_images {
       height: 400px;
     }
+
+    [data-wl-type='text'] {
+      margin: 50px;
+    }
+
+    #menu1, #menu2 {
+      width: 1440px;
+      height: 100px;
+      background-color: rgba(255,255,255,0.7);
+      border: 1px solid gray;
+    }
   </style>
 </head>
 
 <body>
   <div id="stage_root" data-wl-type="stage">
-    <div data-wl-type="layer" data-wl-native-scroll="false" data-wl-default-frame="menu1">
-      <div data-wl-type="frame" data-wl-name="menu1" data-wl-fit-to="width" data-wl-neighbors.t="menu2">
-        <div data-wl-type="text">menu 1</div>
-      </div>
-      <div data-wl-type="frame" data-wl-name="menu2" data-wl-fit-to="width" data-wl-neighbors.b="menu1">
-      <div data-wl-type="text">menu 2</div>
-      </div>
-    </div>
     <div data-wl-type="layer" data-wl-native-scroll="true" data-wl-default-frame="content1">
-      <div data-wl-type="frame" data-wl-name="content1" data-wl-fit-to="width" data-wl-neighbors.t="content2">
+      <div data-wl-type="frame" data-wl-name="content1" data-wl-fit-to="width" data-wl-neighbors.b="content2">
         <div data-wl-type="text">
           Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent eget est sed odio facilisis dapibus at ut nisl. Quisque purus mi, laoreet nec orci in, finibus finibus metus. Maecenas vel pretium dolor. Aliquam feugiat, justo at vehicula porta, ante
           tortor pellentesque libero, nec hendrerit felis ante at lacus. Nulla libero felis, auctor sed nisi sit amet, congue laoreet ligula. Fusce luctus tellus diam, vitae accumsan sem iaculis eu. Suspendisse potenti. Aenean eu nulla in elit dapibus
@@ -78,22 +81,22 @@
             <td>
               <div id="stage_images" data-wl-type="stage">
                 <div id="layer_image" data-wl-type="layer" data-wl-native-scroll="false" data-wl-default-frame="image1">
-                  <div data-wl-type="frame" data-wl-name="image1" data-wl-fit-to="cover">
+                  <div data-wl-type="frame" data-wl-name="image1" data-wl-fit-to="cover" data-wl-neighbors.r="image2">
                     <image data-wl-type="image" src="img/1.jpeg" />
                   </div>
-                  <div data-wl-type="frame" data-wl-name="image2" data-wl-fit-to="cover">
+                  <div data-wl-type="frame" data-wl-name="image2" data-wl-fit-to="cover" data-wl-neighbors.l="image1" data-wl-neighbors.r="image3">
                     <image data-wl-type="image" src="img/2.jpeg" />
                   </div>
-                  <div data-wl-type="frame" data-wl-name="image3" data-wl-fit-to="cover">
+                  <div data-wl-type="frame" data-wl-name="image3" data-wl-fit-to="cover" data-wl-neighbors.l="image2" data-wl-neighbors.r="image4">
                     <image data-wl-type="image" src="img/3.jpeg" />
                   </div>
-                  <div data-wl-type="frame" data-wl-name="image4" data-wl-fit-to="cover">
+                  <div data-wl-type="frame" data-wl-name="image4" data-wl-fit-to="cover" data-wl-neighbors.l="image3" data-wl-neighbors.r="image5">
                     <image data-wl-type="image" src="img/4.jpeg" />
                   </div>
-                  <div data-wl-type="frame" data-wl-name="image5" data-wl-fit-to="cover">
+                  <div data-wl-type="frame" data-wl-name="image5" data-wl-fit-to="cover" data-wl-neighbors.l="image4"  data-wl-neighbors.r="image6">
                     <image data-wl-type="image" src="img/5.jpeg" />
                   </div>
-                  <div data-wl-type="frame" data-wl-name="image6" data-wl-fit-to="cover" data-wl-neighbors.u="image5">
+                  <div data-wl-type="frame" data-wl-name="image6" data-wl-fit-to="cover" data-wl-neighbors.l="image5">
                     <image data-wl-type="image" src="img/6.jpeg" />
                   </div>
                 </div>
@@ -142,7 +145,7 @@
         </div>
 
       </div>
-      <div data-wl-type="frame" data-wl-name="content2" data-wl-fit-to="width" data-wl-neighbors.b="content1">
+      <div data-wl-type="frame" data-wl-name="content2" data-wl-fit-to="width" data-wl-neighbors.t="content1">
         <div data-wl-type="text">
           Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent eget est sed odio facilisis dapibus at ut nisl. Quisque purus mi, laoreet nec orci in, finibus finibus metus. Maecenas vel pretium dolor. Aliquam feugiat, justo at vehicula porta, ante
           tortor pellentesque libero, nec hendrerit felis ante at lacus. Nulla libero felis, auctor sed nisi sit amet, congue laoreet ligula. Fusce luctus tellus diam, vitae accumsan sem iaculis eu. Suspendisse potenti. Aenean eu nulla in elit dapibus
@@ -161,6 +164,15 @@
         </div>
       </div>
     </div>
+    <div data-wl-type="layer" data-wl-native-scroll="false" data-wl-default-frame="menu1" data-wl-layout-type="canvas">
+      <div id="menu1" data-wl-x="0" data-wl-y="0" data-wl-type="frame" data-wl-name="menu1" data-wl-fit-to="width" data-wl-neighbors.t="menu2">
+        <div data-wl-type="text">menu 1</div>
+      </div>
+      <div id="menu2" data-wl-x="0" data-wl-y="-100" data-wl-type="frame" data-wl-name="menu2" data-wl-fit-to="width" data-wl-neighbors.b="menu1">
+        <div data-wl-type="text">menu 2</div>
+      </div>
+    </div>
+
   </div>
 
 
