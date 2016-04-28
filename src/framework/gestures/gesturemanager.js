@@ -7,7 +7,7 @@ var GestureManager = Kern.EventManager.extend({
   constructor: function() {
     this.gesture = null;
     this.element = null;
-
+    this.gesturecc = 0;
     this.timeoutWheel = null;
 
   },
@@ -81,40 +81,41 @@ var GestureManager = Kern.EventManager.extend({
     if (this.timeoutWheel) {
       clearTimeout(this.timeoutWheel);
     }
-
-    if (!this.gesture || !this.gesture.wheel || this.element !== element) {
+    // WARN: temporarily always create a new gesture on every wheel event. The gesture continuation leads
+    // to hanging if gesture canceling is implemented
+    if (true || !this.gesture || !this.gesture.wheel || this.element !== element) {
       this.gesture = new Gesture();
-      this.gesture.first = true;
-      this.gesture.scroll = true;
-      this.gesture.start.x = this._xPosition(event);
-      this.gesture.start.y = this._yPosition(event);
       this.gesture.wheel = true;
+      this.gesture.first = true;
+      this.gesture.start.x = this.gesture.position.x = this._xPosition(event);
+      this.gesture.start.y = this.gesture.position.y = this._yPosition(event);
       this.element = element;
+      this._raiseGesture(callback); // first
     } else {
-      this.gesture.first = false;
       this.gesture.startTime = new Date().getTime();
     }
-    this._raiseGesture(callback); // first
     this.gesture.first = false;
     this.gesture.wheelDelta = this._wheelDelta(event);
 
-    this.gesture.shift = {
-      x: this.gesture.wheelDelta.x * 6,
-      y: this.gesture.wheelDelta.y * 6
-    };
     this.gesture.position = {
-      x: this.gesture.start.x + this.gesture.shift.x,
-      y: this.gesture.start.y + this.gesture.shift.y
+      x: this.gesture.position.x + this.gesture.wheelDelta.x * 6,
+      y: this.gesture.position.y + this.gesture.wheelDelta.y * 6
     };
+    this.gesture.shift = {
+      x: this.gesture.position.x - this.gesture.start.x,
+      y: this.gesture.position.y - this.gesture.start.y
+    };
+    // temporary set gesture.last here as gesture continuation has been disabled
+    this.gesture.last = true;
     this._raiseGesture(callback);
-
-    this.timeoutWheel = setTimeout(function() {
-      if (that.gesture && that.gesture.wheel && that.gesture.lifeTime() > 300) {
-        that.gesture = that.element = null;
-      }
-
-      that.timeoutWheel = null;
-    }, 300);
+    // var thisgesture = this.gesturecc;
+    // this.gesturecc++;
+    // this.timeoutWheel = setTimeout(function() {
+    //   if (that.gesture && that.gesture.wheel && that.gesture.gesturecc === thisgesture) {
+    //     that.gesture = that.element = null; // FIXME we need to notify the listener that this gesture ended (either by sending another gesture with .last set or .cancel )
+    //   }
+    //   that.timeoutWheel = null;
+    // }, 300);
 
     return false;
   },
@@ -248,6 +249,9 @@ var GestureManager = Kern.EventManager.extend({
       if (this.gesture.preventDefault) { // should we stop propagation and prevent default?
         event.preventDefault();
         event.stopPropagation();
+      }
+      if (this.gesture.cancelled) {
+        this.gesture = this.element = null;
       }
     }
   }

@@ -83,12 +83,16 @@ var ScrollTransformer = Kern.EventManager.extend({
           newX = 0;
           if (this.scrollStartX === 0) {
             borderX = true;
+          } else { //jshint ignore:line
+            // gesture.cancelled = true;
           }
         }
         if (newX > tfd.maxScrollX) {
           newX = tfd.maxScrollX;
           if (this.scrollStartX === tfd.maxScrollX) {
             borderX = true;
+          } else { //jshint ignore:line
+            // gesture.cancelled = true;
           }
         }
       } else {
@@ -100,12 +104,16 @@ var ScrollTransformer = Kern.EventManager.extend({
           newY = 0;
           if (this.scrollStartY === 0) {
             borderY = true;
+          } else { //jshint ignore:line
+            // gesture.cancelled = true;
           }
         }
         if (newY > tfd.maxScrollY) {
           newY = tfd.maxScrollY;
           if (this.scrollStartY === tfd.maxScrollY) {
             borderY = true;
+          } else { //jshint ignore:line
+            // gesture.cancelled = true;
           }
         }
       } else {

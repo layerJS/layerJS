@@ -105,11 +105,12 @@ var LayerView = GroupView.extend({
       this._layout.setLayerTransform(this.currentTransform = layerTransform);
       gesture.preventDefault = true;
     } else {
+      // gesture.cancelled = true;
       var cattr = this.currentFrame.data.attributes;
       if (gesture.direction) {
         if (cattr.neighbors && cattr.neighbors[directions2neighbors[gesture.direction]]) {
           gesture.preventDefault = true;
-          if (gesture.last || (gesture.wheel && gesture.enoughDistance())) {
+          if (!this.inTransform &&(gesture.last || (gesture.wheel && gesture.enoughDistance()))) {
             this.transitionTo(cattr.neighbors[directions2neighbors[gesture.direction]], {
               type: gesture.direction
             });
