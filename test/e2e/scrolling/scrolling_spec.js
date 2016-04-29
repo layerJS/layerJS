@@ -75,8 +75,7 @@ describe('scrolling', function() {
               var frame1_dimensions_before = data[0];
               var layer_scroll_before = data[1];
               utilities.transitionTo('layer', 'frame2', {}, 1).then(function() {
-                utilities.getBoundingClientRect('frame2').then(function(data) {
-                  var frame2_dimensions_before = data;
+                utilities.getBoundingClientRect('frame2').then(function(frame2_dimensions_before) {
                   utilities.wait(3000);
                   protractor.promise.all([
                     utilities.getBoundingClientRect('layer'),
@@ -139,8 +138,7 @@ describe('scrolling', function() {
                 var frame1_dimensions_before = data[0];
                 var layer_scroll_before = data[1];
                 utilities.transitionTo('layer', 'frame2', {}, 1).then(function() {
-                  utilities.getBoundingClientRect('frame2').then(function(data) {
-                    var frame2_dimensions_before = data;
+                  utilities.getBoundingClientRect('frame2').then(function(frame2_dimensions_before) {
                     utilities.wait(3000);
                     protractor.promise.all([
                       utilities.getBoundingClientRect('layer'),
@@ -154,7 +152,6 @@ describe('scrolling', function() {
                       var layer_scroll_after = data[2];
                       var scroller_dimensions = data[3];
                       var frame1_dimensions_after = data[4];
-                      console.log(data);
                       //test if new frame1 top matches the old frame1 left.(otherwise the animation would appear diagonal)
                       //expect(frame1_dimensions_before.left).toBe(frame1_dimensions_after.left);
                       // top of frame1 + before scrollLeft should be 0
@@ -256,33 +253,27 @@ describe('scrolling', function() {
             'data-wl-fit-to': 'width'
           }).then(function() {
             utilities.resizeWindow(800, 599);
-            utilities.transitionTo('layer', 'frame2', {}, 1).then(function() {
-              protractor.promise.all([
-                utilities.getBoundingClientRect('frame1'),
-                utilities.getBoundingClientRect('frame2')
-              ]).then(function(data) {
-                var frame1_dimensions_before = data[0];
-                var frame2_dimensions_before = data[1];
+            utilities.getBoundingClientRect('frame1').then(function(frame1_dimensions_before) {
+              utilities.transitionTo('layer', 'frame2', {}, 1).then(function() {
+                utilities.getBoundingClientRect('frame2').then(function(frame2_dimensions_before) {
+                  utilities.wait(3000);
+                  protractor.promise.all([
+                    utilities.getBoundingClientRect('stage'),
+                    utilities.getBoundingClientRect('frame1'),
+                    utilities.getBoundingClientRect('frame2'),
+                  ]).then(function(data) {
+                    var stage_dimensions = data[0];
+                    var frame1_dimensions_after = data[1];
+                    var frame2_dimensions_after = data[2];
 
-                console.log(data);
-                console.log('-----------------');
-                utilities.wait(3000);
+                    expect(frame1_dimensions_before.top).toBe(frame1_dimensions_after.top);
+                    expect(frame1_dimensions_after.left).toBe(stage_dimensions.width * -1);
 
-                protractor.promise.all([
-                  utilities.getBoundingClientRect('stage'),
-                  utilities.getBoundingClientRect('frame1'),
-                  utilities.getBoundingClientRect('frame2'),
-                ]).then(function(data) {
-                  var stage_dimensions = data[0];
-                  var frame1_dimensions_after = data[1];
-                  var frame2_dimensions_after = data[2];
-                  console.log(data);
-
-                  expect(frame1_dimensions_before.top).toBe(frame1_dimensions_after.top);
-                  expect(frame1_dimensions_after.left).toBe(stage_dimensions.width * -1);
-
-                  expect(frame2_dimensions_before.top).toBe(frame2_dimensions_after.top);
-                  expect(frame2_dimensions_after.top).toBe(stage_dimensions.height - frame2_dimensions_after.height);
+                    expect(frame2_dimensions_before.top).toBe(frame2_dimensions_after.top);
+                    expect(frame2_dimensions_after.top).toBe(stage_dimensions.height - frame2_dimensions_after.height);
+                    // because the animation was already in progress, subtract 50
+                    //expect(frame2_dimensions_before.left) toBeWithinRange(frame1_dimensions_before.left + stage_dimensions.width - 50, frame1_dimensions_before.left + stage_dimensions.width);
+                  });
                 });
               });
             });
@@ -305,33 +296,26 @@ describe('scrolling', function() {
             'data-wl-fit-to': 'height'
           }).then(function() {
             utilities.resizeWindow(800, 599);
-            utilities.transitionTo('layer', 'frame2', {}, 1).then(function() {
-              protractor.promise.all([
-                utilities.getBoundingClientRect('frame1'),
-                utilities.getBoundingClientRect('frame2')
-              ]).then(function(data) {
-                var frame1_dimensions_before = data[0];
-                var frame2_dimensions_before = data[1];
+            utilities.getBoundingClientRect('frame1').then(function(frame1_dimensions_before) {
+              utilities.transitionTo('layer', 'frame2', {}, 1).then(function() {
+                utilities.getBoundingClientRect('frame2').then(function(frame2_dimensions_before) {
+                  utilities.wait(3000);
+                  protractor.promise.all([
+                    utilities.getBoundingClientRect('stage'),
+                    utilities.getBoundingClientRect('frame1'),
+                    utilities.getBoundingClientRect('frame2'),
+                  ]).then(function(data) {
+                    var stage_dimensions = data[0];
+                    var frame1_dimensions_after = data[1];
+                    var frame2_dimensions_after = data[2];
 
-                console.log(data);
-                console.log('-----------------');
-                utilities.wait(3000);
-
-                protractor.promise.all([
-                  utilities.getBoundingClientRect('stage'),
-                  utilities.getBoundingClientRect('frame1'),
-                  utilities.getBoundingClientRect('frame2'),
-                ]).then(function(data) {
-                  var stage_dimensions = data[0];
-                  var frame1_dimensions_after = data[1];
-                  var frame2_dimensions_after = data[2];
-                  console.log(data);
-                  expect(frame1_dimensions_before.top).toBe(frame1_dimensions_after.top);
-                  expect(frame1_dimensions_after.left).toBe(frame2_dimensions_after.width * -1);
-                  expect(frame2_dimensions_before.top).toBe(frame2_dimensions_after.top);
-                  expect(frame2_dimensions_before.left + 30 > frame1_dimensions_before.left + stage_dimensions.width).toBeTruthy();
-
-                  expect(frame2_dimensions_after.left).toBe(stage_dimensions.width - frame2_dimensions_after.width);
+                    expect(frame1_dimensions_before.top).toBe(frame1_dimensions_after.top);
+                    expect(frame1_dimensions_after.left).toBe(frame2_dimensions_after.width * -1);
+                    expect(frame2_dimensions_before.top).toBe(frame2_dimensions_after.top);
+                    // because the animation was already in progress, subtract 50
+                    expect(frame2_dimensions_before.left).toBeWithinRange(frame1_dimensions_before.left + stage_dimensions.width - 50, frame1_dimensions_before.left + stage_dimensions.width);
+                    expect(frame2_dimensions_after.left).toBe(stage_dimensions.width - frame2_dimensions_after.width);
+                  });
                 });
               });
             });

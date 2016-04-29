@@ -3,7 +3,7 @@ exports.config = {
   framework: 'jasmine2',
   seleniumAddress: 'http://localhost:4444/wd/hub',
 //  specs: ['test/e2e/**/*_spec.js'],
-  specs: ['test/e2e/scrolling/*_spec.js'],
+  specs: ['test/e2e/**/*_spec.js'],
   baseUrl: 'file://' + __dirname + '/test/e2e/'.replace(/\\/g, "/"),
   jasmineNodeOpts: {
     showColors: true,
@@ -11,8 +11,8 @@ exports.config = {
   },
   multiCapabilities: [{
       'browserName': 'chrome'
-    // }, {
-    //   'browserName': 'firefox'
+     }, {
+       'browserName': 'firefox'
     }
     /*,{
       'browserName': 'internet explorer'
