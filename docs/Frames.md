@@ -40,7 +40,7 @@ For elastic fitting frames have kind of margin areas which contain dispensable c
 
 The frame properties "data-wl-elastic_left", "data-wl-elastic_right", "data-wl-elastic_top", "data-wl-elastic_bottom" specify the margins and can be all different or even be 0. if the counterparts (e.g. left & right) are different and the fitting works in the non-scaling range, the borders are placed at the same percentage for both margins (e.g. 40% of the left margin & 40% of the right margin).
 
-![elastic] (elastic.gif)
+![elastic] (img/elastic.gif)
 
 With elastic-left=0 and elastic-right=50 this essentially works like a regular div with min-width="width"-50px and max-width="width" but with scaling when it hits the max/min.
 
@@ -80,8 +80,8 @@ This attribute becomes relevant if the non-fitted dimension is shorter or longer
 <div data-wl-type="frame" data-wl-name="frame1" data-wl-start-position="center"/>
 ```
 
-## data-wl-neighbors ##
-When you scroll or swipe in a frame and you hit the border of that frame, the layer can transition to an other frame. These frames are called neighbors. A frame can have 4 neighbors.
+## data-wl-neighbors
+When you scroll or swipe in a frame and you hit the border of that frame, the layer can transition to an other frame. These frames are called neighbors. A frame can have 4 neighbors and they are identified by their data-wl-name.
 
   - neighbors.b = Up direction
   - neighbors.t = Down direction
