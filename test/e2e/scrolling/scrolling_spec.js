@@ -272,7 +272,7 @@ describe('scrolling', function() {
                     expect(frame2_dimensions_before.top).toBe(frame2_dimensions_after.top);
                     expect(frame2_dimensions_after.top).toBe(stage_dimensions.height - frame2_dimensions_after.height);
                     // because the animation was already in progress, subtract 50
-                    //expect(frame2_dimensions_before.left) toBeWithinRange(frame1_dimensions_before.left + stage_dimensions.width - 50, frame1_dimensions_before.left + stage_dimensions.width);
+                    expect(frame2_dimensions_before.left).toBeWithinRange(frame1_dimensions_before.left + stage_dimensions.width - 50, frame1_dimensions_before.left + stage_dimensions.width);
                   });
                 });
               });
