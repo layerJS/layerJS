@@ -110,7 +110,7 @@ var LayerView = GroupView.extend({
       if (gesture.direction) {
         if (cattr.neighbors && cattr.neighbors[directions2neighbors[gesture.direction]]) {
           gesture.preventDefault = true;
-          if (!this.inTransform &&(gesture.last || (gesture.wheel && gesture.enoughDistance()))) {
+          if (!this.inTransform && (gesture.last || (gesture.wheel && gesture.enoughDistance()))) {
             this.transitionTo(cattr.neighbors[directions2neighbors[gesture.direction]], {
               type: gesture.direction
             });
@@ -240,13 +240,19 @@ var LayerView = GroupView.extend({
   onResize: function() {
     var childViews = this.getChildViews();
     var length = childViews.length;
+    var scrollData = {
+      startPosition: this.currentFrame.transformData.startPosition,
+      scrollX: this.currentFrame.transformData.scrollX,
+      scrollY: this.currentFrame.transformData.scrollY
+    };
+
     for (var i = 0; i < length; i++) {
       var childView = childViews[i];
       if (childView.hasOwnProperty('transformData')) {
         childView.transformData = null;
       }
     }
-    this.showFrame(this.currentFrame.data.attributes.name);
+    this.showFrame(this.currentFrame.data.attributes.name, scrollData);
   }
 }, {
   Model: LayerData
