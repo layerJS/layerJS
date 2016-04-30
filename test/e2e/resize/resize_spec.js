@@ -16,7 +16,7 @@ describe('resize', function() {
     expect(frame_dimensions.height).toBe(layer_dimensions.height);
   }
 
-  it('frame will adapt it\'s width on a resize', function() {
+  xit('frame will adapt it\'s width on a resize', function() {
     browser.get('resize/resize.html').then(function() {
       protractor.promise.all([
         utilities.getBoundingClientRect('stage'),
@@ -36,7 +36,7 @@ describe('resize', function() {
     });
   });
 
-  it('frame will adapt it\'s height on a resize', function() {
+  xit('frame will adapt it\'s height on a resize', function() {
     browser.get('resize/resize.html').then(function() {
       utilities.setAttribute('frame', 'data-wl-fit-to', 'height').then(function() {
         utilities.resizeWindow(700, 700);
@@ -58,4 +58,34 @@ describe('resize', function() {
       });
     });
   });
+
+  it('frame will keeps its vertical scroll position on a resize', function() {
+    browser.get('resize/resize.html').then(function() {
+      utilities.resizeWindow(600, 400);
+      utilities.scrollDown('layer', 1).then(function() {
+        utilities.resizeWindow(500, 400);
+        utilities.getScroll('layer').then(function(layer_scroll) {
+          expect(layer_scroll.scrollTop).not.toBe(0);
+        });
+      });
+    });
+  });
+
+  it('frame will keeps its horizontal scroll position on a resize', function() {
+    browser.get('resize/resize.html').then(function() {
+      utilities.setAttributes('frame', {
+        'data-wl-fit-to': 'height',
+        'data-wl-start-position': 'left'
+      }).then(function() {
+        utilities.resizeWindow(400, 600);
+        utilities.scrollRight('layer', 1).then(function() {
+          utilities.resizeWindow(400, 500);
+          utilities.getScroll('layer').then(function(layer_scroll) {
+            expect(layer_scroll.scrollLeft).not.toBe(0);
+          });
+        });
+      });
+    });
+  });
+
 });
