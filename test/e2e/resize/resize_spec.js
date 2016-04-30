@@ -16,7 +16,7 @@ describe('resize', function() {
     expect(frame_dimensions.height).toBe(layer_dimensions.height);
   }
 
-  xit('frame will adapt it\'s width on a resize', function() {
+  it('frame will adapt it\'s width on a resize', function() {
     browser.get('resize/resize.html').then(function() {
       protractor.promise.all([
         utilities.getBoundingClientRect('stage'),
@@ -36,7 +36,7 @@ describe('resize', function() {
     });
   });
 
-  xit('frame will adapt it\'s height on a resize', function() {
+  it('frame will adapt it\'s height on a resize', function() {
     browser.get('resize/resize.html').then(function() {
       utilities.setAttribute('frame', 'data-wl-fit-to', 'height').then(function() {
         utilities.resizeWindow(700, 700);
