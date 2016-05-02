@@ -144,6 +144,19 @@ var ScrollTransformer = Kern.EventManager.extend({
     // update frameTransformData
     tfd.scrollX = scrollX || tfd.scrollX;
     tfd.scrollY = scrollY || tfd.scrollY;
+    // limit scrolling to [0,maxScroll]
+    if (tfd.scrollX > tfd.maxScrollX) {
+      tfd.scrollX = tfd.maxScrollX;
+    }
+    if (tfd.scrollY > tfd.maxScrollY) {
+      tfd.scrollY = tfd.maxScrollY;
+    }
+    if (tfd.scrollX < 0) {
+      tfd.scrollX = 0;
+    }
+    if (tfd.scrollY < 0) {
+      tfd.scrollY = 0;
+    }
     if (this.layer.nativeScroll) {
       if (intermediate) {
         // in nativescroll, the scroll position is not applied via transform, but we need to compensate for a displacement due to the different scrollTop/Left values in the current frame and the target frame. This displacement is set to 0 after correcting the scrollTop/Left in the transitionEnd listener in transitionTo()
