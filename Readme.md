@@ -1,6 +1,8 @@
 # Introduction #
 
-layerJS is an open source Javascript UX (User Experience) library allowing intuitive, visually intense, mobile app-like experiences for web apps and websites. It follows the idea that any kind of interactive web content can be realized by placing media elements on moving layers. Unlike existing UI frameworks it does not provide various UI elements (use your favorite lib for that) but focusses on how larger blocks are put together to form websites and apps.
+layerJS is an open source Javascript UI/UX library allowing intuitive, visually intense, mobile app-like experiences for web apps and websites. 
+
+We believe that any kind of interactive web content can be created by placing media elements on moving layers. Unlike existing UI frameworks layerJS does not provide various UI elements (use your favorite lib for that) but focusses on how larger blocks are put together to form websites and apps.
 
 layerJS introduces the Stage-Frame concept. Frames are arbitrary HTML fragments - the content of your site - that can be fit into Stages (viewports) dynamically. The root Stage is usually the browser window and its Frames represent sub pages or app screens. Frames can be exchanged within Stages using animated transitions like swipes, fades or 3D transitions. Stages and Frames can be nested such that a slider can exists within an animated frame. Frames can be placed on overlapping layers allowing effects like floating menus or parallax backgrounds.
 
