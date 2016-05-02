@@ -1,8 +1,8 @@
 {
   "name": "layerJS",
-  "description": "Here you can put discription of the product",
+  "description": "layerJS, a lean javascript UX framework",
   "author": "LayerJs",
-  "version": "1.0.0",
+  "version": "0.2.0",
   "devDependencies": {
     "browserify": "latest",
     "jasmine": "latest",
