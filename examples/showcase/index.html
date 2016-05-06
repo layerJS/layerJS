@@ -1,3 +1,4 @@
+
 <html>
 
 <head>
@@ -23,23 +24,16 @@
       height: 100%;
     }
     #stage_images {
-      height: 400px;
-    }
-    [data-wl-type='text'] {
-      /*margin: 50px;*/
+      height: 600px;
     }
 		.frame {
+			width: 1440px;
 			padding-top: 120px;
 			padding-bottom: 80px;
 		}
 		.frame:nth-child(even) {
 			background: #B0BEC5;
 		}
-/*		.text {
-			font-size: 16px;
-    	max-width: 720px;
-    	margin: 24px auto;
-		}*/
     #menu1, #menu2 {
       width: 1440px;
       color: white;
@@ -58,24 +52,22 @@
     #prev, #next {
     	text-align: center;
     }
+	@media (max-width: 600px) {
+		.frame {
+			width: 500px;
+		}
+	}
 
   </style>
 </head>
-
 <body>
   <div id="stage_root" data-wl-type="stage">
     <div data-wl-type="layer" data-wl-native-scroll="true" data-wl-default-frame="content1">
       <div data-wl-type="frame" data-wl-name="content1" data-wl-fit-to="width" data-wl-neighbors.b="content2" class="frame">
-        <div data-wl-type="text" class="text">
+        <div data-wl-type="text">
           <p>
           	Proin eget tortor risus. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Donec velit neque, auctor sit amet aliquam vel, ullamcorper sit amet ligula. Nulla porttitor accumsan tincidunt. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus suscipit tortor eget felis porttitor volutpat. Curabitur non nulla sit amet nisl tempus convallis quis ac lectus. Vestibulum ac diam sit amet quam vehicula elementum sed sit amet dui. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Donec velit neque, auctor sit amet aliquam vel, ullamcorper sit amet ligula. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Donec velit neque, auctor sit amet aliquam vel, ullamcorper sit amet ligula. Mauris blandit aliquet elit, eget tincidunt nibh pulvinar a.
           </p>
-          <p>
-						Curabitur non nulla sit amet nisl tempus convallis quis ac lectus. Pellentesque in ipsum id orci porta dapibus. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec rutrum congue leo eget malesuada. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque in ipsum id orci porta dapibus. Praesent sapien massa, convallis a pellentesque nec, egestas non nisi. Nulla quis lorem ut libero malesuada feugiat. Pellentesque in ipsum id orci porta dapibus.
-					</p>
-        </div>
-
-        <div data-wl-type="text" class="text">
           <p>
 						Curabitur aliquet quam id dui posuere blandit. Vestibulum ac diam sit amet quam vehicula elementum sed sit amet dui. Vestibulum ac diam sit amet quam vehicula elementum sed sit amet dui. Nulla porttitor accumsan tincidunt. Mauris blandit aliquet elit, eget tincidunt nibh pulvinar a. Curabitur arcu erat, accumsan id imperdiet et, porttitor at sem. Pellentesque in ipsum id orci porta dapibus. Vivamus magna justo, lacinia eget consectetur sed, convallis at tellus. Vivamus suscipit tortor eget felis porttitor volutpat. Lorem ipsum dolor sit amet, consectetur adipiscing elit.
 					</p>
@@ -83,7 +75,6 @@
 						Donec rutrum congue leo eget malesuada. Curabitur aliquet quam id dui posuere blandit. Nulla quis lorem ut libero malesuada feugiat. Mauris blandit aliquet elit, eget tincidunt nibh pulvinar a. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Donec velit neque, auctor sit amet aliquam vel, ullamcorper sit amet ligula. Sed porttitor lectus nibh. Sed porttitor lectus nibh. Mauris blandit aliquet elit, eget tincidunt nibh pulvinar a. Quisque velit nisi, pretium ut lacinia in, elementum id enim. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Donec velit neque, auctor sit amet aliquam vel, ullamcorper sit amet ligula.
           </p>
         </div>
-
         <table style="width:100%">
           <tr>
             <td style="width: 5%; cursor: pointer;">
@@ -96,23 +87,23 @@
             <td>
               <div id="stage_images" data-wl-type="stage">
                 <div id="layer_image" data-wl-type="layer" data-wl-native-scroll="false" data-wl-default-frame="image1">
-                  <div data-wl-type="frame" data-wl-name="image1" data-wl-fit-to="cover" data-wl-no-scrolling="true" data-wl-start-position="center" data-wl-neighbors.r="image2">
-                    <image data-wl-type="image" src="img/1.jpeg" />
+                  <div data-wl-type="frame" data-wl-name="image1" data-wl-fit-to="cover" data-wl-no-scrolling="true" data-wl-start-position="center" data-wl-neighbors.l="image6" data-wl-neighbors.r="image2">
+                    <image data-wl-type="image" src="img/1.jpg" />
                   </div>
                   <div data-wl-type="frame" data-wl-name="image2" data-wl-fit-to="cover" data-wl-no-scrolling="true" data-wl-start-position="center" data-wl-neighbors.l="image1" data-wl-neighbors.r="image3">
-                    <image data-wl-type="image" src="img/2.jpeg" />
+                    <image data-wl-type="image" src="img/2.jpg" />
                   </div>
                   <div data-wl-type="frame" data-wl-name="image3" data-wl-fit-to="cover" data-wl-no-scrolling="true" data-wl-start-position="center" data-wl-neighbors.l="image2" data-wl-neighbors.r="image4">
-                    <image data-wl-type="image" src="img/3.jpeg" />
+                    <image data-wl-type="image" src="img/3.jpg" />
                   </div>
                   <div data-wl-type="frame" data-wl-name="image4" data-wl-fit-to="cover" data-wl-no-scrolling="true" data-wl-start-position="center" data-wl-neighbors.l="image3" data-wl-neighbors.r="image5">
-                    <image data-wl-type="image" src="img/4.jpeg" />
+                    <image data-wl-type="image" src="img/4.jpg" />
                   </div>
                   <div data-wl-type="frame" data-wl-name="image5" data-wl-fit-to="cover" data-wl-no-scrolling="true" data-wl-start-position="center" data-wl-neighbors.l="image4"  data-wl-neighbors.r="image6">
-                    <image data-wl-type="image" src="img/5.jpeg" />
+                    <image data-wl-type="image" src="img/5.jpg" />
                   </div>
-                  <div data-wl-type="frame" data-wl-name="image6" data-wl-fit-to="cover" data-wl-no-scrolling="true" data-wl-start-position="center" data-wl-neighbors.l="image5">
-                    <image data-wl-type="image" src="img/6.jpeg" />
+                  <div data-wl-type="frame" data-wl-name="image6" data-wl-fit-to="cover" data-wl-no-scrolling="true" data-wl-start-position="center" data-wl-neighbors.l="image5" data-wl-neighbors.r="image1">
+                    <image data-wl-type="image" src="img/6.jpg" />
                   </div>
                 </div>
               </div>
@@ -126,28 +117,17 @@
             </td>
           </tr>
         </table>
-
-        <div data-wl-type="text" class="text">
-          <p>
-          	Proin eget tortor risus. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Donec velit neque, auctor sit amet aliquam vel, ullamcorper sit amet ligula. Nulla porttitor accumsan tincidunt. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus suscipit tortor eget felis porttitor volutpat. Curabitur non nulla sit amet nisl tempus convallis quis ac lectus. Vestibulum ac diam sit amet quam vehicula elementum sed sit amet dui. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Donec velit neque, auctor sit amet aliquam vel, ullamcorper sit amet ligula. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Donec velit neque, auctor sit amet aliquam vel, ullamcorper sit amet ligula. Mauris blandit aliquet elit, eget tincidunt nibh pulvinar a.
-          </p>
-          <p>
-						Curabitur non nulla sit amet nisl tempus convallis quis ac lectus. Pellentesque in ipsum id orci porta dapibus. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec rutrum congue leo eget malesuada. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque in ipsum id orci porta dapibus. Praesent sapien massa, convallis a pellentesque nec, egestas non nisi. Nulla quis lorem ut libero malesuada feugiat. Pellentesque in ipsum id orci porta dapibus.
-					</p>
-        </div>
-
-        <div data-wl-type="text" class="text">
+        <div data-wl-type="text">
 					<p>
 						Donec sollicitudin molestie malesuada. Sed porttitor lectus nibh. Nulla porttitor accumsan tincidunt. Curabitur aliquet quam id dui posuere blandit. Donec rutrum congue leo eget malesuada. Nulla porttitor accumsan tincidunt. Donec rutrum congue leo eget malesuada. Curabitur non nulla sit amet nisl tempus convallis quis ac lectus. Vivamus suscipit tortor eget felis porttitor volutpat. Cras ultricies ligula sed magna dictum porta.
 					</p>
-          <!-- <p> -->
+          <p>
 						Donec rutrum congue leo eget malesuada. Curabitur aliquet quam id dui posuere blandit. Nulla quis lorem ut libero malesuada feugiat. Mauris blandit aliquet elit, eget tincidunt nibh pulvinar a. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Donec velit neque, auctor sit amet aliquam vel, ullamcorper sit amet ligula. Sed porttitor lectus nibh. Sed porttitor lectus nibh. Mauris blandit aliquet elit, eget tincidunt nibh pulvinar a. Quisque velit nisi, pretium ut lacinia in, elementum id enim. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Donec velit neque, auctor sit amet aliquam vel, ullamcorper sit amet ligula.
-          <!-- </p> -->
+          </p>
         </div>
-
       </div>
       <div data-wl-type="frame" data-wl-name="content2" data-wl-fit-to="width" data-wl-neighbors.t="content1" class="frame">
-        <div data-wl-type="text" class="text">
+        <div data-wl-type="text">
           <p>
           	Proin eget tortor risus. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Donec velit neque, auctor sit amet aliquam vel, ullamcorper sit amet ligula. Nulla porttitor accumsan tincidunt. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus suscipit tortor eget felis porttitor volutpat. Curabitur non nulla sit amet nisl tempus convallis quis ac lectus. Vestibulum ac diam sit amet quam vehicula elementum sed sit amet dui. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Donec velit neque, auctor sit amet aliquam vel, ullamcorper sit amet ligula. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Donec velit neque, auctor sit amet aliquam vel, ullamcorper sit amet ligula. Mauris blandit aliquet elit, eget tincidunt nibh pulvinar a.
           </p>
@@ -157,9 +137,6 @@
           <p>
 						Donec rutrum congue leo eget malesuada. Curabitur aliquet quam id dui posuere blandit. Nulla quis lorem ut libero malesuada feugiat. Mauris blandit aliquet elit, eget tincidunt nibh pulvinar a. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Donec velit neque, auctor sit amet aliquam vel, ullamcorper sit amet ligula. Sed porttitor lectus nibh. Sed porttitor lectus nibh. Mauris blandit aliquet elit, eget tincidunt nibh pulvinar a. Quisque velit nisi, pretium ut lacinia in, elementum id enim. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Donec velit neque, auctor sit amet aliquam vel, ullamcorper sit amet ligula.
           </p>
-          <!-- <p> -->
-						Curabitur aliquet quam id dui posuere blandit. Vestibulum ac diam sit amet quam vehicula elementum sed sit amet dui. Vestibulum ac diam sit amet quam vehicula elementum sed sit amet dui. Nulla porttitor accumsan tincidunt. Mauris blandit aliquet elit, eget tincidunt nibh pulvinar a. Curabitur arcu erat, accumsan id imperdiet et, porttitor at sem. Pellentesque in ipsum id orci porta dapibus. Vivamus magna justo, lacinia eget consectetur sed, convallis at tellus. Vivamus suscipit tortor eget felis porttitor volutpat. Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-					<!-- </p> -->
         </div>
       </div>
     </div>
@@ -171,9 +148,7 @@
         <div data-wl-type="text">Main Menu</div>
       </div>
     </div>
-
   </div>
-
 
   <script src="../../dist/layerjs.js"></script>
   <script>
@@ -182,7 +157,7 @@
     var findex = 1;
     document.getElementById('next').addEventListener('click', function() {
       findex++;
-      if (findex > 5)
+      if (findex > 6)
         findex = 1;
       WL.select('#layer_image').transitionTo("image" + (findex), {
         type: 'left'
@@ -192,7 +167,7 @@
     document.getElementById('prev').addEventListener('click', function() {
       findex--;
       if (findex < 1)
-        findex = 5;
+        findex = 6;
       WL.select('#layer_image').transitionTo("image" + (findex), {
         type: 'right'
       });
