@@ -25,6 +25,9 @@
       width: 100%;
       height: 100%;
       transform-style: preserve-3d;
+      transition: transform 2s;
+    }
+    ._3d #stage_root{
       transform: perspective(600px) translateZ(-600px) rotateY(55deg) rotateX(15deg);
     }
 
@@ -32,9 +35,9 @@
       transform-style: preserve-3d;
     }
 
-    [data-wl-type='stage'] {
-      overflow: visible; // needed for preserve3d to work
-      position: relative;
+    ._3d [data-wl-type='stage'] {
+      overflow: visible; // needed for preserve_3d to work
+      transition: border 2s;
       border: 1px solid red;
     }
 
@@ -42,9 +45,10 @@
       /*margin: 50px;*/
     }
 
-    [data-wl-type='frame'] {
+    ._3d [data-wl-type='frame'] {
       background-color: rgba(100, 100, 100, 0.5);
       border: 1px solid gray;
+      transition: background-color 2s;
     }
 
     .frame {
@@ -82,7 +86,7 @@
       transform: translateZ(50px);
     }
 
-    #layer_menu::before {
+    ._3d #layer_menu::before {
       pointer-events: none;
       content: " ";
       background-color: rgba(200,200,200,.5);
@@ -92,13 +96,14 @@
       width: 1350px;
       height: 200px;
       transform: translateZ(-1px);
+      transition: background-color 2s;
     }
 
     #layer_image {
       transform: translateZ(-50px);
     }
 
-    #layer_image::before {
+    ._3d #layer_image::before {
       content: " ";
       background-color: rgba(200,200,200,.5);
       position: absolute;
@@ -107,6 +112,7 @@
       width: 4850px;
       height: 800px;
       transform: translateZ(-1px);
+      transition: background-color 2s;
     }
 
     /*		.text {
