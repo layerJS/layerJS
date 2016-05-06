@@ -27,7 +27,8 @@
       transform-style: preserve-3d;
       transition: transform 2s;
     }
-    ._3d #stage_root{
+
+    ._3d #stage_root {
       transform: perspective(600px) translateZ(-600px) rotateY(55deg) rotateX(15deg);
     }
 
@@ -89,7 +90,7 @@
     ._3d #layer_menu::before {
       pointer-events: none;
       content: " ";
-      background-color: rgba(200,200,200,.5);
+      background-color: rgba(200, 200, 200, .5);
       position: absolute;
       top: -100px;
       left: -50px;
@@ -105,7 +106,7 @@
 
     ._3d #layer_image::before {
       content: " ";
-      background-color: rgba(200,200,200,.5);
+      background-color: rgba(200, 200, 200, .5);
       position: absolute;
       top: -100px;
       left: -2500px;
@@ -114,7 +115,6 @@
       transform: translateZ(-1px);
       transition: background-color 2s;
     }
-
     /*		.text {
 			font-size: 16px;
     	max-width: 720px;
@@ -148,89 +148,93 @@
 </head>
 
 <body>
-  <div id="stage_root" data-wl-type="stage">
-    <div id="layer_main" data-wl-type="layer" data-wl-native-scroll="false" data-wl-default-frame="content1">
-      <div data-wl-type="frame" data-wl-name="content1" data-wl-fit-to="width" class="frame">
-        <div data-wl-type="text" class="text">
+  <div>
+    <button id="toggle3d">toggle 3D</button>
+  </div>
+  <div id="outer">
+    <div id="stage_root" data-wl-type="stage">
+      <div id="layer_main" data-wl-type="layer" data-wl-native-scroll="false" data-wl-default-frame="content1">
+        <div data-wl-type="frame" data-wl-name="content1" data-wl-fit-to="width" class="frame">
+          <div data-wl-type="text" class="text">
+            <p>
+              Proin eget tortor risus. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Donec velit neque, auctor sit amet aliquam vel, ullamcorper sit amet ligula. Nulla porttitor accumsan tincidunt. Lorem ipsum dolor sit amet,
+              consectetur adipiscing elit. Vivamus suscipit tortor eget felis porttitor volutpat. Curabitur non nulla sit amet nisl tempus convallis quis ac lectus. Vestibulum ac diam sit amet quam vehicula elementum sed sit amet dui. Vestibulum ante
+              ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Donec velit neque, auctor sit amet aliquam vel, ullamcorper sit amet ligula. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae;
+              Donec velit neque, auctor sit amet aliquam vel, ullamcorper sit amet ligula. Mauris blandit aliquet elit, eget tincidunt nibh pulvinar a.
+            </p>
+            <p>
+              Curabitur non nulla sit amet nisl tempus convallis quis ac lectus. Pellentesque in ipsum id orci porta dapibus. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec rutrum congue leo eget malesuada. Lorem ipsum dolor sit amet, consectetur adipiscing
+              elit. Pellentesque in ipsum id orci porta dapibus. Praesent sapien massa, convallis a pellentesque nec, egestas non nisi. Nulla quis lorem ut libero malesuada feugiat. Pellentesque in ipsum id orci porta dapibus.
+            </p>
+          </div>
+
+
+          <table style="width:100%">
+            <tr>
+              <td style="width: 5%; cursor: pointer;">
+                <div id="prev">
+                  <svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 20 20" enable-background="new 0 0 20 20" xml:space="preserve" width="40">
+                    <path fill="#455A64" d="M12.452,4.516c0.446,0.436,0.481,1.043,0,1.576L8.705,10l3.747,3.908c0.481,0.533,0.446,1.141,0,1.574c-0.445,0.436-1.197,0.408-1.615,0c-0.418-0.406-4.502-4.695-4.502-4.695C6.112,10.57,6,10.285,6,10s0.112-0.57,0.335-0.789c0,0,4.084-4.287,4.502-4.695C11.255,4.107,12.007,4.08,12.452,4.516z"
+                    />
+                  </svg>
+                </div>
+              </td>
+              <td>
+                <div id="stage_images" data-wl-type="stage">
+                  <div id="layer_image" data-wl-type="layer" data-wl-native-scroll="false" data-wl-default-frame="image1">
+                    <div data-wl-type="frame" data-wl-name="image1" data-wl-fit-to="cover" data-wl-no-scrolling="true" data-wl-start-position="center" data-wl-neighbors.r="image2">
+                      <image data-wl-type="image" src="img/1.jpeg" />
+                    </div>
+                    <div data-wl-type="frame" data-wl-name="image2" data-wl-fit-to="cover" data-wl-no-scrolling="true" data-wl-start-position="center" data-wl-neighbors.l="image1" data-wl-neighbors.r="image3">
+                      <image data-wl-type="image" src="img/2.jpeg" />
+                    </div>
+                    <div data-wl-type="frame" data-wl-name="image3" data-wl-fit-to="cover" data-wl-no-scrolling="true" data-wl-start-position="center" data-wl-neighbors.l="image2" data-wl-neighbors.r="image4">
+                      <image data-wl-type="image" src="img/3.jpeg" />
+                    </div>
+                    <div data-wl-type="frame" data-wl-name="image4" data-wl-fit-to="cover" data-wl-no-scrolling="true" data-wl-start-position="center" data-wl-neighbors.l="image3" data-wl-neighbors.r="image5">
+                      <image data-wl-type="image" src="img/4.jpeg" />
+                    </div>
+                    <div data-wl-type="frame" data-wl-name="image5" data-wl-fit-to="cover" data-wl-no-scrolling="true" data-wl-start-position="center" data-wl-neighbors.l="image4" data-wl-neighbors.r="image6">
+                      <image data-wl-type="image" src="img/5.jpeg" />
+                    </div>
+                    <div data-wl-type="frame" data-wl-name="image6" data-wl-fit-to="cover" data-wl-no-scrolling="true" data-wl-start-position="center" data-wl-neighbors.l="image5">
+                      <image data-wl-type="image" src="img/6.jpeg" />
+                    </div>
+                  </div>
+                </div>
+              </td>
+              <td style="width: 5%; cursor: pointer;">
+                <div id="next">
+                  <svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 20 20" enable-background="new 0 0 20 20" xml:space="preserve" width="40">
+                    <path fill="#455A64" d="M9.163,4.516c0.418,0.408,4.502,4.695,4.502,4.695C13.888,9.43,14,9.715,14,10s-0.112,0.57-0.335,0.787c0,0-4.084,4.289-4.502,4.695c-0.418,0.408-1.17,0.436-1.615,0c-0.446-0.434-0.481-1.041,0-1.574L11.295,10L7.548,6.092c-0.481-0.533-0.446-1.141,0-1.576C7.993,4.08,8.745,4.107,9.163,4.516z"
+                    />
+                  </svg>
+                </div>
+              </td>
+            </tr>
+          </table>
+
           <p>
             Proin eget tortor risus. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Donec velit neque, auctor sit amet aliquam vel, ullamcorper sit amet ligula. Nulla porttitor accumsan tincidunt. Lorem ipsum dolor sit amet,
             consectetur adipiscing elit. Vivamus suscipit tortor eget felis porttitor volutpat. Curabitur non nulla sit amet nisl tempus convallis quis ac lectus. Vestibulum ac diam sit amet quam vehicula elementum sed sit amet dui. Vestibulum ante ipsum
             primis in faucibus orci luctus et ultrices posuere cubilia Curae; Donec velit neque, auctor sit amet aliquam vel, ullamcorper sit amet ligula. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Donec velit
             neque, auctor sit amet aliquam vel, ullamcorper sit amet ligula. Mauris blandit aliquet elit, eget tincidunt nibh pulvinar a.
           </p>
-          <p>
-            Curabitur non nulla sit amet nisl tempus convallis quis ac lectus. Pellentesque in ipsum id orci porta dapibus. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec rutrum congue leo eget malesuada. Lorem ipsum dolor sit amet, consectetur adipiscing
-            elit. Pellentesque in ipsum id orci porta dapibus. Praesent sapien massa, convallis a pellentesque nec, egestas non nisi. Nulla quis lorem ut libero malesuada feugiat. Pellentesque in ipsum id orci porta dapibus.
-          </p>
+
+
         </div>
-
-
-        <table style="width:100%">
-          <tr>
-            <td style="width: 5%; cursor: pointer;">
-              <div id="prev">
-                <svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 20 20" enable-background="new 0 0 20 20" xml:space="preserve" width="40">
-                  <path fill="#455A64" d="M12.452,4.516c0.446,0.436,0.481,1.043,0,1.576L8.705,10l3.747,3.908c0.481,0.533,0.446,1.141,0,1.574c-0.445,0.436-1.197,0.408-1.615,0c-0.418-0.406-4.502-4.695-4.502-4.695C6.112,10.57,6,10.285,6,10s0.112-0.57,0.335-0.789c0,0,4.084-4.287,4.502-4.695C11.255,4.107,12.007,4.08,12.452,4.516z"
-                  />
-                </svg>
-              </div>
-            </td>
-            <td>
-              <div id="stage_images" data-wl-type="stage">
-                <div id="layer_image" data-wl-type="layer" data-wl-native-scroll="false" data-wl-default-frame="image1">
-                  <div data-wl-type="frame" data-wl-name="image1" data-wl-fit-to="cover" data-wl-no-scrolling="true" data-wl-start-position="center" data-wl-neighbors.r="image2">
-                    <image data-wl-type="image" src="img/1.jpeg" />
-                  </div>
-                  <div data-wl-type="frame" data-wl-name="image2" data-wl-fit-to="cover" data-wl-no-scrolling="true" data-wl-start-position="center" data-wl-neighbors.l="image1" data-wl-neighbors.r="image3">
-                    <image data-wl-type="image" src="img/2.jpeg" />
-                  </div>
-                  <div data-wl-type="frame" data-wl-name="image3" data-wl-fit-to="cover" data-wl-no-scrolling="true" data-wl-start-position="center" data-wl-neighbors.l="image2" data-wl-neighbors.r="image4">
-                    <image data-wl-type="image" src="img/3.jpeg" />
-                  </div>
-                  <div data-wl-type="frame" data-wl-name="image4" data-wl-fit-to="cover" data-wl-no-scrolling="true" data-wl-start-position="center" data-wl-neighbors.l="image3" data-wl-neighbors.r="image5">
-                    <image data-wl-type="image" src="img/4.jpeg" />
-                  </div>
-                  <div data-wl-type="frame" data-wl-name="image5" data-wl-fit-to="cover" data-wl-no-scrolling="true" data-wl-start-position="center" data-wl-neighbors.l="image4" data-wl-neighbors.r="image6">
-                    <image data-wl-type="image" src="img/5.jpeg" />
-                  </div>
-                  <div data-wl-type="frame" data-wl-name="image6" data-wl-fit-to="cover" data-wl-no-scrolling="true" data-wl-start-position="center" data-wl-neighbors.l="image5">
-                    <image data-wl-type="image" src="img/6.jpeg" />
-                  </div>
-                </div>
-              </div>
-            </td>
-            <td style="width: 5%; cursor: pointer;">
-              <div id="next">
-                <svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 20 20" enable-background="new 0 0 20 20" xml:space="preserve" width="40">
-                  <path fill="#455A64" d="M9.163,4.516c0.418,0.408,4.502,4.695,4.502,4.695C13.888,9.43,14,9.715,14,10s-0.112,0.57-0.335,0.787c0,0-4.084,4.289-4.502,4.695c-0.418,0.408-1.17,0.436-1.615,0c-0.446-0.434-0.481-1.041,0-1.574L11.295,10L7.548,6.092c-0.481-0.533-0.446-1.141,0-1.576C7.993,4.08,8.745,4.107,9.163,4.516z"
-                  />
-                </svg>
-              </div>
-            </td>
-          </tr>
-        </table>
-
-        <p>
-          Proin eget tortor risus. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Donec velit neque, auctor sit amet aliquam vel, ullamcorper sit amet ligula. Nulla porttitor accumsan tincidunt. Lorem ipsum dolor sit amet,
-          consectetur adipiscing elit. Vivamus suscipit tortor eget felis porttitor volutpat. Curabitur non nulla sit amet nisl tempus convallis quis ac lectus. Vestibulum ac diam sit amet quam vehicula elementum sed sit amet dui. Vestibulum ante ipsum
-          primis in faucibus orci luctus et ultrices posuere cubilia Curae; Donec velit neque, auctor sit amet aliquam vel, ullamcorper sit amet ligula. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Donec velit
-          neque, auctor sit amet aliquam vel, ullamcorper sit amet ligula. Mauris blandit aliquet elit, eget tincidunt nibh pulvinar a.
-        </p>
-
-
       </div>
+      <div id="layer_menu" data-wl-type="layer" data-wl-native-scroll="false" data-wl-default-frame="menu1" data-wl-layout-type="canvas">
+        <div id="menu1" data-wl-x="0" data-wl-y="0" data-wl-type="frame" data-wl-name="menu1" data-wl-fit-to="width" data-wl-neighbors.t="menu2">
+          <div data-wl-type="text">Navigation bar</div>
+        </div>
+        <div id="menu2" data-wl-x="0" data-wl-y="-60" data-wl-type="frame" data-wl-name="menu2" data-wl-fit-to="width" data-wl-neighbors.b="menu1">
+          <div data-wl-type="text">Main Menu</div>
+        </div>
+      </div>
+
     </div>
-    <div id="layer_menu" data-wl-type="layer" data-wl-native-scroll="false" data-wl-default-frame="menu1" data-wl-layout-type="canvas">
-      <div id="menu1" data-wl-x="0" data-wl-y="0" data-wl-type="frame" data-wl-name="menu1" data-wl-fit-to="width" data-wl-neighbors.t="menu2">
-        <div data-wl-type="text">Navigation bar</div>
-      </div>
-      <div id="menu2" data-wl-x="0" data-wl-y="-60" data-wl-type="frame" data-wl-name="menu2" data-wl-fit-to="width" data-wl-neighbors.b="menu1">
-        <div data-wl-type="text">Main Menu</div>
-      </div>
-    </div>
-
   </div>
-
 
   <script src="../../dist/layerjs.js"></script>
   <script>
@@ -254,6 +258,10 @@
         type: 'right'
       });
     });
+    document.getElementById('toggle3d').addEventListener('click', function() {
+      $('body').toggleClass('_3d');
+    });
+
   </script>
 </body>
 
