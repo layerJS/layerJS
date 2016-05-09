@@ -68,6 +68,10 @@ npm run build
 ```
 which automatically runs all unit tests via `npm test`. The result can be found in the `./dist` directory.
 
+## More examples ##
+
+Check out the `./examples` directory in the package to find more examples on how to use layerjs.
+
 ## Issues, bug reports and feature requests ##
 
 If you experience any issues or bugs using layerJS or you would like to request features, please let us now through bitbucket [issue tracking](https://bitbucket.org/layerjs/layerjs/issues?status=new&status=open). This issue tracker is open to everyone so we encourage discussion on all issues.
