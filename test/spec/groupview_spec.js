@@ -188,4 +188,8 @@ describe("GroupView", function() {
       "<div id='element3'></div>",
     expectedChildren: ['101', '102']
   });
+
+  it('has a static function getNodeType which is undefined par default', function(){
+    expect(GroupView.getNodeType).not.toBeDefined();
+  })
 });

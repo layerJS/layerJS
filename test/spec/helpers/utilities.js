@@ -56,6 +56,7 @@ utilities.setHtml = function(html) {
 
   if (!container) {
     container = document.createElement("div");
+    container.id = "testContainer";
     document.body.appendChild(container);
   }
   container.innerHTML = html;

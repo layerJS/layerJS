@@ -259,8 +259,25 @@ var GroupView = ObjView.extend({
         if (vo.data.attributes.name) this._childNames[vo.data.attributes.name] = vo;
         vo.data.on('change', this._myChildListenerCallback); // attach child change listener
         k++; // next in data.children
-      } else { // jshint ignore:line
+      } else if (undefined !== GroupView.getNodeType) { // jshint ignore:line
         // add import of non-typed elements later
+        nodeType = GroupView.getNodeType(elem);
+        // create new view without data object, just by type. creates data object implicitly with cobjview._parse
+        vo = pluginManager.createView(nodeType, {
+          el: elem,
+          parent: this
+        });
+        nodeId = vo.data.attributes.id; // id has been generated automatically
+        vo.data.attributes.version = this.data.attributes.version; // take version from parent (this)
+        childIds.splice(k, 0, nodeId); // insert new nodeid in data.children
+        if (!repository.contains(vo.data.attributes.id, vo.data.attributes.version)) {
+          repository.add(vo.data, this.data.attributes.version); // add new (implicitly created) data object to repository
+        }
+        this._childViews[nodeId] = vo; // update _childViews
+        if (vo.data.attributes.name) this._childNames[vo.data.attributes.name] = vo;
+        vo.data.on('change', this._myChildListenerCallback); // attach child change listener
+        k++; // next in data.children
+
       }
     }
     // delete further ids in data.children
@@ -461,7 +478,8 @@ var GroupView = ObjView.extend({
   },
 
 }, {
-  Model: GroupData
+  Model: GroupData,
+  getNodeType: undefined
 });
 
 
