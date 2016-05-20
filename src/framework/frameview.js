@@ -244,6 +244,10 @@ var FrameView = GroupView.extend({
       //     if (d.scrollY > d.maxScrollY) d.scrollY = d.maxScrollY;
       //   }
     }
+
+    d.shiftX *= d.scale;
+    d.shiftY *= d.scale;
+
     // save inital scroll position to be able to reset this without recalculating the full transform data
     d.initialScrollX = d.scrollX;
     d.initialScrollY = d.scrollY;
