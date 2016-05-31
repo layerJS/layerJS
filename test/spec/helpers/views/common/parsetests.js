@@ -87,7 +87,7 @@ module.exports = function(options) {
       expect(view.data.attributes.custom).toBeUndefined();
     });
 
-    it('the Parse method will create a object with propertiesin the dataModel is the DOM element contains an attribute of formate data-wl-*.* ', function() {
+    it('the Parse method will create a object with properties in the dataModel is the DOM element contains an attribute of formate data-wl-*.* ', function() {
       element = document.createElement('div');
       element.setAttribute('data-wl-some.thing', '1');
       element.setAttribute('data-wl-some.thing-else', '2');
@@ -143,6 +143,37 @@ module.exports = function(options) {
 
       var returnedData = view.parse(element);
       expect(isFired).toBeFalsy();
+    });
+
+    it('the parse method will store non data-wl-* attributes of a DOM element in the htmlAttributes property with camelcased properties', function() {
+      element = document.createElement('div');
+      element.setAttribute('name', '1');
+      element.setAttribute('data-ng', '2');
+      element.setAttribute('custom', '3');
+      element.setAttribute('data-wl-thing', '4');
+
+      var view = new ViewType(new DataType({}), {
+        el: element
+      });
+
+      expect(view.data.attributes.htmlAttributes).toBeDefined();
+      expect(view.data.attributes.htmlAttributes.name).toBe('1');
+      expect(view.data.attributes.htmlAttributes.dataNg).toBe('2');
+      expect(view.data.attributes.htmlAttributes.custom).toBe('3');
+      expect(view.data.attributes.htmlAttributes.thing).toBeUndefined();
+    });
+
+    it('the Parse method will create a object with properties in the dataModel is the DOM element contains an attribute of formate *.* ', function() {
+      element = document.createElement('div');
+      element.setAttribute('some.thing', '1');
+      element.setAttribute('some.thing-else', '2');
+
+      var view = new ViewType(new DataType({}), {
+        el: element
+      });
+
+      expect(view.data.attributes.htmlAttributes.some.thing).toBe('1');
+      expect(view.data.attributes.htmlAttributes.some.thingElse).toBe('2');
     });
   });
 };

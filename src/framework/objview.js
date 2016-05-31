@@ -282,35 +282,44 @@ var ObjView = Kern.EventManager.extend({
   parse: function(element) {
     var index;
     var data = {
-      tag: element.tagName
+      tag: element.tagName,
+      htmlAttributes: {}
     };
 
-    var attributes = element.attributes;
-    var length = attributes.length;
+    var elementAttributes = element.attributes;
+    var length = elementAttributes.length;
 
     for (index = 0; index < length; index++) {
-      var attribute = attributes[index];
-      if (attribute.name.indexOf('data-wl-') === 0) {
-        var attributeName = attribute.name.replace('data-wl-', '');
-        var attributeValue = attribute.value;
+      var attribute = elementAttributes[index];
+      var attributeName = attribute.name;
+      var attributeValue = attribute.value;
+      var dataSource = undefined;
 
-        if (attributeValue === 'true' || attributeValue === 'false') {
-          attributeValue = eval(attributeValue); // jshint ignore:line
+      if (attributeName.indexOf('data-wl-') === 0) {
+        // store directly in the data object
+        dataSource = data;
+        attributeName = attributeName.replace('data-wl-', '');
+      } else {
+        // store in data.htmlAttributes
+        dataSource = data.htmlAttributes;
+      }
+
+      if (attributeValue === 'true' || attributeValue === 'false') {
+        attributeValue = eval(attributeValue); // jshint ignore:line
+      }
+
+      attributeName = attributeName.replace(/(\-[a-z])/g, function($1) {
+        return $1.toUpperCase().replace('-', '');
+      });
+
+      var attributeNames = attributeName.split('.');
+      var attributesNamesLength = attributeNames.length;
+      var attributeObj = dataSource;
+      for (var i = 0; i < attributesNamesLength; i++) {
+        if (!attributeObj.hasOwnProperty(attributeNames[i])) {
+          attributeObj[attributeNames[i]] = (i === attributesNamesLength - 1) ? attributeValue : {};
         }
-
-        attributeName = attributeName.replace(/(\-[a-z])/g, function($1) {
-          return $1.toUpperCase().replace('-', '');
-        });
-
-        var attributeNames = attributeName.split('.');
-        var attributesNamesLength = attributeNames.length;
-        var attributeObj = data;
-        for (var i = 0; i < attributesNamesLength; i++) {
-          if (!attributeObj.hasOwnProperty(attributeNames[i])) {
-            attributeObj[attributeNames[i]] = (i === attributesNamesLength - 1) ? attributeValue : {};
-          }
-          attributeObj = attributeObj[attributeNames[i]];
-        }
+        attributeObj = attributeObj[attributeNames[i]];
       }
     }
 
