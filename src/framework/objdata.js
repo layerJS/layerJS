@@ -56,7 +56,10 @@ var ObjData = Kern.Model.extend({
     hidden: undefined,
     // bins are important for the compositor, they tell in which area the
     // object is located, this is used for faster lookups of elements
-    version: defaults.version
+    version: defaults.version,
+
+    // store html attributes of it's DOM element
+    htmlAttributes : {}
   },
   //---
   // the tag should be overwritten by plugins if neccessary, eg. image plugin will set img here

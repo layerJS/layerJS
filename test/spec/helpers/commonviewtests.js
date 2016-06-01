@@ -14,24 +14,24 @@ var commonViewTests = function(scenario, initFunction) {
       ViewType = init.ViewType;
     });
 
-  it('will add a new DOM element when no element is provided', function() {
+    it('will add a new DOM element when no element is provided', function() {
       var view = new ViewType(data);
       expect(view.innerEl).not.toBeUndefined();
       expect(view.outerEl).not.toBeUndefined();
     });
 
-  it('the DOM element will have the same tag as defined in the data model', function() {
+    it('the DOM element will have the same tag as defined in the data model', function() {
       var view = new ViewType(data);
       expect(view.innerEl.tagName.toUpperCase()).toBe(data.attributes.tag.toUpperCase());
       expect(view.outerEl.tagName.toUpperCase()).toBe(data.attributes.tag.toUpperCase());
     });
 
-  it('will add a _wlView property to the DOM element', function() {
+    it('will add a _wlView property to the DOM element', function() {
       var view = new ViewType(data);
       var element = view.innerEl;
       expect(element._wlView === view).toBeTruthy();
     });
-  it('when initialized with the noRender option true, the view doesn\'t get rendered', function() {
+    it('when initialized with the noRender option true, the view doesn\'t get rendered', function() {
       var view = new ViewType(data, {
         noRender: true
       });
@@ -40,7 +40,7 @@ var commonViewTests = function(scenario, initFunction) {
       expect(view.outerEl.id).toBe('');
     });
 
-  it('can be initialized with an existing element, without re-rendering', function() {
+    it('can be initialized with an existing element, without re-rendering', function() {
       var element = document.createElement('div');
       element.id = '1000';
 
@@ -52,7 +52,7 @@ var commonViewTests = function(scenario, initFunction) {
     });
 
 
-  it('will not automatic render the DOM element with data from it\'s dataModel', function() {
+    it('will not automatic render the DOM element with data from it\'s dataModel', function() {
       var view = new ViewType(data);
       var element = view.outerEl;
 
@@ -60,7 +60,7 @@ var commonViewTests = function(scenario, initFunction) {
     });
 
 
-  it('can be initialized with an existing element, forcing re-rendering', function() {
+    it('can be initialized with an existing element, forcing re-rendering', function() {
       var element = document.createElement('div');
       element.id = '1000';
       var view = new ViewType(data, {
@@ -68,10 +68,10 @@ var commonViewTests = function(scenario, initFunction) {
         forceRender: true
       });
       expect(view.outerEl).toBe(element);
-      expect(view.outerEl.id).toBe('wl-obj-' + data.attributes.id.toString()); // changed
-    });
+      expect(view.outerEl.id).toBe('1000');
+    });    
 
-  it('cannot add view to existing element if that is already connected to another view', function() {
+    it('cannot add view to existing element if that is already connected to another view', function() {
       var element = document.createElement('div');
       element.id = '1000';
       element._wlView = {};
@@ -85,7 +85,7 @@ var commonViewTests = function(scenario, initFunction) {
       expect(fun).toThrow()
     });
 
-  it('is styled in a separte stylesheet if a style is defined', function() {
+    it('is styled in a separte stylesheet if a style is defined', function() {
       var view = new ViewType(data);
 
       var expected = expect(document.getElementById('wl-obj-css').innerHTML);
@@ -96,7 +96,7 @@ var commonViewTests = function(scenario, initFunction) {
       }
     });
 
-  it('will add a data-wl-id attribute DOM element', function() {
+    it('will add a data-wl-id attribute DOM element', function() {
       var view = new ViewType(data);
 
       var element = view.outerEl;
@@ -104,7 +104,7 @@ var commonViewTests = function(scenario, initFunction) {
       expect(data_wl_id).toBe(data.attributes.id.toString());
     });
 
-  it('will add a data-wl-type attribute DOM element', function() {
+    it('will add a data-wl-type attribute DOM element', function() {
       var view = new ViewType(data);
 
       var element = view.outerEl;
@@ -112,7 +112,7 @@ var commonViewTests = function(scenario, initFunction) {
       expect(data_wl_type).toBe(data.attributes.type.toString());
     });
 
-  it('will add a default class to the DOM element', function() {
+    it('will add a default class to the DOM element', function() {
       var view = new ViewType(data);
 
       var element = view.outerEl;
@@ -120,7 +120,7 @@ var commonViewTests = function(scenario, initFunction) {
       expect(classAttribute).toContain('object-default object-' + data.attributes.type);
     });
 
-  it('will add classes that are defined in a data to the DOM element', function() {
+    it('will add classes that are defined in a data to the DOM element', function() {
       var view = new ViewType(data);
 
       var element = view.outerEl;
@@ -128,7 +128,7 @@ var commonViewTests = function(scenario, initFunction) {
       expect(classAttribute).toContain(data.attributes.classes);
     });
 
-  it('will add classes that are defined in a data to the DOM element', function() {
+    it('will add classes that are defined in a data to the DOM element', function() {
       var view = new ViewType(data);
 
       var element = view.outerEl;
@@ -136,7 +136,7 @@ var commonViewTests = function(scenario, initFunction) {
       expect(classAttribute).toContain(data.attributes.classes);
     });
 
-  it('will remove the linked DOM element from is parent when destroy is called', function() {
+    it('will remove the linked DOM element from is parent when destroy is called', function() {
       var parent = document.createElement('div');
       var child = document.createElement('div');
       parent.appendChild(child);
@@ -152,7 +152,7 @@ var commonViewTests = function(scenario, initFunction) {
       expect(child.parent).toBeUndefined();
     });
 
-  it('will set the href attribute of the anchor DOM element to the link_to attribute of the data model', function() {
+    it('will set the href attribute of the anchor DOM element to the link_to attribute of the data model', function() {
       var view = new ViewType(data);
       var element = view.outerEl;
 
@@ -164,7 +164,7 @@ var commonViewTests = function(scenario, initFunction) {
       }
     });
 
-  it('will set the target attribute of the anchor DOM element to the link_target attribute of the data model', function() {
+    it('will set the target attribute of the anchor DOM element to the link_target attribute of the data model', function() {
       var view = new ViewType(data);
       var element = view.outerEl;
 
@@ -212,14 +212,34 @@ var commonViewTests = function(scenario, initFunction) {
       expect(data.attributes.custom).not.toBe('10');
     });
 
-  it('will listen for chnanges on its DOM element by default', function() {
+    it('will listen for changes on its DOM element by default', function() {
       var view = new ViewType(data);
       var element = view.outerEl;
 
       expect(view._observer).toBeDefined();
       expect(view._observerCounter).toBe(0);
     });
+
+    it('will put the htmlAttributes from the dataObject into the DOM element as attributes', function() {
+      data.attributes.htmlAttributes.id = 'id';
+      data.attributes.htmlAttributes.custom = 'custom';
+      data.attributes.htmlAttributes.someThing = 'someThing';
+
+      var view = new ViewType(data);
+      var element = view.outerEl;
+
+      expect(element.hasAttribute('id')).toBeTruthy();
+      expect(element.getAttribute('id')).toBe(data.attributes.htmlAttributes.id);
+
+      expect(element.hasAttribute('custom')).toBeTruthy();
+      expect(element.getAttribute('custom')).toBe(data.attributes.htmlAttributes.custom);
+
+      expect(element.hasAttribute('some-thing')).toBeTruthy();
+      expect(element.getAttribute('some-thing')).toBe(data.attributes.htmlAttributes.someThing);
+    });
   });
+
+
 };
 
 module.exports = commonViewTests;

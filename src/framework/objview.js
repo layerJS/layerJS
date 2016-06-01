@@ -169,6 +169,15 @@ var ObjView = Kern.EventManager.extend({
         outerEl.setAttribute('target', this.data.attributes.linkTarget);
     }
 
+    // Add htmlAttributes to the DOM element
+    if ('htmlAttributes' in diff) {
+      for (var htmlAttribute in diff.htmlAttributes) {
+        if (diff.htmlAttributes.hasOwnProperty(htmlAttribute)) {
+          outerEl.setAttribute(htmlAttribute.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase(), diff.htmlAttributes[htmlAttribute]);
+        }
+      }
+    }
+
     // create object css style
     // these styles are stored in the head of the page index.html
     // in a style tag with the id object_css
