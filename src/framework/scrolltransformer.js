@@ -167,12 +167,12 @@ var ScrollTransformer = Kern.EventManager.extend({
         // set inner size to set up native scrolling
         // FIXME: we shouldn't set the dimension in that we don't scroll
         if (tfd.isScrollY) {
-          this.layer.innerEl.style.height = tfd.height;
+          this.layer.innerEl.style.height = tfd.height + "px";
         } else {
           this.layer.innerEl.style.height = "100%";
         }
         if (tfd.isScrollX) {
-          this.layer.innerEl.style.width = tfd.width;
+          this.layer.innerEl.style.width = tfd.width + "px";
         } else {
           this.layer.innerEl.style.width = "100%";
         }
