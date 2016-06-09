@@ -3,7 +3,6 @@ var $ = require('./domhelpers.js');
 var Kern = require('../kern/Kern.js');
 var pluginManager = require('./pluginmanager.js');
 var layoutManager = require('./layoutmanager.js');
-var LayerData = require('./layerdata.js');
 var GroupView = require('./groupview.js');
 var ScrollTransformer = require('./scrolltransformer.js');
 var gestureManager = require('./gestures/gesturemanager.js');
@@ -255,7 +254,14 @@ var LayerView = GroupView.extend({
     this.showFrame(this.currentFrame.data.attributes.name, scrollData);
   }
 }, {
-  Model: LayerData
+  /*
+  Model: LayerData*/
+  defaults: Kern._extend({}, GroupView.defaults, {
+    type: 'layer',
+    layoutType: 'slide',
+    defaultFrame: undefined,
+    nativeScroll: true
+  })
 });
 
 pluginManager.registerType('layer', LayerView);

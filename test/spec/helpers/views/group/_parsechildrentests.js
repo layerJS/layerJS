@@ -2,15 +2,17 @@ module.exports = function(options) {
 
   var ViewType = options.ViewType;
   var DataType = ViewType.Model;
-  var type = options.type;
   var expectedChildren = options.expectedChildren;
+  var defaults;
 
+  describe(": _parseChildren =>", function() {
 
-  describe(options.viewTypeName + ": _parseChildren =>", function() {
+    beforeEach(function() {
+      defaults = JSON.parse(JSON.stringify(ViewType.defaults));
+    });
 
     it('will contain a _parseChildren method to read the parse it\'s children from it\'s DOM element', function() {
-      var data = new DataType({});
-      var view = new ViewType(data, {});
+      var view = new ViewType(new DataType(defaults), {});
       expect(view._parseChildren).toBeDefined();
     });
 
@@ -20,13 +22,11 @@ module.exports = function(options) {
       element.innerHTML = options.HTML;
       element = element.children[0];
 
-      var data = new DataType({});
-      var view = new ViewType(data, {
+      var view = new ViewType(undefined, {
         el: element
       });
 
-      view._parseChildren();
-
+      var data = view.data;
       expect(data.attributes.children).toEqual(expectedChildren);
 
       var length = expectedChildren.length;

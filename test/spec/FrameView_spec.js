@@ -1,7 +1,6 @@
 var jsdom = require("jsdom").jsdom;
 
 var FrameView = require('../../src/framework/frameview.js');
-var FrameData = require('../../src/framework/framedata.js');
 var CommonViewTests = require('./helpers/commonviewtests.js');
 var CommonGroupViewTests = require('./helpers/commongroupviewtests.js');
 var GroupView_renderChildPositionTests = require('./helpers/groupview_renderchildpositiontests.js');

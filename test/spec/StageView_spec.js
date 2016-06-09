@@ -1,6 +1,4 @@
 var StageView = require('../../src/framework/stageview.js');
-var LayerView = require('../../src/framework/layerview.js');
-var StageData = require('../../src/framework/stagedata.js');
 var CommonViewTests = require('./helpers/commonviewtests.js');
 var CommonGroupViewTests = require('./helpers/commongroupviewtests.js');
 var GroupView_renderChildPositionTests = require('./helpers/groupview_renderchildpositiontests.js');
@@ -37,9 +35,7 @@ describe("StageView", function() {
   });
 
   ViewsCommonParseTests({
-    ViewType: StageView,
-    viewTypeName: 'StageView',
-    type: 'stage'
+    ViewType: StageView
   });
 
   ViewsGroup_parseChildrenTests({

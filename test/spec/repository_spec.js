@@ -1,5 +1,5 @@
 var repository = require('../../src/framework/repository.js');
-var ObjData = require('../../src/framework/objdata.js');
+var NodeData = require('../../src/framework/nodedata.js');
 
     describe('Repository', function() {
       it('can generate unique client ids', function() {
@@ -46,12 +46,12 @@ var ObjData = require('../../src/framework/objdata.js');
         repository.createVersion('test');
         expect(repository.contains('1', 'test')).toBeFalsy();
 
-        var objData = new ObjData({
+        var nodeData = new NodeData({
           id: '1',
           version: 'test'
         });
 
-        repository.add(objData, 'test');
+        repository.add(nodeData, 'test');
 
         expect(repository.hasVersion('test')).toBeTruthy();
       });

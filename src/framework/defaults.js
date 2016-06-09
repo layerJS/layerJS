@@ -1,4 +1,6 @@
 module.exports = {
+  id : undefined,
   version: 'default',
-  tag: 'div'
+  tag: 'div',
+  htmlAttributes : []
 };

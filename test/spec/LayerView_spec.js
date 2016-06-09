@@ -1,5 +1,4 @@
 var LayerView = require('../../src/framework/layerview.js');
-var LayerData = require('../../src/framework/layerdata.js');
 var CommonViewTests = require('./helpers/commonviewtests.js');
 var CommonGroupViewTests = require('./helpers/commongroupviewtests.js');
 var GroupView_renderChildPositionTests = require('./helpers/groupview_renderchildpositiontests.js');
@@ -25,7 +24,6 @@ describe("LayerView", function() {
       parentId: 5
     };
   });
-
   Common_renderChildPositionTests('simple_layerdata.js', function() {
     return {
       data: JSON.parse(JSON.stringify(require('./datasets/simple_layerdata.js'))),
@@ -51,9 +49,7 @@ describe("LayerView", function() {
   });
 
   ViewsCommonParseTests({
-    ViewType: LayerView,
-    viewTypeName: 'LayerView',
-    type: 'layer'
+    ViewType: LayerView
   });
 
   it('the Parse method will set nativeScroll to true if the DOM element has a data-wl-native-scroll attribute equals true', function() {
@@ -94,6 +90,5 @@ describe("LayerView", function() {
       "<div id='element3'></div>",
     expectedChildren: ['101', '102']
   });
-
 
 })

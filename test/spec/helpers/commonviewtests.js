@@ -6,14 +6,24 @@ var commonViewTests = function(scenario, initFunction) {
 
   describe('(basis view tests) ' + scenario, function() {
 
-    var data, ViewType;
+    var data, ViewType, defaults;
 
     beforeEach(function() {
       var init = initFunction();
-      data = pluginManager.createModel(init.data);
       ViewType = init.ViewType;
+      data = new ViewType.Model(init.data);
+      defaults = JSON.parse(JSON.stringify(ViewType.defaults));
     });
 
+    it('will have a defaults static property which will contain all default properties for the data', function() {
+      expect(ViewType.defaults).toBeDefined();
+    });
+
+    it('can be created', function() {
+      var cv = new ViewType(data);
+      expect(cv).not.toBeUndefined();
+    });
+        
     it('will add a new DOM element when no element is provided', function() {
       var view = new ViewType(data);
       expect(view.innerEl).not.toBeUndefined();
@@ -69,7 +79,7 @@ var commonViewTests = function(scenario, initFunction) {
       });
       expect(view.outerEl).toBe(element);
       expect(view.outerEl.id).toBe('1000');
-    });    
+    });
 
     it('cannot add view to existing element if that is already connected to another view', function() {
       var element = document.createElement('div');

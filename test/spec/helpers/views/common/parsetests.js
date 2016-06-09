@@ -1,19 +1,22 @@
 var WL = require('../../../../../src/framework/wl.js');
-var defaults = require('../../../../../src/framework/defaults.js');
+//var defaults = require('../../../../../src/framework/defaults.js');
 var utilities = require("../../utilities.js");
 
 module.exports = function(options) {
 
   var ViewType = options.ViewType;
   var DataType = ViewType.Model;
-  var type = options.type;
 
-  describe(options.viewTypeName + ": parse =>", function() {
+  describe(": parse =>", function() {
 
     var element;
     var repository = WL.repository;
+    var type,defaults;
 
     beforeEach(function() {
+      defaults = JSON.parse(JSON.stringify(ViewType.defaults));
+      type = defaults.type;
+
       element = document.createElement('a');
       element.setAttribute('data-wl-id', 1);
       element.setAttribute('data-wl-type', type);
@@ -30,7 +33,7 @@ module.exports = function(options) {
     });
 
     it('will contain a Parse method to read the data from a DOM element', function() {
-      var data = new DataType({});
+      var data = new DataType(ViewType);
       var view = new ViewType(data, {});
       expect(view.parse).toBeDefined();
     });
@@ -53,7 +56,7 @@ module.exports = function(options) {
     });
 
     it('has a parse method that will update the current dataObject and will return it', function() {
-      var data = new DataType({});
+      var data = new DataType(ViewType);
       var view = new ViewType(data);
       view.parse(element);
 
@@ -78,7 +81,7 @@ module.exports = function(options) {
       element.setAttribute('data-wl-some-thing-else', '2');
       element.setAttribute('data-custom', '3');
 
-      var view = new ViewType(new DataType({}), {
+      var view = new ViewType(null, {
         el: element
       });
 
@@ -92,7 +95,7 @@ module.exports = function(options) {
       element.setAttribute('data-wl-some.thing', '1');
       element.setAttribute('data-wl-some.thing-else', '2');
 
-      var view = new ViewType(new DataType({}), {
+      var view = new ViewType(null, {
         el: element
       });
 
@@ -100,7 +103,7 @@ module.exports = function(options) {
       expect(view.data.attributes.some.thingElse).toBe('2');
     });
 
-    it('has a parse method doesn\' t find a data-wl-id, it will create one', function() {
+    it('if the parse method doesn\' t find a data-wl-id, it will create one', function() {
       element.removeAttribute('data-wl-id');
       var view = new ViewType(null, {
         el: element
@@ -134,7 +137,7 @@ module.exports = function(options) {
     });
 
     it('the parse method will not invoke a render when the dataObjects are updated', function() {
-      var data = new DataType({});
+      var data = new DataType(ViewType);
       var view = new ViewType(data);
       var isFired = false;
       view.render = function() {
@@ -152,7 +155,7 @@ module.exports = function(options) {
       element.setAttribute('custom', '3');
       element.setAttribute('data-wl-thing', '4');
 
-      var view = new ViewType(new DataType({}), {
+      var view = new ViewType(null, {
         el: element
       });
 
@@ -168,7 +171,7 @@ module.exports = function(options) {
       element.setAttribute('some.thing', '1');
       element.setAttribute('some.thing-else', '2');
 
-      var view = new ViewType(new DataType({}), {
+      var view = new ViewType(null, {
         el: element
       });
 

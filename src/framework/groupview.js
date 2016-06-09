@@ -3,7 +3,6 @@ var Kern = require('../kern/Kern.js');
 var pluginManager = require('./pluginmanager.js');
 var repository = require('./repository.js'); // jshint ignore:line
 var ObjView = require('./objview.js');
-var GroupData = require('./groupdata.js');
 /**
  * A View which can have child views
  * @param {GroupData} dataModel
@@ -478,8 +477,12 @@ var GroupView = ObjView.extend({
   },
 
 }, {
-  Model: GroupData,
+  defaults: Kern._extend({}, ObjView.defaults, {
+    type: 'group',
+    children: []
+  }),
   getNodeType: undefined
+
 });
 
 

@@ -3,7 +3,8 @@ var $ = require('./domhelpers.js');
 var Kern = require('../kern/Kern.js');
 var pluginManager = require('./pluginmanager.js');
 var repository = require('./repository.js');
-var ObjData = require('./objdata.js');
+var NodeData = require('./nodedata.js');
+var defaults = require('./defaults.js');
 
 /**
  * Defines the view of a ObjData and provides all basic properties and
@@ -16,8 +17,9 @@ var ObjView = Kern.EventManager.extend({
   constructor: function(dataModel, options) {
     Kern.EventManager.call(this);
     options = options || {};
+
     // dataobject must exist
-    this.data = this.data || dataModel || options.el && new this.constructor.Model();
+    this.data = this.data || dataModel || options.el && new NodeData(this.constructor);
     if (!this.data) throw "data object must exist when creating a view";
     this.disableDataObserver();
     // if element is given, parse the element to fill data object
@@ -485,7 +487,49 @@ var ObjView = Kern.EventManager.extend({
   }
 }, {
   // save model class as static variable
-  Model: ObjData
+  Model: NodeData,
+  defaults: Kern._extend({}, defaults, {
+    type: 'node',
+    elementId: undefined,
+
+    // CSS string for styling this object
+    style: '',
+    // CSS classes of this object
+    classes: '',
+
+    // this stores a string for a hyperlink realized by an <a> tag that
+    // wraps the element
+    linkTo: undefined,
+    // defaults to _self, but should not be set because if set a link is
+    // created, this could be fixed
+    linkTarget: undefined,
+
+    //locked elements can not be edited
+    locked: undefined,
+    // a list of properties that are not allowed to be edited
+    disallow: {},
+
+    // set to undefined so we can find out if a newly created element
+    // provided positional information
+    x: undefined,
+    y: undefined,
+
+
+    width: undefined,
+    height: undefined,
+
+    // rendering scale
+    scaleX: 1,
+    scaleY: 1,
+
+    // z-index
+    zIndex: undefined,
+    // this is set in init$el to the current rotation if it was not set
+    // before
+    rotation: undefined,
+    //is the element hidden in presentation mode
+    hidden: undefined
+  })
 });
 
 

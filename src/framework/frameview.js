@@ -1,7 +1,6 @@
 'use strict';
 var Kern = require('../kern/Kern.js');
 var pluginManager = require('./pluginmanager.js');
-var FrameData = require('./framedata.js');
 var GroupView = require('./groupview.js');
 var Kern = require('../kern/Kern.js');
 
@@ -254,7 +253,13 @@ var FrameView = GroupView.extend({
     return (this.transformData = d);
   }
 }, {
-  Model: FrameData
+  defaults: Kern._extend({}, GroupView.defaults, {
+    nativeScroll: true,
+    fitTo: 'width',
+    startPosition: 'top',
+    noScrolling: false,
+    type: 'frame'
+  })
 });
 
 pluginManager.registerType('frame', FrameView);

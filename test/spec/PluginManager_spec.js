@@ -1,7 +1,7 @@
 var jsdom = require("jsdom").jsdom;
 var pluginmanager = require('../../src/framework/pluginmanager.js');
 var ObjView = require('../../src/framework/objview.js');
-var ObjData = require('../../src/framework/objdata.js');
+var ObjData = ObjView.Model;
 
 describe('PluginManager', function() {
   var document, window, $;

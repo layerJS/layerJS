@@ -279,7 +279,7 @@ describe("Fit to", function() {
         expect(stage_dimensions.width).not.toBe(frame_dimensions.width);
         expect(frame_dimensions.width).toBe(625);
         expect(frame_scale > 1).toBeTruthy();
-        expect(frame_dimensions.left).toBe(-50);
+        expect(frame_dimensions.left).toBe(-62.5);
       });
     });
   });
@@ -348,7 +348,7 @@ describe("Fit to", function() {
         expect(stage_dimensions.height).not.toBe(frame_dimensions.height);
         expect(frame_dimensions.height).toBe(625);
         expect(frame_scale > 1).toBeTruthy();
-        expect(frame_dimensions.top).toBe(-50);
+        expect(frame_dimensions.top).toBe(-62.5);
       });
     });
   });

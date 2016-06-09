@@ -1,6 +1,5 @@
 'use strict';
 var pluginManager = require('./pluginmanager.js');
-var StageData = require('./stagedata.js');
 var GroupView = require('./groupview.js');
 var Kern = require('../kern/Kern.js');
 
@@ -40,11 +39,17 @@ var StageView = GroupView.extend({
     var length = childViews.length;
     for (var i = 0; i < length; i++) {
       var childView = childViews[i];
-        childView.onResize();
+      childView.onResize();
     }
   }
 }, {
-  Model: StageData
+  defaults: Kern._extend({}, GroupView.defaults, {
+    nativeScroll: true,
+    fitTo: 'width',
+    startPosition: 'top',
+    noScrolling: false,
+    type: 'stage'
+  })
 });
 pluginManager.registerType('stage', StageView);
 module.exports = StageView;

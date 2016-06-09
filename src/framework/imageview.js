@@ -1,6 +1,5 @@
 'use strict';
 var ObjView = require('./objview.js');
-var ImageData = require('./imagedata.js');
 var pluginManager = require('./pluginmanager.js');
 var Kern = require('../kern/Kern.js');
 var WL = require('./wl.js');
@@ -59,7 +58,13 @@ var ImageView = ObjView.extend({
     this.enableDataObserver();
   }
 }, {
-  Model: ImageData
+  /*
+  Model: ImageData*/
+  defaults: Kern._extend({}, ObjView.defaults, {
+    type: 'image',
+    alt: '',
+    src: ''
+  })
 });
 
 

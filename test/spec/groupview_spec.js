@@ -2,9 +2,7 @@ var jsdom = require("jsdom").jsdom;
 var repository = require('../../src/framework/repository.js');
 
 var GroupView = require('../../src/framework/groupview.js');
-var GroupData = require('../../src/framework/groupdata.js');
 var ObjView = require('../../src/framework/objview.js');
-var ObjData = require('../../src/framework/objdata.js');
 var CommonViewTests = require('./helpers/commonviewtests.js');
 var CommonGroupViewTests = require('./helpers/commongroupviewtests.js');
 var GroupView_renderChildPositionTests = require('./helpers/groupview_renderchildpositiontests.js');
@@ -57,13 +55,13 @@ describe("GroupView", function() {
   });
 
   it("when a view that is attached using the attachView method changes, the _myChildListenerCallback should be called", function() {
-    var groupData = new GroupData(JSON.parse(JSON.stringify(require('./datasets/simple_groupdata.js')[0])));
+    var groupData = new GroupView.Model(JSON.parse(JSON.stringify(require('./datasets/simple_groupdata.js')[0])));
     var groupView = new GroupView(groupData);
 
     expect(groupView._myChildListenerCallback).toBeDefined();
     spyOn(groupView, '_myChildListenerCallback');
 
-    var objData = new ObjData(JSON.parse(JSON.stringify(require('./datasets/simple_objdata.js')[0])));
+    var objData = new ObjView.Model(JSON.parse(JSON.stringify(require('./datasets/simple_objdata.js')[0])));
     var objView = new ObjView(objData);
 
     groupView.attachView(objView);
@@ -75,16 +73,16 @@ describe("GroupView", function() {
   });
 
   it("when a view with a parent is attached using the attachView method changes, the _myChildListenerCallback should be called", function() {
-    var parentData = new GroupData(JSON.parse(JSON.stringify(require('./datasets/simple_groupdata.js')[0])));
+    var parentData = new GroupView.Model(JSON.parse(JSON.stringify(require('./datasets/simple_groupdata.js')[0])));
     parentData.attributes.id = 123456789;
     var parentView = new GroupView(parentData);
 
-    var objData = new ObjData(JSON.parse(JSON.stringify(require('./datasets/simple_objdata.js')[0])));
+    var objData = new ObjView.Model(JSON.parse(JSON.stringify(require('./datasets/simple_objdata.js')[0])));
     var objView = new ObjView(objData);
 
     parentView.attachView(objView);
 
-    var groupData = new GroupData(JSON.parse(JSON.stringify(require('./datasets/simple_groupdata.js')[0])));
+    var groupData = new GroupView.Model(JSON.parse(JSON.stringify(require('./datasets/simple_groupdata.js')[0])));
     var groupView = new GroupView(groupData);
 
     expect(groupView._myChildListenerCallback).toBeDefined();
@@ -171,15 +169,11 @@ describe("GroupView", function() {
   });
 
   ViewsCommonParseTests({
-    ViewType: GroupView,
-    viewTypeName: 'GroupView',
-    type: 'group'
+    ViewType: GroupView
   });
 
   ViewsGroup_parseChildrenTests({
     ViewType: GroupView,
-    viewTypeName: 'GroupView',
-    type: 'group',
     HTML: "<div id='100' data-wl-id='100' data-wl-type='group'>" +
       "<div id='element1'></div>" +
       "<div id='101' data-wl-id='101' data-wl-type='text'></div>" +

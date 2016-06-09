@@ -31,6 +31,7 @@
     "package": "mkdirp ./dist/css && node ./scripts/copy.js ./build/layerjs.js ./dist/layerjs.js && node ./scripts/copy.js ./dist/layerjs.js ./dist/layerjs-$npm_package_version.js && node ./scripts/copy.js ./src/css/layerjs.css ./dist/css/layerjs.css && cd dist && zip layerjs-$npm_package_version.zip layerjs-$npm_package_version.js css/*",
 
     "pretest": "npm run jshint",
+
     "test": "jasmine JASMINE_CONFIG_PATH=./test/spec/support/jasmine.json",
     "debugtest": "node debug `which jasmine` JASMINE_CONFIG_PATH=./test/spec/support/jasmine.json",
     "browsertest" : "browserify ./test/specs.js > ./test/jasmine/lib/specs.js",

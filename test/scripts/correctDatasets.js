@@ -20,6 +20,10 @@ for (var x = 0; x < datasetFilenames.length; x++) {
         object.id = object.id.toString();
       }
 
+      if (object.tag === undefined) {
+        object.tag = 'div';
+      }
+
       if (object.children != undefined && Array.isArray(object.children)) {
         for (var c = 0; c < object.children.length; c++) {
           object.children[c] = object.children[c].toString();
@@ -48,7 +52,7 @@ for (var x = 0; x < datasetFilenames.length; x++) {
         delete object.link_target;
       }
 
-      if (object.width != undefined && object.width.toString().indexOf('px') == -1 && object.width.toString().indexOf('%') == -1 && && object.width.toString().indexOf('em') == -1) {
+      if (object.width != undefined && object.width.toString().indexOf('px') == -1 && object.width.toString().indexOf('%') == -1 && object.width.toString().indexOf('em') == -1) {
         object.width = object.width.toString() + 'px';
       }
 

@@ -14,7 +14,7 @@ var commonGroupViewTests = function(scenario, initFunction) {
       ViewType = init.ViewType;
       repository.importJSON(init.data, defaults.version);
       data = repository.get(init.parentId, defaults.version);
-    });  
+    });
 
 
     it('will add it\'s children DOM element to its own DOM element when the render method is called', function() {

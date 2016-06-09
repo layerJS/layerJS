@@ -1,5 +1,4 @@
 var CommonViewTests = require('./helpers/Commonviewtests.js');
-var ImageData = require('../../src/framework/imagedata.js');
 var ImageView = require('../../src/framework/imageview.js');
 var pluginManager = require('../../src/framework/pluginmanager.js');
 var WL = require('../../src/framework/wl.js');
@@ -16,12 +15,12 @@ describe("ImageView", function() {
   });
 
   it('can be created', function() {
-    var cv = new ImageView(new ImageData());
+    var cv = new ImageView(new ImageView.Model());
     expect(cv).toBeDefined();
   });
 
   it('will set the src attribute of the DOM element', function() {
-    var data = pluginManager.createModel(JSON.parse(JSON.stringify(require('./datasets/simple_imagedata.js')[0])));
+    var data = new ImageView.Model(JSON.parse(JSON.stringify(require('./datasets/simple_imagedata.js')[0])));
     var view = new ImageView(data);
     view.render();
 
@@ -31,7 +30,7 @@ describe("ImageView", function() {
   });
 
   it('will set the alt attribute of the DOM element', function() {
-    var data = pluginManager.createModel(JSON.parse(JSON.stringify(require('./datasets/simple_imagedata.js')[0])));
+    var data = new ImageView.Model(JSON.parse(JSON.stringify(require('./datasets/simple_imagedata.js')[0])));
     var view = new ImageView(data);
     view.render();
 
@@ -76,8 +75,6 @@ describe("ImageView", function() {
   });
 
   ViewsCommonParseTests({
-    ViewType: ImageView,
-    viewTypeName: 'ImageView',
-    type: 'image'
+    ViewType: ImageView
   });
 });

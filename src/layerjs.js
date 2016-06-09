@@ -16,13 +16,7 @@ require("./framework/gestures/gesturemanager.js");
 
 /* data objects*/
 require("./framework/defaults.js");
-require("./framework/objdata.js");
-require("./framework/imagedata.js");
-require("./framework/textdata.js");
-require("./framework/groupdata.js");
-require("./framework/framedata.js");
-require("./framework/layerdata.js");
-require("./framework/stagedata.js");
+require("./framework/nodedata.js");
 
 /* view objects*/
 require("./framework/objview.js");

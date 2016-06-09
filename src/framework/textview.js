@@ -1,12 +1,11 @@
 'use strict';
 var ObjView = require('./objview.js');
-var TextData = require('./textdata.js');
 var pluginManager = require('./pluginmanager.js');
 var Kern = require('../kern/Kern.js');
 
 /**
  * A View which can render images
- * @param {TextData} dataModel
+ * @param {NodeData} dataModel
  * @param {object}        options
  * @extends ObjView
  */
@@ -50,7 +49,14 @@ var TextView = ObjView.extend({
     this.enableDataObserver();
   }
 }, {
-  Model: TextData
+  /*
+    inherits from ObjectView
+    Model: NodeData,
+    */
+  defaults: Kern._extend({}, ObjView.defaults, {
+    type: 'text',
+    content: ''
+  })
 });
 
 

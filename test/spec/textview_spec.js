@@ -1,5 +1,4 @@
 var CommonViewTests = require('./helpers/Commonviewtests.js');
-var TextData = require('../../src/framework/textdata.js');
 var TextView = require('../../src/framework/textview.js');
 var pluginManager = require('../../src/framework/pluginmanager.js');
 var ViewsCommonParseTests = require('./helpers/views/common/parsetests.js');
@@ -14,12 +13,12 @@ describe("TextView", function() {
   });
 
   it('can be created', function() {
-    var cv = new TextView(new TextData());
+    var cv = new TextView(new TextView.Model(TextView));
     expect(cv).toBeDefined();
   });
 
   it('will put the text attribute in the innerHTML the DOM element', function() {
-    var data = pluginManager.createModel(JSON.parse(JSON.stringify(require('./datasets/simple_textdata.js')[0])));
+    var data = new TextView.Model(require('./datasets/simple_textdata.js')[0]);
     var view = new TextView(data);
     view.render();
     var element = view.innerEl;
@@ -54,8 +53,6 @@ describe("TextView", function() {
   });
 
   ViewsCommonParseTests({
-    ViewType: TextView,
-    viewTypeName: 'TextView',
-    type: 'text'
+    ViewType: TextView
   });
 });
