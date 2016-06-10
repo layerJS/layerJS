@@ -1,5 +1,5 @@
 'use strict';
-var ObjView = require('./objview.js');
+var ElementView = require('./elementview.js');
 var pluginManager = require('./pluginmanager.js');
 var Kern = require('../kern/Kern.js');
 var WL = require('./wl.js');
@@ -8,12 +8,12 @@ var WL = require('./wl.js');
  * A View which can render images
  * @param {ImageData} dataModel
  * @param {object}        options
- * @extends ObjView
+ * @extends ElementView
  */
-var ImageView = ObjView.extend({
+var ImageView = ElementView.extend({
   constructor: function(dataModel, options) {
     options = options || {};
-    ObjView.call(this, dataModel, Kern._extend({}, options, {
+    ElementView.call(this, dataModel, Kern._extend({}, options, {
       noRender: true
     }));
 
@@ -28,7 +28,7 @@ var ImageView = ObjView.extend({
       diff = this.data.changedAttributes || this.data.attributes,
       el = this.outerEl;
 
-    ObjView.prototype.render.call(this, options);
+    ElementView.prototype.render.call(this, options);
 
     if ('src' in diff) {
       el.setAttribute("src", WL.imagePath + attr.src);
@@ -47,7 +47,7 @@ var ImageView = ObjView.extend({
    * @return  {data} a javascript data object
    */
   parse: function(element) {
-    ObjView.prototype.parse.call(this, element);
+    ElementView.prototype.parse.call(this, element);
 
     var src = element.getAttribute('src');
     var alt = element.getAttribute('alt');
@@ -60,7 +60,7 @@ var ImageView = ObjView.extend({
 }, {
   /*
   Model: ImageData*/
-  defaults: Kern._extend({}, ObjView.defaults, {
+  defaults: Kern._extend({}, ElementView.defaults, {
     type: 'image',
     alt: '',
     src: ''

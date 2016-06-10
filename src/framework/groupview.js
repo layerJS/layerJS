@@ -2,14 +2,14 @@
 var Kern = require('../kern/Kern.js');
 var pluginManager = require('./pluginmanager.js');
 var repository = require('./repository.js'); // jshint ignore:line
-var ObjView = require('./objview.js');
+var ElementView = require('./elementview.js');
 /**
  * A View which can have child views
  * @param {GroupData} dataModel
  * @param {object}        options
- * @extends ObjView
+ * @extends ElementView
  */
-var GroupView = ObjView.extend({
+var GroupView = ElementView.extend({
   /**
    * construct a new view of a GroupData
    *
@@ -23,7 +23,7 @@ var GroupView = ObjView.extend({
     this._childViews = {};
     this._childNames = {};
 
-    ObjView.call(this, dataModel, Kern._extend({}, options, {
+    ElementView.call(this, dataModel, Kern._extend({}, options, {
       noRender: true
     }));
     // create listener to child changes. need different callbacks for each instance in order to remove listeners separately from child data objects
@@ -226,7 +226,7 @@ var GroupView = ObjView.extend({
             parent: this
           });
         } else if (nodeType) { // or  a nodeType?
-          // create new view without data object, just by type. creates data object implicitly with cobjview._parse
+          // create new view without data object, just by type. creates data object implicitly with cElementView._parse
           vo = pluginManager.createView(nodeType, {
             el: elem,
             parent: this
@@ -243,7 +243,7 @@ var GroupView = ObjView.extend({
         k++; // next in data.children
 
       } else if (nodeType) {
-        // create new view without data object, just by type. creates data object implicitly with cobjview._parse
+        // create new view without data object, just by type. creates data object implicitly with cElementView._parse
         vo = pluginManager.createView(nodeType, {
           el: elem,
           parent: this
@@ -261,7 +261,7 @@ var GroupView = ObjView.extend({
       } else if (undefined !== GroupView.getNodeType) { // jshint ignore:line
         // add import of non-typed elements later
         nodeType = GroupView.getNodeType(elem);
-        // create new view without data object, just by type. creates data object implicitly with cobjview._parse
+        // create new view without data object, just by type. creates data object implicitly with cElementView._parse
         vo = pluginManager.createView(nodeType, {
           el: elem,
           parent: this
@@ -286,10 +286,10 @@ var GroupView = ObjView.extend({
     this.enableDataObserver();
   },
   /**
-   * return child ObjView for a given child id
+   * return child ElementView for a given child id
    *
    * @param {string} childId - the id of the requested object
-   * @returns {ObjView} the view object
+   * @returns {ElementView} the view object
    */
   getChildView: function(childId) {
     if (!this._childViews.hasOwnProperty(childId)) throw "unknown child " + childId + " in group " + this.data.attributes.id;
@@ -299,7 +299,7 @@ var GroupView = ObjView.extend({
    * return view by name property
    *
    * @param {string} name - the name of the searched child
-   * @returns {ObjView} the view object
+   * @returns {ElementView} the view object
    */
   getChildViewByName: function(name) {
     if (!this._childNames.hasOwnProperty(name)) throw "unknown child with name " + name + " in group " + this.data.attributes.id;
@@ -328,7 +328,7 @@ var GroupView = ObjView.extend({
    * This method is the only way to attach an existing view to the parent. If a child is added solely in the dataobject,
    * a new view object is generated via the plugin manager.
    *
-   * @param {ObjView} newView - the view object to be attached as child
+   * @param {ElementView} newView - the view object to be attached as child
    * @returns {Type} Description
    */
   attachView: function(newView) {
@@ -344,7 +344,7 @@ var GroupView = ObjView.extend({
    * remove a view from this group. updates dataobject of this group which will trigger change event which
    * will call _buildChildren
    *
-   * @param {ObjView} view - the view object to be removed
+   * @param {ElementView} view - the view object to be removed
    * @returns {Type} Description
    */
   detachView: function(view) {
@@ -356,13 +356,13 @@ var GroupView = ObjView.extend({
   },
   /**
    * render the position of the child. This is done similar as setting other style (CSS) properties in
-   * objview's render method. It's important to do this here so that derived classes can overwrite it
+   * ElementView's render method. It's important to do this here so that derived classes can overwrite it
    * and position objects differently
    * Note: this currently implements setting the positional style information directly on the object.
    * This is most likely the best for speed. For rendering on the server, this infor has to go into a
    * separate css style
    *
-   * @param {ObjView} childView - the view to be positioned.
+   * @param {ElementView} childView - the view to be positioned.
    * @returns {Type} Description
    */
   _renderChildPosition: function(childView) {
@@ -405,7 +405,7 @@ var GroupView = ObjView.extend({
     childView.applyStyles(css);
   },
   /**
-   * render the group. Uses objview.render to display changes to the object.
+   * render the group. Uses ElementView.render to display changes to the object.
    *
    * @param {Type} Name - Description
    * @returns {Type} Description
@@ -415,7 +415,7 @@ var GroupView = ObjView.extend({
     options = options || {};
     this.disableObserver();
 
-    ObjView.prototype.render.call(this, options);
+    ElementView.prototype.render.call(this, options);
 
     if (!this.data.changedAttributes || this.data.changedAttributes.children) {
       var views = Object.keys(this._childViews);
@@ -477,7 +477,7 @@ var GroupView = ObjView.extend({
   },
 
 }, {
-  defaults: Kern._extend({}, ObjView.defaults, {
+  defaults: Kern._extend({}, ElementView.defaults, {
     type: 'group',
     children: []
   }),

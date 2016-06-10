@@ -1,5 +1,5 @@
 'use strict';
-var ObjView = require('./objview.js');
+var ElementView = require('./elementview.js');
 var pluginManager = require('./pluginmanager.js');
 var Kern = require('../kern/Kern.js');
 
@@ -7,12 +7,12 @@ var Kern = require('../kern/Kern.js');
  * A View which can render images
  * @param {NodeData} dataModel
  * @param {object}        options
- * @extends ObjView
+ * @extends ElementView
  */
-var TextView = ObjView.extend({
+var TextView = ElementView.extend({
   constructor: function(dataModel, options) {
     options = options || {};
-    ObjView.call(this, dataModel, Kern._extend({}, options, {
+    ElementView.call(this, dataModel, Kern._extend({}, options, {
       noRender: true
     }));
 
@@ -28,7 +28,7 @@ var TextView = ObjView.extend({
       diff = this.data.changedAttributes || this.data.attributes,
       el = this.innerEl;
 
-    ObjView.prototype.render.call(this, options);
+    ElementView.prototype.render.call(this, options);
 
     if ('content' in diff) {
       el.innerHTML = attr.content;
@@ -43,7 +43,7 @@ var TextView = ObjView.extend({
    * @return  {data} a javascript data object
    */
   parse: function(element) {
-    ObjView.prototype.parse.call(this, element);
+    ElementView.prototype.parse.call(this, element);
     this.disableDataObserver();
     this.data.set("content", element.innerHTML);
     this.enableDataObserver();
@@ -53,7 +53,7 @@ var TextView = ObjView.extend({
     inherits from ObjectView
     Model: NodeData,
     */
-  defaults: Kern._extend({}, ObjView.defaults, {
+  defaults: Kern._extend({}, ElementView.defaults, {
     type: 'text',
     content: ''
   })
