@@ -1,6 +1,6 @@
 var jsdom = require("jsdom").jsdom;
 var pluginmanager = require('../../src/framework/pluginmanager.js');
-var ObjView = require('../../src/framework/objview.js');
+var ObjView = require('../../src/framework/elementview.js');
 var ObjData = ObjView.Model;
 
 describe('PluginManager', function() {
@@ -8,7 +8,7 @@ describe('PluginManager', function() {
 
 
   var data = {
-    "type": "node",
+    "type": "element",
     "text": "Cart",
     "width": '64px',
     "height": '35px',

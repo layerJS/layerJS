@@ -2,7 +2,7 @@ var jsdom = require("jsdom").jsdom;
 var repository = require('../../src/framework/repository.js');
 
 var GroupView = require('../../src/framework/groupview.js');
-var ObjView = require('../../src/framework/objview.js');
+var ElementView = require('../../src/framework/elementview.js');
 var CommonViewTests = require('./helpers/commonviewtests.js');
 var CommonGroupViewTests = require('./helpers/commongroupviewtests.js');
 var GroupView_renderChildPositionTests = require('./helpers/groupview_renderchildpositiontests.js');
@@ -30,25 +30,25 @@ describe("GroupView", function() {
     };
   });
 
-  CommonGroupViewTests('groupdata_with_objdata.js', function() {
+  CommonGroupViewTests('groupdata_with_elementdata.js', function() {
     return {
-      data: JSON.parse(JSON.stringify(require('./datasets/groupdata_with_objdata.js'))),
+      data: JSON.parse(JSON.stringify(require('./datasets/groupdata_with_elementdata.js'))),
       ViewType: GroupView,
       parentId: 110530
     };
   });
 
-  Common_renderChildPositionTests('groupdata_with_objdata.js', function() {
+  Common_renderChildPositionTests('groupdata_with_elementdata.js', function() {
     return {
-      data: JSON.parse(JSON.stringify(require('./datasets/groupdata_with_objdata.js'))),
+      data: JSON.parse(JSON.stringify(require('./datasets/groupdata_with_elementdata.js'))),
       ViewType: GroupView,
       parentId: 110530
     };
   });
 
-  GroupView_renderChildPositionTests('groupdata_with_objdata.js', function() {
+  GroupView_renderChildPositionTests('groupdata_with_elementdata.js', function() {
     return {
-      data: JSON.parse(JSON.stringify(require('./datasets/groupdata_with_objdata.js'))),
+      data: JSON.parse(JSON.stringify(require('./datasets/groupdata_with_elementdata.js'))),
       ViewType: GroupView,
       parentId: 110530
     };
@@ -61,15 +61,15 @@ describe("GroupView", function() {
     expect(groupView._myChildListenerCallback).toBeDefined();
     spyOn(groupView, '_myChildListenerCallback');
 
-    var objData = new ObjView.Model(JSON.parse(JSON.stringify(require('./datasets/simple_objdata.js')[0])));
-    var objView = new ObjView(objData);
+    var objData = new ElementView.Model(JSON.parse(JSON.stringify(require('./datasets/simple_elementdata.js')[0])));
+    var elementView = new ElementView(objData);
 
-    groupView.attachView(objView);
+    groupView.attachView(elementView);
 
-    objView.data.set('x', 20);
+    elementView.data.set('x', 20);
 
     expect(groupView._myChildListenerCallback.calls.count()).toBe(1);
-    expect(groupView._myChildListenerCallback).toHaveBeenCalledWith(objView.data);
+    expect(groupView._myChildListenerCallback).toHaveBeenCalledWith(elementView.data);
   });
 
   it("when a view with a parent is attached using the attachView method changes, the _myChildListenerCallback should be called", function() {
@@ -77,10 +77,10 @@ describe("GroupView", function() {
     parentData.attributes.id = 123456789;
     var parentView = new GroupView(parentData);
 
-    var objData = new ObjView.Model(JSON.parse(JSON.stringify(require('./datasets/simple_objdata.js')[0])));
-    var objView = new ObjView(objData);
+    var objData = new ElementView.Model(JSON.parse(JSON.stringify(require('./datasets/simple_elementdata.js')[0])));
+    var elementView = new ElementView(objData);
 
-    parentView.attachView(objView);
+    parentView.attachView(elementView);
 
     var groupData = new GroupView.Model(JSON.parse(JSON.stringify(require('./datasets/simple_groupdata.js')[0])));
     var groupView = new GroupView(groupData);
@@ -88,18 +88,18 @@ describe("GroupView", function() {
     expect(groupView._myChildListenerCallback).toBeDefined();
     spyOn(groupView, '_myChildListenerCallback');
 
-    groupView.attachView(objView);
-    expect(objView.parent).toBe(groupView);
+    groupView.attachView(elementView);
+    expect(elementView.parent).toBe(groupView);
 
-    objView.data.set('x', 20);
+    elementView.data.set('x', 20);
 
     expect(groupView._myChildListenerCallback.calls.count()).toBe(1);
-    expect(groupView._myChildListenerCallback).toHaveBeenCalledWith(objView.data);
+    expect(groupView._myChildListenerCallback).toHaveBeenCalledWith(elementView.data);
   });
 
   it("when a childview it's data changes, the _renderChildPosition should be called", function() {
     repository.clear();
-    repository.importJSON(JSON.parse(JSON.stringify(require('./datasets/groupdata_with_objdata.js'))), 'default');
+    repository.importJSON(JSON.parse(JSON.stringify(require('./datasets/groupdata_with_elementdata.js'))), 'default');
     data = repository.get(110530, 'default');
     if (data.attributes.children.length > 0) {
       var parentView = new GroupView(data);
@@ -124,11 +124,11 @@ describe("GroupView", function() {
       "version": version
     }, {
       "id": '101',
-      "type": "node",
+      "type": "element",
       "version": version
     }, {
       "id": '102',
-      "type": "node",
+      "type": "element",
       "version": version
     }];
 

@@ -18,7 +18,7 @@ describe('ElementView', function() {
 
   ViewsElementViewTests('simple_elementdata.js', ElementView, require('./datasets/simple_elementdata.js')[0]);
 
-  ViewsNodeViewTests('anchor_objdata.js', ElementView, require('./datasets/anchor_objdata.js')[0]);
+  ViewsNodeViewTests('anchor_elementdata.js', ElementView, require('./datasets/anchor_elementdata.js')[0]);
 
-  ViewsElementViewTests('anchor_objdata.js', ElementView, require('./datasets/anchor_objdata.js')[0]);
+  ViewsElementViewTests('anchor_elementdata.js', ElementView, require('./datasets/anchor_elementdata.js')[0]);
 });

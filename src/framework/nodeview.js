@@ -270,6 +270,6 @@ var NodeView = Kern.EventManager.extend({
 });
 
 
-pluginManager.registerType('node2', NodeView);
+pluginManager.registerType('node', NodeView);
 
 module.exports = NodeView;

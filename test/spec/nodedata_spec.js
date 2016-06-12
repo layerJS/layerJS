@@ -1,5 +1,5 @@
 var NodeData = require('../../src/framework/nodedata.js');
-var ObjectView = require('../../src/framework/objview.js');
+var ElementView = require('../../src/framework/elementview.js');
 describe("NodeData", function() {
 
   it('can be created', function() {
@@ -8,7 +8,7 @@ describe("NodeData", function() {
   });
 
   it('has default values', function() {
-    var nodeData = new NodeData(ObjectView);
+    var nodeData = new NodeData(ElementView);
     expect(nodeData.attributes.scaleX).toBe(1);
     expect(nodeData.attributes.width).toBeUndefined;
   });
