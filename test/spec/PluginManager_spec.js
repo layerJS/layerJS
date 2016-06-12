@@ -1,7 +1,7 @@
 var jsdom = require("jsdom").jsdom;
 var pluginmanager = require('../../src/framework/pluginmanager.js');
-var ObjView = require('../../src/framework/elementview.js');
-var ObjData = ObjView.Model;
+var ElementView = require('../../src/framework/elementview.js');
+var NodeData = ElementView.Model;
 
 describe('PluginManager', function() {
   var document, window, $;
@@ -25,7 +25,7 @@ describe('PluginManager', function() {
     "disallow": {},
     "id": 110534
   };
-  var c = new ObjData(data);
+  var c = new NodeData(data);
   it('can be initialized', function() {
     expect(pluginmanager).toBeDefined();
   });
@@ -36,8 +36,8 @@ describe('PluginManager', function() {
     expect(v.innerEl._wlView).toBe(v);
   });
   it('can register and create new types of View objects', function() {
-    var NV = ObjView.extend({}, {
-      Model: ObjData
+    var NV = ElementView.extend({}, {
+      Model: NodeData
     }); // Note this is the wrong model data type but that shouldn't be a problem
     var ndata = {
       "type": "heinz",

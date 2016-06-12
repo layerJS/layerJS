@@ -89,7 +89,7 @@ var NodeView = Kern.EventManager.extend({
   /**
    * add a new parent view
    *
-   * @param {ObjView} parent - the parent of this view
+   * @param {NodeView} parent - the parent of this view
    * @returns {Type} Description
    */
   setParent: function(parent) {
@@ -100,7 +100,7 @@ var NodeView = Kern.EventManager.extend({
   /**
    * return the parent view of this view
    *
-   * @returns {ObjView} parent
+   * @returns {NodeView} parent
    */
   getParent: function() {
     return this.parent;

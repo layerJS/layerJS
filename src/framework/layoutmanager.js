@@ -1,7 +1,6 @@
 'use strict';
 var WL = require('./wl.js');
 var Kern = require('../kern/Kern.js');
-//var ObjView = require('./ObjView.js');
 
 var LayoutManager = Kern.EventManager.extend({
   /**

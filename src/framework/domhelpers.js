@@ -96,8 +96,8 @@ var DomHelpers = {
    * select a layerJS view object using a CSS selector
    * returns only the first view it finds.
    *
-   * @param {string} selector - a CSS selector that identifies an element that is associated with a ObjView
-   * @returns {ObjView} the selected view object
+   * @param {string} selector - a CSS selector that identifies an element that is associated with a NodeView
+   * @returns {NodeView} the selected view object
    */
   selectView: function(selector){
     var nodes=document.querySelectorAll(selector);

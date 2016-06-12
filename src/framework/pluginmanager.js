@@ -19,10 +19,10 @@ var PluginManager = Kern.EventManager.extend({
   /**
    * create a view based on the type in the Obj's model
    *
-   * @param {ObjData} model - the model from which the view should be created
+   * @param {NodeData} model - the model from which the view should be created
    * @param {Object} [options] - create options
    * @param {HTMLElement} options.el - the element of the view
-   * @returns {ObjView} the view object of type ObjView or a sub class
+   * @returns {NodeView} the view object of type NodeView or a sub class
    */
   createView: function(model, options) {
     // return existing view if the provided element already has one

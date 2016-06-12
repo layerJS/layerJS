@@ -225,7 +225,7 @@ var LayerView = GroupView.extend({
   /**
    * render child positions. overriden default behavior of groupview
    *
-   * @param {ObjView} childView - the child view that has changed
+   * @param {ElementView} childView - the child view that has changed
    * @returns {Type} Description
    */
   _renderChildPosition: function(childView) {
