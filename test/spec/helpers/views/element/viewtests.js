@@ -5,7 +5,7 @@ var commonViewTests = function(scenario, ViewType, scenarioData) {
     var data;
 
     beforeEach(function() {
-      data = new ViewType.Model(scenarioData);
+      data = new ViewType.Model(JSON.parse(JSON.stringify(scenarioData)));
     });
 
     it('the DOM element will have the same tag as defined in the data model', function() {
