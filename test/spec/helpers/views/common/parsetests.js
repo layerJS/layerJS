@@ -1,5 +1,4 @@
 var WL = require('../../../../../src/framework/wl.js');
-//var defaults = require('../../../../../src/framework/defaults.js');
 var utilities = require("../../utilities.js");
 
 module.exports = function(options) {
@@ -11,14 +10,14 @@ module.exports = function(options) {
 
     var element;
     var repository = WL.repository;
-    var type, defaults;
+    var type, defaultProperties;
 
     beforeEach(function() {
-      defaults = JSON.parse(JSON.stringify(ViewType.defaults));
-      type = defaults.type;
+      defaultProperties = JSON.parse(JSON.stringify(ViewType.defaultProperties));
+      type = defaultProperties.type;
 
-      if (defaults.type !== "node2") {
-        element = document.createElement(defaults.tag);
+      if (defaultProperties.type !== "node") {
+        element = document.createElement(defaultProperties.tag);
       } else {
         // text node
         element = document.createTextNode('');

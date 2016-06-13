@@ -477,7 +477,7 @@ var GroupView = ElementView.extend({
   },
 
 }, {
-  defaults: Kern._extend({}, ElementView.defaults, {
+  defaultProperties: Kern._extend({}, ElementView.defaultProperties, {
     type: 'group',
     children: []
   }),

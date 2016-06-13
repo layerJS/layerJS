@@ -253,7 +253,7 @@ var FrameView = GroupView.extend({
     return (this.transformData = d);
   }
 }, {
-  defaults: Kern._extend({}, GroupView.defaults, {
+  defaultProperties: Kern._extend({}, GroupView.defaultProperties, {
     nativeScroll: true,
     fitTo: 'width',
     startPosition: 'top',

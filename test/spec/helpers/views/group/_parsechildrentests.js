@@ -3,16 +3,16 @@ module.exports = function(options) {
   var ViewType = options.ViewType;
   var DataType = ViewType.Model;
   var expectedChildren = options.expectedChildren;
-  var defaults;
+  var defaultProperties;
 
   describe(": _parseChildren =>", function() {
 
     beforeEach(function() {
-      defaults = JSON.parse(JSON.stringify(ViewType.defaults));
+      defaultProperties = JSON.parse(JSON.stringify(ViewType.defaultProperties));
     });
 
     it('will contain a _parseChildren method to read the parse it\'s children from it\'s DOM element', function() {
-      var view = new ViewType(new DataType(defaults), {});
+      var view = new ViewType(new DataType(defaultProperties), {});
       expect(view._parseChildren).toBeDefined();
     });
 

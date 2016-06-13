@@ -53,7 +53,7 @@ var TextView = ElementView.extend({
     inherits from ObjectView
     Model: NodeData,
     */
-  defaults: Kern._extend({}, ElementView.defaults, {
+  defaultProperties: Kern._extend({}, ElementView.defaultProperties, {
     type: 'text',
     content: ''
   })

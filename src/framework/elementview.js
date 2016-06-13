@@ -303,7 +303,7 @@ var ElementView = NodeView.extend({
     this.enableDataObserver();
   },
 }, {
-  defaults: Kern._extend({}, defaults, {
+  defaultProperties: Kern._extend({}, defaults, {
     type: 'element',
     elementId: undefined,
     nodeType: 1,

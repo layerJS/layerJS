@@ -60,7 +60,7 @@ var ImageView = ElementView.extend({
 }, {
   /*
   Model: ImageData*/
-  defaults: Kern._extend({}, ElementView.defaults, {
+  defaultProperties: Kern._extend({}, ElementView.defaultProperties, {
     type: 'image',
     alt: '',
     src: ''

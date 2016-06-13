@@ -6,24 +6,24 @@ var commonViewTests = function(scenario, initFunction) {
 
   describe('(basis view tests) ' + scenario, function() {
 
-    var data, ViewType, defaults;
+    var data, ViewType, defaultProperties;
 
     beforeEach(function() {
       var init = initFunction();
       ViewType = init.ViewType;
       data = new ViewType.Model(init.data);
-      defaults = JSON.parse(JSON.stringify(ViewType.defaults));
+      defaultProperties = JSON.parse(JSON.stringify(ViewType.defaultProperties));
     });
 
-    it('will have a defaults static property which will contain all default properties for the data', function() {
-      expect(ViewType.defaults).toBeDefined();
+    it('will have a defaultProperties static property which will contain all default properties for the data', function() {
+      expect(ViewType.defaultProperties).toBeDefined();
     });
 
     it('can be created', function() {
       var cv = new ViewType(data);
       expect(cv).not.toBeUndefined();
     });
-        
+
     it('will add a new DOM element when no element is provided', function() {
       var view = new ViewType(data);
       expect(view.innerEl).not.toBeUndefined();

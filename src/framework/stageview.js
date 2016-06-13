@@ -43,7 +43,7 @@ var StageView = GroupView.extend({
     }
   }
 }, {
-  defaults: Kern._extend({}, GroupView.defaults, {
+  defaultProperties: Kern._extend({}, GroupView.defaultProperties, {
     nativeScroll: true,
     fitTo: 'width',
     startPosition: 'top',

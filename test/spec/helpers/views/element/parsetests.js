@@ -10,16 +10,16 @@ module.exports = function(options) {
 
     var element;
     var repository = WL.repository;
-    var type,defaults;
+    var type,defaultProperties;
 
     beforeEach(function() {
-      defaults = JSON.parse(JSON.stringify(ViewType.defaults));
-      type = defaults.type;
+      defaultProperties = JSON.parse(JSON.stringify(ViewType.defaultProperties));
+      type = defaultProperties.type;
 
       element = document.createElement('a');
       element.setAttribute('data-wl-id', 1);
       element.setAttribute('data-wl-type', type);
-      element.setAttribute('data-wl-version', defaults.version);
+      element.setAttribute('data-wl-version', defaultProperties.version);
       element.style.display = 'none';
       element.style.zIndex = 2;
       element.style.width = '100px';
@@ -38,7 +38,7 @@ module.exports = function(options) {
 
       expect(data.attributes.id).toBe('1');
       expect(data.attributes.type).toBe(type);
-      expect(data.attributes.version).toBe(defaults.version);
+      expect(data.attributes.version).toBe(defaultProperties.version);
       expect(data.attributes.tag).toBe('A');
       expect(data.attributes.classes).toBe('someClass');
       expect(data.attributes.linkTo).toBe('url');
@@ -90,7 +90,7 @@ module.exports = function(options) {
       // expect(data).toBe(returnedData);
       expect(data.attributes.id).toBeDefined();
       expect(data.attributes.type).toBe(type);
-      expect(data.attributes.version).toBe(defaults.version);
+      expect(data.attributes.version).toBe(defaultProperties.version);
       expect(data.attributes.tag).toBe('A');
       expect(data.attributes.classes).toContain('someClass');
       expect(data.attributes.linkTo).toBe('url');

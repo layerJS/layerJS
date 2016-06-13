@@ -12,8 +12,8 @@ var NodeData = Kern.Model.extend({
   constructor: function(param) {
     var data = param || {};
 
-    if (data.defaults)
-      data = param.defaults;
+    if (data.defaultProperties)
+      data = param.defaultProperties;
 
     Kern.Model.call(this, JSON.parse(JSON.stringify(Kern._extend({}, defaults, data))));
   },

@@ -8,8 +8,8 @@ var viewTests = function(scenario, ViewType, scenarioData) {
       data = new ViewType.Model(scenarioData);
     });
 
-    it('will have a defaults static property which will contain all default properties for the data', function() {
-      expect(ViewType.defaults).toBeDefined();
+    it('will have a defaultProperties static property which will contain all default properties for the data', function() {
+      expect(ViewType.defaultProperties).toBeDefined();
     });
 
     it('can be created', function() {

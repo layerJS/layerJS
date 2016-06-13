@@ -256,7 +256,7 @@ var LayerView = GroupView.extend({
 }, {
   /*
   Model: LayerData*/
-  defaults: Kern._extend({}, GroupView.defaults, {
+  defaultProperties: Kern._extend({}, GroupView.defaultProperties, {
     type: 'layer',
     layoutType: 'slide',
     defaultFrame: undefined,
