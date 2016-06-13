@@ -1,5 +1,5 @@
 var datasetFilenames = [
-  "test/spec/datasets/simple_textdata.js", "test/datasets/dataset1.js", "test/spec/datasets/groupdata_with_objdata.js", "test/spec/datasets/simple_groupdata.js", "test/spec/datasets/simple_imagedata.js", "test/spec/datasets/simple_objdata.js", "test/spec/datasets/simple_textdata.js", "test/spec/datasets/simple_framedata.js", "test/spec/datasets/simple_layerdata.js", "test/spec/datasets/simple_stagedata.js", "test/spec/datasets/test_data_set.js", "test/spec/datasets/anchor_objdata.js", "test/spec/datasets/anchor_groupdata.js"
+  "test/spec/datasets/simple_nodedata.js", "test/spec/datasets/simple_textdata.js", "test/datasets/dataset1.js", "test/spec/datasets/groupdata_with_elementdata.js", "test/spec/datasets/simple_groupdata.js", "test/spec/datasets/simple_imagedata.js", "test/spec/datasets/simple_elementdata.js", "test/spec/datasets/simple_textdata.js", "test/spec/datasets/simple_framedata.js", "test/spec/datasets/simple_layerdata.js", "test/spec/datasets/simple_stagedata.js", "test/spec/datasets/test_data_set.js", "test/spec/datasets/anchor_elementdata.js", "test/spec/datasets/anchor_groupdata.js"
 ];
 
 var fileSave = require('file-save');
@@ -20,8 +20,16 @@ for (var x = 0; x < datasetFilenames.length; x++) {
         object.id = object.id.toString();
       }
 
+      if (object.version === undefined) {
+        object.version = 'default';
+      }
+
       if (object.tag === undefined) {
         object.tag = 'div';
+      }
+
+      if (object.htmlAttributes === undefined) {
+        object.htmlAttributes = [];
       }
 
       if (object.children != undefined && Array.isArray(object.children)) {

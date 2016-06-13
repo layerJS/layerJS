@@ -23,7 +23,9 @@ describe('PluginManager', function() {
     "link_to": "http://spiegel.de",
     "link_target": "_self",
     "disallow": {},
-    "id": 110534
+    "id": 110534,
+    "version" : ElementView.defaultProperties.version,
+    "tag" : ElementView.defaultProperties.tag
   };
   var c = new NodeData(data);
   it('can be initialized', function() {
@@ -41,6 +43,8 @@ describe('PluginManager', function() {
     }); // Note this is the wrong model data type but that shouldn't be a problem
     var ndata = {
       "type": "heinz",
+      "version" : ElementView.defaultProperties.version,
+      "tag" : ElementView.defaultProperties.tag
     }
     pluginmanager.registerType('heinz', NV);
     var nc = pluginmanager.createModel(ndata);

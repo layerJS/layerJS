@@ -30,7 +30,7 @@ describe("TextView", function() {
     var element = document.createElement('div');
     element.innerHTML = 'some content';
 
-    var textView = new TextView(new TextView.Model({}), {
+    var textView = new TextView(new TextView.Model(TextView), {
       el: element
     });
 
@@ -41,7 +41,7 @@ describe("TextView", function() {
     var element = document.createElement('div');
     element.innerHTML = 'some content';
 
-    var textView = new TextView(new TextView.Model({}));
+    var textView = new TextView(new TextView.Model(TextView));
 
     var isFired = false;
     textView.render = function() {

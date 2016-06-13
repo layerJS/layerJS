@@ -15,7 +15,7 @@ describe("ImageView", function() {
   });
 
   it('can be created', function() {
-    var cv = new ImageView(new ImageView.Model());
+    var cv = new ImageView(new ImageView.Model(ImageView));
     expect(cv).toBeDefined();
   });
 
@@ -43,7 +43,7 @@ describe("ImageView", function() {
     var element = document.createElement('img');
     element.setAttribute('src', 'some source');
 
-    var imageView = new ImageView(new ImageView.Model({}), {el:element});
+    var imageView = new ImageView(new ImageView.Model(ImageView), {el:element});
 
     expect(imageView.data.attributes.src).toBe('some source');
   });
@@ -52,7 +52,7 @@ describe("ImageView", function() {
     var element = document.createElement('img');
     element.setAttribute('alt', 'some alt');
 
-    var imageView = new ImageView(new ImageView.Model({}), {el:element});
+    var imageView = new ImageView(new ImageView.Model(ImageView), {el:element});
 
     expect(imageView.data.attributes.alt).toBe('some alt');
   });
@@ -62,7 +62,7 @@ describe("ImageView", function() {
     element.setAttribute('alt', 'some alt');
     element.setAttribute('src', 'some source');
 
-    var imageView = new ImageView(new ImageView.Model({}));
+    var imageView = new ImageView(new ImageView.Model(ImageView));
 
     var isFired = false;
 

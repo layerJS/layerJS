@@ -1,7 +1,1 @@
-var dataset = [{
-  "type": "node",
-  "id": 116530,
-  "content": "content",
-  "nodeType": 3
-}];
-module.exports = dataset;
+var dataset =[{"type":"node","id":"116530","content":"content","nodeType":3,"version":"default","tag":"div","htmlAttributes":[]}];module.exports = dataset;

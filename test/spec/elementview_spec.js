@@ -21,4 +21,5 @@ describe('ElementView', function() {
   ViewsNodeViewTests('anchor_elementdata.js', ElementView, require('./datasets/anchor_elementdata.js')[0]);
 
   ViewsElementViewTests('anchor_elementdata.js', ElementView, require('./datasets/anchor_elementdata.js')[0]);
+
 });
