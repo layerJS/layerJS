@@ -120,7 +120,7 @@ var NodeView = Kern.EventManager.extend({
     options = options || {};
     this.disableObserver();
 
-    var attributes = this.isRendered ? this.data.changedAttributes|| {} : this.data.attributes;
+    var attributes = this.isRendered ? this.data.changedAttributes || {} : this.data.attributes;
 
     if ('content' in attributes && this.data.attributes.nodeType !== 1) {
       this.outerEl.data = attributes.content || '';
@@ -261,12 +261,13 @@ var NodeView = Kern.EventManager.extend({
 }, {
   // save model class as static variable
   Model: NodeData,
-  defaultProperties: Kern._extend({}, defaults, {
+  defaultProperties: {
+    id: defaults.id,
     type: 'node',
-    hidden: undefined,
-    content: undefined,
-    nodeType: 3
-  })
+    content: '',
+    nodeType: 3,
+    version: defaults.version
+  }
 });
 
 

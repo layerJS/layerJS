@@ -303,41 +303,32 @@ var ElementView = NodeView.extend({
     this.enableDataObserver();
   },
 }, {
-  defaultProperties: Kern._extend({}, defaults, {
+  defaultProperties: Kern._extend({},NodeView.defaultProperties, defaults, {
     type: 'element',
     elementId: undefined,
-    nodeType: 1,
-
     // CSS string for styling this object
     style: '',
     // CSS classes of this object
     classes: '',
-
     // this stores a string for a hyperlink realized by an <a> tag that
     // wraps the element
     linkTo: undefined,
     // defaults to _self, but should not be set because if set a link is
     // created, this could be fixed
     linkTarget: undefined,
-
     //locked elements can not be edited
     locked: undefined,
     // a list of properties that are not allowed to be edited
     disallow: {},
-
     // set to undefined so we can find out if a newly created element
     // provided positional information
     x: undefined,
     y: undefined,
-
-
     width: undefined,
     height: undefined,
-
     // rendering scale
     scaleX: 1,
     scaleY: 1,
-
     // z-index
     zIndex: undefined,
     // this is set in init$el to the current rotation if it was not set
