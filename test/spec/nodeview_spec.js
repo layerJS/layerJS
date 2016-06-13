@@ -1,5 +1,6 @@
 var NodeView = require('../../src/framework/nodeview.js');
 var ViewsNodeViewTests = require('./helpers/views/node/viewtests.js');
+var ViewsCommonIdentifyTests = require('./helpers/views/common/identifytests.js');
 var ViewsCommonParseTests = require('./helpers/views/common/parsetests.js');
 
 describe('NodeView', function() {
@@ -31,6 +32,17 @@ describe('NodeView', function() {
       expect(nodeView.data.attributes.nodeType).toBe(element.nodeType);
     });
   });
+
+  ViewsCommonIdentifyTests('textNode', NodeView, function() {
+    return document.createTextNode('')
+  }, true);
+  ViewsCommonIdentifyTests('commentNode', NodeView, function() {
+    return document.createComment('')
+  }, true);
+
+  ViewsCommonIdentifyTests('div', NodeView, function() {
+    return document.createElement('div');
+  }, false);
 
   /*
     it('listens for changes on its DOM element when _observerCounter is 0', function() {

@@ -11,6 +11,7 @@ var Common_renderChildPositionTests = require('./helpers/common_renderchildposit
 var ViewsCommonParseTests = require('./helpers/views/common/parsetests.js');
 var ViewsGroup_parseChildrenTests = require('./helpers/views/group/_parseChildrentests.js');
 var utilities = require('./helpers/utilities.js');
+var ViewsCommonIdentifyTests = require('./helpers/views/common/identifytests.js');
 
 describe("GroupView", function() {
 
@@ -183,7 +184,20 @@ describe("GroupView", function() {
     expectedChildren: ['101', '102']
   });
 
-  it('has a static function getNodeType which is undefined par default', function(){
+  it('has a static function getNodeType which is undefined par default', function() {
     expect(GroupView.getNodeType).not.toBeDefined();
   })
+
+
+  ViewsCommonIdentifyTests('div', GroupView, function() {
+    return document.createElement('div');
+  }, true);
+
+  ViewsCommonIdentifyTests('div data-wl-type="group"', GroupView, function() {
+    var element = document.createElement('div');
+    element.setAttribute('data-wl-type', 'group');
+
+    return element;
+  }, true);
+
 });

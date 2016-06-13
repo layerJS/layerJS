@@ -261,7 +261,11 @@ var LayerView = GroupView.extend({
     layoutType: 'slide',
     defaultFrame: undefined,
     nativeScroll: true
-  })
+  }),
+  identify: function(element) {
+    var type = element.getAttribute('data-wl-type');
+    return null !== type && type.toLowerCase() === LayerView.defaultProperties.type;
+  }
 });
 
 pluginManager.registerType('layer', LayerView);

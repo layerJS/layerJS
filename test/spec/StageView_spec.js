@@ -6,6 +6,7 @@ var Common_renderChildPositionTests = require('./helpers/common_renderchildposit
 
 var ViewsCommonParseTests = require('./helpers/views/common/parsetests.js');
 var ViewsGroup_parseChildrenTests = require('./helpers/views/group/_parseChildrentests.js');
+var ViewsCommonIdentifyTests = require('./helpers/views/common/identifytests.js');
 
 
 describe("StageView", function() {
@@ -50,4 +51,16 @@ describe("StageView", function() {
       "<div id='element3'></div>",
     expectedChildren: ['101', '102']
   });
+
+  ViewsCommonIdentifyTests('div data-wl-type="stage"', StageView, function() {
+    var element = document.createElement('div');
+    element.setAttribute('data-wl-type', 'stage');
+
+    return element;
+  }, true);
+
+  ViewsCommonIdentifyTests('div', StageView, function() {
+    return document.createElement('div');
+  }, false);
+
 })

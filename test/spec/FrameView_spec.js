@@ -8,6 +8,8 @@ var Common_renderChildPositionTests = require('./helpers/common_renderchildposit
 
 var ViewsCommonParseTests = require('./helpers/views/common/parsetests.js');
 var ViewsGroup_parseChildrenTests = require('./helpers/views/group/_parseChildrentests.js');
+var ViewsCommonIdentifyTests = require('./helpers/views/common/identifytests.js');
+var ViewsNodeViewTests = require('./helpers/views/node/viewtests.js');
 
 describe("FrameView", function() {
 
@@ -19,6 +21,8 @@ describe("FrameView", function() {
       };
     });
   */
+
+  ViewsNodeViewTests('simple_framedata.js', FrameView, require('./datasets/simple_framedata.js')[0]);
 
   CommonGroupViewTests('simple_framedata.js', function() {
     return {
@@ -62,4 +66,16 @@ describe("FrameView", function() {
       "<div id='element3'></div>",
     expectedChildren: ['101', '102']
   });
+
+  ViewsCommonIdentifyTests('div data-wl-type="frame"', FrameView, function() {
+    var element = document.createElement('div');
+    element.setAttribute('data-wl-type', 'frame');
+
+    return element;
+  }, true);
+
+  ViewsCommonIdentifyTests('div', FrameView, function() {
+    return document.createElement('div');
+  }, false);
+
 })

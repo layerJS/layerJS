@@ -49,7 +49,11 @@ var StageView = GroupView.extend({
     startPosition: 'top',
     noScrolling: false,
     type: 'stage'
-  })
+  }),
+  identify: function(element) {
+    var type = element.getAttribute('data-wl-type');
+    return null !== type && type.toLowerCase() === StageView.defaultProperties.type;
+  }
 });
 pluginManager.registerType('stage', StageView);
 module.exports = StageView;

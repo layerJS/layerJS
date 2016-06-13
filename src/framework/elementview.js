@@ -303,7 +303,7 @@ var ElementView = NodeView.extend({
     this.enableDataObserver();
   },
 }, {
-  defaultProperties: Kern._extend({},NodeView.defaultProperties, defaults, {
+  defaultProperties: Kern._extend({}, NodeView.defaultProperties, defaults, {
     type: 'element',
     elementId: undefined,
     // CSS string for styling this object
@@ -336,7 +336,10 @@ var ElementView = NodeView.extend({
     rotation: undefined,
     //is the element hidden in presentation mode
     hidden: undefined
-  })
+  }),
+  identify: function(element) {
+    return element.nodeType === 1 && element.tagName.toUpperCase() !== 'DIV';
+  }
 });
 
 

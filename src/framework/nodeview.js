@@ -261,6 +261,9 @@ var NodeView = Kern.EventManager.extend({
 }, {
   // save model class as static variable
   Model: NodeData,
+  identify: function(element) {
+    return element.nodeType !== 1;
+  },
   defaultProperties: {
     id: defaults.id,
     type: 'node',

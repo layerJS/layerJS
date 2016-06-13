@@ -259,7 +259,11 @@ var FrameView = GroupView.extend({
     startPosition: 'top',
     noScrolling: false,
     type: 'frame'
-  })
+  }),
+  identify: function(element) {
+    var type = element.getAttribute('data-wl-type');
+    return  null !== type && type.toLowerCase() === FrameView.defaultProperties.type;
+  }
 });
 
 pluginManager.registerType('frame', FrameView);

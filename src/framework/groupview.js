@@ -481,8 +481,11 @@ var GroupView = ElementView.extend({
     type: 'group',
     children: []
   }),
-  getNodeType: undefined
-
+  getNodeType: undefined,
+  identify: function(element) {
+    var type = element.getAttribute('data-wl-type');
+    return element.nodeType === 1 && element.tagName.toUpperCase() === 'DIV' && ((null !== type && type.toLowerCase() === 'group') || !type);
+  }
 });
 
 

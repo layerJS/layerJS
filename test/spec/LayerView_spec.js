@@ -5,6 +5,7 @@ var GroupView_renderChildPositionTests = require('./helpers/groupview_renderchil
 var Common_renderChildPositionTests = require('./helpers/common_renderchildpositiontests.js');
 var ViewsCommonParseTests = require('./helpers/views/common/parsetests.js');
 var ViewsGroup_parseChildrenTests = require('./helpers/views/group/_parseChildrentests.js');
+var ViewsCommonIdentifyTests = require('./helpers/views/common/identifytests.js');
 
 describe("LayerView", function() {
 
@@ -90,5 +91,17 @@ describe("LayerView", function() {
       "<div id='element3'></div>",
     expectedChildren: ['101', '102']
   });
+
+  ViewsCommonIdentifyTests('div data-wl-type="layer"', LayerView, function() {
+    var element = document.createElement('div');
+    element.setAttribute('data-wl-type', 'layer');
+
+    return element;
+  }, true);
+
+  ViewsCommonIdentifyTests('div', LayerView, function() {
+    return document.createElement('div');
+  }, false);
+
 
 })
