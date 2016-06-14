@@ -60,7 +60,8 @@ var LayerView = GroupView.extend({
     // mark scroller as scroller in HTML
     if (hasScroller) this.innerEl.setAttribute('data-wl-helper', 'scroller');
     this.nativeScroll = this.data.attributes.nativeScroll;
-
+    // get upper layer where unuseable gestures should be sent to.
+    this.parentLayer = this.getParentOfType('layer');
     // register for gestures
     gestureManager.register(this.outerEl, this.gestureListener.bind(this), {
       dragging: true
@@ -105,6 +106,7 @@ var LayerView = GroupView.extend({
       this._layout.setLayerTransform(this.currentTransform = layerTransform);
       gesture.preventDefault = true;
     } else {
+      if (this.inTransform) gesture.preventDefault = true; // we need to differentiate here later as we may have to check up stream handlers
       // gesture.cancelled = true;
       var cattr = this.currentFrame.data.attributes;
       if (gesture.direction) {
@@ -119,7 +121,8 @@ var LayerView = GroupView.extend({
           // FIXME: escalate/gesture bubbling ; ignore for now
         }
       } else { //jshint ignore:line
-        // ignore, but don't let anybody now
+        // this will prevent any bubbling for small movements
+        gesture.preventDefault = true;
       }
     }
   },
