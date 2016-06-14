@@ -1,1 +1,0 @@
-var dataset =[{"type":"image","src":"negativespace-151-690x460.2x.jpg","alt":"","crop":false,"clip":"","x":-2.9999999999995453,"y":-620.1576416528359,"width":"1297px","height":"865px","style":"","classes":"","layer":24,"rotation":0,"disallow":{},"id":"110527","scaleX":1,"scaleY":1,"tag":"div","version":"default","htmlAttributes":[]}];module.exports = dataset;

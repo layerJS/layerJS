@@ -122,6 +122,10 @@ var NodeView = Kern.EventManager.extend({
 
     var attributes = this.isRendered ? this.data.changedAttributes || {} : this.data.attributes;
 
+    if ('id' in attributes) {
+      this.outerEl.id = 'wl-obj-' + attributes.id;
+    }
+
     if ('content' in attributes && this.data.attributes.nodeType !== 1) {
       this.outerEl.data = attributes.content || '';
     }

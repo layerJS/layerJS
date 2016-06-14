@@ -27,6 +27,11 @@ var commonGroupViewTests = function(scenario, initFunction) {
     var checkChildrenDataNodes = function(dataObj, view) {
 
       if (dataObj.attributes.children) {
+
+        if (view.innerEl.childNodes.length === 1 &&  dataObj.attributes.children.length ===0 ){
+          console.log(view.innerEl.outerHTML);
+          console.log(dataObj.attributes);
+        }
         expect(view.innerEl.childNodes.length).toBe(dataObj.attributes.children.length);
 
         for (var i = 0; i < view.innerEl.childNodes.length; i++) {
@@ -40,9 +45,9 @@ var commonGroupViewTests = function(scenario, initFunction) {
 
           checkChildrenDataNodes(childObj, childNode._wlView);
         }
-      } else {
+      } else if (dataObj.attributes.type === "node") {
         // When the data doesn't have any children, the innerHTML should be empty or equal at the content if data type is text
-        expect(view.innerEl.innerHTML).toBe(dataObj.attributes.content ? dataObj.attributes.content : '');
+        expect(view.innerEl.data).toBe(dataObj.attributes.content ? dataObj.attributes.content : '');
       }
     };
 

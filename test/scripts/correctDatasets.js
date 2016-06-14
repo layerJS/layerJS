@@ -1,11 +1,24 @@
 var datasetFilenames = [
-  "test/spec/datasets/simple_nodedata.js", "test/spec/datasets/simple_textdata.js", "test/datasets/dataset1.js", "test/spec/datasets/groupdata_with_elementdata.js", "test/spec/datasets/simple_groupdata.js", "test/spec/datasets/simple_imagedata.js", "test/spec/datasets/simple_elementdata.js", "test/spec/datasets/simple_textdata.js", "test/spec/datasets/simple_framedata.js", "test/spec/datasets/simple_layerdata.js", "test/spec/datasets/simple_stagedata.js", "test/spec/datasets/test_data_set.js", "test/spec/datasets/anchor_elementdata.js", "test/spec/datasets/anchor_groupdata.js"
+  "test/spec/datasets/simple_nodedata.js",
+  "test/datasets/dataset1.js",
+  "test/datasets/dataset2.js",
+  "test/datasets/dataset3.js",
+  "test/spec/datasets/groupdata_with_elementdata.js",
+  "test/spec/datasets/simple_groupdata.js",
+  "test/spec/datasets/simple_elementdata.js",
+  "test/spec/datasets/simple_framedata.js",
+  "test/spec/datasets/simple_layerdata.js",
+  "test/spec/datasets/simple_stagedata.js",
+  "test/spec/datasets/test_data_set.js",
+  "test/spec/datasets/anchor_elementdata.js",
+  "test/spec/datasets/anchor_groupdata.js"
 ];
 
 var fileSave = require('file-save');
 
 for (var x = 0; x < datasetFilenames.length; x++) {
   var datasetFileName = datasetFilenames[x];
+  var id = 999999;
 
   try {
 
@@ -15,6 +28,30 @@ for (var x = 0; x < datasetFilenames.length; x++) {
     for (var i = 0; i < length; i++) {
       console.log("processing " + datasetFileName + " " + (i + 1) + "/" + length)
       var object = dataset[i];
+
+      if (object.type === 'text') {
+        object.type = 'group';
+
+        var nodeData = {
+          id: id++,
+          type: 'node',
+          nodeType: 3,
+          content: object.content,
+          version: object.version
+        };
+
+        dataset.push(nodeData);
+        object.content = '';
+
+        if (!object.children) {
+          object.children = [];
+        }
+
+        object.children.push(nodeData.id);
+
+      } else if (object.type === 'image') {
+        object.type = 'element';
+      }
 
       if (object.id != undefined) {
         object.id = object.id.toString();

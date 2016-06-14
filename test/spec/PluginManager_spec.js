@@ -4,8 +4,8 @@ var ElementView = require('../../src/framework/elementview.js');
 var NodeData = ElementView.Model;
 
 describe('PluginManager', function() {
-  var document, window, $;
 
+  var pluginmanagerMap;
 
   var data = {
     "type": "element",
@@ -24,8 +24,8 @@ describe('PluginManager', function() {
     "link_target": "_self",
     "disallow": {},
     "id": 110534,
-    "version" : ElementView.defaultProperties.version,
-    "tag" : ElementView.defaultProperties.tag
+    "version": ElementView.defaultProperties.version,
+    "tag": ElementView.defaultProperties.tag
   };
   var c = new NodeData(data);
   it('can be initialized', function() {
@@ -39,17 +39,34 @@ describe('PluginManager', function() {
   });
   it('can register and create new types of View objects', function() {
     var NV = ElementView.extend({}, {
-      Model: NodeData
+      Model: NodeData,
+      identify: function(element) {
+        return false;
+      }
     }); // Note this is the wrong model data type but that shouldn't be a problem
     var ndata = {
       "type": "heinz",
-      "version" : ElementView.defaultProperties.version,
-      "tag" : ElementView.defaultProperties.tag
+      "version": ElementView.defaultProperties.version,
+      "tag": ElementView.defaultProperties.tag
     }
     pluginmanager.registerType('heinz', NV);
     var nc = pluginmanager.createModel(ndata);
     var v = pluginmanager.createView(nc);
     expect(v instanceof NV).toBe(true);
     expect(v.innerEl._wlView).toBe(v);
-  })
+
+    delete pluginmanager.map.heinz;
+  });
+
+  it('can identify an element\'s viewtype', function() {
+    var element = document.createElement('div');
+    element.setAttribute('data-wl-type', 'stage');
+    expect(pluginmanager.identify(element)).toBe('stage');
+
+    element.setAttribute('data-wl-type', '');
+    expect(pluginmanager.identify(element)).toBe('group');
+
+    var element = document.createTextNode('');
+    expect(pluginmanager.identify(element)).toBe('node');
+  });
 });

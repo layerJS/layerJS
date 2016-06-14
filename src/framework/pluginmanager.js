@@ -63,20 +63,45 @@ var PluginManager = Kern.EventManager.extend({
   registerType: function(type, constructor) {
     this.map[type] = {
       view: constructor,
-      model: constructor.Model
+      model: constructor.Model,
+      identify: constructor.identify
     };
   },
   /**
-   * make sure a certain plugin is available, continue with callback
+   * Will iterate over the registered ViewTypes and call it's identify
+   * method to find the ViewType of a DOM element
    *
-   * @param {string} type - the type that shoud be present
-   * @param {Function} callback - call when plugins is there
-   * @returns {Type} Description
+   * @param {object} element - A DOM element
+   * @returns {string} the found ViewType
    */
-  // requireType: function(type, callback) {
-  //   if (!this.map[type]) throw "type " + type + " unkonw in pluginmanager. Have no means to load it"; //FIXME at some point this should dynamically load plugins
-  //   return callback(); // FIXME should be refactored with promises or ES 6 yield
-  // }
+  identify: function(element) {
+      var type;
+      var found = false;
+
+      for (type in this.map) {
+        if (this.map.hasOwnProperty(type) && this.map[type].identify(element)) {
+          found = true;
+          break;
+        }
+      }
+
+      if (!found) {
+        throw "no ViewType found for element '" + element + "'";
+      }
+
+      return type;
+    }
+    /**
+     * make sure a certain plugin is available, continue with callback
+     *
+     * @param {string} type - the type that shoud be present
+     * @param {Function} callback - call when plugins is there
+     * @returns {Type} Description
+     */
+    // requireType: function(type, callback) {
+    //   if (!this.map[type]) throw "type " + type + " unkonw in pluginmanager. Have no means to load it"; //FIXME at some point this should dynamically load plugins
+    //   return callback(); // FIXME should be refactored with promises or ES 6 yield
+    // }
 });
 // initialialize pluginManager with default plugins
 WL.pluginManager = new PluginManager({});

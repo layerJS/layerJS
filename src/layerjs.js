@@ -21,8 +21,6 @@ require("./framework/nodedata.js");
 /* view objects*/
 require("./framework/nodeview.js");
 require("./framework/elementview.js");
-require("./framework/imageview.js");
-require("./framework/textview.js");
 require("./framework/groupview.js");
 require("./framework/layerview.js");
 require("./framework/frameview.js");
