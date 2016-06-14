@@ -1,1 +1,0 @@
-../../dist/layerjs.js
