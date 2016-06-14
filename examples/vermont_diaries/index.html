@@ -1,0 +1,126 @@
+<!doctype html>
+
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+
+  <title>layerJS example | Vermont Diaries</title>
+  <meta name="description" content="Example layerJS application. Showcasing a presentiation/slideshow like example of a comic">
+  <meta name="author" content="Thomas Handorf">
+
+  <link rel="stylesheet" href="layerjs.css">
+  <script src="https://code.jquery.com/jquery-2.2.4.min.js" integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" crossorigin="anonymous"></script>
+  <script src="layerjs.js"></script>
+  <style>
+    html {
+      height: 100%;
+    }
+
+    body {
+      height: 100%;
+      width: 100%;
+    }
+
+    [data-wl-type="frame"]:hover {
+      background-color: rgba(0, 0, 0, 0.2);
+      box-shadow: 0px 0px 3px 0px rgba(0, 0, 0, 0.2);
+      border-radius: 3px;
+      cursor: pointer;
+    }
+
+    [data-wl-type="frame"].wl-active {
+      background-color: none;
+      pointer-events: none;
+      cursor: inherit;
+    }
+
+    [data-wl-name="1"] {
+      width: 800px;
+      height: 360px;
+    }
+
+    [data-wl-name="2"] {
+      width: 720px;
+      height: 250px;
+    }
+
+    [data-wl-name="3"] {
+      width: 250px;
+      height: 250px;
+    }
+
+    [data-wl-name="4"] {
+      width: 500px;
+      height: 270px;
+    }
+
+    [data-wl-name="5"] {
+      width: 800px;
+      height: 300px;
+    }
+
+    [data-wl-name="6"] {
+      width: 720px;
+      height: 550px;
+    }
+
+    [data-wl-name="7"] {
+      width: 500px;
+      height: 280px;
+    }
+
+    [data-wl-name="8"] {
+      width: 270px;
+      height: 340px;
+    }
+
+    [data-wl-name="overview"] {
+      width: 800px;
+      height: 1892px;
+      pointer-events: none;
+    }
+
+    #source {
+      position: absolute;
+      right: 10px;
+      top: 10px;
+      text-decoration: none;
+      color: rgb(80,80,80);
+    }
+
+    #source:hover {
+      text-decoration: underline;
+    }
+  </style>
+
+  <!--[if lt IE 9]>
+    <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+  <![endif]-->
+</head>
+
+<body data-wl-type="stage">
+  <div data-wl-type="layer" data-wl-layout-type="canvas">
+    <div data-wl-type="frame" data-wl-fit-to="contain" data-wl-start-position="center" data-wl-name="overview" data-wl-x="0" data-wl-y="0">
+      <img width="800" height="1892" src="vermont_diaries.gif">
+    </div>
+    <div data-wl-type="frame" data-wl-fit-to="width" data-wl-name="1" data-wl-neighbors.b="2"></div>
+    <div data-wl-type="frame" data-wl-fit-to="contain" data-wl-start-position="center" data-wl-name="2" data-wl-x="40" data-wl-y="350" data-wl-neighbors.t="1" data-wl-neighbors.b="3"></div>
+    <div data-wl-type="frame" data-wl-fit-to="contain" data-wl-start-position="center" data-wl-name="3" data-wl-x="40" data-wl-y="590" data-wl-neighbors.t="2" data-wl-neighbors.r="4" data-wl-neighbors.b="5"></div>
+    <div data-wl-type="frame" data-wl-fit-to="contain" data-wl-start-position="center" data-wl-name="4" data-wl-x="250" data-wl-y="590" data-wl-neighbors.l="3" data-wl-neighbors.t="2" data-wl-neighbors.b="5"></div>
+    <div data-wl-type="frame" data-wl-fit-to="contain" data-wl-start-position="center" data-wl-name="5" data-wl-x="0" data-wl-y="810" data-wl-neighbors.t="4" data-wl-neighbors.b="6"></div>
+    <div data-wl-type="frame" data-wl-fit-to="contain" data-wl-start-position="center" data-wl-name="6" data-wl-x="40" data-wl-y="1060" data-wl-neighbors.t="5" data-wl-neighbors.b="7"></div>
+    <div data-wl-type="frame" data-wl-fit-to="contain" data-wl-start-position="center" data-wl-name="7" data-wl-x="40" data-wl-y="1570" data-wl-neighbors.t="6" data-wl-neighbors.r="8"></div>
+    <div data-wl-type="frame" data-wl-fit-to="contain" data-wl-start-position="center" data-wl-name="8" data-wl-x="520" data-wl-y="1560" data-wl-neighbors.l="7" data-wl-neighbors.t="6" data-wl-neighbors.b="overview" data-wl-neighbors.r="overview"></div>
+    <a id="source" href="http://www.snotm.com/">Comic by Alex Noriega</a>
+
+  </div>
+  <script>
+    WL.init();
+    $('[data-wl-type="frame"]').on('click', function(e) {
+      WL.select('[data-wl-type="layer"]').transitionTo(e.currentTarget._wlView.data.attributes.name);
+    });
+  </script>
+</body>
+
+</html>
