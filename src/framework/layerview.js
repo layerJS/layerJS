@@ -185,6 +185,17 @@ var LayerView = GroupView.extend({
       // a compensatory transform for the target scroll position.
       var targetFrameTransformData = frame.getTransformData(that.stage, transition.startPosition);
       var targetTransform = that._transformer.getScrollTransform(targetFrameTransformData, transition.scrollX || 0, transition.scrollY || 0, true);
+      // check if transition goes to exactly the same position
+      if (that.currentFrame===frame && that.currentTransform===targetTransform && that.currentFrameTransformData === targetFrameTransformData) {
+        // don't do a transition, just execute Promise
+        var p = new Kern.Promise();
+        p.resolve();
+        that.inTransform = false;
+        $.postAnimationFrame(function() {
+          that.trigger('transitionFinished');
+        });
+        return p;
+      }
       var layoutPromise = that._layout.transitionTo(frame, transition, targetFrameTransformData, targetTransform).then(function() {
         // is this still the active transition?
         if (transition.transitionID === that.transitionID) {
