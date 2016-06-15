@@ -338,7 +338,18 @@ var ElementView = NodeView.extend({
     hidden: undefined
   }),
   identify: function(element) {
-    return element.nodeType === 1 && element.tagName.toUpperCase() !== 'DIV';
+    var result = false;
+
+    if (element.nodeType === 1) {
+      var tags = ['area', 'base', 'br', 'col', 'command', 'embed', 'hr', 'img', 'input', 'keygen', 'link', 'meta', 'param', 'source', 'track', 'wbr'];
+      for (var i = 0; i < tags.length; i++) {
+        if (tags[i] === element.tagName.toLowerCase()) {
+          result = true;
+          break;
+        }
+      }
+    }
+    return result;
   }
 });
 

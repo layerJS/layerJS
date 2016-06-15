@@ -24,12 +24,18 @@ describe('ElementView', function() {
   ViewsElementViewTests('anchor_elementdata.js', ElementView, require('./datasets/anchor_elementdata.js')[0]);
 
   (function() {
-    var elements = ['area', 'base', 'br', 'col', 'command', 'embed', 'hr', 'img', 'input', 'keygen', 'link', 'meta', 'param', 'source', 'track', 'wbr'];
+    var tags = ['AREA', 'BASE', 'BR', 'COL', 'COMMAND', 'EMBED', 'HR', 'IMG', 'INPUT', 'KEYGEN', 'LINK', 'META', 'PARAM', 'SOURCE', 'TRACK', 'WBR'];
 
-    for (var i = 0; i < elements.length; i++) {
-      ViewsCommonIdentifyTests(elements[i], ElementView, function() {
-        return document.createElement(elements[i]);
-      }, true);
+    for (var i = 0; i < tags.length; i++) {
+      var createTest = function(tag) {
+        return function() {
+          ViewsCommonIdentifyTests(tag, ElementView, function() {
+            return document.createElement(tag)
+          }, true);
+        }
+      }(tags[i]);
+
+      createTest();
     }
   })();
 
