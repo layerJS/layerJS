@@ -193,6 +193,14 @@ describe("GroupView", function() {
     return document.createElement('div');
   }, true);
 
+  ViewsCommonIdentifyTests('head', GroupView, function() {
+    return document.createElement('head');
+  }, true);
+
+  ViewsCommonIdentifyTests('body', GroupView, function() {
+    return document.createElement('body');
+  }, true);
+
   ViewsCommonIdentifyTests('div data-wl-type="group"', GroupView, function() {
     var element = document.createElement('div');
     element.setAttribute('data-wl-type', 'group');

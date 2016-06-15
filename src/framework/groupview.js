@@ -212,7 +212,7 @@ var GroupView = ElementView.extend({
         this._childViews[nodeId] = vo; // update _childViews
         if (vo.data.attributes.name) this._childNames[vo.data.attributes.name] = vo;
         vo.data.on('change', this._myChildListenerCallback); // attach child change listener
-        k++; // next in data.children            
+        k++; // next in data.children
 
       } else {
         nodeId = (elem._wlView && elem._wlView.data.attributes.id) || elem.getAttribute('data-wl-id');
@@ -505,7 +505,16 @@ var GroupView = ElementView.extend({
   getNodeType: undefined,
   identify: function(element) {
     var type = element.getAttribute('data-wl-type');
-    return element.nodeType === 1 && element.tagName.toUpperCase() === 'DIV' && ((null !== type && type.toLowerCase() === 'group') || !type);
+    var knownTag = false;
+    var tags = ['DIV', 'HEAD', 'BODY'];
+
+    for (var i = 0; i < tags.length; i++) {
+      knownTag = element.tagName.toUpperCase() === tags[i];
+      if (knownTag)
+        break;
+    }
+
+    return element.nodeType === 1 && knownTag && ((null !== type && type.toLowerCase() === 'group') || !type);
   }
 });
 
