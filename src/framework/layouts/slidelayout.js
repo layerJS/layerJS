@@ -181,44 +181,48 @@ var SlideLayout = LayerLayout.extend({
       case 'default':
       case 'left':
         // target frame transform time 0
-        x = Math.max(this.getStageWidth(), ctfd.width) - ctfd.shiftX + ttfd.shiftX;
+        x = Math.max(this.getStageWidth(), ctfd.width) - ctfd.shiftX;
         y = -ttfd.shiftY + ctfd.scrollY * ctfd.scale - ttfd.scrollY * ttfd.scale;
         // FIXME: translate and scale may actually be swapped here, not tested yet as shift was always zero so far!!!
         t.t0 = "translate3d(" + x + "px," + y + "px,0px) scale(" + ttfd.scale + ")";
         // current frame transform time 1
+        x = -Math.max(this.getStageWidth(), ctfd.width) - ttfd.shiftX;
         y = -ctfd.shiftY - ctfd.scrollY * ctfd.scale + ttfd.scrollY * ttfd.scale;
-        t.c1 = "translate3d(" + (-x) + "px," + y + "px,0px) scale(" + ctfd.scale + ")";
+        t.c1 = "translate3d(" + x + "px," + y + "px,0px) scale(" + ctfd.scale + ")";
         break;
 
       case 'right':
         // target frame transform time 0
-        x = -Math.max(this.getStageWidth(), ttfd.width) + ctfd.shiftX - ttfd.shiftX;
+        x = -Math.max(this.getStageWidth(), ttfd.width) - ctfd.shiftX;
         y = -ttfd.shiftY + ctfd.scrollY * ctfd.scale - ttfd.scrollY * ttfd.scale;
         t.t0 = "translate3d(" + x + "px," + y + "px,0px) scale(" + ttfd.scale + ")";
         // current frame transform time 1
+        x = Math.max(this.getStageWidth(), ttfd.width) - ttfd.shiftX;
         y = -ctfd.shiftY - ctfd.scrollY * ctfd.scale + ttfd.scrollY * ttfd.scale;
-        t.c1 = "translate3d(" + (-x) + "px," + y + "px,0px) scale(" + ctfd.scale + ")";
+        t.c1 = "translate3d(" + x + "px," + y + "px,0px) scale(" + ctfd.scale + ")";
         break;
 
       case 'up':
         // target frame transform time 0
-        y = Math.max(this.getStageHeight(), ctfd.height) - ctfd.shiftY + ttfd.shiftY;
+        y = Math.max(this.getStageHeight(), ctfd.height) - ctfd.shiftY;
         x = -ttfd.shiftX + ctfd.scrollX * ctfd.scale - ttfd.scrollX * ttfd.scale;
         // FIXME: translate and scale may actually be swapped here, not tested yet as shift was always zero so far!!!
         t.t0 = "translate3d(" + x + "px," + y + "px,0px) scale(" + ttfd.scale + ")";
         // current frame transform time 1
+        y = -Math.max(this.getStageHeight(), ctfd.height) - ttfd.shiftY;
         x = -ctfd.shiftX - ctfd.scrollX * ctfd.scale + ttfd.scrollX * ttfd.scale;
-        t.c1 = "translate3d(" + x + "px," + (-y) + "px,0px) scale(" + ctfd.scale + ")";
+        t.c1 = "translate3d(" + x + "px," + y + "px,0px) scale(" + ctfd.scale + ")";
         break;
 
       case 'down':
         // target frame transform time 0
-        y = -Math.max(this.getStageHeight(), ttfd.height) + ctfd.shiftY - ttfd.shiftY;
+        y = -Math.max(this.getStageHeight(), ttfd.height) - ctfd.shiftY;
         x = -ttfd.shiftX + ctfd.scrollX * ctfd.scale - ttfd.scrollX * ttfd.scale;
         t.t0 = "translate3d(" + x + "px," + y + "px,0px) scale(" + ttfd.scale + ")";
         // current frame transform time 1
+        y = Math.max(this.getStageHeight(), ttfd.height) - ttfd.shiftY;
         x = -ctfd.shiftX - ctfd.scrollX * ctfd.scale + ttfd.scrollX * ttfd.scale;
-        t.c1 = "translate3d(" + x + "px," + (-y) + "px,0px) scale(" + ctfd.scale + ")";
+        t.c1 = "translate3d(" + x + "px," + y + "px,0px) scale(" + ctfd.scale + ")";
         break;
         // target frame transform time 0
     }

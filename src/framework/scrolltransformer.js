@@ -52,80 +52,49 @@ var ScrollTransformer = Kern.EventManager.extend({
       this.scrollStartY = tfd.scrollY;
       return true;
     }
-    // first: calculate primary direction
-    if (true) { // check if can scroll
-      if (this.layer.nativeScroll) {
-        if (gesture.axis === 'y') {
-          if (gesture.shift.y > 0) {
-            return tfd.scrollY > 0;
-          } else {
-            return (tfd.maxScrollY - tfd.scrollY > 1);
-          }
-        } else if (gesture.axis === 'x') {
-          if (gesture.shift.x > 0) {
-            return tfd.scrollX > 0;
-          } else {
-            return (tfd.maxScrollX - tfd.scrollX > 1);
-          }
+    // primary direction
+    var axis = (Math.abs(gesture.shiftX) > Math.abs(gesture.shiftY) ? "x" : "y");
+    // check if can't scroll in primary direction
+    if (axis === "x" && !tfd.isScrollX) return false;
+    if (axis === "y" && !tfd.isScrollY) return false;
+    if (this.layer.nativeScroll) {
+      if (axis === 'y') {
+        if (gesture.shift.y > 0) { // Note: gesture.shift is negative
+          return tfd.scrollY > 0; // return true if can scroll; false otherwise
         } else {
-          return true;
+          return (tfd.maxScrollY - tfd.scrollY > 1);
+        }
+      } else if (axis === 'x') {
+        if (gesture.shift.x > 0) {
+          return tfd.scrollX > 0;
+        } else {
+          return (tfd.maxScrollX - tfd.scrollX > 1);
         }
       }
-      // project to primary direction
-      // var newX = (gesture.axis!=='y' ? this.scrollStartX - gesture.shift.x / tfd.scale : this.scrollStartX;
-      // var newY = (gesture.axis!=='x' ? this.scrollStartY - gesture.shift.y / tfd.scale : this.scrollStartY;
-      var newX = this.scrollStartX - gesture.shift.x / tfd.scale;
-      var newY = this.scrollStartY - gesture.shift.y / tfd.scale;
-      var borderX = gesture.axis === 'y', // indicate that we cannot scroll in 'x' direction
-        borderY = gesture.axis === 'x'; // indicate that we cannot scroll in 'y' direction
-      if (tfd.isScrollX) {
-        if (newX < 0) {
-          newX = 0;
-          if (this.scrollStartX === 0) {
-            borderX = true;
-          } else { //jshint ignore:line
-            // gesture.cancelled = true;
-          }
+    } else {
+      if (axis === 'y') {
+        if (gesture.shift.y > 0) { // Note: gesture.shift is negative
+          if (tfd.scrollY === 0) return false; // return false if cannot scroll
+        } else {
+          if (tfd.maxScrollY - tfd.scrollY < 1) return false;
         }
-        if (newX > tfd.maxScrollX) {
-          newX = tfd.maxScrollX;
-          if (this.scrollStartX === tfd.maxScrollX) {
-            borderX = true;
-          } else { //jshint ignore:line
-            // gesture.cancelled = true;
-          }
+      } else if (axis === 'x') {
+        if (gesture.shift.x > 0) {
+          if (tfd.scrollX === 0) return false;
+        } else {
+          if (tfd.maxScrollX - tfd.scrollX < 1) return false;
         }
-      } else {
-        newX = 0;
-        borderX = true;
       }
-      if (tfd.isScrollY) {
-        if (newY < 0) {
-          newY = 0;
-          if (this.scrollStartY === 0) {
-            borderY = true;
-          } else { //jshint ignore:line
-            // gesture.cancelled = true;
-          }
-        }
-        if (newY > tfd.maxScrollY) {
-          newY = tfd.maxScrollY;
-          if (this.scrollStartY === tfd.maxScrollY) {
-            borderY = true;
-          } else { //jshint ignore:line
-            // gesture.cancelled = true;
-          }
-        }
-      } else {
-        newY = 0;
-        borderY = true;
-      }
-      if (borderX && borderY) { // we cannot scroll -> return false to let layer go into swiping
-        return false;
-      }
-      return this.scrollTransform(-(tfd.scrollX = newX) * tfd.scale, -(tfd.scrollY = newY) * tfd.scale);
+      tfd.scrollX = this.scrollStartX - gesture.shift.x / tfd.scale;
+      tfd.scrollY = this.scrollStartY - gesture.shift.y / tfd.scale;
+      if (!tfd.isScrollX) tfd.scrollX = this.scrollStartX;
+      if (!tfd.isScrollY) tfd.scrollY = this.scrollStartY;
+      if (tfd.scrollX < 0) tfd.scrollX = 0;
+      if (tfd.scrollX > tfd.maxScrollX) tfd.scrollX = tfd.maxScrollX;
+      if (tfd.scrollY < 0) tfd.scrollY = 0;
+      if (tfd.scrollY > tfd.maxScrollY) tfd.scrollY = tfd.maxScrollY;
+      return this.scrollTransform(-tfd.scrollX * tfd.scale, -tfd.scrollY * tfd.scale);
     }
-    return false;
   },
   switchNativeScroll: function(nativeScroll) { //jshint ignore:line
 

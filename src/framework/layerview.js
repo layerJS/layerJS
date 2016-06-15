@@ -59,7 +59,8 @@ var LayerView = GroupView.extend({
     // mark scroller as scroller in HTML
     if (hasScroller) this.innerEl.setAttribute('data-wl-helper', 'scroller');
     this.nativeScroll = this.data.attributes.nativeScroll;
-
+    // get upper layer where unuseable gestures should be sent to.
+    this.parentLayer = this.getParentOfType('layer');
     // register for gestures
     gestureManager.register(this.outerEl, this.gestureListener.bind(this), {
       dragging: true
@@ -104,6 +105,7 @@ var LayerView = GroupView.extend({
       this._layout.setLayerTransform(this.currentTransform = layerTransform);
       gesture.preventDefault = true;
     } else {
+      if (this.inTransform) gesture.preventDefault = true; // we need to differentiate here later as we may have to check up stream handlers
       // gesture.cancelled = true;
       var cattr = this.currentFrame.data.attributes;
       if (gesture.direction) {
@@ -118,7 +120,8 @@ var LayerView = GroupView.extend({
           // FIXME: escalate/gesture bubbling ; ignore for now
         }
       } else { //jshint ignore:line
-        // ignore, but don't let anybody now
+        // this will prevent any bubbling for small movements
+        gesture.preventDefault = true;
       }
     }
   },
@@ -181,6 +184,16 @@ var LayerView = GroupView.extend({
       // a compensatory transform for the target scroll position.
       var targetFrameTransformData = frame.getTransformData(that.stage, transition.startPosition);
       var targetTransform = that._transformer.getScrollTransform(targetFrameTransformData, transition.scrollX || 0, transition.scrollY || 0, true);
+      // check if transition goes to exactly the same position
+      if (that.currentFrame === frame && that.currentTransform === targetTransform && that.currentFrameTransformData === targetFrameTransformData) {
+        // don't do a transition, just execute Promise
+        var p = new Kern.Promise();
+        p.resolve();
+        that.inTransform = false;
+        that.trigger('transitionTo', framename);
+        that.trigger('transitionFinished', framename);
+        return p;
+      }
       var layoutPromise = that._layout.transitionTo(frame, transition, targetFrameTransformData, targetTransform).then(function() {
         // is this still the active transition?
         if (transition.transitionID === that.transitionID) {
@@ -190,10 +203,12 @@ var LayerView = GroupView.extend({
           that._layout.setLayerTransform(that.currentTransform);
           that.inTransform = false;
           $.postAnimationFrame(function() {
-            that.trigger('transitionFinished');
+            that.trigger('transitionFinished', framename);
           });
         }
       });
+      that.trigger('transitionTo', framename);
+      that.updateClasses(frame);
       that.currentFrameTransformData = targetFrameTransformData;
       that.currentFrame = frame;
       that.currentTransform = targetTransform;
@@ -204,23 +219,17 @@ var LayerView = GroupView.extend({
     return this.currentTransform;
   },
   /**
-   * temporary function that indicates whether scrolling in a "direction" is possible. This function is obsolete as the gesture handling will be different in future.
+   * updates HTML classes for frames during transition or showFrame
    *
-   * @param {string} direction - direction of gesture e.g. "up"
-   * @returns {Boolean} true if it would scroll.
+   * @param {Type} Name - Description
+   * @returns {Type} Description
    */
-  gestureCanScroll: function(direction) {
-    var tfd = this.currentFrame.getTransformData(this.stage, undefined, true);
-    if (direction === 'up' && tfd.isScrollY && this.outerEl.scrollTop > 0) {
-      return true;
-    } else if (direction === 'down' && tfd.isScrollY && this.outerEl.scrollTop < tfd.maxScrollY) {
-      return true;
-    } else if (direction === 'left' && tfd.isScrollX && this.outerEl.scrollLeft > 0) {
-      return true;
-    } else if (direction === 'right' && tfd.isScrollX && this.outerEl.scrollLeft < tfd.maxScrollX) {
-      return true;
+  updateClasses: function(newFrame){
+    if (this.currentFrame){
+      this._saveLastFrame=this.currentFrame;
+      this.currentFrame.outerEl.className=this.currentFrame.outerEl.className.replace(/\s*wl\-active\s*/g,'');
+      newFrame.outerEl.className+=" wl-active";
     }
-    return false;
   },
   /**
    * render child positions. overriden default behavior of groupview
