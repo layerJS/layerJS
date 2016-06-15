@@ -133,6 +133,27 @@ var NodeView = Kern.EventManager.extend({
     this.isRendered = true;
 
     this.enableObserver();
+  },/**
+   * get Parent View of specific type recursively
+   *
+   * @param {string} type - the type the parent should have
+   * @returns {ObjView} the View requested
+   */
+  getParentOfType(type) {
+    if (this.parent && this.parent.data) {
+      if (this.parent.data.attributes.type && this.parent.data.attributes.type === type) return this.parent;
+      return this.parent.getParentOfType(type); // search recursively
+    } else {
+      // we need to to this dom based as there may be non-layerjs elements in the hierarchy
+      var el = this.outerEl.parentNode;
+      if (!el) return undefined; // no parent element return undefined
+      while (!el._wlView) { // search for layerjs element in parent hierarchy
+        if (!el.parentNode) return undefined; // no parent element return undefined
+        el = el.parentNode;
+      }
+      if (el._wlView.data.attributes.type === type) return el._wlView; // found one; is it the right type?
+      return el._wlView.getParentOfType(type); // search recursively
+    }
   },
   /**
    * Will create a NodeData object based on a DOM element
