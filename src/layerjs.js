@@ -19,12 +19,13 @@ require("./framework/defaults.js");
 require("./framework/nodedata.js");
 
 /* view objects*/
+/* The order in which the views are required is imported for the pluginmanager.identify */
 require("./framework/nodeview.js");
 require("./framework/elementview.js");
-require("./framework/groupview.js");
 require("./framework/layerview.js");
 require("./framework/frameview.js");
 require("./framework/stageview.js");
+require("./framework/groupview.js");
 
 WL.init = function() {
   WL.parseManager.parseDocument();

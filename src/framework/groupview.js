@@ -505,16 +505,8 @@ var GroupView = ElementView.extend({
   getNodeType: undefined,
   identify: function(element) {
     var type = element.getAttribute('data-wl-type');
-    var knownTag = false;
-    var tags = ['DIV', 'HEAD', 'BODY'];
 
-    for (var i = 0; i < tags.length; i++) {
-      knownTag = element.tagName.toUpperCase() === tags[i];
-      if (knownTag)
-        break;
-    }
-
-    return element.nodeType === 1 && knownTag && ((null !== type && type.toLowerCase() === 'group') || !type);
+    return element.nodeType === 1 && ((null !== type && type.toLowerCase() === 'group') || !type);
   }
 });
 

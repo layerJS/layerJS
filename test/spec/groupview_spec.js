@@ -188,24 +188,36 @@ describe("GroupView", function() {
     expect(GroupView.getNodeType).not.toBeDefined();
   })
 
+  describe('will identify all DOM elements with a data-wl-type="group" or without a data-wl-type attribute', function() {
+    ViewsCommonIdentifyTests('div', GroupView, function() {
+      return document.createElement('div');
+    }, true);
 
-  ViewsCommonIdentifyTests('div', GroupView, function() {
-    return document.createElement('div');
-  }, true);
+    ViewsCommonIdentifyTests('div', GroupView, function() {
+      var element = document.createElement('div');
+      element.setAttribute('data-wl-type', 'custom');
+      return element;
+    }, false);
 
-  ViewsCommonIdentifyTests('head', GroupView, function() {
-    return document.createElement('head');
-  }, true);
+    ViewsCommonIdentifyTests('head', GroupView, function() {
+      return document.createElement('head');
+    }, true);
 
-  ViewsCommonIdentifyTests('body', GroupView, function() {
-    return document.createElement('body');
-  }, true);
+    ViewsCommonIdentifyTests('body', GroupView, function() {
+      return document.createElement('body');
+    }, true);
 
-  ViewsCommonIdentifyTests('div data-wl-type="group"', GroupView, function() {
-    var element = document.createElement('div');
-    element.setAttribute('data-wl-type', 'group');
+    ViewsCommonIdentifyTests('body', GroupView, function() {
+      var element = document.createElement('body');
+      element.setAttribute('data-wl-type', 'custom');
+      return element;
+    }, false);
 
-    return element;
-  }, true);
+    ViewsCommonIdentifyTests('div data-wl-type="group"', GroupView, function() {
+      var element = document.createElement('div');
+      element.setAttribute('data-wl-type', 'group');
 
+      return element;
+    }, true);
+  });
 });
