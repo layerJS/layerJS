@@ -103,7 +103,7 @@ var ElementView = NodeView.extend({
     // Add htmlAttributes to the DOM element
     if ('htmlAttributes' in diff) {
       for (var htmlAttribute in diff.htmlAttributes) {
-        if (diff.htmlAttributes.hasOwnProperty(htmlAttribute)) {
+        if ('style' !== htmlAttribute && diff.htmlAttributes.hasOwnProperty(htmlAttribute)) {
           outerEl.setAttribute(htmlAttribute.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase(), diff.htmlAttributes[htmlAttribute]);
         }
       }

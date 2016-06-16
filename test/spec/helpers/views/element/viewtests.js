@@ -226,6 +226,15 @@ var commonViewTests = function(scenario, ViewType, scenarioData) {
       expect(element.hasAttribute('some-thing')).toBeTruthy();
       expect(element.getAttribute('some-thing')).toBe(data.attributes.htmlAttributes.someThing);
     });
+
+    it('will not put htmlAttributes.style from the dataObject into the DOM element as attributes', function() {
+      data.attributes.htmlAttributes.style = "something";
+
+      var view = new ViewType(data);
+      var element = view.outerEl;
+
+      expect(element.hasAttribute('style')).toBeFalsy();
+    });
   });
 };
 
