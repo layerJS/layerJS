@@ -26,10 +26,12 @@ var StageView = GroupView.extend({
     }, false);
   },
   _renderChildPosition: function(childView) {
-    childView.disableObserver();
-    childView.outerEl.style.left = "0px";
-    childView.outerEl.style.top = "0px";
-    childView.enableObserver();
+    if (childView.data.attributes.nodeType === 1) {
+      childView.disableObserver();
+      childView.outerEl.style.left = "0px";
+      childView.outerEl.style.top = "0px";
+      childView.enableObserver();
+    }
   },
   /**
    * Method will be invoked when a resize event is detected.
