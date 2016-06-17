@@ -114,7 +114,7 @@ describe("GroupView", function() {
     }
   });
 
-  it("the order of non-layers objects will be kept correct", function() {
+  it("the order of layersjs objects will be kept correct", function() {
     var version = 'test';
     repository.clear();
 
@@ -137,9 +137,9 @@ describe("GroupView", function() {
 
     utilities.setHtml("<div id='100' data-wl-id='100' data-wl-type='" + data.attributes.type + "'>" +
       "<div id='element1'></div>" +
-      "<div id='101' data-wl-id='101' data-wl-type='text'></div>" +
+      "<div id='101' data-wl-id='101' data-wl-type='group'></div>" +
       "<div id='element2'></div>" +
-      "<div id='102' data-wl-id='102' data-wl-type='text'></div>" +
+      "<div id='102' data-wl-id='102' data-wl-type='group'></div>" +
       "<div id='element3'></div>" +
       "</div>");
 
@@ -155,7 +155,10 @@ describe("GroupView", function() {
     expect(parentElement.children[3].id).toBe('102');
     expect(parentElement.children[4].id).toBe('element3');
 
-    parentData.set('children', ['102', '101']);
+    parentData.set('children', [parentElement.children[0]._wlView.data.attributes.id,
+      '102', parentElement.children[2]._wlView.data.attributes.id,
+      '101', parentElement.children[4]._wlView.data.attributes.id
+    ]);
 
     var order = {};
     for (var i = 0; i < parentElement.children.length; i++) {
@@ -176,11 +179,9 @@ describe("GroupView", function() {
   ViewsGroup_parseChildrenTests({
     ViewType: GroupView,
     HTML: "<div id='100' data-wl-id='100' data-wl-type='group'>" +
-      "<div id='element1'></div>" +
       "<div id='101' data-wl-id='101' data-wl-type='group'></div>" +
-      "<div id='element2'></div>" +
       "<div id='102' data-wl-id='102' data-wl-type='group'></div>" +
-      "<div id='element3'></div>",
+      "</div>",
     expectedChildren: ['101', '102']
   });
 

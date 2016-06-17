@@ -59,11 +59,9 @@ describe("FrameView", function() {
     viewTypeName: 'FrameView',
     type: 'frame',
     HTML: "<div id='100' data-wl-id='100' data-wl-type='frame'>" +
-      "<div id='element1'></div>" +
       "<div id='101' data-wl-id='101' data-wl-type='group'></div>" +
-      "<div id='element2'></div>" +
       "<div id='102' data-wl-id='102' data-wl-type='group'></div>" +
-      "<div id='element3'></div>",
+      "</div>",
     expectedChildren: ['101', '102']
   });
 
