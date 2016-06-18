@@ -1,7 +1,7 @@
 'use strict';
 var $ = require('./domhelpers.js');
 var Kern = require('../kern/Kern.js');
-var pluginManager = require('./pluginmanager.js');
+//var pluginManager = require('./pluginmanager.js');
 var repository = require('./repository.js');
 var ObjData = require('./objdata.js');
 
@@ -493,6 +493,6 @@ var ObjView = Kern.EventManager.extend({
 });
 
 
-pluginManager.registerType('node', ObjView);
+//pluginManager.registerType('node', ObjView);
 
 module.exports = ObjView;

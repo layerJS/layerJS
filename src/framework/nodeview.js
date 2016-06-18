@@ -5,7 +5,7 @@ var NodeData = require('./nodedata.js');
 var defaults = require('./defaults.js');
 var repository = require('./repository.js');
 var pluginManager = require('./pluginmanager.js');
-
+var identifyPriority = require('./identifypriority.js');
 /**
  * Defines the view of a node and provides all basic properties and
  * rendering fuctions that are needed for a visible element.
@@ -299,6 +299,6 @@ var NodeView = Kern.EventManager.extend({
 });
 
 
-pluginManager.registerType('node', NodeView);
+pluginManager.registerType('node', NodeView, identifyPriority.normal);
 
 module.exports = NodeView;

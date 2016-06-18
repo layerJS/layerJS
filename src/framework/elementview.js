@@ -5,6 +5,7 @@ var pluginManager = require('./pluginmanager.js');
 
 var NodeView = require('./nodeview.js');
 var defaults = require('./defaults.js');
+var identifyPriority = require('./identifypriority.js');
 
 /**
  * Defines the view of a ObjData and provides all basic properties and
@@ -354,6 +355,6 @@ var ElementView = NodeView.extend({
 });
 
 
-pluginManager.registerType('element', ElementView);
+pluginManager.registerType('element', ElementView, identifyPriority.normal);
 
 module.exports = ElementView;

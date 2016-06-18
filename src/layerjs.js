@@ -16,6 +16,7 @@ require("./framework/gestures/gesturemanager.js");
 
 /* data objects*/
 require("./framework/defaults.js");
+require("./framework/identifypriority.js");
 require("./framework/nodedata.js");
 
 /* view objects*/

@@ -12,9 +12,10 @@ var PluginManager = Kern.EventManager.extend({
    * @param {Object} map - an object mapping Obj types to {view:constructor, model: contructor} data sets
    * @returns {This}
    */
-  constructor: function(map) {
+  constructor: function(map, identifyPriorities) {
     Kern.EventManager.call(this);
     this.map = map || {}; // maps ObjData types to View constructors
+    this.identifyPriorities = identifyPriorities || {};
   },
   /**
    * create a view based on the type in the Obj's model
@@ -60,12 +61,17 @@ var PluginManager = Kern.EventManager.extend({
    * @param {function} constructor - the constructor of the view class of this type
    * @returns {This}
    */
-  registerType: function(type, constructor) {
+  registerType: function(type, constructor, identifyPriority) {
     this.map[type] = {
       view: constructor,
       model: constructor.Model,
       identify: constructor.identify
     };
+
+    if (undefined === this.identifyPriorities[identifyPriority])
+      this.identifyPriorities[identifyPriority] = [];
+
+    this.identifyPriorities[identifyPriority].push(constructor);
   },
   /**
    * Will iterate over the registered ViewTypes and call it's identify
@@ -76,16 +82,25 @@ var PluginManager = Kern.EventManager.extend({
    */
   identify: function(element) {
       var type;
-      var found = false;
 
-      for (type in this.map) {
-        if (this.map.hasOwnProperty(type) && this.map[type].identify(element)) {
-          found = true;
+      var sortedKeys = Object.keys(this.identifyPriorities).sort(function(a, b) {
+        return (a - b) * (-1);
+      });
+
+      for (var x = 0; x < sortedKeys.length; x++) {
+        var key = sortedKeys[x];
+        for (var i = 0; i < this.identifyPriorities[key].length; i++) {
+          if (this.identifyPriorities[key][i].identify(element)) {
+            type = this.identifyPriorities[key][i].defaultProperties.type;
+            break;
+          }
+        }
+        if (undefined !== type) {
           break;
         }
       }
 
-      if (!found) {
+      if (undefined === type) {
         throw "no ViewType found for element '" + element + "'";
       }
 

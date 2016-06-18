@@ -3,6 +3,7 @@ var Kern = require('../kern/Kern.js');
 var pluginManager = require('./pluginmanager.js');
 var repository = require('./repository.js'); // jshint ignore:line
 var ElementView = require('./elementview.js');
+var identifyPriority = require('./identifypriority.js');
 /**
  * A View which can have child views
  * @param {GroupData} dataModel
@@ -489,5 +490,5 @@ var GroupView = ElementView.extend({
 });
 
 
-pluginManager.registerType("group", GroupView);
+pluginManager.registerType("group", GroupView, identifyPriority.low);
 module.exports = GroupView;

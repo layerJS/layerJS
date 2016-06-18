@@ -3,6 +3,7 @@ var Kern = require('../kern/Kern.js');
 var pluginManager = require('./pluginmanager.js');
 var GroupView = require('./groupview.js');
 var Kern = require('../kern/Kern.js');
+var identifyPriority = require('./identifypriority.js');
 
 /**
  * A View which can have child views
@@ -266,5 +267,5 @@ var FrameView = GroupView.extend({
   }
 });
 
-pluginManager.registerType('frame', FrameView);
+pluginManager.registerType('frame', FrameView, identifyPriority.normal);
 module.exports = FrameView;

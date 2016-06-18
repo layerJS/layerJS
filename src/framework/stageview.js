@@ -2,6 +2,7 @@
 var pluginManager = require('./pluginmanager.js');
 var GroupView = require('./groupview.js');
 var Kern = require('../kern/Kern.js');
+var identifyPriority = require('./identifypriority.js');
 
 /**
  * A View which can have child views
@@ -57,5 +58,5 @@ var StageView = GroupView.extend({
     return null !== type && type.toLowerCase() === StageView.defaultProperties.type;
   }
 });
-pluginManager.registerType('stage', StageView);
+pluginManager.registerType('stage', StageView, identifyPriority.normal);
 module.exports = StageView;

@@ -6,6 +6,7 @@ var layoutManager = require('./layoutmanager.js');
 var GroupView = require('./groupview.js');
 var ScrollTransformer = require('./scrolltransformer.js');
 var gestureManager = require('./gestures/gesturemanager.js');
+var identifyPriority = require('./identifypriority.js');
 
 var directions2neighbors = {
   up: 'b',
@@ -277,6 +278,6 @@ var LayerView = GroupView.extend({
   }
 });
 
-pluginManager.registerType('layer', LayerView);
+pluginManager.registerType('layer', LayerView, identifyPriority.normal);
 
 module.exports = LayerView;

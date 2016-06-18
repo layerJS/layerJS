@@ -1,7 +1,7 @@
-var jsdom = require("jsdom").jsdom;
 var pluginmanager = require('../../src/framework/pluginmanager.js');
 var ElementView = require('../../src/framework/elementview.js');
 var NodeData = ElementView.Model;
+var identifyPriority = require('../../src/framework/identifypriority.js');
 
 describe('PluginManager', function() {
 
@@ -49,7 +49,7 @@ describe('PluginManager', function() {
       "version": ElementView.defaultProperties.version,
       "tag": ElementView.defaultProperties.tag
     }
-    pluginmanager.registerType('heinz', NV);
+    pluginmanager.registerType('heinz', NV, identifyPriority.low);
     var nc = pluginmanager.createModel(ndata);
     var v = pluginmanager.createView(nc);
     expect(v instanceof NV).toBe(true);
@@ -68,5 +68,35 @@ describe('PluginManager', function() {
 
     var element = document.createTextNode('');
     expect(pluginmanager.identify(element)).toBe('node');
+  });
+
+  it('can accept a priority for viewtype', function() {
+    var Low = ElementView.extend({}, {
+      Model: NodeData,
+      identify: function(element) {
+        return element.id === 'priority';
+      },
+      defaultProperties: {
+        type: 'low'
+      }
+    });
+
+    pluginmanager.registerType('low', Low, identifyPriority.low);
+    var Normal = ElementView.extend({}, {
+      Model: NodeData,
+      identify: function(element) {
+        return element.id === 'priority';
+      },
+      defaultProperties: {
+        type: 'normal'
+      }
+    });
+
+    pluginmanager.registerType('normal', Normal, identifyPriority.normal);
+
+    var el = document.createElement('div');
+    el.id = 'priority';
+
+    expect(pluginmanager.identify(el)).toBe('normal');
   });
 });
