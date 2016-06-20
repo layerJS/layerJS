@@ -290,7 +290,7 @@ var NodeView = Kern.EventManager.extend({
     return element.nodeType !== 1;
   },
   defaultProperties: {
-    id: defaults.id,
+    id: undefined,
     type: 'node',
     content: '',
     nodeType: 3,

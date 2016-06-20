@@ -479,6 +479,7 @@ var GroupView = ElementView.extend({
 }, {
   defaultProperties: Kern._extend({}, ElementView.defaultProperties, {
     type: 'group',
+    tag: 'div',
     children: []
   }),
   getNodeType: undefined,
