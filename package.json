@@ -30,6 +30,8 @@
     "build:compressed": "mkdirp build && browserify -e src/layerjs.js | uglifyjs -c -m -o build/layerjs.js && npm run package",
     "package": "mkdirp ./dist/css && node ./scripts/copy.js ./build/layerjs.js ./dist/layerjs.js && node ./scripts/copy.js ./dist/layerjs.js ./dist/layerjs-$npm_package_version.js && node ./scripts/copy.js ./src/css/layerjs.css ./dist/css/layerjs.css && cd dist && zip layerjs-$npm_package_version.zip layerjs-$npm_package_version.js css/*",
 
+    "fixlinks": "for i in `find ./examples -type f | grep layerjs.js` ; do ln -fs `cat $i` $i;done;for i in `find ./examples -type f | grep layerjs.css` ; do ln -fs `cat $i` $i;done;",
+
     "pretest": "npm run jshint",
 
     "test": "jasmine JASMINE_CONFIG_PATH=./test/spec/support/jasmine.json",
