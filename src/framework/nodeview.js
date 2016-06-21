@@ -120,14 +120,14 @@ var NodeView = Kern.EventManager.extend({
     options = options || {};
     this.disableObserver();
 
-    var attributes = this.isRendered ? this.data.changedAttributes || {} : this.data.attributes;
+    var diff = this.isRendered ? this.data.changedAttributes || {} : this.data.attributes;
 
-    if ('id' in attributes) {
-      this.outerEl.id = 'wl-obj-' + attributes.id;
+    if ('id' in diff) {
+      this.outerEl.id = 'wl-obj-' + this.data.attributes.id;
     }
 
-    if ('content' in attributes && this.data.attributes.nodeType !== 1) {
-      this.outerEl.data = attributes.content || '';
+    if ('content' in diff && this.data.attributes.nodeType !== 1) {
+      this.outerEl.data = this.data.attributes.content || '';
     }
 
     this.isRendered = true;
@@ -290,7 +290,7 @@ var NodeView = Kern.EventManager.extend({
     return element.nodeType !== 1;
   },
   defaultProperties: {
-    id: defaults.id,
+    id: undefined,
     type: 'node',
     content: '',
     nodeType: 3,

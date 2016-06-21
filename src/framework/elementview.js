@@ -306,6 +306,8 @@ var ElementView = NodeView.extend({
 }, {
   defaultProperties: Kern._extend({}, NodeView.defaultProperties, defaults, {
     type: 'element',
+    nodeType: 1,
+    tag: 'br',
     elementId: undefined,
     // CSS string for styling this object
     style: '',

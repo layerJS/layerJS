@@ -197,13 +197,13 @@ var GroupView = ElementView.extend({
     for (i = 0; i < cn.length; i++) {
       var elem = cn[i];
 
-      nodeId = (elem._wlView && elem._wlView.data.attributes.id) || elem.getAttribute('data-wl-id');
+      nodeId = (elem._wlView && elem._wlView.data.attributes.id) || elem.getAttribute && elem.getAttribute('data-wl-id');
       try {
         data = nodeId && repository.get(nodeId, this.data.attributes.version);
       } catch (e) {
         data = undefined;
       }
-      nodeType = (elem._wlView && elem._wlView.data.attributes.type) || elem.getAttribute('data-wl-type');
+      nodeType = (elem._wlView && elem._wlView.data.attributes.type) || elem.getAttribute && elem.getAttribute('data-wl-type');
       if (nodeId && (data || nodeType)) {
         // search for nodeId in data.chi ldren
         var k_saved = k;
@@ -479,6 +479,7 @@ var GroupView = ElementView.extend({
 }, {
   defaultProperties: Kern._extend({}, ElementView.defaultProperties, {
     type: 'group',
+    tag: 'div',
     children: []
   }),
   getNodeType: undefined,
