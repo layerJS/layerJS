@@ -44,7 +44,7 @@ var Repository = Kern.EventManager.extend({
         }
       }
     }
-    this.versions[version] = new Kern.ModelRepository(data);
+    this.versions[version] = new Kern.ModelRepository(models);
   },
   /**
    * clear the repository either for a specified version or for all versions
