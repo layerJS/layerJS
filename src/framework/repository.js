@@ -34,7 +34,7 @@ var Repository = Kern.EventManager.extend({
       for (var i = 0; i < data.length; i++) {
         models.push(pluginManager.createModel(data[i]));
       }
-    } else if (typeof data === 'string') {
+    } else if (typeof data === 'string') { //<-- FIXME this seems wrong
       for (var k in Object.keys(data)) {
         if (data.hasOwnProperty(k)) {
           var obj = data[k];
