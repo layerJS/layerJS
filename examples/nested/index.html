@@ -1,92 +1,130 @@
-
 <html>
 
 <head>
   <title>Simple Example</title>
+  <meta name=viewport content="width=device-width, initial-scale=1">
   <link rel="stylesheet" type="text/css" href="layerjs.css">
+  <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-T8Gy5hrqNKT+hzMclPo118YTQO6cYprQmhrYwIiQ/3axmI1hQomh7Ud2hPOy8SP1" crossorigin="anonymous">
   <style>
-  	@import url(https://fonts.googleapis.com/css?family=Oxygen:400);
-
+    @import url(https://fonts.googleapis.com/css?family=Oxygen:400);
     body {
-    	font-family: 'Oxygen', sans-serif;
+      font-family: 'Oxygen', sans-serif;
       width: : 100%;
       height: 100%;
       margin: 0;
-      background: #ECEFF1;
+      background: #f6f6f6;
     }
-    p {
-    	font-size: 16px;
-    	max-width: 720px;
-    	margin: 24px auto;
+
+    #slider {
+      background-color: #eee;
     }
+
+    section {
+      font-size: 16px;
+      margin: 50px 15%;
+    }
+
     #stage_root {
       width: 100%;
       height: 100%;
     }
+
     #stage_images {
       height: 600px;
     }
-		.frame {
-			width: 1440px;
-			padding-top: 120px;
-			padding-bottom: 80px;
-		}
-		.frame:nth-child(even) {
-			background: #B0BEC5;
-		}
-    #menu1, #menu2 {
+
+    .frame {
       width: 1440px;
+      padding-top: 60px;
+      padding-bottom: 80px;
+    }
+
+    .frame:nth-child(even) {
+      background: #ddd;
+    }
+
+    .menubox {
+      margin: 0px 15%;
+      cursor: pointer;
+    }
+
+    .menu {
+      font-size: 56px;
+      line-height: 76px;
+      text-align: center;
+      color: #555;
+    }
+
+    .menu div:hover {
+      color: black;
+    }
+
+    .menu .close {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      cursor: pointer;
+    }
+
+    #menu1,
+    #menu2 {
+      width: 1440px;
+    }
+
+    #menu1 {
+      background: rgba(0, 0, 0, .8);
       color: white;
+      height: 50px;
+      line-height: 50px;
+    }
+
+    #menu2 {
+      background: white;
+      height: 400px;
+      line-height: 60px;
+    }
+
+    #prev,
+    #next {
       text-align: center;
     }
-    #menu1 {
-    	background: #607D8B;
-    	height: 80px;
-    	line-height: 80px;
-    }
-    #menu2 {
-    	background: #455A64;
-    	height: 60px;
-    	line-height: 60px;
-    }
-    #prev, #next {
-    	text-align: center;
-    }
-	@media (max-width: 600px) {
-		.frame {
-			width: 500px;
-		}
-	}
 
+    @media (max-width: 600px) {
+      .frame,
+      #menu1,
+      #menu2 {
+        width: 500px;
+      }
+    }
   </style>
 </head>
+
 <body>
   <div id="stage_root" data-wl-type="stage">
     <div data-wl-type="layer" data-wl-native-scroll="true" data-wl-default-frame="content1">
       <div data-wl-type="frame" data-wl-name="content1" data-wl-fit-to="width" data-wl-neighbors.b="content2" class="frame">
-        <div data-wl-type="text">
-          <p>
-          	Proin eget tortor risus. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Donec velit neque, auctor sit amet aliquam vel, ullamcorper sit amet ligula. Nulla porttitor accumsan tincidunt. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus suscipit tortor eget felis porttitor volutpat. Curabitur non nulla sit amet nisl tempus convallis quis ac lectus. Vestibulum ac diam sit amet quam vehicula elementum sed sit amet dui. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Donec velit neque, auctor sit amet aliquam vel, ullamcorper sit amet ligula. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Donec velit neque, auctor sit amet aliquam vel, ullamcorper sit amet ligula. Mauris blandit aliquet elit, eget tincidunt nibh pulvinar a.
+        <section>
+          <h1> Lorem </h1>
+          <p class="text">
+            Proin eget tortor risus. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Donec velit neque, auctor sit amet aliquam vel, ullamcorper sit amet ligula. Nulla porttitor accumsan tincidunt. Lorem ipsum dolor sit amet,
+            consectetur adipiscing elit. Vivamus suscipit tortor eget felis porttitor volutpat. Curabitur non nulla sit amet nisl tempus convallis quis ac lectus. Vestibulum ac diam sit amet quam vehicula elementum sed sit amet dui. Vestibulum ante ipsum
+            primis in faucibus orci luctus et ultrices posuere cubilia Curae; Donec velit neque, auctor sit amet aliquam vel, ullamcorper sit amet ligula. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Donec velit
+            neque, auctor sit amet aliquam vel, ullamcorper sit amet ligula. Mauris blandit aliquet elit, eget tincidunt nibh pulvinar a.
           </p>
-          <p>
-						Curabitur aliquet quam id dui posuere blandit. Vestibulum ac diam sit amet quam vehicula elementum sed sit amet dui. Vestibulum ac diam sit amet quam vehicula elementum sed sit amet dui. Nulla porttitor accumsan tincidunt. Mauris blandit aliquet elit, eget tincidunt nibh pulvinar a. Curabitur arcu erat, accumsan id imperdiet et, porttitor at sem. Pellentesque in ipsum id orci porta dapibus. Vivamus magna justo, lacinia eget consectetur sed, convallis at tellus. Vivamus suscipit tortor eget felis porttitor volutpat. Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-					</p>
-          <p>
-						Donec rutrum congue leo eget malesuada. Curabitur aliquet quam id dui posuere blandit. Nulla quis lorem ut libero malesuada feugiat. Mauris blandit aliquet elit, eget tincidunt nibh pulvinar a. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Donec velit neque, auctor sit amet aliquam vel, ullamcorper sit amet ligula. Sed porttitor lectus nibh. Sed porttitor lectus nibh. Mauris blandit aliquet elit, eget tincidunt nibh pulvinar a. Quisque velit nisi, pretium ut lacinia in, elementum id enim. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Donec velit neque, auctor sit amet aliquam vel, ullamcorper sit amet ligula.
-          </p>
-        </div>
-        <table style="width:100%">
+        </section>
+        <table id="slider" style="width:100%">
           <tr>
-            <td style="width: 5%; cursor: pointer;">
+            <td style="width: 15%; cursor: pointer;">
               <div id="prev">
-              	<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 20 20" enable-background="new 0 0 20 20" xml:space="preserve" width="40">
-									<path fill="#455A64" d="M12.452,4.516c0.446,0.436,0.481,1.043,0,1.576L8.705,10l3.747,3.908c0.481,0.533,0.446,1.141,0,1.574c-0.445,0.436-1.197,0.408-1.615,0c-0.418-0.406-4.502-4.695-4.502-4.695C6.112,10.57,6,10.285,6,10s0.112-0.57,0.335-0.789c0,0,4.084-4.287,4.502-4.695C11.255,4.107,12.007,4.08,12.452,4.516z"/>
-								</svg>
+                <svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 20 20" enable-background="new 0 0 20 20" xml:space="preserve" width="40">
+                  <path fill="#455A64" d="M12.452,4.516c0.446,0.436,0.481,1.043,0,1.576L8.705,10l3.747,3.908c0.481,0.533,0.446,1.141,0,1.574c-0.445,0.436-1.197,0.408-1.615,0c-0.418-0.406-4.502-4.695-4.502-4.695C6.112,10.57,6,10.285,6,10s0.112-0.57,0.335-0.789c0,0,4.084-4.287,4.502-4.695C11.255,4.107,12.007,4.08,12.452,4.516z"
+                  />
+                </svg>
               </div>
             </td>
             <td>
               <div id="stage_images" data-wl-type="stage">
-                <div id="layer_image" data-wl-type="layer" data-wl-native-scroll="false" data-wl-default-frame="image1">
+                <div id="layer_image" data-wl-type="layer" data-wl-native-scroll="false" data-wl-default-frame="image2">
                   <div data-wl-type="frame" data-wl-name="image1" data-wl-fit-to="cover" data-wl-no-scrolling="true" data-wl-start-position="center" data-wl-neighbors.l="image6" data-wl-neighbors.r="image2">
                     <image data-wl-type="image" src="img/1.jpg" />
                   </div>
@@ -99,7 +137,7 @@
                   <div data-wl-type="frame" data-wl-name="image4" data-wl-fit-to="cover" data-wl-no-scrolling="true" data-wl-start-position="center" data-wl-neighbors.l="image3" data-wl-neighbors.r="image5">
                     <image data-wl-type="image" src="img/4.jpg" />
                   </div>
-                  <div data-wl-type="frame" data-wl-name="image5" data-wl-fit-to="cover" data-wl-no-scrolling="true" data-wl-start-position="center" data-wl-neighbors.l="image4"  data-wl-neighbors.r="image6">
+                  <div data-wl-type="frame" data-wl-name="image5" data-wl-fit-to="cover" data-wl-no-scrolling="true" data-wl-start-position="center" data-wl-neighbors.l="image4" data-wl-neighbors.r="image6">
                     <image data-wl-type="image" src="img/5.jpg" />
                   </div>
                   <div data-wl-type="frame" data-wl-name="image6" data-wl-fit-to="cover" data-wl-no-scrolling="true" data-wl-start-position="center" data-wl-neighbors.l="image5" data-wl-neighbors.r="image1">
@@ -108,44 +146,62 @@
                 </div>
               </div>
             </td>
-            <td style="width: 5%; cursor: pointer;">
+            <td style="width: 15%; cursor: pointer;">
               <div id="next">
-	              <svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 20 20" enable-background="new 0 0 20 20" xml:space="preserve" width="40">
-	              	<path fill="#455A64" d="M9.163,4.516c0.418,0.408,4.502,4.695,4.502,4.695C13.888,9.43,14,9.715,14,10s-0.112,0.57-0.335,0.787c0,0-4.084,4.289-4.502,4.695c-0.418,0.408-1.17,0.436-1.615,0c-0.446-0.434-0.481-1.041,0-1.574L11.295,10L7.548,6.092c-0.481-0.533-0.446-1.141,0-1.576C7.993,4.08,8.745,4.107,9.163,4.516z"/>
-	              </svg>
+                <svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 20 20" enable-background="new 0 0 20 20" xml:space="preserve" width="40">
+                  <path fill="#455A64" d="M9.163,4.516c0.418,0.408,4.502,4.695,4.502,4.695C13.888,9.43,14,9.715,14,10s-0.112,0.57-0.335,0.787c0,0-4.084,4.289-4.502,4.695c-0.418,0.408-1.17,0.436-1.615,0c-0.446-0.434-0.481-1.041,0-1.574L11.295,10L7.548,6.092c-0.481-0.533-0.446-1.141,0-1.576C7.993,4.08,8.745,4.107,9.163,4.516z"
+                  />
+                </svg>
               </div>
             </td>
           </tr>
         </table>
-        <div data-wl-type="text">
-					<p>
-						Donec sollicitudin molestie malesuada. Sed porttitor lectus nibh. Nulla porttitor accumsan tincidunt. Curabitur aliquet quam id dui posuere blandit. Donec rutrum congue leo eget malesuada. Nulla porttitor accumsan tincidunt. Donec rutrum congue leo eget malesuada. Curabitur non nulla sit amet nisl tempus convallis quis ac lectus. Vivamus suscipit tortor eget felis porttitor volutpat. Cras ultricies ligula sed magna dictum porta.
-					</p>
+        <section>
+          <h1>Ipsum</h1>
           <p>
-						Donec rutrum congue leo eget malesuada. Curabitur aliquet quam id dui posuere blandit. Nulla quis lorem ut libero malesuada feugiat. Mauris blandit aliquet elit, eget tincidunt nibh pulvinar a. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Donec velit neque, auctor sit amet aliquam vel, ullamcorper sit amet ligula. Sed porttitor lectus nibh. Sed porttitor lectus nibh. Mauris blandit aliquet elit, eget tincidunt nibh pulvinar a. Quisque velit nisi, pretium ut lacinia in, elementum id enim. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Donec velit neque, auctor sit amet aliquam vel, ullamcorper sit amet ligula.
+            Donec sollicitudin molestie malesuada. Sed porttitor lectus nibh. Nulla porttitor accumsan tincidunt. Curabitur aliquet quam id dui posuere blandit. Donec rutrum congue leo eget malesuada. Nulla porttitor accumsan tincidunt. Donec rutrum congue leo eget
+            malesuada. Curabitur non nulla sit amet nisl tempus convallis quis ac lectus. Vivamus suscipit tortor eget felis porttitor volutpat. Cras ultricies ligula sed magna dictum porta.
           </p>
-        </div>
+          <p>
+            Donec rutrum congue leo eget malesuada. Curabitur aliquet quam id dui posuere blandit. Nulla quis lorem ut libero malesuada feugiat. Mauris blandit aliquet elit, eget tincidunt nibh pulvinar a. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices
+            posuere cubilia Curae; Donec velit neque, auctor sit amet aliquam vel, ullamcorper sit amet ligula. Sed porttitor lectus nibh. Sed porttitor lectus nibh. Mauris blandit aliquet elit, eget tincidunt nibh pulvinar a. Quisque velit nisi, pretium
+            ut lacinia in, elementum id enim. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Donec velit neque, auctor sit amet aliquam vel, ullamcorper sit amet ligula.
+          </p>
+        </section>
       </div>
       <div data-wl-type="frame" data-wl-name="content2" data-wl-fit-to="width" data-wl-neighbors.t="content1" class="frame">
-        <div data-wl-type="text">
+        <section>
+          <h1>Toffee ipsum</h1>
           <p>
-          	Proin eget tortor risus. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Donec velit neque, auctor sit amet aliquam vel, ullamcorper sit amet ligula. Nulla porttitor accumsan tincidunt. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus suscipit tortor eget felis porttitor volutpat. Curabitur non nulla sit amet nisl tempus convallis quis ac lectus. Vestibulum ac diam sit amet quam vehicula elementum sed sit amet dui. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Donec velit neque, auctor sit amet aliquam vel, ullamcorper sit amet ligula. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Donec velit neque, auctor sit amet aliquam vel, ullamcorper sit amet ligula. Mauris blandit aliquet elit, eget tincidunt nibh pulvinar a.
+            Proin eget tortor risus. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Donec velit neque, auctor sit amet aliquam vel, ullamcorper sit amet ligula. Nulla porttitor accumsan tincidunt. Lorem ipsum dolor sit amet,
+            consectetur adipiscing elit. Vivamus suscipit tortor eget felis porttitor volutpat. Curabitur non nulla sit amet nisl tempus convallis quis ac lectus. Vestibulum ac diam sit amet quam vehicula elementum sed sit amet dui. Vestibulum ante ipsum
+            primis in faucibus orci luctus et ultrices posuere cubilia Curae; Donec velit neque, auctor sit amet aliquam vel, ullamcorper sit amet ligula. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Donec velit
+            neque, auctor sit amet aliquam vel, ullamcorper sit amet ligula. Mauris blandit aliquet elit, eget tincidunt nibh pulvinar a.
           </p>
           <p>
-						Curabitur non nulla sit amet nisl tempus convallis quis ac lectus. Pellentesque in ipsum id orci porta dapibus. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec rutrum congue leo eget malesuada. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque in ipsum id orci porta dapibus. Praesent sapien massa, convallis a pellentesque nec, egestas non nisi. Nulla quis lorem ut libero malesuada feugiat. Pellentesque in ipsum id orci porta dapibus.
-					</p>
-          <p>
-						Donec rutrum congue leo eget malesuada. Curabitur aliquet quam id dui posuere blandit. Nulla quis lorem ut libero malesuada feugiat. Mauris blandit aliquet elit, eget tincidunt nibh pulvinar a. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Donec velit neque, auctor sit amet aliquam vel, ullamcorper sit amet ligula. Sed porttitor lectus nibh. Sed porttitor lectus nibh. Mauris blandit aliquet elit, eget tincidunt nibh pulvinar a. Quisque velit nisi, pretium ut lacinia in, elementum id enim. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Donec velit neque, auctor sit amet aliquam vel, ullamcorper sit amet ligula.
+            Curabitur non nulla sit amet nisl tempus convallis quis ac lectus. Pellentesque in ipsum id orci porta dapibus. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec rutrum congue leo eget malesuada. Lorem ipsum dolor sit amet, consectetur adipiscing
+            elit. Pellentesque in ipsum id orci porta dapibus. Praesent sapien massa, convallis a pellentesque nec, egestas non nisi. Nulla quis lorem ut libero malesuada feugiat. Pellentesque in ipsum id orci porta dapibus.
           </p>
-        </div>
+          <p>
+            Donec rutrum congue leo eget malesuada. Curabitur aliquet quam id dui posuere blandit. Nulla quis lorem ut libero malesuada feugiat. Mauris blandit aliquet elit, eget tincidunt nibh pulvinar a. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices
+            posuere cubilia Curae; Donec velit neque, auctor sit amet aliquam vel, ullamcorper sit amet ligula. Sed porttitor lectus nibh. Sed porttitor lectus nibh. Mauris blandit aliquet elit, eget tincidunt nibh pulvinar a. Quisque velit nisi, pretium
+            ut lacinia in, elementum id enim. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Donec velit neque, auctor sit amet aliquam vel, ullamcorper sit amet ligula.
+          </p>
+        </section>
       </div>
     </div>
-    <div data-wl-type="layer" data-wl-native-scroll="false" data-wl-default-frame="menu1" data-wl-layout-type="canvas">
+    <div id="layer_menu" data-wl-type="layer" data-wl-native-scroll="false" data-wl-default-frame="menu1" data-wl-layout-type="canvas">
       <div id="menu1" data-wl-x="0" data-wl-y="0" data-wl-type="frame" data-wl-name="menu1" data-wl-fit-to="width" data-wl-neighbors.t="menu2">
-        <div data-wl-type="text">Navigation bar</div>
+        <div class="menubox"><i class="fa fa-bars" aria-hidden="true"></i> Menu</div>
       </div>
-      <div id="menu2" data-wl-x="0" data-wl-y="-60" data-wl-type="frame" data-wl-name="menu2" data-wl-fit-to="width" data-wl-neighbors.b="menu1">
-        <div data-wl-type="text">Main Menu</div>
+      <div id="menu2" data-wl-x="0" data-wl-y="-400" data-wl-type="frame" data-wl-name="menu2" data-wl-fit-to="width" data-wl-neighbors.b="menu1">
+        <section class="menu">
+          <div>Home</div>
+          <div>About</div>
+          <div>Terms</div>
+          <div>Contact</div>
+          <i class="fa fa-times close" aria-hidden="true"></i>
+        </section>
       </div>
     </div>
   </div>
@@ -153,23 +209,34 @@
   <script src="layerjs.js"></script>
   <script>
     WL.init();
-
-    var findex = 1;
+    // API calls for slider left/right buttons
+    var ilayer = WL.select('#layer_image');
     document.getElementById('next').addEventListener('click', function() {
-      findex++;
-      if (findex > 6)
-        findex = 1;
-      WL.select('#layer_image').transitionTo("image" + (findex), {
+      ilayer.transitionTo(ilayer.currentFrame.data.attributes.neighbors.r, {
         type: 'left'
       });
     });
-
     document.getElementById('prev').addEventListener('click', function() {
-      findex--;
-      if (findex < 1)
-        findex = 6;
-      WL.select('#layer_image').transitionTo("image" + (findex), {
+      ilayer.transitionTo(ilayer.currentFrame.data.attributes.neighbors.l, {
         type: 'right'
+      });
+    });
+    // API calls for menu open closely
+    var mlayer = WL.select('#layer_menu');
+    document.getElementsByClassName('menubox')[0].addEventListener('click', function() {
+      if (mlayer.currentFrame.data.attributes.name == 'menu1') {
+        mlayer.transitionTo('menu2', {
+          type: 'down'
+        });
+      } else {
+        mlayer.transitionTo('menu1', {
+          type: 'up'
+        });
+      }
+    });
+    document.getElementsByClassName('close')[0].addEventListener('click', function() {
+      mlayer.transitionTo('menu1', {
+        type: 'up'
       });
     });
   </script>
