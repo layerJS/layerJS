@@ -673,7 +673,7 @@ var GestureManager = Kern.EventManager.extend({
     // touch event
     if (event.targetTouches && (event.targetTouches.length >= 1)) {
       return event.targetTouches[0].clientY;
-    } else {
+    } else if (event.changedTouches && (event.changedTouches.length >= 1)) {
       return event.changedTouches[0].clientY;
     }
 
@@ -688,7 +688,7 @@ var GestureManager = Kern.EventManager.extend({
     // touch event
     if (event.targetTouches && (event.targetTouches.length >= 1)) {
       return event.targetTouches[0].clientX;
-    } else {
+    } else if (event.changedTouches && (event.changedTouches.length >= 1)) {
       return event.changedTouches[0].clientX;
     }
 
