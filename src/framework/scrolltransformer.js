@@ -62,13 +62,13 @@ var ScrollTransformer = Kern.EventManager.extend({
         if (gesture.shift.y > 0) { // Note: gesture.shift is negative
           return tfd.scrollY > 0; // return true if can scroll; false otherwise
         } else {
-          return (tfd.maxScrollY - tfd.scrollY > 1);
+          return (this.layer.outerEl.scrollHeight - this.layer.outerEl.clientHeight - 1 > this.layer.outerEl.scrollTop);
         }
       } else if (axis === 'x') {
         if (gesture.shift.x > 0) {
           return tfd.scrollX > 0;
         } else {
-          return (tfd.maxScrollX - tfd.scrollX > 1);
+          return (this.layer.outerEl.scrollWidth - this.layer.outerEl.clientWidth - 1 > this.layer.outerEl.scrollLeft);
         }
       }
     } else {
