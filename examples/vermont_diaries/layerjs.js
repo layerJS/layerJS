@@ -1,6 +1,7 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 module.exports = {
   version: 'default',
+  tag: 'div'
 };
 
 },{}],2:[function(require,module,exports){
@@ -102,8 +103,8 @@ var DomHelpers = {
    * select a layerJS view object using a CSS selector
    * returns only the first view it finds.
    *
-   * @param {string} selector - a CSS selector that identifies an element that is associated with a NodeView
-   * @returns {NodeView} the selected view object
+   * @param {string} selector - a CSS selector that identifies an element that is associated with a ObjView
+   * @returns {ObjView} the selected view object
    */
   selectView: function(selector){
     var nodes=document.querySelectorAll(selector);
@@ -120,375 +121,31 @@ module.exports = DomHelpers;
 
 },{}],3:[function(require,module,exports){
 'use strict';
-var $ = require('./domhelpers.js');
 var Kern = require('../kern/Kern.js');
-var pluginManager = require('./pluginmanager.js');
-
-var NodeView = require('./nodeview.js');
-var defaults = require('./defaults.js');
-var identifyPriority = require('./identifypriority.js');
+var GroupData = require('./groupdata.js');
 
 /**
- * Defines the view of a ObjData and provides all basic properties and
- * rendering fuctions that are needed for a visible element.
- *
- * @param {ObjData} dataModel the Tailbone Model of the View's data
- * @param {Object} options {data: json for creating a new data object; el: (optional) HTMLelement already exisitng; outerEl: (optional) link wrapper existing; root: true if that is the root object}
+ * @extends GroupData
  */
-var ElementView = NodeView.extend({
-  constructor: function(dataModel, options) {
-
-    NodeView.call(this, dataModel, options);
-
-    this.disableObserver();
-
-    var that = this;
-    // The change event must change the properties of the HTMLElement el.
-    this.data.on('change', function(model) {
-      if (!that._dataObserverCounter) {
-        if (model.changedAttributes.hasOwnProperty('width') || model.changedAttributes.hasOwnProperty('height')) {
-          that._fixedDimensions();
-        }
-      }
-    }, {
-      ignoreSender: that
-    });
-
-    this._fixedDimensions();
-    this.enableObserver();
-    this.enableDataObserver();
-  },
-  /**
-   * checks if the data object contains fixed width and height and provides those in the properties
-   * fixedWidth and fixedHeight. This allows certain functions (like getTransformData) to calculate
-   * geometries before this element is rendered. Those properties should be accessed via the .width()
-   * and height() methods which also consider the rendered dimensions.
-   *
-   * @returns {void}
-   */
-  _fixedDimensions: function() {
-    var match;
-    if (this.data.attributes.width && (match = this.data.attributes.width.match(/(.*)px/))) {
-      this.fixedWidth = parseInt(match[1]);
-    } else {
-      delete this.fixedWidth;
-    }
-    if (this.data.attributes.height && (match = this.data.attributes.height.match(/(.*)px/))) {
-      this.fixedHeight = parseInt(match[1]);
-    } else {
-      delete this.fixedHeight;
-    }
-  },
-
-  render: function(options) {
-    options = options || {};
-    this.disableObserver();
-
-    var attr = this.data.attributes,
-      diff = (this.isRendererd ? this.data.changedAttributes : this.data.attributes),
-      outerEl = this.outerEl;
-    if ('id' in diff) {
-      outerEl.setAttribute("data-wl-id", attr.id); //-> should be a class?
-    }
-
-    if ('type' in diff) {
-      outerEl.setAttribute("data-wl-type", attr.type); //-> should be a class?
-    }
-
-    if ('elementId' in diff || 'id' in diff) {
-      outerEl.id = attr.elementId || "wl-obj-" + attr.id; //-> shouldn't we always set an id? (priority of #id based css declarations)
-    }
-
-    // add classes to object
-    if ('classes' in diff) {
-      var classes = 'object-default object-' + this.data.get('type');
-      // this.ui && (classes += ' object-ui');
-      // this.ontop && (classes += ' object-ontop');
-      if (attr.classes) {
-        classes += ' ' + attr.classes;
-      }
-      outerEl.className = classes;
-    }
-
-    // When the object is an anchor, set the necessary attributes
-    if (this.data.attributes.tag.toUpperCase() === 'A') {
-      if ('linkTo' in diff)
-        outerEl.setAttribute('href', this.data.attributes.linkTo);
-
-      if (!this.data.attributes.linkTarget)
-        this.data.attributes.linkTarget = '_self';
-
-      if ('linkTarget' in diff)
-        outerEl.setAttribute('target', this.data.attributes.linkTarget);
-    }
-
-    // Add htmlAttributes to the DOM element
-    if ('htmlAttributes' in diff) {
-      for (var htmlAttribute in diff.htmlAttributes) {
-        if ('style' !== htmlAttribute && diff.htmlAttributes.hasOwnProperty(htmlAttribute)) {
-          outerEl.setAttribute(htmlAttribute.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase(), diff.htmlAttributes[htmlAttribute]);
-        }
-      }
-    }
-
-    // create object css style
-    // these styles are stored in the head of the page index.html
-    // in a style tag with the id object_css
-    // FIXME: we should use $('#object_css').sheet to acces the style sheet and then iterate through the cssrules. The view can keep a reference to its cssrule
-    // FIXME: should we support media queries here. if so how does that work with versions? alternative?
-
-    var selector = (attr.elementId && "#" + attr.elementId) || "#wl-obj-" + attr.id;
-    var oldSelector = (diff.elementId && "#" + diff.elementId) || (diff.id && "#wl-obj-" + diff.id) || selector;
-
-    if (('style' in diff) || (selector !== oldSelector)) {
-      var styleElement = document.getElementById('wl-obj-css');
-      if (!styleElement) {
-        styleElement = document.createElement('style');
-        document.head.appendChild(styleElement);
-      }
-      var cssContent = styleElement.innerHTML;
-      var re;
-
-      if (attr.style) {
-        if (cssContent.indexOf(oldSelector) === -1) {
-          styleElement.innerHTML += selector + '{' + attr.style + '}\n';
-        } else {
-          re = new RegExp(oldSelector + '{[^}]*}', 'g');
-          styleElement.innerHTML = cssContent.replace(re, selector + '{' + attr.style + '}');
-        }
-      } else { // no style provided, if it is is in object_css tag delete it from there
-        if (cssContent.indexOf(oldSelector) !== -1) {
-          re = new RegExp(oldSelector + '{[^}]*}', 'g');
-          styleElement.innerHTML = cssContent.replace(re, '');
-        }
-      }
-    }
-
-    this.isRendered = true;
-
-    this.enableObserver();
-  },
-  /**
-   * apply CSS styles to this view
-   *
-   * @param {Object} arguments - List of styles that should be applied
-   * @returns {Type} Description
-   */
-  applyStyles: function() {
-    this.disableObserver();
-    var len = arguments.length;
-    for (var j = 0; j < len; j++) {
-      var props = Object.keys(arguments[j]); // this does not run through the prototype chain; also does not return special
-      for (var i = 0; i < props.length; i++) {
-        this.outerEl.style[$.cssPrefix[props[i]] || props[i]] = arguments[j][props[i]];
-      }
-    }
-    this.enableObserver();
-  },
-  /**
-   * returns the width of the object. Note, this is the actual width which may be different then in the data object
-   * Use waitForDimensions() to ensure that this value is correct
-   *
-   * @returns {number} width
-   */
-  width: function() {
-    return this.outerEl.offsetWidth || this.fixedWidth;
-  },
-  /**
-   * returns the height of the object. Note, this is the actual height which may be different then in the data object.
-   * Use waitForDimensions() to ensure that this value is correct
-   *
-   * @returns {number} height
-   */
-  height: function() {
-    return this.outerEl.offsetHeight || this.fixedHeight;
-  },
-  /**
-   * make sure element has reliable dimensions, either by being rendered or by having fixed dimensions
-   *
-   * @returns {Promise} the promise which becomes fulfilled if dimensions are availabe
-   */
-  waitForDimensions: function() {
-    var p = new Kern.Promise();
-    var w = this.outerEl.offsetWidth || this.fixedWidth;
-    var h = this.outerEl.offsetHeight || this.fixedHeight;
-    var that = this;
-    if (w || h) {
-      p.resolve({
-        width: w || 0,
-        height: h || 0
-      });
-    } else {
-      setTimeout(function f() {
-        var w = that.outerEl.offsetWidth || this.fixedWidth;
-        var h = that.outerEl.offsetHeight || this.fixedHeight;
-        if (w || h) {
-          p.resolve({
-            width: w || 0,
-            height: h || 0
-          });
-        } else {
-          setTimeout(f, 200);
-        }
-      }, 0);
-
-    }
-    return p;
-  },
-  /**
-   * Will create a dataobject based on a DOM element
-   *
-   * @param {element} DOM element to needs to be parsed
-   * @return  {data} a javascript data object
-   */
-  parse: function(element) {
-    var index;
-    var data = {
-      tag: element.tagName,
-      htmlAttributes: {}
-    };
-
-    var elementAttributes = element.attributes;
-    var length = elementAttributes.length;
-
-    for (index = 0; index < length; index++) {
-      var attribute = elementAttributes[index];
-      var attributeName = attribute.name;
-      var attributeValue = attribute.value;
-      var dataSource = undefined;
-
-      if (attributeName.indexOf('data-wl-') === 0) {
-        // store directly in the data object
-        dataSource = data;
-        attributeName = attributeName.replace('data-wl-', '');
-      } else {
-        // store in data.htmlAttributes
-        dataSource = data.htmlAttributes;
-      }
-
-      if (attributeValue === 'true' || attributeValue === 'false') {
-        attributeValue = eval(attributeValue); // jshint ignore:line
-      }
-
-      attributeName = attributeName.replace(/(\-[a-z])/g, function($1) {
-        return $1.toUpperCase().replace('-', '');
-      });
-
-      var attributeNames = attributeName.split('.');
-      var attributesNamesLength = attributeNames.length;
-      var attributeObj = dataSource;
-      for (var i = 0; i < attributesNamesLength; i++) {
-        if (!attributeObj.hasOwnProperty(attributeNames[i])) {
-          attributeObj[attributeNames[i]] = (i === attributesNamesLength - 1) ? attributeValue : {};
-        }
-        attributeObj = attributeObj[attributeNames[i]];
-      }
-    }
-
-    data.classes = element.className.replace("object-default object-" + data.type + " ", ""); //FIXME: remove old webpgr classes
-
-    if (data.tag.toUpperCase() === 'A') {
-      data.linkTo = element.getAttribute('href');
-      data.linkTarget = element.getAttribute('target');
-    }
-
-    var style = element.style;
-
-    if (style.left) {
-      data.x = style.left;
-    }
-    if (style.top) {
-      data.y = style.top;
-    }
-    if (style.display === 'none') {
-      data.hidden = true;
-    }
-    if (style.zIndex) {
-      data.zIndex = style.zIndex;
-    }
-
-    if (style.width !== undefined) {
-      data.width = style.width; //FIXME: how to deal with this?
-    }
-    if (!data.width && element.getAttribute('width')) { // only a limited set of elements support the width attribute
-      data.width = element.getAttribute('width');
-    }
-    if (style.height !== undefined) {
-      data.height = style.height;
-    }
-    if (!data.height && element.getAttribute('height')) { // only a limited set of elements support the width attribute
-      data.height = element.getAttribute('height');
-    }
-    this.disableDataObserver();
-    // modify existing data object, don't trigger any change events to ourselves
-    this.data.setBy(this, data);
-    this.enableDataObserver();
-  },
-}, {
-  defaultProperties: Kern._extend({}, NodeView.defaultProperties, defaults, {
-    type: 'element',
-    nodeType: 1,
-    tag: 'br',
-    elementId: undefined,
-    // CSS string for styling this object
-    style: '',
-    // CSS classes of this object
-    classes: '',
-    // this stores a string for a hyperlink realized by an <a> tag that
-    // wraps the element
-    linkTo: undefined,
-    // defaults to _self, but should not be set because if set a link is
-    // created, this could be fixed
-    linkTarget: undefined,
-    //locked elements can not be edited
-    locked: undefined,
-    // a list of properties that are not allowed to be edited
-    disallow: {},
-    // set to undefined so we can find out if a newly created element
-    // provided positional information
-    x: undefined,
-    y: undefined,
-    width: undefined,
-    height: undefined,
-    // rendering scale
-    scaleX: 1,
-    scaleY: 1,
-    // z-index
-    zIndex: undefined,
-    // this is set in init$el to the current rotation if it was not set
-    // before
-    rotation: undefined,
-    //is the element hidden in presentation mode
-    hidden: undefined
-  }),
-  identify: function(element) {
-    var result = false;
-
-    if (element.nodeType === 1) {
-      var tags = ['area', 'base', 'br', 'col', 'command', 'embed', 'hr', 'img', 'input', 'keygen', 'link', 'meta', 'param', 'source', 'track', 'wbr'];
-      for (var i = 0; i < tags.length; i++) {
-        if (tags[i] === element.tagName.toLowerCase()) {
-          result = true;
-          break;
-        }
-      }
-    }
-    return result;
-  }
+var FrameData = GroupData.extend({
+  defaults: Kern._extend({}, GroupData.prototype.defaults, {
+    nativeScroll: true,
+    fitTo: 'width',
+    startPosition: 'top',
+    noScrolling: false,
+    type: 'frame'
+  })
 });
 
+module.exports = FrameData;
 
-pluginManager.registerType('element', ElementView, identifyPriority.normal);
-
-module.exports = ElementView;
-
-},{"../kern/Kern.js":23,"./defaults.js":1,"./domhelpers.js":2,"./identifypriority.js":9,"./nodeview.js":16,"./pluginmanager.js":18}],4:[function(require,module,exports){
+},{"../kern/Kern.js":28,"./groupdata.js":7}],4:[function(require,module,exports){
 'use strict';
 var Kern = require('../kern/Kern.js');
 var pluginManager = require('./pluginmanager.js');
+var FrameData = require('./framedata.js');
 var GroupView = require('./groupview.js');
 var Kern = require('../kern/Kern.js');
-var identifyPriority = require('./identifypriority.js');
 
 /**
  * A View which can have child views
@@ -739,245 +396,13 @@ var FrameView = GroupView.extend({
     return (this.transformData = d);
   }
 }, {
-  defaultProperties: Kern._extend({}, GroupView.defaultProperties, {
-    nativeScroll: true,
-    fitTo: 'width',
-    startPosition: 'top',
-    noScrolling: false,
-    type: 'frame'
-  }),
-  identify: function(element) {
-    var type = element.getAttribute('data-wl-type');
-    return  null !== type && type.toLowerCase() === FrameView.defaultProperties.type;
-  }
+  Model: FrameData
 });
 
-pluginManager.registerType('frame', FrameView, identifyPriority.normal);
+pluginManager.registerType('frame', FrameView);
 module.exports = FrameView;
 
-},{"../kern/Kern.js":23,"./groupview.js":8,"./identifypriority.js":9,"./pluginmanager.js":18}],5:[function(require,module,exports){
-'use strict';
-var WL = require('./wl.js');
-
-/**
- *  Will attach eventhandlers to identify gestures made on a DOM element
- *
- * @param {Object} element - element to add eventhandlers to
- * @param {func} callback - Function that will be invoked when a gesture is found
- */
-var GestureManager = function() {
-
-  /**
-   * Method that returns the current location based on an event
-   *
-   * @returns {Object} - contains coordindates to the current location
-   */
-  var getTouchLocation = function(e) {
-    var x, y;
-    if (e.changedTouches) {
-      x = e.changedTouches[0].pageX;
-      y = e.changedTouches[0].pageY;
-    } else {
-      if (e.pageX === undefined && e.clientX !== undefined) {
-        var eventDoc = e.target.ownerDocument || document;
-        var doc = eventDoc.documentElement;
-        var body = eventDoc.body;
-        e.pageX = e.clientX + (doc && doc.scrollLeft || body && body.scrollLeft || 0) - (doc && doc.clientLeft || body && body.clientLeft || 0);
-        e.pageY = e.clientY + (doc && doc.scrollTop || body && body.scrollTop || 0) - (doc && doc.clientTop || body && body.clientTop || 0);
-      }
-      x = e.pageX;
-      y = e.pageY;
-    }
-    return {
-      x: x,
-      y: y
-    };
-  };
-
-  var touchStart;
-
-  /**
-   * Method that needs to be invoked when an element is touched
-   *
-   * @param {Object} e - event
-   */
-  var startTouchHandler = function(e) {
-    touchStart = getTouchLocation(e);
-  };
-
-  /**
-   * Method that needs to be invoked when the touche event is ended
-   *
-   * @param {Object} e - event
-   */
-  var endTouchHandler = function(element, e) {
-    var direction;
-    var touchEnd = getTouchLocation(e);
-    var distanceX = touchEnd.x - touchStart.x,
-      distanceY = touchEnd.y - touchStart.y;
-
-    if (Math.abs(distanceX) >= Math.abs(distanceY)) {
-      direction = (distanceX < 0) ? 'left' : 'right';
-    } else { // 2nd condition for vertical swipe met
-      direction = (distanceY < 0) ? 'up' : 'down';
-    }
-
-    eventHandler(element, direction, e);
-  };
-
-  var lastGesture;
-  var wheelListener = function(element, e) {
-
-    var gesture = (lastGesture && new Date().getTime() - lastGesture.startTime <= 300) ? lastGesture : undefined,
-      delta = 0,
-      deltaX = 0;
-
-    if (gesture && gesture.scale === undefined) {
-      gesture.scale = 1;
-    }
-
-    if (e.wheelDelta) { /* IE/Opera. */
-      delta = e.wheelDelta / 120;
-    } else if (e.detail) { /** Mozilla case. */
-      /** In Mozilla, sign of delta is different than in IE.
-       * Also, delta is multiple of 3.
-       */
-      delta = -e.detail / 3;
-    }
-    // If we have x data we do not want to collect the y data
-    // or we will scroll sideways on some cumputers
-    if (e.deltaX || e.wheelDeltaX) {
-      delta = 0;
-      // on my version of Firefox the a deprecated scroll api is
-      // only implented sending axis values and only one delta.
-    } else if (e.axis === 1) {
-      deltaX = delta;
-      delta = 0;
-    }
-
-    if (e.deltaX || e.deltaY || e.wheelDeltaX || e.wheelDeltaY) {
-      if (e.deltaY) delta = e.deltaY / 120;
-      if (e.wheelDeltaY) delta = e.wheelDeltaY / 120;
-      if (e.deltaX) deltaX = e.deltaX / 120;
-      if (e.wheelDeltaX) deltaX = e.wheelDeltaX / 120;
-    }
-    if (gesture) {
-      var distanceX = gesture.deltaX + deltaX,
-        distanceY = gesture.delta + delta;
-      var fired = gesture.fired;
-      if (Math.abs(distanceX) + Math.abs(distanceY) > 2 && !fired) {
-        var direction;
-        if (Math.abs(distanceX) > Math.abs(distanceY)) {
-          direction = (distanceX < 0) ? 'left' : 'right';
-        } else { // 2nd condition for vertical swipe met
-          direction = (distanceY > 0) ? 'down' : 'up';
-        }
-        console.log("tg + >", distanceX, distanceY);
-        if (direction) {
-          eventHandler(element, direction, e);
-        }
-        fired = true;
-      }
-      lastGesture = {
-        startTime: new Date().getTime(),
-        deltaX: distanceX,
-        delta: distanceY,
-        fired: fired
-      };
-    } else {
-      lastGesture = {
-        startTime: new Date().getTime(),
-        deltaX: deltaX,
-        delta: delta,
-        fired: false
-      };
-    }
-    //e.preventDefault();
-  };
-
-  var addEventListeners = function(element) {
-
-    element.addEventListener('touchstart', startTouchHandler, false);
-    element.addEventListener('mouseDown', startTouchHandler, false);
-
-    element.addEventListener('touchmove', function(e) { // jshint ignore:line
-      //e.preventDefault(); // prevent scrolling when inside DIV
-    }, false);
-
-    element.addEventListener('touchend', function(e) {
-      endTouchHandler(element, e);
-    }, false);
-    element.addEventListener('mouseUp', function(e) {
-      endTouchHandler(element, e);
-    }, false);
-
-    element.addEventListener('mousewheel', function(e) {
-      wheelListener(element, e);
-    }, false);
-    element.addEventListener('DOMMouseScroll ', function(e) {
-      wheelListener(element, e);
-    }, false);
-  };
-
-  // Note: this function needs to be integrated into LayerView later
-  var eventHandler = function(element, direction, e) {
-    //console.log(layerElement._wlView);
-    var layerView = element._wlView;
-    var currentFrameView = layerView.currentFrame;
-    var targetFrameName = null;
-    console.log(direction);
-    if (layerView.gestureCanScroll(direction)) {
-      return;
-    }
-    e.preventDefault();
-    switch (direction) {
-      case 'up':
-        if (currentFrameView.data.attributes.neighbors && typeof currentFrameView.data.attributes.neighbors.u === 'string') {
-          targetFrameName = currentFrameView.data.attributes.neighbors.u;
-        }
-        break;
-      case 'down':
-        if (currentFrameView.data.attributes.neighbors && typeof currentFrameView.data.attributes.neighbors.d === 'string') {
-          targetFrameName = currentFrameView.data.attributes.neighbors.d;
-        }
-        break;
-      case 'left':
-        if (currentFrameView.data.attributes.neighbors && typeof currentFrameView.data.attributes.neighbors.l === 'string') {
-          targetFrameName = currentFrameView.data.attributes.neighbors.l;
-        }
-        break;
-      case 'right':
-        if (currentFrameView.data.attributes.neighbors && typeof currentFrameView.data.attributes.neighbors.r === 'string') {
-          targetFrameName = currentFrameView.data.attributes.neighbors.r;
-        }
-        break;
-      default:
-    }
-
-    if (null !== targetFrameName) {
-      console.log('current framename ' + currentFrameView.data.attributes.name);
-      console.log('target framename ' + targetFrameName);
-
-      layerView.transitionTo({
-        framename: targetFrameName,
-        type: direction
-      });
-    }
-  };
-  // this will be done by the layer itself later
-  this.register = function() {
-    var layerElements = document.querySelectorAll("[data-wl-type='layer']");
-    var length = layerElements.length;
-
-    for (var i = 0; i < length; i++) {
-      addEventListeners(layerElements[i]);
-    }
-  };
-};
-WL.gestureManager = new GestureManager();
-module.exports = WL.gestureManager;
-
-},{"./wl.js":22}],6:[function(require,module,exports){
+},{"../kern/Kern.js":28,"./framedata.js":3,"./groupview.js":8,"./pluginmanager.js":20}],5:[function(require,module,exports){
 'use strict';
 var Kern = require('../../kern/kern.js');
 
@@ -1037,7 +462,7 @@ var Gesture = Kern.Base.extend({
 
 module.exports = Gesture;
 
-},{"../../kern/kern.js":24}],7:[function(require,module,exports){
+},{"../../kern/kern.js":29}],6:[function(require,module,exports){
 'use strict';
 var Kern = require('../../kern/kern.js');
 var Gesture = require('./gesture.js');
@@ -1209,7 +634,7 @@ var GestureManager = Kern.EventManager.extend({
    */
   _release: function(event, element, callback, options) { //jshint unused:false
     this.gesture.move = false;
-    this.gesture.end = true;
+    this.gesture.last = true;
     this.gesture.position.x = this._xPosition(event);
     this.gesture.position.y = this._yPosition(event);
     this.gesture.shift.x = this.gesture.position.x - this.gesture.start.x;
@@ -1248,6 +673,8 @@ var GestureManager = Kern.EventManager.extend({
     // touch event
     if (event.targetTouches && (event.targetTouches.length >= 1)) {
       return event.targetTouches[0].clientY;
+    } else {
+      return event.changedTouches[0].clientY;
     }
 
     // mouse event
@@ -1261,6 +688,8 @@ var GestureManager = Kern.EventManager.extend({
     // touch event
     if (event.targetTouches && (event.targetTouches.length >= 1)) {
       return event.targetTouches[0].clientX;
+    } else {
+      return event.changedTouches[0].clientX;
     }
 
     // mouse event
@@ -1301,20 +730,71 @@ WL.gestureManager2 = new GestureManager();
 
 module.exports = WL.gestureManager2;
 
-},{"../../kern/kern.js":24,"../wl.js":22,"./gesture.js":6}],8:[function(require,module,exports){
+},{"../../kern/kern.js":29,"../wl.js":27,"./gesture.js":5}],7:[function(require,module,exports){
+'use strict';
+var Kern = require('../kern/Kern.js');
+var ObjData = require('./objdata.js');
+/**
+ * An extension of ObjData that adds the children property which is an
+ * array of ObjData IDs
+ *
+ * @extends ObjData
+ */
+var GroupData = ObjData.extend({
+  defaults: Kern._extend({}, ObjData.prototype.defaults, {
+    type: 'group',
+    children: [],
+    tag: 'div'
+  }),
+  addChildren: function(ids) {
+    this.silence();
+    if (Array.isArray(ids)) {
+      for (var i = 0; i < ids.length; i++) {
+        this.addChild(ids[i]);
+      }
+    }
+    this.fire();
+  },
+  addChild: function(id) {
+    this.silence();
+    this.update('children').push(id);
+    this.fire();
+  },
+  removeChildren: function(ids) {
+    this.silence();
+    if (Array.isArray(ids)) {
+      for (var i = 0; i < ids.length; i++) {
+        this.removeChild(ids[i]);
+      }
+    }
+    this.fire();
+  },
+  removeChild: function(id) {
+    var idx = this.attributes.children.indexOf(id);
+    if (idx >= 0) {
+      this.silence();
+      this.update('children').splice(idx, 1);
+      this.fire();
+    }
+  }
+});
+
+module.exports = GroupData;
+
+},{"../kern/Kern.js":28,"./objdata.js":17}],8:[function(require,module,exports){
 'use strict';
 var Kern = require('../kern/Kern.js');
 var pluginManager = require('./pluginmanager.js');
 var repository = require('./repository.js'); // jshint ignore:line
-var ElementView = require('./elementview.js');
-var identifyPriority = require('./identifypriority.js');
+var ObjView = require('./objview.js');
+var GroupData = require('./groupdata.js');
 /**
  * A View which can have child views
  * @param {GroupData} dataModel
  * @param {object}        options
- * @extends ElementView
+ * @extends ObjView
  */
-var GroupView = ElementView.extend({
+var GroupView = ObjView.extend({
   /**
    * construct a new view of a GroupData
    *
@@ -1328,7 +808,7 @@ var GroupView = ElementView.extend({
     this._childViews = {};
     this._childNames = {};
 
-    ElementView.call(this, dataModel, Kern._extend({}, options, {
+    ObjView.call(this, dataModel, Kern._extend({}, options, {
       noRender: true
     }));
     // create listener to child changes. need different callbacks for each instance in order to remove listeners separately from child data objects
@@ -1500,16 +980,18 @@ var GroupView = ElementView.extend({
     var data;
     for (i = 0; i < cn.length; i++) {
       var elem = cn[i];
-
-      nodeId = (elem._wlView && elem._wlView.data.attributes.id) || elem.getAttribute && elem.getAttribute('data-wl-id');
+      if (elem.nodeType !== 1) {
+        continue;
+      }
+      nodeId = (elem._wlView && elem._wlView.data.attributes.id) || elem.getAttribute('data-wl-id');
       try {
         data = nodeId && repository.get(nodeId, this.data.attributes.version);
       } catch (e) {
         data = undefined;
       }
-      nodeType = (elem._wlView && elem._wlView.data.attributes.type) || elem.getAttribute && elem.getAttribute('data-wl-type');
+      nodeType = (elem._wlView && elem._wlView.data.attributes.type) || elem.getAttribute('data-wl-type');
       if (nodeId && (data || nodeType)) {
-        // search for nodeId in data.chi ldren
+        // search for nodeId in data.children
         var k_saved = k;
 
         while (k < childIds.length && nodeId !== childIds[k]) {
@@ -1529,7 +1011,7 @@ var GroupView = ElementView.extend({
             parent: this
           });
         } else if (nodeType) { // or  a nodeType?
-          // create new view without data object, just by type. creates data object implicitly with cElementView._parse
+          // create new view without data object, just by type. creates data object implicitly with cobjview._parse
           vo = pluginManager.createView(nodeType, {
             el: elem,
             parent: this
@@ -1546,7 +1028,7 @@ var GroupView = ElementView.extend({
         k++; // next in data.children
 
       } else if (nodeType) {
-        // create new view without data object, just by type. creates data object implicitly with cElementView._parse
+        // create new view without data object, just by type. creates data object implicitly with cobjview._parse
         vo = pluginManager.createView(nodeType, {
           el: elem,
           parent: this
@@ -1561,23 +1043,8 @@ var GroupView = ElementView.extend({
         if (vo.data.attributes.name) this._childNames[vo.data.attributes.name] = vo;
         vo.data.on('change', this._myChildListenerCallback); // attach child change listener
         k++; // next in data.children
-      } else {
-        nodeType = pluginManager.identify(elem);
-        // create new view without data object, just by type. creates data object implicitly with cElementView._parse
-        vo = pluginManager.createView(nodeType, {
-          el: elem,
-          parent: this
-        });
-        nodeId = vo.data.attributes.id; // id has been generated automatically
-        vo.data.attributes.version = this.data.attributes.version; // take version from parent (this)
-        childIds.splice(k, 0, nodeId); // insert new nodeid in data.children
-        if (!repository.contains(vo.data.attributes.id, vo.data.attributes.version)) {
-          repository.add(vo.data, this.data.attributes.version); // add new (implicitly created) data object to repository
-        }
-        this._childViews[nodeId] = vo; // update _childViews
-        if (vo.data.attributes.name) this._childNames[vo.data.attributes.name] = vo;
-        vo.data.on('change', this._myChildListenerCallback); // attach child change listener
-        k++; // next in data.children
+      } else { // jshint ignore:line
+        // add import of non-typed elements later
       }
     }
     // delete further ids in data.children
@@ -1587,10 +1054,10 @@ var GroupView = ElementView.extend({
     this.enableDataObserver();
   },
   /**
-   * return child ElementView for a given child id
+   * return child ObjView for a given child id
    *
    * @param {string} childId - the id of the requested object
-   * @returns {ElementView} the view object
+   * @returns {ObjView} the view object
    */
   getChildView: function(childId) {
     if (!this._childViews.hasOwnProperty(childId)) throw "unknown child " + childId + " in group " + this.data.attributes.id;
@@ -1600,7 +1067,7 @@ var GroupView = ElementView.extend({
    * return view by name property
    *
    * @param {string} name - the name of the searched child
-   * @returns {ElementView} the view object
+   * @returns {ObjView} the view object
    */
   getChildViewByName: function(name) {
     if (!this._childNames.hasOwnProperty(name)) throw "unknown child with name " + name + " in group " + this.data.attributes.id;
@@ -1629,7 +1096,7 @@ var GroupView = ElementView.extend({
    * This method is the only way to attach an existing view to the parent. If a child is added solely in the dataobject,
    * a new view object is generated via the plugin manager.
    *
-   * @param {ElementView} newView - the view object to be attached as child
+   * @param {ObjView} newView - the view object to be attached as child
    * @returns {Type} Description
    */
   attachView: function(newView) {
@@ -1645,7 +1112,7 @@ var GroupView = ElementView.extend({
    * remove a view from this group. updates dataobject of this group which will trigger change event which
    * will call _buildChildren
    *
-   * @param {ElementView} view - the view object to be removed
+   * @param {ObjView} view - the view object to be removed
    * @returns {Type} Description
    */
   detachView: function(view) {
@@ -1657,13 +1124,13 @@ var GroupView = ElementView.extend({
   },
   /**
    * render the position of the child. This is done similar as setting other style (CSS) properties in
-   * ElementView's render method. It's important to do this here so that derived classes can overwrite it
+   * objview's render method. It's important to do this here so that derived classes can overwrite it
    * and position objects differently
    * Note: this currently implements setting the positional style information directly on the object.
    * This is most likely the best for speed. For rendering on the server, this infor has to go into a
    * separate css style
    *
-   * @param {ElementView} childView - the view to be positioned.
+   * @param {ObjView} childView - the view to be positioned.
    * @returns {Type} Description
    */
   _renderChildPosition: function(childView) {
@@ -1703,13 +1170,10 @@ var GroupView = ElementView.extend({
     if ('height' in diff && attr.height !== undefined) {
       css.height = attr.height;
     }
-
-    if (childView.applyStyles) {
-      childView.applyStyles(css);
-    }
+    childView.applyStyles(css);
   },
   /**
-   * render the group. Uses ElementView.render to display changes to the object.
+   * render the group. Uses objview.render to display changes to the object.
    *
    * @param {Type} Name - Description
    * @returns {Type} Description
@@ -1719,7 +1183,7 @@ var GroupView = ElementView.extend({
     options = options || {};
     this.disableObserver();
 
-    ElementView.prototype.render.call(this, options);
+    ObjView.prototype.render.call(this, options);
 
     if (!this.data.changedAttributes || this.data.changedAttributes.children) {
       var views = Object.keys(this._childViews);
@@ -1781,40 +1245,130 @@ var GroupView = ElementView.extend({
   },
 
 }, {
-  defaultProperties: Kern._extend({}, ElementView.defaultProperties, {
-    type: 'group',
-    tag: 'div',
-    children: []
-  }),
-  getNodeType: undefined,
-  identify: function(element) {
-    var type = element.getAttribute('data-wl-type');
-
-    return element.nodeType === 1 && ((null !== type && type.toLowerCase() === 'group') || !type);
-  }
+  Model: GroupData
 });
 
 
-pluginManager.registerType("group", GroupView, identifyPriority.low);
+pluginManager.registerType("group", GroupView);
 module.exports = GroupView;
 
-},{"../kern/Kern.js":23,"./elementview.js":3,"./identifypriority.js":9,"./pluginmanager.js":18,"./repository.js":19}],9:[function(require,module,exports){
-module.exports = {
-  low: 1,
-  normal: 2,
-  high: 3
-};
+},{"../kern/Kern.js":28,"./groupdata.js":7,"./objview.js":18,"./pluginmanager.js":20,"./repository.js":21}],9:[function(require,module,exports){
+'use strict';
+var Kern = require('../kern/Kern.js');
+var ObjData = require('./objdata.js');
+/**
+ * #ImageData
+ * This data type will contain all the information to render a image
+ * @type {Model}
+ */
+var ImageData = ObjData.extend({
+  defaults: Kern._extend({}, ObjData.prototype.defaults, {
+    type: 'image',
+    tag: 'img'
+  })
+});
 
-},{}],10:[function(require,module,exports){
+module.exports = ImageData;
+
+},{"../kern/Kern.js":28,"./objdata.js":17}],10:[function(require,module,exports){
+'use strict';
+var ObjView = require('./objview.js');
+var ImageData = require('./imagedata.js');
+var pluginManager = require('./pluginmanager.js');
+var Kern = require('../kern/Kern.js');
+var WL = require('./wl.js');
+
+/**
+ * A View which can render images
+ * @param {ImageData} dataModel
+ * @param {object}        options
+ * @extends ObjView
+ */
+var ImageView = ObjView.extend({
+  constructor: function(dataModel, options) {
+    options = options || {};
+    ObjView.call(this, dataModel, Kern._extend({}, options, {
+      noRender: true
+    }));
+
+    if (!options.noRender && (options.forceRender || !options.el))
+      this.render();
+  },
+  render: function(options) {
+    options = options || {};
+    this.disableObserver();
+
+    var attr = this.data.attributes,
+      diff = this.data.changedAttributes || this.data.attributes,
+      el = this.outerEl;
+
+    ObjView.prototype.render.call(this, options);
+
+    if ('src' in diff) {
+      el.setAttribute("src", WL.imagePath + attr.src);
+    }
+
+    if ('alt' in diff) {
+      el.setAttribute("alt", attr.alt);
+    }
+
+    this.enableObserver();
+  },
+  /**
+   * Will create a dataobject based on a DOM element
+   *
+   * @param {element} DOM element to needs to be parsed
+   * @return  {data} a javascript data object
+   */
+  parse: function(element) {
+    ObjView.prototype.parse.call(this, element);
+
+    var src = element.getAttribute('src');
+    var alt = element.getAttribute('alt');
+
+    this.disableDataObserver();
+    this.data.set("src", src ? src.replace(WL.imagePath, '') : undefined);
+    this.data.set("alt", alt ? alt : undefined);
+    this.enableDataObserver();
+  }
+}, {
+  Model: ImageData
+});
+
+
+pluginManager.registerType('image', ImageView);
+module.exports = ImageView;
+
+},{"../kern/Kern.js":28,"./imagedata.js":9,"./objview.js":18,"./pluginmanager.js":20,"./wl.js":27}],11:[function(require,module,exports){
+'use strict';
+var Kern = require('../kern/Kern.js');
+var GroupData = require('./groupdata.js');
+
+/**
+ * @extends GroupData
+ */
+var LayerData = GroupData.extend({
+  defaults: Kern._extend({}, GroupData.prototype.defaults, {
+    type: 'layer',
+    tag: 'div',
+    layoutType: 'slide',
+    defaultFrame: undefined,
+    nativeScroll: true
+  })
+});
+
+module.exports = LayerData;
+
+},{"../kern/Kern.js":28,"./groupdata.js":7}],12:[function(require,module,exports){
 'use strict';
 var $ = require('./domhelpers.js');
 var Kern = require('../kern/Kern.js');
 var pluginManager = require('./pluginmanager.js');
 var layoutManager = require('./layoutmanager.js');
+var LayerData = require('./layerdata.js');
 var GroupView = require('./groupview.js');
 var ScrollTransformer = require('./scrolltransformer.js');
 var gestureManager = require('./gestures/gesturemanager.js');
-var identifyPriority = require('./identifypriority.js');
 
 var directions2neighbors = {
   up: 'b',
@@ -2043,7 +1597,7 @@ var LayerView = GroupView.extend({
   /**
    * render child positions. overriden default behavior of groupview
    *
-   * @param {ElementView} childView - the child view that has changed
+   * @param {ObjView} childView - the child view that has changed
    * @returns {Type} Description
    */
   _renderChildPosition: function(childView) {
@@ -2072,28 +1626,18 @@ var LayerView = GroupView.extend({
     this.showFrame(this.currentFrame.data.attributes.name, scrollData);
   }
 }, {
-  /*
-  Model: LayerData*/
-  defaultProperties: Kern._extend({}, GroupView.defaultProperties, {
-    type: 'layer',
-    layoutType: 'slide',
-    defaultFrame: undefined,
-    nativeScroll: true
-  }),
-  identify: function(element) {
-    var type = element.getAttribute('data-wl-type');
-    return null !== type && type.toLowerCase() === LayerView.defaultProperties.type;
-  }
+  Model: LayerData
 });
 
-pluginManager.registerType('layer', LayerView, identifyPriority.normal);
+pluginManager.registerType('layer', LayerView);
 
 module.exports = LayerView;
 
-},{"../kern/Kern.js":23,"./domhelpers.js":2,"./gestures/gesturemanager.js":7,"./groupview.js":8,"./identifypriority.js":9,"./layoutmanager.js":11,"./pluginmanager.js":18,"./scrolltransformer.js":20}],11:[function(require,module,exports){
+},{"../kern/Kern.js":28,"./domhelpers.js":2,"./gestures/gesturemanager.js":6,"./groupview.js":8,"./layerdata.js":11,"./layoutmanager.js":13,"./pluginmanager.js":20,"./scrolltransformer.js":22}],13:[function(require,module,exports){
 'use strict';
 var WL = require('./wl.js');
 var Kern = require('../kern/Kern.js');
+//var ObjView = require('./ObjView.js');
 
 var LayoutManager = Kern.EventManager.extend({
   /**
@@ -2133,7 +1677,7 @@ WL.layoutManager = new LayoutManager();
 // this module does not return the class but a singleton instance, the layoutManager for the project.
 module.exports = WL.layoutManager;
 
-},{"../kern/Kern.js":23,"./wl.js":22}],12:[function(require,module,exports){
+},{"../kern/Kern.js":28,"./wl.js":27}],14:[function(require,module,exports){
 'use strict';
 var Kern = require('../../kern/Kern.js');
 var layoutManager = require('../layoutmanager.js');
@@ -2296,7 +1840,7 @@ layoutManager.registerType('canvas', CanvasLayout);
 
 module.exports = CanvasLayout;
 
-},{"../../kern/Kern.js":23,"../layoutmanager.js":11,"./layerlayout.js":13}],13:[function(require,module,exports){
+},{"../../kern/Kern.js":28,"../layoutmanager.js":13,"./layerlayout.js":15}],15:[function(require,module,exports){
 'use strict';
 var $ = require('../domhelpers.js');
 var Kern = require('../../kern/Kern.js');
@@ -2400,7 +1944,7 @@ var LayerLayout = Kern.EventManager.extend({
 
 module.exports = LayerLayout;
 
-},{"../../kern/Kern.js":23,"../domhelpers.js":2}],14:[function(require,module,exports){
+},{"../../kern/Kern.js":28,"../domhelpers.js":2}],16:[function(require,module,exports){
 'use strict';
 var $ = require('../domhelpers.js');
 var Kern = require('../../kern/Kern.js');
@@ -2638,89 +2182,102 @@ layoutManager.registerType('slide', SlideLayout);
 
 module.exports = SlideLayout;
 
-},{"../../kern/Kern.js":23,"../domhelpers.js":2,"../layoutmanager.js":11,"./layerlayout.js":13}],15:[function(require,module,exports){
+},{"../../kern/Kern.js":28,"../domhelpers.js":2,"../layoutmanager.js":13,"./layerlayout.js":15}],17:[function(require,module,exports){
 'use strict';
-
 var Kern = require('../kern/Kern.js');
-
+var defaults = require('./defaults.js');
 /**
- * Base data class of all view classes
- *
- * @extends Kern.Model
+ * #ObjData
+ * This is the base data Model for all Webpgr objects.
+ * @type {Model}
  */
-var NodeData = Kern.Model.extend({
-  constructor: function(param) {
-    var data = param || {};
+var ObjData = Kern.Model.extend({
+  // these are the default attributes, these attributes will be synced with the server
+  // plugins should extend these attributes when they need to store values on the server
+  // all attributes that are not in here linke `this.ontop` are internal attributes that
+  // will not be stored on the server
+  defaults: {
+    // subclasses must overwrite this or FAIL
+    type: 'node',
+    tag: defaults.tag,
+    elementId: undefined,
 
-    if (data.defaultProperties) {
-      data = Kern._extendKeepDeepCopy({}, param.defaultProperties);
-    }
+    // CSS string for styling this object
+    style: '',
+    // CSS classes of this object
+    classes: '',
 
-    Kern.Model.call(this, data);
+    // this stores a string for a hyperlink realized by an <a> tag that
+    // wraps the element
+    linkTo: undefined,
+    // defaults to _self, but should not be set because if set a link is
+    // created, this could be fixed
+    linkTarget: undefined,
+
+    //locked elements can not be edited
+    locked: undefined,
+    // a list of properties that are not allowed to be edited
+    disallow: {},
+
+    // set to undefined so we can find out if a newly created element
+    // provided positional information
+    x: undefined,
+    y: undefined,
+
+
+    width: undefined,
+    height: undefined,
+
+    // rendering scale
+    scaleX: 1,
+    scaleY: 1,
+
+    // z-index
+    zIndex: undefined,
+    // this is set in init$el to the current rotation if it was not set
+    // before
+    rotation: undefined,
+    //is the element hidden in presentation mode
+    hidden: undefined,
+    // bins are important for the compositor, they tell in which area the
+    // object is located, this is used for faster lookups of elements
+    version: defaults.version
   },
-
-  addChildren: function(ids) {
-    this.silence();
-    if (Array.isArray(ids)) {
-      for (var i = 0; i < ids.length; i++) {
-        this.addChild(ids[i]);
-      }
-    }
-    this.fire();
-  },
-
-  addChild: function(id) {
-    this.silence();
-    this.update('children').push(id);
-    this.fire();
-  },
-
-  removeChildren: function(ids) {
-    this.silence();
-    if (Array.isArray(ids)) {
-      for (var i = 0; i < ids.length; i++) {
-        this.removeChild(ids[i]);
-      }
-    }
-    this.fire();
-  },
-
-  removeChild: function(id) {
-    var idx = this.attributes.children.indexOf(id);
-    if (idx >= 0) {
-      this.silence();
-      this.update('children').splice(idx, 1);
-      this.fire();
-    }
-  }
+  //---
+  // the tag should be overwritten by plugins if neccessary, eg. image plugin will set img here
+  // nogesture: false,
+  // selectable: true,
+  // allowClick: true,
+  // ui: false,
+  // ontop: false,
+  // choose a layer that is below all other objects
+  // onbottom: false,
+  // dontSetSize: false,
 });
 
-module.exports = NodeData;
+module.exports = ObjData;
 
-},{"../kern/Kern.js":23}],16:[function(require,module,exports){
+},{"../kern/Kern.js":28,"./defaults.js":1}],18:[function(require,module,exports){
 'use strict';
-
+var $ = require('./domhelpers.js');
 var Kern = require('../kern/Kern.js');
-var NodeData = require('./nodedata.js');
-var defaults = require('./defaults.js');
-var repository = require('./repository.js');
 var pluginManager = require('./pluginmanager.js');
-var identifyPriority = require('./identifypriority.js');
+var repository = require('./repository.js');
+var ObjData = require('./objdata.js');
+
 /**
- * Defines the view of a node and provides all basic properties and
+ * Defines the view of a ObjData and provides all basic properties and
  * rendering fuctions that are needed for a visible element.
  *
- * @param {NodeData} dataModel the Tailbone Model of the View's data
+ * @param {ObjData} dataModel the Tailbone Model of the View's data
  * @param {Object} options {data: json for creating a new data object; el: (optional) HTMLelement already exisitng; outerEl: (optional) link wrapper existing; root: true if that is the root object}
  */
-var NodeView = Kern.EventManager.extend({
+var ObjView = Kern.EventManager.extend({
   constructor: function(dataModel, options) {
     Kern.EventManager.call(this);
     options = options || {};
-
     // dataobject must exist
-    this.data = this.data || dataModel || options.el && new NodeData(this.constructor);
-
+    this.data = this.data || dataModel || options.el && new this.constructor.Model();
     if (!this.data) throw "data object must exist when creating a view";
     this.disableDataObserver();
     // if element is given, parse the element to fill data object
@@ -2748,18 +2305,7 @@ var NodeView = Kern.EventManager.extend({
     // parent if defined
     this.parent = options.parent;
     // DOM element, take either the one provide by a sub constructor, provided in options, or create new
-    this.innerEl = this.innerEl || options.el;
-    if (undefined === this.innerEl) {
-      if (this.data.attributes.nodeType === 1 || this.data.attributes.tag) {
-        this.innerEl = document.createElement(this.data.attributes.tag);
-      } else if (this.data.attributes.nodeType === 3) {
-        // text node
-        this.innerEl = document.createTextNode('');
-      } else if (this.data.attributes.nodeType === 8) {
-        // comment node
-        this.innerEl = document.createComment('');
-      }
-    }
+    this.innerEl = this.innerEl || options.el || document.createElement(this.data.attributes.tag);
     // backlink from DOM to object
     if (this.innerEl._wlView) throw "trying to initialialize view on element that already has a view";
     this.innerEl._wlView = this;
@@ -2770,14 +2316,17 @@ var NodeView = Kern.EventManager.extend({
 
     var that = this;
     // The change event must change the properties of the HTMLElement el.
-    this.data.on('change', function() {
+    this.data.on('change', function(model) {
       if (!that._dataObserverCounter) {
+        if (model.changedAttributes.hasOwnProperty('width') || model.changedAttributes.hasOwnProperty('height')) {
+          that._fixedDimensions();
+        }
         that.render();
       }
     }, {
       ignoreSender: that
     });
-
+    this._fixedDimensions();
     // Only render the element when it is passed in the options
     if (!options.noRender && (options.forceRender || !options.el))
       this.render();
@@ -2785,11 +2334,33 @@ var NodeView = Kern.EventManager.extend({
     this._createObserver();
     this.enableObserver();
     this.enableDataObserver();
+
+  },
+  /**
+   * checks if the data object contains fixed width and height and provides those in the properties
+   * fixedWidth and fixedHeight. This allows certain functions (like getTransformData) to calculate
+   * geometries before this element is rendered. Those properties should be accessed via the .width()
+   * and height() methods which also consider the rendered dimensions.
+   *
+   * @returns {void}
+   */
+  _fixedDimensions: function() {
+    var match;
+    if (this.data.attributes.width && (match = this.data.attributes.width.match(/(.*)px/))) {
+      this.fixedWidth = parseInt(match[1]);
+    } else {
+      delete this.fixedWidth;
+    }
+    if (this.data.attributes.height && (match = this.data.attributes.height.match(/(.*)px/))) {
+      this.fixedHeight = parseInt(match[1]);
+    } else {
+      delete this.fixedHeight;
+    }
   },
   /**
    * add a new parent view
    *
-   * @param {NodeView} parent - the parent of this view
+   * @param {ObjView} parent - the parent of this view
    * @returns {Type} Description
    */
   setParent: function(parent) {
@@ -2800,40 +2371,12 @@ var NodeView = Kern.EventManager.extend({
   /**
    * return the parent view of this view
    *
-   * @returns {NodeView} parent
+   * @returns {ObjView} parent
    */
   getParent: function() {
     return this.parent;
   },
   /**
-   * This property keeps track if the view is already rendered.
-   * If true, the render method will only update the changedAttributes of the data model   *
-   */
-  isRendered: false,
-  /**
-   * ##render
-   * This method applies all the object attributes to its DOM element `this.$el`.
-   * It only updates attributes that have changes (`this.data.changedAttributes`)
-   * @return {void}
-   */
-  render: function(options) {
-    options = options || {};
-    this.disableObserver();
-
-    var diff = this.isRendered ? this.data.changedAttributes || {} : this.data.attributes;
-
-    if ('id' in diff) {
-      this.outerEl.id = 'wl-obj-' + this.data.attributes.id;
-    }
-
-    if ('content' in diff && this.data.attributes.nodeType !== 1) {
-      this.outerEl.data = this.data.attributes.content || '';
-    }
-
-    this.isRendered = true;
-
-    this.enableObserver();
-  },/**
    * get Parent View of specific type recursively
    *
    * @param {string} type - the type the parent should have
@@ -2856,21 +2399,242 @@ var NodeView = Kern.EventManager.extend({
     }
   },
   /**
-   * Will create a NodeData object based on a DOM element
+   * This property keeps track if the view is already rendered.
+   * If true, the render method will only update the changedAttributes of the data model   *
+   */
+  isRendered: false,
+  /**
+   * ##render
+   * This method applies all the object attributes to its DOM element `this.$el`.
+   * It only updates attributes that have changes (`this.data.changedAttributes`)
+   * @return {void}
+   */
+  render: function(options) {
+    options = options || {};
+    this.disableObserver();
+
+    var attr = this.data.attributes,
+      diff = (this.isRendererd ? this.data.changedAttributes : this.data.attributes),
+      outerEl = this.outerEl;
+    if ('id' in diff) {
+      outerEl.setAttribute("data-wl-id", attr.id); //-> should be a class?
+    }
+
+    if ('type' in diff) {
+      outerEl.setAttribute("data-wl-type", attr.type); //-> should be a class?
+    }
+
+    if ('elementId' in diff || 'id' in diff) {
+      outerEl.id = attr.elementId || "wl-obj-" + attr.id; //-> shouldn't we always set an id? (priority of #id based css declarations)
+    }
+
+    // add classes to object
+    if ('classes' in diff) {
+      var classes = 'object-default object-' + this.data.get('type');
+      // this.ui && (classes += ' object-ui');
+      // this.ontop && (classes += ' object-ontop');
+      if (attr.classes) {
+        classes += ' ' + attr.classes;
+      }
+      outerEl.className = classes;
+    }
+
+    // When the object is an anchor, set the necessary attributes
+    if (this.data.attributes.tag.toUpperCase() === 'A') {
+      if ('linkTo' in diff)
+        outerEl.setAttribute('href', this.data.attributes.linkTo);
+
+      if (!this.data.attributes.linkTarget)
+        this.data.attributes.linkTarget = '_self';
+
+      if ('linkTarget' in diff)
+        outerEl.setAttribute('target', this.data.attributes.linkTarget);
+    }
+
+    // create object css style
+    // these styles are stored in the head of the page index.html
+    // in a style tag with the id object_css
+    // FIXME: we should use $('#object_css').sheet to acces the style sheet and then iterate through the cssrules. The view can keep a reference to its cssrule
+    // FIXME: should we support media queries here. if so how does that work with versions? alternative?
+
+    var selector = (attr.elementId && "#" + attr.elementId) || "#wl-obj-" + attr.id;
+    var oldSelector = (diff.elementId && "#" + diff.elementId) || (diff.id && "#wl-obj-" + diff.id) || selector;
+
+    if (('style' in diff) || (selector !== oldSelector)) {
+      var styleElement = document.getElementById('wl-obj-css');
+      if (!styleElement) {
+        styleElement = document.createElement('style');
+        document.head.appendChild(styleElement);
+      }
+      var cssContent = styleElement.innerHTML;
+      var re;
+
+      if (attr.style) {
+        if (cssContent.indexOf(oldSelector) === -1) {
+          styleElement.innerHTML += selector + '{' + attr.style + '}\n';
+        } else {
+          re = new RegExp(oldSelector + '{[^}]*}', 'g');
+          styleElement.innerHTML = cssContent.replace(re, selector + '{' + attr.style + '}');
+        }
+      } else { // no style provided, if it is is in object_css tag delete it from there
+        if (cssContent.indexOf(oldSelector) !== -1) {
+          re = new RegExp(oldSelector + '{[^}]*}', 'g');
+          styleElement.innerHTML = cssContent.replace(re, '');
+        }
+      }
+    }
+
+    this.isRendered = true;
+
+    this.enableObserver();
+  },
+  /**
+   * apply CSS styles to this view
+   *
+   * @param {Object} arguments - List of styles that should be applied
+   * @returns {Type} Description
+   */
+  applyStyles: function() {
+    this.disableObserver();
+    var len = arguments.length;
+    for (var j = 0; j < len; j++) {
+      var props = Object.keys(arguments[j]); // this does not run through the prototype chain; also does not return special
+      for (var i = 0; i < props.length; i++) {
+        this.outerEl.style[$.cssPrefix[props[i]] || props[i]] = arguments[j][props[i]];
+      }
+    }
+    this.enableObserver();
+  },
+  /**
+   * returns the width of the object. Note, this is the actual width which may be different then in the data object
+   * Use waitForDimensions() to ensure that this value is correct
+   *
+   * @returns {number} width
+   */
+  width: function() {
+    return this.outerEl.offsetWidth || this.fixedWidth;
+  },
+  /**
+   * returns the height of the object. Note, this is the actual height which may be different then in the data object.
+   * Use waitForDimensions() to ensure that this value is correct
+   *
+   * @returns {number} height
+   */
+  height: function() {
+    return this.outerEl.offsetHeight || this.fixedHeight;
+  },
+  /**
+   * make sure element has reliable dimensions, either by being rendered or by having fixed dimensions
+   *
+   * @returns {Promise} the promise which becomes fulfilled if dimensions are availabe
+   */
+  waitForDimensions: function() {
+    var p = new Kern.Promise();
+    var w = this.outerEl.offsetWidth || this.fixedWidth;
+    var h = this.outerEl.offsetHeight || this.fixedHeight;
+    var that = this;
+    if (w || h) {
+      p.resolve({
+        width: w || 0,
+        height: h || 0
+      });
+    } else {
+      setTimeout(function f() {
+        var w = that.outerEl.offsetWidth || this.fixedWidth;
+        var h = that.outerEl.offsetHeight || this.fixedHeight;
+        if (w || h) {
+          p.resolve({
+            width: w || 0,
+            height: h || 0
+          });
+        } else {
+          setTimeout(f, 200);
+        }
+      }, 0);
+
+    }
+    return p;
+  },
+  /**
+   * Will create a dataobject based on a DOM element
    *
    * @param {element} DOM element to needs to be parsed
    * @return  {data} a javascript data object
    */
   parse: function(element) {
+    var index;
     var data = {
-      content: element.data,
-      nodeType: element.nodeType
+      tag: element.tagName
     };
 
+    var attributes = element.attributes;
+    var length = attributes.length;
+
+    for (index = 0; index < length; index++) {
+      var attribute = attributes[index];
+      if (attribute.name.indexOf('data-wl-') === 0) {
+        var attributeName = attribute.name.replace('data-wl-', '');
+        var attributeValue = attribute.value;
+
+        if (attributeValue === 'true' || attributeValue === 'false') {
+          attributeValue = eval(attributeValue); // jshint ignore:line
+        }
+
+        attributeName = attributeName.replace(/(\-[a-z])/g, function($1) {
+          return $1.toUpperCase().replace('-', '');
+        });
+
+        var attributeNames = attributeName.split('.');
+        var attributesNamesLength = attributeNames.length;
+        var attributeObj = data;
+        for (var i = 0; i < attributesNamesLength; i++) {
+          if (!attributeObj.hasOwnProperty(attributeNames[i])) {
+            attributeObj[attributeNames[i]] = (i === attributesNamesLength - 1) ? attributeValue : {};
+          }
+          attributeObj = attributeObj[attributeNames[i]];
+        }
+      }
+    }
+
+    data.classes = element.className.replace("object-default object-" + data.type + " ", ""); //FIXME: remove old webpgr classes
+
+    if (data.tag.toUpperCase() === 'A') {
+      data.linkTo = element.getAttribute('href');
+      data.linkTarget = element.getAttribute('target');
+    }
+
+    var style = element.style;
+
+    if (style.left) {
+      data.x = style.left;
+    }
+    if (style.top) {
+      data.y = style.top;
+    }
+    if (style.display === 'none') {
+      data.hidden = true;
+    }
+    if (style.zIndex) {
+      data.zIndex = style.zIndex;
+    }
+
+    if (style.width !== undefined) {
+      data.width = style.width; //FIXME: how to deal with this?
+    }
+    if (!data.width && element.getAttribute('width')) { // only a limited set of elements support the width attribute
+      data.width = element.getAttribute('width');
+    }
+    if (style.height !== undefined) {
+      data.height = style.height;
+    }
+    if (!data.height && element.getAttribute('height')) { // only a limited set of elements support the width attribute
+      data.height = element.getAttribute('height');
+    }
     this.disableDataObserver();
     // modify existing data object, don't trigger any change events to ourselves
     this.data.setBy(this, data);
     this.enableDataObserver();
+
   },
   /**
    * ##destroy
@@ -2985,25 +2749,15 @@ var NodeView = Kern.EventManager.extend({
   }
 }, {
   // save model class as static variable
-  Model: NodeData,
-  identify: function(element) {
-    return element.nodeType !== 1;
-  },
-  defaultProperties: {
-    id: undefined,
-    type: 'node',
-    content: '',
-    nodeType: 3,
-    version: defaults.version
-  }
+  Model: ObjData
 });
 
 
-pluginManager.registerType('node', NodeView, identifyPriority.normal);
+pluginManager.registerType('node', ObjView);
 
-module.exports = NodeView;
+module.exports = ObjView;
 
-},{"../kern/Kern.js":23,"./defaults.js":1,"./identifypriority.js":9,"./nodedata.js":15,"./pluginmanager.js":18,"./repository.js":19}],17:[function(require,module,exports){
+},{"../kern/Kern.js":28,"./domhelpers.js":2,"./objdata.js":17,"./pluginmanager.js":20,"./repository.js":21}],19:[function(require,module,exports){
 'use strict';
 var WL = require('./wl.js');
 var pluginManager = require('./pluginmanager.js');
@@ -3032,7 +2786,7 @@ var ParseManager = function() {
 WL.parseManager = new ParseManager();
 module.exports = WL.parseManager;
 
-},{"./pluginmanager.js":18,"./wl.js":22}],18:[function(require,module,exports){
+},{"./pluginmanager.js":20,"./wl.js":27}],20:[function(require,module,exports){
 'use strict';
 var WL = require('./wl.js');
 var Kern = require('../kern/Kern.js');
@@ -3047,18 +2801,17 @@ var PluginManager = Kern.EventManager.extend({
    * @param {Object} map - an object mapping Obj types to {view:constructor, model: contructor} data sets
    * @returns {This}
    */
-  constructor: function(map, identifyPriorities) {
+  constructor: function(map) {
     Kern.EventManager.call(this);
     this.map = map || {}; // maps ObjData types to View constructors
-    this.identifyPriorities = identifyPriorities || {};
   },
   /**
    * create a view based on the type in the Obj's model
    *
-   * @param {NodeData} model - the model from which the view should be created
+   * @param {ObjData} model - the model from which the view should be created
    * @param {Object} [options] - create options
    * @param {HTMLElement} options.el - the element of the view
-   * @returns {NodeView} the view object of type NodeView or a sub class
+   * @returns {ObjView} the view object of type ObjView or a sub class
    */
   createView: function(model, options) {
     // return existing view if the provided element already has one
@@ -3096,69 +2849,30 @@ var PluginManager = Kern.EventManager.extend({
    * @param {function} constructor - the constructor of the view class of this type
    * @returns {This}
    */
-  registerType: function(type, constructor, identifyPriority) {
+  registerType: function(type, constructor) {
     this.map[type] = {
       view: constructor,
-      model: constructor.Model,
-      identify: constructor.identify
+      model: constructor.Model
     };
-
-    if (undefined === this.identifyPriorities[identifyPriority])
-      this.identifyPriorities[identifyPriority] = [];
-
-    this.identifyPriorities[identifyPriority].push(constructor);
   },
   /**
-   * Will iterate over the registered ViewTypes and call it's identify
-   * method to find the ViewType of a DOM element
+   * make sure a certain plugin is available, continue with callback
    *
-   * @param {object} element - A DOM element
-   * @returns {string} the found ViewType
+   * @param {string} type - the type that shoud be present
+   * @param {Function} callback - call when plugins is there
+   * @returns {Type} Description
    */
-  identify: function(element) {
-      var type;
-
-      var sortedKeys = Object.keys(this.identifyPriorities).sort(function(a, b) {
-        return (a - b) * (-1);
-      });
-
-      for (var x = 0; x < sortedKeys.length; x++) {
-        var key = sortedKeys[x];
-        for (var i = 0; i < this.identifyPriorities[key].length; i++) {
-          if (this.identifyPriorities[key][i].identify(element)) {
-            type = this.identifyPriorities[key][i].defaultProperties.type;
-            break;
-          }
-        }
-        if (undefined !== type) {
-          break;
-        }
-      }
-
-      if (undefined === type) {
-        throw "no ViewType found for element '" + element + "'";
-      }
-
-      return type;
-    }
-    /**
-     * make sure a certain plugin is available, continue with callback
-     *
-     * @param {string} type - the type that shoud be present
-     * @param {Function} callback - call when plugins is there
-     * @returns {Type} Description
-     */
-    // requireType: function(type, callback) {
-    //   if (!this.map[type]) throw "type " + type + " unkonw in pluginmanager. Have no means to load it"; //FIXME at some point this should dynamically load plugins
-    //   return callback(); // FIXME should be refactored with promises or ES 6 yield
-    // }
+  // requireType: function(type, callback) {
+  //   if (!this.map[type]) throw "type " + type + " unkonw in pluginmanager. Have no means to load it"; //FIXME at some point this should dynamically load plugins
+  //   return callback(); // FIXME should be refactored with promises or ES 6 yield
+  // }
 });
 // initialialize pluginManager with default plugins
 WL.pluginManager = new PluginManager({});
 // this module does not return the class but a singleton instance, the pluginmanager for the project.
 module.exports = WL.pluginManager;
 
-},{"../kern/Kern.js":23,"./wl.js":22}],19:[function(require,module,exports){
+},{"../kern/Kern.js":28,"./wl.js":27}],21:[function(require,module,exports){
 'use strict';
 var WL = require('./wl.js');
 var defaults = require('./defaults.js');
@@ -3299,7 +3013,7 @@ var Repository = Kern.EventManager.extend({
 WL.repository = new Repository();
 module.exports = WL.repository;
 
-},{"../kern/Kern.js":23,"./defaults.js":1,"./pluginmanager.js":18,"./wl.js":22}],20:[function(require,module,exports){
+},{"../kern/Kern.js":28,"./defaults.js":1,"./pluginmanager.js":20,"./wl.js":27}],22:[function(require,module,exports){
 'use strict';
 var Kern = require('../kern/Kern.js');
 
@@ -3364,13 +3078,13 @@ var ScrollTransformer = Kern.EventManager.extend({
         if (gesture.shift.y > 0) { // Note: gesture.shift is negative
           return tfd.scrollY > 0; // return true if can scroll; false otherwise
         } else {
-          return (tfd.maxScrollY - tfd.scrollY > 1);
+          return (this.layer.outerEl.scrollHeight - this.layer.outerEl.clientHeight - 1 > this.layer.outerEl.scrollTop);
         }
       } else if (axis === 'x') {
         if (gesture.shift.x > 0) {
           return tfd.scrollX > 0;
         } else {
-          return (tfd.maxScrollX - tfd.scrollX > 1);
+          return (this.layer.outerEl.scrollWidth - this.layer.outerEl.clientWidth - 1 > this.layer.outerEl.scrollLeft);
         }
       }
     } else {
@@ -3463,12 +3177,28 @@ var ScrollTransformer = Kern.EventManager.extend({
 
 module.exports = ScrollTransformer;
 
-},{"../kern/Kern.js":23}],21:[function(require,module,exports){
+},{"../kern/Kern.js":28}],23:[function(require,module,exports){
+'use strict';
+var Kern = require('../kern/Kern.js');
+var GroupData = require('./groupdata.js');
+
+/**
+ * @extends GroupData
+ */
+var StageData = GroupData.extend({
+  defaults: Kern._extend({}, GroupData.prototype.defaults, {
+    type: 'stage'
+  })
+});
+
+module.exports = StageData;
+
+},{"../kern/Kern.js":28,"./groupdata.js":7}],24:[function(require,module,exports){
 'use strict';
 var pluginManager = require('./pluginmanager.js');
+var StageData = require('./stagedata.js');
 var GroupView = require('./groupview.js');
 var Kern = require('../kern/Kern.js');
-var identifyPriority = require('./identifypriority.js');
 
 /**
  * A View which can have child views
@@ -3493,12 +3223,10 @@ var StageView = GroupView.extend({
     }, false);
   },
   _renderChildPosition: function(childView) {
-    if (childView.data.attributes.nodeType === 1) {
-      childView.disableObserver();
-      childView.outerEl.style.left = "0px";
-      childView.outerEl.style.top = "0px";
-      childView.enableObserver();
-    }
+    childView.disableObserver();
+    childView.outerEl.style.left = "0px";
+    childView.outerEl.style.top = "0px";
+    childView.enableObserver();
   },
   /**
    * Method will be invoked when a resize event is detected.
@@ -3508,26 +3236,94 @@ var StageView = GroupView.extend({
     var length = childViews.length;
     for (var i = 0; i < length; i++) {
       var childView = childViews[i];
-      childView.onResize();
+        childView.onResize();
     }
   }
 }, {
-  defaultProperties: Kern._extend({}, GroupView.defaultProperties, {
-    nativeScroll: true,
-    fitTo: 'width',
-    startPosition: 'top',
-    noScrolling: false,
-    type: 'stage'
-  }),
-  identify: function(element) {
-    var type = element.getAttribute('data-wl-type');
-    return null !== type && type.toLowerCase() === StageView.defaultProperties.type;
-  }
+  Model: StageData
 });
-pluginManager.registerType('stage', StageView, identifyPriority.normal);
+pluginManager.registerType('stage', StageView);
 module.exports = StageView;
 
-},{"../kern/Kern.js":23,"./groupview.js":8,"./identifypriority.js":9,"./pluginmanager.js":18}],22:[function(require,module,exports){
+},{"../kern/Kern.js":28,"./groupview.js":8,"./pluginmanager.js":20,"./stagedata.js":23}],25:[function(require,module,exports){
+'use strict';
+var Kern = require('../kern/Kern.js');
+var ObjData = require('./objdata.js');
+/**
+ * #TextData
+ * This data type will contain all the information to render some text
+ * @type {Model}
+ */
+var TextData = ObjData.extend({
+  defaults: Kern._extend({}, ObjData.prototype.defaults, {
+    type: 'text',
+    tag: 'div'
+  })
+});
+
+module.exports = TextData;
+
+},{"../kern/Kern.js":28,"./objdata.js":17}],26:[function(require,module,exports){
+'use strict';
+var ObjView = require('./objview.js');
+var TextData = require('./textdata.js');
+var pluginManager = require('./pluginmanager.js');
+var Kern = require('../kern/Kern.js');
+
+/**
+ * A View which can render images
+ * @param {TextData} dataModel
+ * @param {object}        options
+ * @extends ObjView
+ */
+var TextView = ObjView.extend({
+  constructor: function(dataModel, options) {
+    options = options || {};
+    ObjView.call(this, dataModel, Kern._extend({}, options, {
+      noRender: true
+    }));
+
+    if (!options.noRender && (options.forceRender || !options.el)) {
+      this.render();
+    }
+  },
+  render: function(options) {
+    options = options || {};
+    this.disableObserver();
+
+    var attr = this.data.attributes,
+      diff = this.data.changedAttributes || this.data.attributes,
+      el = this.innerEl;
+
+    ObjView.prototype.render.call(this, options);
+
+    if ('content' in diff) {
+      el.innerHTML = attr.content;
+    }
+
+    this.enableObserver();
+  },
+  /**
+   * Will create a dataobject based on a DOM element
+   *
+   * @param {element} DOM element to needs to be parsed
+   * @return  {data} a javascript data object
+   */
+  parse: function(element) {
+    ObjView.prototype.parse.call(this, element);
+    this.disableDataObserver();
+    this.data.set("content", element.innerHTML);
+    this.enableDataObserver();
+  }
+}, {
+  Model: TextData
+});
+
+
+pluginManager.registerType('text', TextView);
+module.exports = TextView;
+
+},{"../kern/Kern.js":28,"./objview.js":18,"./pluginmanager.js":20,"./textdata.js":25}],27:[function(require,module,exports){
 var $ = require('./domhelpers.js');
 // this module defines a global namespace for all weblayer objects.
 WL = {
@@ -3537,7 +3333,7 @@ WL = {
 
 module.exports = WL;
 
-},{"./domhelpers.js":2}],23:[function(require,module,exports){
+},{"./domhelpers.js":2}],28:[function(require,module,exports){
 'use strict';
 //jshint unused:false
 
@@ -4307,9 +4103,9 @@ module.exports = WL;
   }
 })();
 
-},{}],24:[function(require,module,exports){
-arguments[4][23][0].apply(exports,arguments)
-},{"dup":23}],25:[function(require,module,exports){
+},{}],29:[function(require,module,exports){
+arguments[4][28][0].apply(exports,arguments)
+},{"dup":28}],30:[function(require,module,exports){
 'use strict';
 require("./kern/kern.js");
 require("./framework/wl.js");
@@ -4322,27 +4118,30 @@ require("./framework/parsemanager.js");
 require("./framework/layouts/layerlayout.js");
 require("./framework/layouts/slidelayout.js");
 require("./framework/layouts/canvaslayout.js");
-require("./framework/gesturemanager.js");
 require("./framework/gestures/gesturemanager.js");
 
 
 /* data objects*/
 require("./framework/defaults.js");
-require("./framework/identifypriority.js");
-require("./framework/nodedata.js");
+require("./framework/objdata.js");
+require("./framework/imagedata.js");
+require("./framework/textdata.js");
+require("./framework/groupdata.js");
+require("./framework/framedata.js");
+require("./framework/layerdata.js");
+require("./framework/stagedata.js");
 
 /* view objects*/
-/* The order in which the views are required is imported for the pluginmanager.identify */
-require("./framework/nodeview.js");
-require("./framework/elementview.js");
+require("./framework/objview.js");
+require("./framework/imageview.js");
+require("./framework/textview.js");
+require("./framework/groupview.js");
 require("./framework/layerview.js");
 require("./framework/frameview.js");
 require("./framework/stageview.js");
-require("./framework/groupview.js");
 
 WL.init = function() {
   WL.parseManager.parseDocument();
-  WL.gestureManager.register();
 };
 
-},{"./framework/defaults.js":1,"./framework/elementview.js":3,"./framework/frameview.js":4,"./framework/gesturemanager.js":5,"./framework/gestures/gesturemanager.js":7,"./framework/groupview.js":8,"./framework/identifypriority.js":9,"./framework/layerview.js":10,"./framework/layoutmanager.js":11,"./framework/layouts/canvaslayout.js":12,"./framework/layouts/layerlayout.js":13,"./framework/layouts/slidelayout.js":14,"./framework/nodedata.js":15,"./framework/nodeview.js":16,"./framework/parsemanager.js":17,"./framework/pluginmanager.js":18,"./framework/repository.js":19,"./framework/stageview.js":21,"./framework/wl.js":22,"./kern/kern.js":24}]},{},[25]);
+},{"./framework/defaults.js":1,"./framework/framedata.js":3,"./framework/frameview.js":4,"./framework/gestures/gesturemanager.js":6,"./framework/groupdata.js":7,"./framework/groupview.js":8,"./framework/imagedata.js":9,"./framework/imageview.js":10,"./framework/layerdata.js":11,"./framework/layerview.js":12,"./framework/layoutmanager.js":13,"./framework/layouts/canvaslayout.js":14,"./framework/layouts/layerlayout.js":15,"./framework/layouts/slidelayout.js":16,"./framework/objdata.js":17,"./framework/objview.js":18,"./framework/parsemanager.js":19,"./framework/pluginmanager.js":20,"./framework/repository.js":21,"./framework/stagedata.js":23,"./framework/stageview.js":24,"./framework/textdata.js":25,"./framework/textview.js":26,"./framework/wl.js":27,"./kern/kern.js":29}]},{},[30]);
