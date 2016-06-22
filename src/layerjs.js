@@ -10,7 +10,6 @@ require("./framework/parsemanager.js");
 require("./framework/layouts/layerlayout.js");
 require("./framework/layouts/slidelayout.js");
 require("./framework/layouts/canvaslayout.js");
-require("./framework/gesturemanager.js");
 require("./framework/gestures/gesturemanager.js");
 
 
@@ -30,5 +29,4 @@ require("./framework/groupview.js");
 
 WL.init = function() {
   WL.parseManager.parseDocument();
-  WL.gestureManager.register();
 };
