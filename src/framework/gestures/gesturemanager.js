@@ -169,7 +169,7 @@ var GestureManager = Kern.EventManager.extend({
    */
   _release: function(event, element, callback, options) { //jshint unused:false
     this.gesture.move = false;
-    this.gesture.end = true;
+    this.gesture.last = true;
     this.gesture.position.x = this._xPosition(event);
     this.gesture.position.y = this._yPosition(event);
     this.gesture.shift.x = this.gesture.position.x - this.gesture.start.x;
@@ -208,6 +208,8 @@ var GestureManager = Kern.EventManager.extend({
     // touch event
     if (event.targetTouches && (event.targetTouches.length >= 1)) {
       return event.targetTouches[0].clientY;
+    } else {
+      return event.changedTouches[0].clientY;
     }
 
     // mouse event
@@ -221,6 +223,8 @@ var GestureManager = Kern.EventManager.extend({
     // touch event
     if (event.targetTouches && (event.targetTouches.length >= 1)) {
       return event.targetTouches[0].clientX;
+    } else {
+      return event.changedTouches[0].clientX;
     }
 
     // mouse event
