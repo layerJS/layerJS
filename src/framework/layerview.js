@@ -93,6 +93,20 @@ var LayerView = GroupView.extend({
     })
     */
   },
+  /**
+   * Will change the current layout with an other layout
+   *
+   * @param {string} layoutType - the name of the layout type
+   * @returns {void}
+   */
+  switchLayout: function(layoutType) {
+    this._layout = new(layoutManager.get(layoutType))(this);
+    this._transformer = this._layout.getScrollTransformer() || new ScrollTransformer(this);
+
+    if (this.currentFrame) {
+      this.showFrame(this.currentFrame.data.attributes.name);
+    }
+  },
   gestureListener: function(gesture) {
     var layerTransform = this._transformer.scrollGestureListener(gesture);
 
@@ -225,11 +239,11 @@ var LayerView = GroupView.extend({
    * @param {Type} Name - Description
    * @returns {Type} Description
    */
-  updateClasses: function(newFrame){
-    if (this.currentFrame){
-      this._saveLastFrame=this.currentFrame;
-      this.currentFrame.outerEl.className=this.currentFrame.outerEl.className.replace(/\s*wl\-active\s*/g,'');
-      newFrame.outerEl.className+=" wl-active";
+  updateClasses: function(newFrame) {
+    if (this.currentFrame) {
+      this._saveLastFrame = this.currentFrame;
+      this.currentFrame.outerEl.className = this.currentFrame.outerEl.className.replace(/\s*wl\-active\s*/g, '');
+      newFrame.outerEl.className += " wl-active";
     }
   },
   /**

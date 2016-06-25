@@ -364,4 +364,13 @@ utilities.wait = function(miliseconds) {
   browser.sleep(miliseconds);
 };
 
+utilities.setLayout = function(elementId, layout) {
+  return browser.driver.executeAsyncScript(function(elementId, layout, callback) {
+    var el = document.getElementById(elementId);
+
+    el._wlView.switchLayout(layout);
+    callback();
+  }, elementId, layout);
+};
+
 module.exports = utilities;
