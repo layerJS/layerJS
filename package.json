@@ -8,7 +8,7 @@
     "jasmine": "latest",
     "jasmine-expect": "latest",
     "rimraf": "latest",
-    "jsdom": "latest",
+    "jsdom": "8.5.0",
     "mkdirp": "latest",
     "file-save": "latest",
     "uglifyjs": "latest",
