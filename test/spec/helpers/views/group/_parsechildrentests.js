@@ -16,7 +16,7 @@ module.exports = function(options) {
       expect(view._parseChildren).toBeDefined();
     });
 
-    it('will be able the extract it\'s children from it\'s DOM element', function() {
+    it('will be able the extract it\'s know children from it\'s DOM element when the parseFull option in false', function() {
 
       var element = document.createElement('div');
       element.innerHTML = options.HTML;
@@ -33,6 +33,29 @@ module.exports = function(options) {
 
       for (var i = 0; i < length; i++) {
         expect(WL.repository.contains(expectedChildren[i], data.attributes.version)).toBeTruthy();
+      }
+    });
+
+    it('will be able the extract it\'s unknow children from it\'s DOM element when the parseFull option in true', function() {
+
+      var element = document.createElement('div');
+      element.innerHTML = options.HTML;
+      element = element.children[0];
+      element.appendChild(document.createElement('div'));
+
+      var view = new ViewType(undefined, {
+        el: element,
+        parseFull: true
+      });
+
+      expect(view.data.attributes.children.length).toEqual(view.innerEl.childNodes.length);
+
+      var length = view.innerEl.childNodes.length;
+
+      for (var i = 0; i < length; i++) {
+        var childView = view.innerEl.childNodes[i]._wlView;
+        expect(WL.repository.contains(childView.data.attributes.id, view.data.attributes.version)).toBeTruthy();
+        expect(view.data.attributes.children).toContain(childView.data.attributes.id);
       }
     });
 

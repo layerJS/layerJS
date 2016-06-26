@@ -41,11 +41,10 @@ describe("StageView", function() {
 
   ViewsGroup_parseChildrenTests({
     ViewType: StageView,
-    viewTypeName: 'StageView',
-    type: 'stage',
     HTML: "<div id='100' data-wl-id='100' data-wl-type='stage'>" +
       "<div id='101' data-wl-id='101' data-wl-type='layer'></div>" +
       "<div id='102' data-wl-id='102' data-wl-type='layer'></div>" +
+      "<div/>" +
       "</div>",
     expectedChildren: ['101', '102']
   });

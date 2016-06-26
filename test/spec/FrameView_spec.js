@@ -56,11 +56,10 @@ describe("FrameView", function() {
 
   ViewsGroup_parseChildrenTests({
     ViewType: FrameView,
-    viewTypeName: 'FrameView',
-    type: 'frame',
     HTML: "<div id='100' data-wl-id='100' data-wl-type='frame'>" +
       "<div id='101' data-wl-id='101' data-wl-type='group'></div>" +
       "<div id='102' data-wl-id='102' data-wl-type='group'></div>" +
+      "<div/>" +
       "</div>",
     expectedChildren: ['101', '102']
   });

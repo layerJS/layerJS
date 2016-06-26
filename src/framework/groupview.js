@@ -57,7 +57,7 @@ var GroupView = ElementView.extend({
     }
 
     if (this.innerEl.childNodes.length > 0) {
-      this._parseChildren();
+      this._parseChildren(options);
     }
 
     if (!options.noRender && (options.forceRender || !options.el))
@@ -179,7 +179,8 @@ var GroupView = ElementView.extend({
    *
    * @returns {void}
    */
-  _parseChildren: function() {
+  _parseChildren: function(options) {
+    options = options || {};
     this.disableDataObserver();
     var cn = this.innerEl.childNodes;
     var childIds = this.data.attributes.children;
@@ -257,7 +258,7 @@ var GroupView = ElementView.extend({
         if (vo.data.attributes.name) this._childNames[vo.data.attributes.name] = vo;
         vo.data.on('change', this._myChildListenerCallback); // attach child change listener
         k++; // next in data.children
-      } else {
+      } else if (options.parseFull) {
         nodeType = pluginManager.identify(elem);
         // create new view without data object, just by type. creates data object implicitly with cElementView._parse
         vo = pluginManager.createView(nodeType, {

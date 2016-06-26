@@ -86,6 +86,7 @@ describe("LayerView", function() {
     HTML: "<div id='100' data-wl-id='100' data-wl-type='layer'>" +
       "<div id='101' data-wl-id='101' data-wl-type='frame'></div>" +
       "<div id='102' data-wl-id='102' data-wl-type='frame'></div>" +
+      "<div/>" +
       "</div>",
     expectedChildren: ['101', '102']
   });

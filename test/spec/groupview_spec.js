@@ -155,10 +155,7 @@ describe("GroupView", function() {
     expect(parentElement.children[3].id).toBe('102');
     expect(parentElement.children[4].id).toBe('element3');
 
-    parentData.set('children', [parentElement.children[0]._wlView.data.attributes.id,
-      '102', parentElement.children[2]._wlView.data.attributes.id,
-      '101', parentElement.children[4]._wlView.data.attributes.id
-    ]);
+    parentData.set('children', ['102', '101']);
 
     var order = {};
     for (var i = 0; i < parentElement.children.length; i++) {
@@ -181,8 +178,9 @@ describe("GroupView", function() {
     HTML: "<div id='100' data-wl-id='100' data-wl-type='group'>" +
       "<div id='101' data-wl-id='101' data-wl-type='group'></div>" +
       "<div id='102' data-wl-id='102' data-wl-type='group'></div>" +
+      "<div></div>" +
       "</div>",
-    expectedChildren: ['101', '102']
+    expectedChildren: ['101', '102']    
   });
 
   it('has a static function getNodeType which is undefined par default', function() {
