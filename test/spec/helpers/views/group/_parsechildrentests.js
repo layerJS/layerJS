@@ -1,5 +1,7 @@
 module.exports = function(options) {
 
+  var utilities = require('../../utilities');
+
   var ViewType = options.ViewType;
   var DataType = ViewType.Model;
   var expectedChildren = options.expectedChildren;
@@ -57,6 +59,39 @@ module.exports = function(options) {
         expect(WL.repository.contains(childView.data.attributes.id, view.data.attributes.version)).toBeTruthy();
         expect(view.data.attributes.children).toContain(childView.data.attributes.id);
       }
+    });
+
+
+    function canParseUnkownElements(html, groupId, unkownId, nodeType) {
+      utilities.setHtml(html);
+      var groupEl = document.getElementById(groupId);
+      var groupView = new ViewType(null, {
+        el: groupEl,
+        parseFull: true
+      });
+
+      var testEl = document.getElementById(unkownId);
+      var testView = testEl._wlView;
+
+      expect(testView).toBeDefined();
+      expect(testView.data.attributes.type).toBe(nodeType);
+      expect(WL.repository.get(testView.data.attributes.id, testView.data.attributes.version)).toBeDefined();
+    }
+
+    it('can detect a group as nodeType', function() {
+      canParseUnkownElements('<div id="group" data-wl-type="' + ViewType.defaultProperties.type + '" data-wl-version="1"><div id="test"><div/></div></div>', 'group', 'test', 'group');
+    });
+
+    it('can detect an image as nodeType', function() {
+      canParseUnkownElements('<div id="group" data-wl-type="' + ViewType.defaultProperties.type + '" data-wl-version="1"><img id="test"/></div>', 'group', 'test', 'element');
+    });
+
+    it('can detect a text as nodeType', function() {
+      canParseUnkownElements('<div id="group" data-wl-type="' + ViewType.defaultProperties.type + '" data-wl-version="1"><div id="test">some text</div></div>', 'group', 'test', 'group');
+    });
+
+    it('can detect a node as nodeType', function() {
+      canParseUnkownElements('<div id="group" data-wl-type="' + ViewType.defaultProperties.type + '" data-wl-version="1"><div id="test"/></div>', 'group', 'test', 'group');
     });
 
   });
