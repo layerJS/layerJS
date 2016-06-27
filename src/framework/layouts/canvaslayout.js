@@ -34,7 +34,8 @@ var CanvasLayout = LayerLayout.extend({
     for (var i = 0; i < framesLength; i++) {
       childFrame = frames[i];
       this._applyTransform(childFrame, this._reverseTransform, transform, {
-        transition: ''
+        transition: '',
+        display: 'block'
       });
     }
   },

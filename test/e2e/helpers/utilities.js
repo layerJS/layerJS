@@ -361,7 +361,7 @@ utilities.scrollRight = function(elementId, times) {
 };
 
 utilities.wait = function(miliseconds) {
-  browser.sleep(miliseconds);
+  return browser.sleep(miliseconds);
 };
 
 utilities.setLayout = function(elementId, layout) {
