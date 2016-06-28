@@ -44,6 +44,20 @@ var FrameView = GroupView.extend({
     return d;
   },
   /**
+   * Returns the scroll data for this frame
+   *
+   * @returns {object} contains the the startPosition, scrollX and scrollY
+   */
+  getScrollData: function() {
+
+    var scrollData = this.transformData ? {
+      startPosition: this.transformData.startPosition,
+      scrollX: this.transformData.scrollX,
+      scrollY: this.transformData.scrollY
+    } : {};
+    return scrollData;
+  },
+  /**
    * calculate transform data (scale, scoll position and displacement) when fitting current frame into associated stage.
    * Note: this ignores the frame's scale and rotation property which have to be dealt with in the layer layout if necessary.
    *
@@ -263,7 +277,7 @@ var FrameView = GroupView.extend({
   }),
   identify: function(element) {
     var type = element.getAttribute('data-wl-type');
-    return  null !== type && type.toLowerCase() === FrameView.defaultProperties.type;
+    return null !== type && type.toLowerCase() === FrameView.defaultProperties.type;
   }
 });
 

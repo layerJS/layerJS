@@ -23,9 +23,9 @@ var DomHelpers = {
    * @returns {void}
    */
   unwrapChildren: function(element) {
-    var wrapper = element.removeChild(element.childNodes[0]);
-    for (var i = 0; i < wrapper.childNodes.length; i++) {
-      element.appendChild(wrapper.childNodes[i]);
+    var wrapper = element.removeChild(element.children[0]);
+    while (wrapper.childNodes.length) {
+      element.appendChild(wrapper.childNodes[0]);
     }
   },
   /**
@@ -99,9 +99,9 @@ var DomHelpers = {
    * @param {string} selector - a CSS selector that identifies an element that is associated with a NodeView
    * @returns {NodeView} the selected view object
    */
-  selectView: function(selector){
-    var nodes=document.querySelectorAll(selector);
-    for (var i=0;i<nodes.length;i++){
+  selectView: function(selector) {
+    var nodes = document.querySelectorAll(selector);
+    for (var i = 0; i < nodes.length; i++) {
       if (nodes[i]._wlView) return nodes[i]._wlView;
     }
   }

@@ -148,11 +148,10 @@ var ScrollTransformer = Kern.EventManager.extend({
         // apply inital scroll position
         this.layer.outerEl.scrollLeft = tfd.scrollX * tfd.scale;
         this.layer.outerEl.scrollTop = tfd.scrollY * tfd.scale;
+
         return this.scrollTransform(0, 0); // no transforms as scrolling is achieved by native scrolling
       }
     } else {
-      this.layer.innerEl.style.height = 0;
-      this.layer.innerEl.style.width = 0;
       // in transformscroll we add a transform representing the scroll position.
       return this.scrollTransform(-tfd.scrollX * tfd.scale, -tfd.scrollY * tfd.scale);
     }

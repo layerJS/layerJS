@@ -177,6 +177,7 @@ describe('scrolling', function() {
 
   });
 
+
   describe('native-scrolling=false', function() {
 
     it('mouse wheel can reach bottom of frame', function() {
@@ -324,4 +325,82 @@ describe('scrolling', function() {
       });
     });
   });
+
+  describe('can switch scrolling', function() {
+    it('from native scrolling to non-native scrolling', function() {
+      browser.get('scrolling/native_scrolling.html').then(function() {
+        protractor.promise.all([utilities.setAttribute('frame1', 'data-wl-fit-to', 'fixed'),
+          utilities.setStyle('frame1', {
+            width: '500px',
+            height: '800px'
+          }), utilities.setStyle('stage', {
+            width: '400px',
+            height: '400px'
+          })
+        ]).then(function() {
+          utilities.resizeWindow(800, 599);
+          protractor.promise.all([utilities.scrollRight('layer', 3),
+            utilities.scrollDown('layer', 3)
+          ]).then(function() {
+            utilities.getScroll('layer').then(function(layer_scroll_before) {
+              utilities.switchScrolling('layer', false).then(function() {
+                protractor.promise.all([utilities.getBoundingClientRect('frame1'),
+                  utilities.getScroll('layer')
+                ]).then(function(data) {
+                  var frame_dimensions = data[0];
+                  var layer_scroll_after = data[1];
+                  expect(frame_dimensions.top).toBe(layer_scroll_before.scrollTop * -1);
+                  expect(frame_dimensions.left).toBe((layer_scroll_before.scrollLeft - 17) * -1);
+                  expect(layer_scroll_after.scrollTop).toBe(0);
+                  expect(layer_scroll_after.scrollLeft).toBe(0);
+                });
+              });
+            });
+          });
+        });
+      });
+    });
+
+    it('from non-native scrolling to native scrolling', function() {
+      browser.get('scrolling/non_native_scrolling.html').then(function() {
+        protractor.promise.all([utilities.setAttribute('frame1', 'data-wl-fit-to', 'fixed'),
+          utilities.setStyle('frame1', {
+            width: '500px',
+            height: '800px'
+          }), utilities.setStyle('stage', {
+            width: '400px',
+            height: '400px'
+          })
+        ]).then(function() {
+          utilities.resizeWindow(800, 599);
+          protractor.promise.all([utilities.scrollRight('layer', 3),
+            utilities.scrollDown('layer', 3)
+          ]).then(function() {
+            protractor.promise.all([utilities.getScroll('layer'),
+              utilities.getBoundingClientRect('frame1')
+            ]).then(function(data) {
+              var layer_scroll_before = data[0];
+              var frame_dimensions_before = data[1];
+              utilities.switchScrolling('layer', true).then(function() {
+                protractor.promise.all([utilities.getBoundingClientRect('frame1'),
+                  utilities.getScroll('layer')
+                ]).then(function(data) {
+                  var frame_dimensions_after = data[0];
+                  var layer_scroll_after = data[1];
+                  expect(layer_scroll_before.scrollTop).toBe(0);
+                  expect(layer_scroll_before.scrollLeft).toBe(0);
+
+                  expect(layer_scroll_after.scrollTop).toBe(frame_dimensions_before.top * -1);
+                  expect(layer_scroll_after.scrollLeft).toBe(frame_dimensions_before.left * -1);
+                });
+              });
+            });
+          });
+        });
+      });
+    });
+
+  });
+
+
 });

@@ -373,4 +373,14 @@ utilities.setLayout = function(elementId, layout) {
   }, elementId, layout);
 };
 
+utilities.switchScrolling = function(elementId, nativeScrolling) {
+  return browser.driver.executeAsyncScript(function(elementId, nativeScrolling, callback) {
+    var el = document.getElementById(elementId);
+
+    el._wlView.switchScrolling(nativeScrolling);
+    callback();
+  }, elementId, nativeScrolling);
+};
+
+
 module.exports = utilities;

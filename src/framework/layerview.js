@@ -94,6 +94,35 @@ var LayerView = GroupView.extend({
     */
   },
   /**
+   * Will toggle native and non-native scrolling
+   *
+   * @param {boolean} nativeScrolling
+   * @returns {void}
+   */
+  switchScrolling: function(nativeScrolling) {
+
+    if (this.nativeScroll !== nativeScrolling) {
+      this.nativeScroll = nativeScrolling;
+
+      this.disableObserver();
+
+      if (nativeScrolling) {
+        this.innerEl = $.wrapChildren(this.outerEl);
+        this.innerEl.setAttribute('data-wl-helper', 'scroller');
+        this.outerEl.className += ' nativescroll';
+      } else {
+        $.unwrapChildren(this.outerEl);
+        this.innerEl = this.outerEl;
+        this.outerEl.className = this.outerEl.className.replace(' nativescroll', '');
+      }
+
+      this._transformer = this._layout.getScrollTransformer() || new ScrollTransformer(this);
+      this.showFrame(this.currentFrame.data.attributes.name, this.currentFrame.getScrollData());
+
+      this.enableObserver();
+    }
+  },
+  /**
    * Will change the current layout with an other layout
    *
    * @param {string} layoutType - the name of the layout type
@@ -263,11 +292,7 @@ var LayerView = GroupView.extend({
   onResize: function() {
     var childViews = this.getChildViews();
     var length = childViews.length;
-    var scrollData = {
-      startPosition: this.currentFrame.transformData.startPosition,
-      scrollX: this.currentFrame.transformData.scrollX,
-      scrollY: this.currentFrame.transformData.scrollY
-    };
+    var scrollData = this.currentFrame.getScrollData();
 
     for (var i = 0; i < length; i++) {
       var childView = childViews[i];
