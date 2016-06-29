@@ -24,6 +24,7 @@ utilities._beforeAll = function() {
   style.innerHTML = "";
 
   WL.repository.clear();
+  WL.executeScriptCode = true;
   this.setHtml("");
 }
 

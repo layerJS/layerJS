@@ -22,6 +22,7 @@ require("./framework/nodedata.js");
 /* The order in which the views are required is imported for the pluginmanager.identify */
 require("./framework/nodeview.js");
 require("./framework/elementview.js");
+require("./framework/scriptview.js");
 require("./framework/layerview.js");
 require("./framework/frameview.js");
 require("./framework/stageview.js");
