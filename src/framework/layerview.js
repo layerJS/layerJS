@@ -43,23 +43,10 @@ var LayerView = GroupView.extend({
     GroupView.call(this, dataModel, Kern._extend({}, options, {
       noRender: true
     }));
-    this._layout = new(layoutManager.get(this.data.attributes.layoutType))(this);
-    this._transformer = this._layout.getScrollTransformer() || new ScrollTransformer(this);
 
-    if (hasScroller && !this.data.attributes.nativeScroll) $.unwrapChildren(this.outerEl);
-    // should we have a scroller but don't have one?
-    if (!hasScroller && this.data.attributes.nativeScroll) {
-      // set el to scroller
-      this.innerEl = $.wrapChildren(this.outerEl);
-      hasScroller = true;
-    }
-    if (hasScroller) {
-      this.innerEl = this.outerEl.children[0];
-      this.outerEl.className += ' nativescroll'; // this will be used to add the correct style via css style sheet
-    }
-    // mark scroller as scroller in HTML
-    if (hasScroller) this.innerEl.setAttribute('data-wl-helper', 'scroller');
-    this.nativeScroll = this.data.attributes.nativeScroll;
+    this.switchLayout(this.data.attributes.layoutType, false);
+    this.switchScrolling(this.data.attributes.nativeScroll, false);
+
     // get upper layer where unuseable gestures should be sent to.
     this.parentLayer = this.getParentOfType('layer');
     // register for gestures
@@ -105,19 +92,25 @@ var LayerView = GroupView.extend({
       this.nativeScroll = nativeScrolling;
 
       this.disableObserver();
+      var hasScroller = this.outerEl.children.length === 1 && this.outerEl.children[0].getAttribute('data-wl-helper') === 'scroller';
 
       if (nativeScrolling) {
-        this.innerEl = $.wrapChildren(this.outerEl);
+        this.innerEl = hasScroller ? this.outerEl.children[0] : $.wrapChildren(this.outerEl);
         this.innerEl.setAttribute('data-wl-helper', 'scroller');
         this.outerEl.className += ' nativescroll';
       } else {
-        $.unwrapChildren(this.outerEl);
+        if (hasScroller) {
+          $.unwrapChildren(this.outerEl);
+        }
         this.innerEl = this.outerEl;
         this.outerEl.className = this.outerEl.className.replace(' nativescroll', '');
       }
 
       this._transformer = this._layout.getScrollTransformer() || new ScrollTransformer(this);
-      this.showFrame(this.currentFrame.data.attributes.name, this.currentFrame.getScrollData());
+
+      if (this.currentFrame) {
+        this.showFrame(this.currentFrame.data.attributes.name, this.currentFrame.getScrollData());
+      }
 
       this.enableObserver();
     }
