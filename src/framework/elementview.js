@@ -158,7 +158,9 @@ var ElementView = NodeView.extend({
     for (var j = 0; j < len; j++) {
       var props = Object.keys(arguments[j]); // this does not run through the prototype chain; also does not return special
       for (var i = 0; i < props.length; i++) {
-        this.outerEl.style[$.cssPrefix[props[i]] || props[i]] = arguments[j][props[i]];
+        if ($.cssPrefix[props[i]]) this.outerEl.style[$.cssPrefix[props[i]]] = arguments[j][props[i]];
+        // do standard property as well as newer browsers may not accept their own prefixes  (e.g. IE & edge)
+        this.outerEl.style[props[i]] = arguments[j][props[i]];
       }
     }
     this.enableObserver();
