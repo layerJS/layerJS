@@ -139,7 +139,7 @@ var NodeView = Kern.EventManager.extend({
    * @param {string} type - the type the parent should have
    * @returns {ObjView} the View requested
    */
-  getParentOfType(type) {
+  getParentOfType: function(type) {
     if (this.parent && this.parent.data) {
       if (this.parent.data.attributes.type && this.parent.data.attributes.type === type) return this.parent;
       return this.parent.getParentOfType(type); // search recursively
