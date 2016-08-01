@@ -28,6 +28,8 @@ require("./framework/frameview.js");
 require("./framework/stageview.js");
 require("./framework/groupview.js");
 
+require("./framework/filerouter.js");
+
 WL.init = function() {
   WL.parseManager.parseDocument();
 };
