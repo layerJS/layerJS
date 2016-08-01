@@ -104,9 +104,43 @@ var DomHelpers = {
     for (var i = 0; i < nodes.length; i++) {
       if (nodes[i]._wlView) return nodes[i]._wlView;
     }
+  },
+  /**
+   * similar to jquery delegated bind. Will "bind" to all elements matching selector, even if those are added after the listener was added.
+   *
+   * @param {HTMLElement} element - the root element within which elements specified by selector exist or will exist
+   * @param {string} eventName - which event type should be bound
+   * @param {string} selector - the selector for elements that shoud be bound
+   * @param {funcion} fn - the listener
+   * @returns {Type} Description
+   */
+  addDelegtedListener: function(element, eventName, selector, fn) {
+    // install Element.matches polyfill method
+    if (!window.Element.prototype.matches) {
+      window.Element.prototype.matches =
+        window.Element.prototype.matchesSelector ||
+        window.Element.prototype.mozMatchesSelector ||
+        window.Element.prototype.msMatchesSelector ||
+        window.Element.prototype.oMatchesSelector ||
+        window.Element.prototype.webkitMatchesSelector ||
+        function(s) {
+          var matches = (this.document || this.ownerDocument).querySelectorAll(s),
+            i = matches.length;
+          while (--i >= 0 && matches.item(i) !== this) {} // jshint ignore:line
+          return i > -1;
+        };
+    }
+    element.addEventListener(eventName, function(event) {
+      var el = event.target;
+      while (!el.matches(selector) && el !== element) {
+        el = el.parent;
+      }
+      if (el !== element) {
+        fn.call(el, event);
+      }
+    });
   }
 };
-
 DomHelpers.detectBrowser();
 DomHelpers.calculatePrefixes(['transform', 'transform-origin']);
 
