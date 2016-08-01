@@ -43,7 +43,9 @@ var SlideLayout = LayerLayout.extend({
     this._applyTransform(frame, this._currentFrameTransform = this._calcFrameTransform(frameTransformData), transform, {
       display: '',
       opacity: 1,
-      visibility: ''
+      visibility: '',
+      top: "0px",
+      left: "0px"
     });
     this._preparedTransitions = {};
   },
@@ -79,10 +81,14 @@ var SlideLayout = LayerLayout.extend({
         });
       });
       that._applyTransform(frame, that._currentFrameTransform = that._calcFrameTransform(targetFrameTransformData), targetTransform, {
-        transition: transition.duration
+        transition: transition.duration,
+        top: "0px",
+        left: "0px"
       });
       that._applyTransform(currentFrame, t.c1, targetTransform, {
-        transition: transition.duration
+        transition: transition.duration,
+        top: "0px",
+        left: "0px"
       });
       that._preparedTransitions = {};
       // wait until post transforms are applied an signal that animation is now running.

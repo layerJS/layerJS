@@ -5,12 +5,13 @@ var pluginManager = require('./pluginmanager.js');
 var ParseManager = function() {
   /**
    * Parses a document for layerJs object
+   * @param {HTMLDocument} doc - an optional root document
    *
    * @returns {void}
    */
-  this.parseDocument = function() {
+  this.parseDocument = function(doc) {
 
-    var stageElements = document.querySelectorAll("[data-wl-type='stage']");
+    var stageElements = (doc || document).querySelectorAll("[data-wl-type='stage']");
 
     var length = stageElements.length;
 

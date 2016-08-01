@@ -1,0 +1,2 @@
+# translate hg names to git names
+ktordeur = Kenny Tordeur <kenny.tordeur@outlook.com>
