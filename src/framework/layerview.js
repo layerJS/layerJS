@@ -97,6 +97,9 @@ var LayerView = GroupView.extend({
       if (nativeScrolling) {
         this.innerEl = hasScroller ? this.outerEl.children[0] : $.wrapChildren(this.outerEl);
         this.innerEl.setAttribute('data-wl-helper', 'scroller');
+        if (!this.innerEl._wlView) {
+          this.innerEl._wlView = this.outerEl._wlView;
+        }
         this.outerEl.className += ' nativescroll';
       } else {
         if (hasScroller) {
