@@ -237,4 +237,66 @@ describe("Mutation observer", function() {
     });
   });
 
+  describe("mutationobserver performance test", function() {
+    it("without mutationobserver", function() {
+
+      browser.get("mutationobserver/mutationobserver.html").then(function() {
+
+        browser.driver.executeAsyncScript(function(callBack) {
+          var mainResult = {};
+          var parentElement = document.getElementById('test');
+          parentElement.innerHTML = '';
+
+          var manipulations = function() {
+            var startTime, endTime;
+            var result = {};
+
+            startTime = new Date();
+            for (var i = 0; i < 1000; i++) {
+              var childElement = document.createElement('div');
+              childElement.id = 'child_' + i;
+              parentElement.appendChild(childElement);
+            }
+            endTime = new Date();
+            result.adding = (endTime - startTime) + ' ms';
+
+            startTime = new Date();
+
+            for (var i = 0; i < 1000; i++) {
+              var childElement = document.getElementById('child_' + i);
+              childElement.setAttribute('custom', i.toString());
+            }
+
+            endTime = new Date();
+            result.modifying = (endTime - startTime) + ' ms';
+            return result;
+          };
+
+          mainResult.noMutationObserver = manipulations();
+
+          var size = {};
+          var observer = new MutationObserver(function(mutations) {
+              size.width = parentElement.offsetWidth;
+              size.height = parentElement.offsetHeight;
+          });
+
+          parentElement.innerHTML = '';
+          observer.observe(parentElement, {
+            attributes: true,
+            childList: true,
+            characterData: true,
+            subtree: true
+          });
+
+          mainResult.mutationObserver = manipulations();
+          mainResult.mutationObserver.size = size;
+          observer.disconnect();
+
+          callBack(mainResult);
+        }).then(function(result) {
+          console.log(result);
+        });
+      });
+    });
+  });
 });
