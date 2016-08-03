@@ -237,66 +237,85 @@ describe("Mutation observer", function() {
     });
   });
 
-  describe("mutationobserver performance test", function() {
-    it("without mutationobserver", function() {
+  it("mutationobserver performance test", function() {
 
-      browser.get("mutationobserver/mutationobserver.html").then(function() {
+    console.log("mutationobserver performance test");
+    browser.get("mutationobserver/mutationobserver.html").then(function() {
 
-        browser.driver.executeAsyncScript(function(callBack) {
-          var mainResult = {};
-          var parentElement = document.getElementById('test');
-          parentElement.innerHTML = '';
+      browser.driver.executeAsyncScript(function(callBack) {
+        var mainResult = {};
+        var parentElement = document.getElementById('test');
+        parentElement.innerHTML = '';
 
-          var manipulations = function() {
-            var startTime, endTime;
-            var result = {};
+        var manipulations = function() {
+          var startTime, endTime;
+          var result = {};
+          var numberOfChildElements = 1000;
+          var numberOfSubChildElements = 1000;
 
-            startTime = new Date();
-            for (var i = 0; i < 1000; i++) {
-              var childElement = document.createElement('div');
-              childElement.id = 'child_' + i;
-              parentElement.appendChild(childElement);
+          startTime = new Date();
+          for (var i = 0; i < numberOfChildElements; i++) {
+            var childElement = document.createElement('div');
+            childElement.id = childElement.innerHTML = 'child_' + i;
+            parentElement.appendChild(childElement);
+
+            for (var x = 0; x < numberOfSubChildElements; x++) {
+              var subChildElement = document.createElement('div');
+              subChildElement.id = subChildElement.innerHTML = 'child_' + i + '_' + x;
+              childElement.appendChild(subChildElement);
             }
-            endTime = new Date();
-            result.adding = (endTime - startTime) + ' ms';
+          }
 
-            startTime = new Date();
+          endTime = new Date();
+          result.adding = (endTime - startTime) + ' ms';
 
-            for (var i = 0; i < 1000; i++) {
-              var childElement = document.getElementById('child_' + i);
-              childElement.setAttribute('custom', i.toString());
+          startTime = new Date();
+
+          for (var i = 0; i < numberOfChildElements; i++) {
+            var childElement = document.getElementById('child_' + i);
+            childElement.setAttribute('custom', i.toString());
+
+            for (var x = 0; x < numberOfSubChildElements; x++) {
+              var subChildElement = document.getElementById('child_' + i + '_' + x);
+              subChildElement.setAttribute('custom', x.toString());
             }
+          }
 
-            endTime = new Date();
-            result.modifying = (endTime - startTime) + ' ms';
-            return result;
-          };
+          endTime = new Date();
+          result.modifying = (endTime - startTime) + ' ms';
+          return result;
+        };
 
-          mainResult.noMutationObserver = manipulations();
+        mainResult.noMutationObserver = manipulations();
 
-          var size = {};
-          var observer = new MutationObserver(function(mutations) {
-              size.width = parentElement.offsetWidth;
-              size.height = parentElement.offsetHeight;
-          });
+        var info = {
+          called: 0
+        };
 
-          parentElement.innerHTML = '';
-          observer.observe(parentElement, {
-            attributes: true,
-            childList: true,
-            characterData: true,
-            subtree: true
-          });
-
-          mainResult.mutationObserver = manipulations();
-          mainResult.mutationObserver.size = size;
-          observer.disconnect();
-
-          callBack(mainResult);
-        }).then(function(result) {
-          console.log(result);
+        var observer = new MutationObserver(function(mutations) {
+          info.width = parentElement.offsetWidth;
+          info.height = parentElement.offsetHeight;
+          info.called++;
         });
+
+        parentElement.innerHTML = '';
+        observer.observe(parentElement, {
+          attributes: true,
+          childList: true,
+          characterData: true,
+          subtree: true
+        });
+
+        mainResult.mutationObserver = manipulations();
+        mainResult.mutationObserver.info = info;
+
+        setTimeout(function() {
+          callBack(mainResult);
+        }, 1000);
+
+      }).then(function(result) {
+        console.log(result);
       });
     });
-  });
+  }, 600000);
 });
