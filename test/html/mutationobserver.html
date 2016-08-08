@@ -1,0 +1,81 @@
+<html>
+
+<head>
+  <title>Simple Example</title>
+  <link rel="stylesheet" type="text/css" href="../../src/css/layerjs.css">
+</head>
+<style>
+  body {
+    margin: auto;
+  }
+
+  #root {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    margin: auto;
+  }
+
+  #main {
+    position: absolute
+  }
+
+  #second {
+    position: absolute;
+  }
+
+  #thirth {
+    position: absolute;
+  }
+</style>
+
+<body>
+  <div id="root" data-wl-type="stage">
+    <div id="layer1" data-wl-type="layer" data-wl-default-frame="main" data-wl-native-scroll="true" data-wl-layout-type="canvas">
+      <div id="main" data-wl-type="frame" data-wl-x="-300" data-wl-name="main" data-wl-fit-to="width" data-wl-start-position="top" style="width:450px" class="big"> Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea
+        takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores
+        et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.
+        <button id="disable">
+          disable/enable
+        </button>
+        <button id='fire'>
+          fire
+        </button>
+        <button id='log'>
+          log
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script src="../../dist/layerjs.js"></script>
+  <script>
+    WL.init();
+
+    var element = document.getElementById("main");
+
+    document.getElementById('disable').onclick = disable_enableClick;
+    document.getElementById('fire').onclick = fire;
+    document.getElementById('log').onclick = log;
+
+    function log() {
+      console.log(element._wlView.data.attributes);
+    }
+
+    function disable_enableClick() {
+      element._wlView.disableObserver();
+      fire();
+      element._wlView.enableObserver();
+    }
+
+    function fire() {
+      if (element.getAttribute('data-wl-x') === '-500') {
+        element.setAttribute('data-wl-x', '-400');
+      } else {
+        element.setAttribute('data-wl-x', '-500');
+      }
+    }
+  </script>
+</body>
+
+</html>

@@ -7,7 +7,7 @@ var commonViewTests = function(scenario, ViewType, scenarioData) {
     beforeEach(function() {
       data = new ViewType.Model(JSON.parse(JSON.stringify(scenarioData)));
     });
-
+/*
     it('the DOM element will have the same tag as defined in the data model', function() {
       var view = new ViewType(data);
       expect(view.innerEl.tagName.toUpperCase()).toBe(data.attributes.tag.toUpperCase());
@@ -163,26 +163,32 @@ var commonViewTests = function(scenario, ViewType, scenarioData) {
       } else {
         expect(element.hasAttribute('target')).toBeFalsy();
       }
-    });
+    });*/
 
-    it('listens for changes on its DOM element when _observerCounter is 0', function() {
+    it('listens for changes on its DOM element', function(done) {
       var view = new ViewType(data);
       var element = view.outerEl;
       view.render();
 
       expect(view._observer).toBeDefined();
-      expect(view._observerCounter).toBe(0);
+      expect(view._observer.isObserving()).toBe(true);
+      view._observer.stop();
+      view._observer.options.timeout = 50;
+      view._observer.observe();
 
       element.style.width = "55px";
       element.className = "a_class";
       element.setAttribute('data-wl-custom', 10);
 
+      setTimeout(function(){
       expect(data.attributes.width).toBe('55px');
       expect(data.attributes.classes).toBe('a_class');
       expect(data.attributes.custom).toBe('10');
+      done();
+    }, 101);
     });
-
-    it('doesn\'t listen for changes on its DOM element when _observerCounter is greater then 0', function() {
+/*
+    it('doesn\'t listen for changes on its DOM element when disableObserver is called', function() {
       var view = new ViewType(data);
       var element = view.outerEl;
 
@@ -190,7 +196,7 @@ var commonViewTests = function(scenario, ViewType, scenarioData) {
       view.disableObserver();
 
       expect(view._observer).toBeDefined();
-      expect(view._observerCounter).toBe(1);
+      expect(view._observer.isObserving()).toBe(false);
 
       element.style.width = "55px";
       element.className = "a_class";
@@ -206,7 +212,7 @@ var commonViewTests = function(scenario, ViewType, scenarioData) {
       var element = view.outerEl;
 
       expect(view._observer).toBeDefined();
-      expect(view._observerCounter).toBe(0);
+      expect(view._observer.isObserving()).toBe(true);
     });
 
     it('will put the htmlAttributes from the dataObject into the DOM element as attributes', function() {
@@ -234,7 +240,7 @@ var commonViewTests = function(scenario, ViewType, scenarioData) {
       var element = view.outerEl;
 
       expect(element.hasAttribute('style')).toBeFalsy();
-    });
+    });*/
   });
 };
 

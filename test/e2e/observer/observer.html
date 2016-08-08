@@ -1,0 +1,40 @@
+<html>
+
+<head>
+  <title>Simple Example</title>
+  <link rel="stylesheet" type="text/css" href="../../../src/css/layerjs.css">
+</head>
+<style>
+  body {
+    margin: auto;
+  }
+
+  #stage {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    margin: auto;
+  }
+
+  #frame {
+    position: absolute
+  }
+
+</style>
+
+<body>
+  <div id="stage" data-wl-type="stage">
+    <div id="layer" data-wl-type="layer" data-wl-default-frame="main" data-wl-native-scroll="false" data-wl-layout-type="canvas">
+      <div id="frame" data-wl-type="frame" data-wl-x="-300" data-wl-name="main" data-wl-fit-to="width" data-wl-start-position="top" style="width:450px" class="big"> Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea
+        <area id="element" data-wl-type="element"/>
+        <div id="group" data-wl-type="group"></div>
+      </div>
+    </div>
+  </div>
+  <script src="../../../dist/layerjs.js"></script>
+  <script>
+    WL.init();
+  </script>
+</body>
+
+</html>

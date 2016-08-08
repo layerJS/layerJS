@@ -382,5 +382,20 @@ utilities.switchScrolling = function(elementId, nativeScrolling) {
   }, elementId, nativeScrolling);
 };
 
+utilities.getDataAttribute = function(elementId, dataAttribute) {
+  return browser.driver.executeAsyncScript(function(id, dataAttribute, callback) {
+    var element = document.getElementById(id);
+    var result;
+    for (var attributeName in element._wlView.data.attributes) {
+      if(attributeName === dataAttribute){
+        result = element._wlView.data.attributes[attributeName];
+        break;
+      }
+    }
+    
+    callback(result);
+  }, elementId, dataAttribute);
+};
+
 
 module.exports = utilities;

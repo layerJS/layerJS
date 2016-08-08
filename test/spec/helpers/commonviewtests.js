@@ -184,50 +184,14 @@ var commonViewTests = function(scenario, initFunction) {
       } else {
         expect(element.hasAttribute('target')).toBeFalsy();
       }
-    });
-
-    it('listens for changes on its DOM element when _observerCounter is 0', function() {
-      var view = new ViewType(data);
-      var element = view.outerEl;
-      view.render();
-
-      expect(view._observer).toBeDefined();
-      expect(view._observerCounter).toBe(0);
-
-      element.style.width = "55px";
-      element.className = "a_class";
-      element.setAttribute('data-wl-custom', 10);
-
-      expect(data.attributes.width).toBe('55px');
-      expect(data.attributes.classes).toBe('a_class');
-      expect(data.attributes.custom).toBe('10');
-    });
-
-    it('doesn\'t listen for changes on its DOM element when _observerCounter is greater then 0', function() {
-      var view = new ViewType(data);
-      var element = view.outerEl;
-
-      view.render();
-      view.disableObserver();
-
-      expect(view._observer).toBeDefined();
-      expect(view._observerCounter).toBe(1);
-
-      element.style.width = "55px";
-      element.className = "a_class";
-      element.setAttribute('data-wl-custom', 10);
-
-      expect(data.attributes.width).not.toBe('55px');
-      expect(data.attributes.classes).not.toBe('a_class');
-      expect(data.attributes.custom).not.toBe('10');
-    });
+    });  
 
     it('will listen for changes on its DOM element by default', function() {
       var view = new ViewType(data);
       var element = view.outerEl;
 
       expect(view._observer).toBeDefined();
-      expect(view._observerCounter).toBe(0);
+      expect(view._observer.isObserving()).toBe(true);
     });
 
     it('will put the htmlAttributes from the dataObject into the DOM element as attributes', function() {
@@ -248,8 +212,6 @@ var commonViewTests = function(scenario, initFunction) {
       expect(element.getAttribute('some-thing')).toBe(data.attributes.htmlAttributes.someThing);
     });
   });
-
-
 };
 
 module.exports = commonViewTests;

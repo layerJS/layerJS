@@ -4,6 +4,7 @@ var pluginManager = require('./pluginmanager.js');
 var repository = require('./repository.js'); // jshint ignore:line
 var ElementView = require('./elementview.js');
 var identifyPriority = require('./identifypriority.js');
+var observerFactory = require('./observer/observerfactory.js');
 /**
  * A View which can have child views
  * @param {GroupData} dataModel
@@ -479,6 +480,34 @@ var GroupView = ElementView.extend({
       return true;
     });
   },
+  _createObserver: function() {
+    if (this.hasOwnProperty('_observer'))
+      return;
+
+    var that = this;
+    this._observer = observerFactory.getObserver(this.outerEl, {
+      attributes: true,
+      childList: true,
+      callback: function(result) {
+        that._domElementChanged(result);
+      }
+    });
+  },
+  /**
+   * This function will parse the DOM element and add it to the data of the view.
+   * It will be use by the MutationObserver.
+   * @param {result} an object that contains what has been changed on the DOM element
+   * @return {void}
+   */
+  _domElementChanged: function(result) {
+    if (result.attributes.length > 0) {
+      this.parse(this.outerEl);
+    }
+
+    if (result.removedNodes.length > 0 || result.addedNodes.length > 0) {
+      this._parseChildren();
+    }
+  }
 
 }, {
   defaultProperties: Kern._extend({}, ElementView.defaultProperties, {

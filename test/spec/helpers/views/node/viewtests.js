@@ -50,7 +50,7 @@ var viewTests = function(scenario, ViewType, scenarioData) {
       var element = view.outerEl;
 
       expect(view._observer).toBeDefined();
-      expect(view._observerCounter).toBe(0);
+      expect(view._observer.isObserving).toBeTruthy();
     });
 
     it('will have a identify static property which can be used to identify is an element is of a specific View class', function() {

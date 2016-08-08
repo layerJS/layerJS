@@ -6,6 +6,7 @@ var defaults = require('./defaults.js');
 var repository = require('./repository.js');
 var pluginManager = require('./pluginmanager.js');
 var identifyPriority = require('./identifypriority.js');
+var observerFactory = require('./observer/observerfactory.js');
 /**
  * Defines the view of a node and provides all basic properties and
  * rendering fuctions that are needed for a visible element.
@@ -133,7 +134,8 @@ var NodeView = Kern.EventManager.extend({
     this.isRendered = true;
 
     this.enableObserver();
-  },/**
+  },
+  /**
    * get Parent View of specific type recursively
    *
    * @param {string} type - the type the parent should have
@@ -180,8 +182,8 @@ var NodeView = Kern.EventManager.extend({
    * @return {void}
    */
   destroy: function() {
-    if (window.MutationObserver && this._observer) {
-      this._observer.disconnect();
+    if (this._observer) {
+      this._observer.stop();
     }
 
     this.outerEl.parentNode.removeChild(this.outerEl);
@@ -201,87 +203,38 @@ var NodeView = Kern.EventManager.extend({
     this._dataObserverCounter++;
   },
   enableObserver: function() {
-    if (!this.hasOwnProperty('_observerCounter')) {
-      this._observerCounter = 0;
-    } else if (this._observerCounter > 0) {
-      this._observerCounter--;
-    }
-    if (window.MutationObserver && this._observerCounter === 0) {
-      this._observer.observe(this.outerEl, {
-        attributes: true,
-        childList: false,
-        characterData: true,
-        subtree: false
-      });
+    if (this._observer) {
+      this._observer.observe();
     }
   },
   disableObserver: function() {
-    if (!this.hasOwnProperty('_observerCounter')) {
-      this._observerCounter = 0;
-    }
-
-    this._observerCounter++;
-    if (window.MutationObserver && this._observer && this._observer.disconnect) {
-      this._observer.disconnect();
+    if (this._observer) {
+      this._observer.stop();
     }
   },
   _createObserver: function() {
-
     if (this.hasOwnProperty('_observer'))
       return;
 
     var that = this;
 
-    if (window.MutationObserver) {
-      this._observer = new MutationObserver(function(mutations) {
-        var i;
-        var trigger = false;
-        for (i = 0; i < mutations.length; i++) {
-          // FIXME: do a similar thing for DOMChangeListeners below
-          if (!(mutations[i].type === "attributes" && mutations[i].attributeName === 'styles')) {
-            trigger = true;
-          }
-        }
-        if (trigger) {
-          that._domElementChanged();
-        }
-      });
-
-      this._observer.observe(this.outerEl, {
-        attributes: true,
-        childList: false,
-        characterData: true,
-        subtree: false
-      });
-    } else {
-      this._observer = {};
-
-      this.outerEl.addEventListener("DOMAttrModified", function() {
-        that._domElementChanged();
-      }, false);
-
-      this.outerEl.addEventListener("DOMAttributeNameChanged", function() {
-        that._domElementChanged();
-      }, false);
-
-      this.outerEl.addEventListener("DOMCharacterDataModified", function() {
-        that._domElementChanged();
-      }, false);
-
-      this.outerEl.addEventListener("DOMElementNameChanged", function() {
-        that._domElementChanged();
-      }, false);
-    }
+    this._observer = observerFactory.getObserver(this.outerEl, {
+      characterData: true,
+      callback: function(result) {
+        that._domElementChanged(result);
+      }
+    });
   },
   /**
    * This function will parse the DOM element and add it to the data of the view.
    * It will be use by the MutationObserver.
+   * @param {result} an object that contains what has been changed on the DOM element
    * @return {void}
    */
-  _domElementChanged: function() {
-    if (this._observerCounter !== 0) return;
-
-    this.parse(this.outerEl);
+  _domElementChanged: function(result) {
+    if (result.characterData) {
+      this.parse(this.outerEl);
+    }
   }
 }, {
   // save model class as static variable

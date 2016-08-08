@@ -6,6 +6,7 @@ var pluginManager = require('./pluginmanager.js');
 var NodeView = require('./nodeview.js');
 var defaults = require('./defaults.js');
 var identifyPriority = require('./identifypriority.js');
+var observerFactory = require('./observer/observerfactory.js');
 
 /**
  * Defines the view of a ObjData and provides all basic properties and
@@ -230,6 +231,29 @@ var ElementView = NodeView.extend({
 
     }
     return p;
+  },
+  _createObserver: function() {
+    if (this.hasOwnProperty('_observer'))
+      return;
+
+    var that = this;
+    this._observer = observerFactory.getObserver(this.outerEl, {
+      attributes: true,
+      callback: function(result) {
+        that._domElementChanged(result);
+      }
+    });
+  },
+  /**
+   * This function will parse the DOM element and add it to the data of the view.
+   * It will be use by the MutationObserver.
+   * @param {result} an object that contains what has been changed on the DOM element
+   * @return {void}
+   */
+  _domElementChanged: function(result) {
+    if (result.attributes.length > 0) {
+      this.parse(this.outerEl);
+    }
   },
   /**
    * Will create a dataobject based on a DOM element
