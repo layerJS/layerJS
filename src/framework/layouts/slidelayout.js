@@ -64,27 +64,39 @@ var SlideLayout = LayerLayout.extend({
     return this.prepareTransition(frame, transition, targetFrameTransformData, targetTransform).then(function(t) {
       var finished = new Kern.Promise();
       console.log('now for real');
-      frame.outerEl.addEventListener("transitionend", function f(e) { // FIXME needs webkitTransitionEnd etc
-        e.target.removeEventListener(e.type, f); // remove event listener for transitionEnd.
-        if (transition.transitionID === that.layer.transitionID) {
-          currentFrame.applyStyles({
-            transition: '',
-            display: 'none'
+      var frameToTransition = frame || currentFrame;
+
+      if (null !== frameToTransition) {
+        frameToTransition.outerEl.addEventListener("transitionend", function f(e) { // FIXME needs webkitTransitionEnd etc
+          e.target.removeEventListener(e.type, f); // remove event listener for transitionEnd.
+          if (transition.transitionID === that.layer.transitionID) {
+            if (currentFrame) {
+              currentFrame.applyStyles({
+                transition: '',
+                display: 'none'
+              });
+            }
+            if (frame) {
+              frame.applyStyles({
+                transition: ''
+              });
+            }
+          }
+          // wait until above styles are applied;
+          $.postAnimationFrame(function() {
+            finished.resolve();
           });
-          frame.applyStyles({
-            transition: ''
-          });
-        }
-        // wait until above styles are applied;
-        $.postAnimationFrame(function() {
-          finished.resolve();
         });
-      });
+      } else {
+        finished.resolve();
+      }
+
       that._applyTransform(frame, that._currentFrameTransform = that._calcFrameTransform(targetFrameTransformData), targetTransform, {
         transition: transition.duration,
         top: "0px",
         left: "0px"
       });
+
       that._applyTransform(currentFrame, t.c1, targetTransform, {
         transition: transition.duration,
         top: "0px",
@@ -113,29 +125,37 @@ var SlideLayout = LayerLayout.extend({
     // create a promise that will wait for the transform being applied
     var finished = new Kern.Promise();
     var prep;
-    // check if transition is already prepared
-    if ((prep = this._preparedTransitions[frame.data.attributes.id])) {
+
+    if (frame === null) {
+      prep = this.transitions[transition.type](transition.type, this.layer.currentFrameTransformData, targetFrameTransformData);
+      finished.resolve(prep);
+    } else if ((prep = this._preparedTransitions[frame.data.attributes.id])) {
       if (prep.transform === targetTransform && prep.applied) { // if also the targetTransform is already applied we can just continue
         finished.resolve(prep);
-        return finished;
+      } else {
+        prep = undefined;
       }
     }
-    // call the transition type function to calculate all frame positions/transforms
-    prep = this._preparedTransitions[frame.data.attributes.id] = this.transitions[transition.type](transition.type, this.layer.currentFrameTransformData, targetFrameTransformData); // WARNING: this.layer.currentFrameTransformData should still be the old one here. carefull: this.layer.currentFrameTransformData will be set by LayerView before transition ends!
-    // apply pre position to target frame
-    this._applyTransform(frame, prep.t0, this.layer.currentTransform, {
-      transition: '',
-      opacity: '1',
-      visibility: ''
-    });
-    prep.transform = targetTransform;
-    console.log(prep.t0);
-    // wait until new postions are rendered then resolve promise
-    $.postAnimationFrame(function() {
-      prep.applied = true;
-      console.log('resolve');
-      finished.resolve(prep);
-    });
+
+    if (undefined === prep) {
+      // call the transition type function to calculate all frame positions/transforms
+      prep = this._preparedTransitions[frame.data.attributes.id] = this.transitions[transition.type](transition.type, this.layer.currentFrameTransformData, targetFrameTransformData); // WARNING: this.layer.currentFrameTransformData should still be the old one here. carefull: this.layer.currentFrameTransformData will be set by LayerView before transition ends!
+      // apply pre position to target frame
+      this._applyTransform(frame, prep.t0, this.layer.currentTransform, {
+        transition: '',
+        opacity: '1',
+        visibility: ''
+      });
+      prep.transform = targetTransform;
+      console.log(prep.t0);
+      // wait until new postions are rendered then resolve promise
+      $.postAnimationFrame(function() {
+        prep.applied = true;
+        console.log('resolve');
+        finished.resolve(prep);
+      });
+    }
+
     return finished;
   },
   /**
@@ -156,9 +176,11 @@ var SlideLayout = LayerLayout.extend({
    * @returns {void}
    */
   _applyTransform: function(frame, frameTransform, addedTransform, styles) {
-    frame.applyStyles(styles || {}, {
-      transform: addedTransform + " " + frameTransform
-    });
+    if (frame) {
+      frame.applyStyles(styles || {}, {
+        transform: addedTransform + " " + frameTransform
+      });
+    }
   },
   /**
    * calculate the transform for a give frame using its transformData record

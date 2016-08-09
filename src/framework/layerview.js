@@ -189,6 +189,20 @@ var LayerView = GroupView.extend({
       that.inTransform = false;
     });
   },
+  noFrameTransformdata: function(transitionStartPosition) {
+    var d = {};
+    d.stage = this.stage;
+    d.scale = 1;
+    d.width = d.frameWidth = this.stage.width();
+    d.height = d.frameHeight = this.stage.height();
+    d.shiftX = d.shiftY = d.scrollX = d.scrollY = 0;
+    d.isScrollX = d.isScrollY = false;
+    d.startPosition = transitionStartPosition || 'top';
+    d.initialScrollX = d.scrollX;
+    d.initialScrollY = d.scrollY;
+
+    return d;
+  },
   /**
    * transform to a given frame in this layer with given transition
    *
@@ -198,13 +212,13 @@ var LayerView = GroupView.extend({
    */
   transitionTo: function(framename, transition) {
     // is framename  omitted?
-    if (typeof framename === 'object') {
+    if (typeof framename === 'object' && null !== framename) {
       transition = framename;
       framename = transition.framename;
-    } else {
+    } else if (null !== framename) {
       framename = framename || (transition && transition.framename);
     }
-    if (!framename) throw "transformTo: no frame given";
+    if (!framename && null !== framename) throw "transformTo: no frame given";
     // transition ommitted? create some default
     transition = Kern._extend({
       type: 'default',
@@ -212,8 +226,8 @@ var LayerView = GroupView.extend({
         // FIXME: add more default values like timing
     }, transition || {});
     // lookup frame by framename
-    var frame = this.getChildViewByName(framename);
-    if (!frame) throw "transformTo: " + framename + " does not exist in layer";
+    var frame = null === framename ? null : this.getChildViewByName(framename);
+    if (!frame && null !== frame) throw "transformTo: " + framename + " does not exist in layer";
     var that = this;
     this.inTransform = true;
     transition.transitionID = ++this.transitionID; // inc transition ID and save new ID into transition record
@@ -222,7 +236,7 @@ var LayerView = GroupView.extend({
       // calculate the layer transform for the target frame. Note: this will automatically consider native scrolling
       // getScrollIntermediateTransform will not change the current native scroll position but will calculate
       // a compensatory transform for the target scroll position.
-      var targetFrameTransformData = frame.getTransformData(that.stage, transition.startPosition);
+      var targetFrameTransformData = null === frame ? that.noFrameTransformdata(transition.startPosition) : frame.getTransformData(that.stage, transition.startPosition);
       var targetTransform = that._transformer.getScrollTransform(targetFrameTransformData, transition.scrollX || 0, transition.scrollY || 0, true);
       // check if transition goes to exactly the same position
       if (that.currentFrame === frame && that.currentTransform === targetTransform && that.currentFrameTransformData === targetFrameTransformData) {
@@ -268,6 +282,8 @@ var LayerView = GroupView.extend({
     if (this.currentFrame) {
       this._saveLastFrame = this.currentFrame;
       this.currentFrame.outerEl.className = this.currentFrame.outerEl.className.replace(/\s*wl\-active\s*/g, '');
+    }
+    if (null !== newFrame) {
       newFrame.outerEl.className += " wl-active";
     }
   },
