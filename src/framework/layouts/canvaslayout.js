@@ -49,7 +49,6 @@ var CanvasLayout = LayerLayout.extend({
    * @returns {Kern.Promise} a promise fullfilled after the transition finished. Note: if you start another transtion before the first one finished, this promise will not be resolved.
    */
   transitionTo: function(frame, transition, targetFrameTransformData, targetTransform) {
-    this._reverseTransform = this._calculateReverseTransform(frame, targetFrameTransformData);
     var finished = new Kern.Promise();
 
     var frames = this.layer.getChildViews();
@@ -59,24 +58,42 @@ var CanvasLayout = LayerLayout.extend({
     // we only listen to the transitionend of the target frame and hope that's fine
     // NOTE: other frame transitions may end closely afterwards and setting transition time to 0 will let
     // them jump to the final positions (hopefully jump will not be visible)
-    frame.outerEl.addEventListener("transitionend", function f(e) { // FIXME needs webkitTransitionEnd etc
+
+    // NOTE: Maybe this is a solution for not stopping the transitions
+    var lastFrameToTransition = frames[framesLength-1];
+
+    lastFrameToTransition.outerEl.addEventListener("transitionend", function f(e) { // FIXME needs webkitTransitionEnd etc
       e.target.removeEventListener(e.type, f); // remove event listener for transitionEnd.
-      for (var i = 0; i < framesLength; i++) {
+      /*for (var i = 0; i < framesLength; i++) {
         childFrame = frames[i];
         childFrame.applyStyles({
           transition: '' // deactivate transitions for all frames
         });
-      }
+      }*/
       finished.resolve();
     });
 
-    // now apply all transforms to all frames
-    for (var i = 0; i < framesLength; i++) {
-      childFrame = frames[i];
-      this._applyTransform(childFrame, this._reverseTransform, targetTransform, {
-        transition: transition.duration
-      });
+    if (null !== frame) {
+      this._reverseTransform = this._calculateReverseTransform(frame, targetFrameTransformData);
+      // now apply all transforms to all frames
+      for (var i = 0; i < framesLength; i++) {
+        childFrame = frames[i];
+        this._applyTransform(childFrame, this._reverseTransform, targetTransform, {
+          transition: transition.duration,
+          opacity: 1
+        });
+      }
+    } else {
+      for (var x = 0; x < framesLength; x++) {
+        childFrame = frames[x];
+        childFrame.applyStyles({
+          opacity: 0,
+          transition: transition.duration
+        });
+      }
     }
+
+
     return finished;
   },
   /**
