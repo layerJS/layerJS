@@ -28,7 +28,7 @@ require("./framework/frameview.js");
 require("./framework/stageview.js");
 require("./framework/groupview.js");
 
-var FileRouter = require("./framework/filerouter.js");
+var FileRouter = require("./framework/router/filerouter.js");
 
 WL.init = function() {
   WL.parseManager.parseDocument();

@@ -1,5 +1,5 @@
 'use strict';
-var Kern = require('../kern/Kern.js');
+var Kern = require('../../kern/Kern.js');
 //var ParseManager = require("./parsemanager.js");
 
 /**

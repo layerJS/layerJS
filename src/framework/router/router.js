@@ -5,7 +5,6 @@ var Kern = require('../../kern/kern.js');
 
 var Router = Kern.EventManager.extend({
   constructor: function(rootEl) {
-    console.log('creating');
     this.rootElement = rootEl || document;
     this.currentRouter = undefined;
     this._registerLinkClickedListener();
