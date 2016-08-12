@@ -1,15 +1,19 @@
-module.exports = function(options) {
+module.exports = function(initFunction) {
 
   var utilities = require('../../utilities');
 
-  var ViewType = options.ViewType;
-  var DataType = ViewType.Model;
-  var expectedChildren = options.expectedChildren;
-  var defaultProperties;
 
   describe(": _parseChildren =>", function() {
 
+    var ViewType, DataType, expectedChildren, defaultProperties, repository, options;
+
+
     beforeEach(function() {
+      options = initFunction();
+      ViewType = options.ViewType;
+      DataType = ViewType.Model;
+      expectedChildren = options.expectedChildren;
+
       defaultProperties = JSON.parse(JSON.stringify(ViewType.defaultProperties));
     });
 

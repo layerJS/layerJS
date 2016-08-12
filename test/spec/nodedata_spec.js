@@ -1,6 +1,11 @@
-var NodeData = require('../../src/framework/nodedata.js');
-var ElementView = require('../../src/framework/elementview.js');
 describe("NodeData", function() {
+
+  var NodeData, ElementView;
+
+  beforeEach(function() {
+    NodeData = require('../../src/framework/nodedata.js');
+    ElementView = require('../../src/framework/elementview.js');
+  });
 
   it('can be created', function() {
     var nodeData = new NodeData();
@@ -60,7 +65,9 @@ describe("NodeData", function() {
     });
 
     it("can add a single child", function() {
-      var nodeData = new NodeData({children:[]});
+      var nodeData = new NodeData({
+        children: []
+      });
       nodeData.on("change:children", eventHandler);
       nodeData.addChild(1);
       expect(nodeData.attributes.children).toEqual([1])
@@ -79,7 +86,9 @@ describe("NodeData", function() {
 
     it("can add multiple children", function() {
       var childrenToAdd = [1, 2, 3];
-      var nodeData = new NodeData({ children : []});
+      var nodeData = new NodeData({
+        children: []
+      });
       nodeData.on("change:children", eventHandler);
       nodeData.addChildren(childrenToAdd);
       expect(nodeData.attributes.children).toEqual(childrenToAdd);

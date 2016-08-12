@@ -5,6 +5,9 @@ var document, window, $;
 //require("../../../src/layerjs.js")
 var utilities = require("./utilities.js");
 
+// bootstrap everything
+utilities.beforeEach();
+
 beforeEach(function(){
     utilities.beforeEach();
 })

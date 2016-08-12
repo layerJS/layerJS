@@ -1,5 +1,7 @@
-var repository = require('../../src/framework/repository.js');
-var ScriptView = require('../../src/framework/scriptview.js');
+
+var scriptView = function() {
+  return require('../../src/framework/scriptview.js');
+};
 var utilities = require('./helpers/utilities.js');
 
 var ViewsCommonIdentifyTests = require('./helpers/views/common/identifytests.js');
@@ -12,27 +14,38 @@ var ElementParseTests = require('./helpers/views/element/parsetests.js');
 
 describe("ScriptView", function() {
 
+  var WL, ScriptView, repository;
+
+  beforeEach(function(){
+    repository = require('../../src/framework/repository.js');
+    ScriptView = scriptView();
+    WL = require('../../src/framework/wl.js');
+
+  });
+
   describe('will identify all DOM elements with a script tag', function() {
-    ViewsCommonIdentifyTests('div', ScriptView, function() {
+    ViewsCommonIdentifyTests('div', scriptView, function() {
       return document.createElement('div');
     }, false);
 
-    ViewsCommonIdentifyTests('div', ScriptView, function() {
+    ViewsCommonIdentifyTests('div', scriptView, function() {
       var element = document.createElement('div');
       element.setAttribute('data-wl-type', 'script');
       return element;
     }, false);
 
-    ViewsCommonIdentifyTests('script', ScriptView, function() {
+    ViewsCommonIdentifyTests('script', scriptView, function() {
       return document.createElement('script');
     }, true);
   });
 
-  ViewsCommonParseTests({
-    ViewType: ScriptView
+  ViewsCommonParseTests(function() {
+    return {
+      ViewType: scriptView()
+    };
   });
 
-  NodeViewTests('simple_scriptdata.js', ScriptView, {
+  NodeViewTests('simple_scriptdata.js', scriptView, {
     "type": "script",
     "id": "116530",
     "nodeType": 1,
@@ -42,16 +55,20 @@ describe("ScriptView", function() {
     "children": []
   });
 
-  GroupView_parseChildrenTests({
-    ViewType: ScriptView,
-    HTML: "<script id='100'>" +
-      "var a = 1;" +
-      "</script>",
-    expectedChildren: []
+  GroupView_parseChildrenTests(function() {
+    return {
+      ViewType: scriptView(),
+      HTML: "<script id='100'>" +
+        "var a = 1;" +
+        "</script>",
+      expectedChildren: []
+    };
   });
 
-  ElementParseTests({
-    ViewType: ScriptView
+  ElementParseTests(function() {
+    return {
+      ViewType: scriptView()
+    };
   });
 
   it('will render the src attribute when WL.executeScriptCode equals true', function() {

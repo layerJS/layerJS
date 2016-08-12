@@ -1,6 +1,11 @@
-var layoutmanager = require('../../src/framework/layoutmanager.js');
-
 describe('LayoutManager', function() {
+
+  var layoutmanager;
+
+  beforeEach(function(){
+    layoutmanager = require('../../src/framework/layoutmanager.js');
+  })
+
   it('can be initialized', function() {
     expect(layoutmanager).toBeDefined();
   });

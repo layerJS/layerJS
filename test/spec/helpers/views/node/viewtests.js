@@ -1,10 +1,11 @@
-var viewTests = function(scenario, ViewType, scenarioData) {
+var viewTests = function(scenario, viewType, scenarioData) {
 
   describe('(nodeview tests) ' + scenario, function() {
 
-    var data;
+    var data,ViewType;
 
     beforeEach(function() {
+      ViewType = viewType();
       data = new ViewType.Model(scenarioData);
     });
 
@@ -39,7 +40,7 @@ var viewTests = function(scenario, ViewType, scenarioData) {
       };
 
       var fun = function() {
-        var cv = new viewType(data, options);
+        var cv = new ViewType(data, options);
       };
       expect(fun).toThrow()
     });

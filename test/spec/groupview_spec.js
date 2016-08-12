@@ -1,8 +1,7 @@
-var jsdom = require("jsdom").jsdom;
-var repository = require('../../src/framework/repository.js');
+var groupView = function() {
+  return require('../../src/framework/groupview.js');
+};
 
-var GroupView = require('../../src/framework/groupview.js');
-var ElementView = require('../../src/framework/elementview.js');
 var CommonViewTests = require('./helpers/commonviewtests.js');
 var CommonGroupViewTests = require('./helpers/commongroupviewtests.js');
 var GroupView_renderChildPositionTests = require('./helpers/groupview_renderchildpositiontests.js');
@@ -15,26 +14,34 @@ var ViewsCommonIdentifyTests = require('./helpers/views/common/identifytests.js'
 
 describe("GroupView", function() {
 
-  //var document = global.document;
+  var repository;
+  var GroupView;
+  var ElementView;
+
+  beforeEach(function() {
+    repository = require('../../src/framework/repository.js');
+    ElementView = require('../../src/framework/elementview.js');
+    GroupView = groupView();
+  });
 
   CommonViewTests('simple_groupdata.js', function() {
     return {
       data: JSON.parse(JSON.stringify(require('./datasets/simple_groupdata.js')[0])),
-      ViewType: GroupView
+      ViewType: groupView()
     };
   });
 
   CommonViewTests('anchor_groupdata.js', function() {
     return {
       data: JSON.parse(JSON.stringify(require('./datasets/anchor_groupdata.js')[0])),
-      ViewType: GroupView
+      ViewType: groupView()
     };
   });
 
   CommonGroupViewTests('groupdata_with_elementdata.js', function() {
     return {
       data: JSON.parse(JSON.stringify(require('./datasets/groupdata_with_elementdata.js'))),
-      ViewType: GroupView,
+      ViewType: groupView(),
       parentId: 110530
     };
   });
@@ -42,7 +49,7 @@ describe("GroupView", function() {
   Common_renderChildPositionTests('groupdata_with_elementdata.js', function() {
     return {
       data: JSON.parse(JSON.stringify(require('./datasets/groupdata_with_elementdata.js'))),
-      ViewType: GroupView,
+      ViewType: groupView(),
       parentId: 110530
     };
   });
@@ -50,7 +57,7 @@ describe("GroupView", function() {
   GroupView_renderChildPositionTests('groupdata_with_elementdata.js', function() {
     return {
       data: JSON.parse(JSON.stringify(require('./datasets/groupdata_with_elementdata.js'))),
-      ViewType: GroupView,
+      ViewType: groupView(),
       parentId: 110530
     };
   });
@@ -169,18 +176,22 @@ describe("GroupView", function() {
     expect(order['101'] < order['element3']).toBe(true);
   });
 
-  ViewsCommonParseTests({
-    ViewType: GroupView
+  ViewsCommonParseTests(function() {
+    return {
+      ViewType: groupView()
+    }
   });
 
-  ViewsGroup_parseChildrenTests({
-    ViewType: GroupView,
-    HTML: "<div id='100' data-wl-id='100' data-wl-type='group'>" +
-      "<div id='101' data-wl-id='101' data-wl-type='group'></div>" +
-      "<div id='102' data-wl-id='102' data-wl-type='group'></div>" +
-      "<div></div>" +
-      "</div>",
-    expectedChildren: ['101', '102']    
+  ViewsGroup_parseChildrenTests(function() {
+    return {
+      ViewType: groupView(),
+      HTML: "<div id='100' data-wl-id='100' data-wl-type='group'>" +
+        "<div id='101' data-wl-id='101' data-wl-type='group'></div>" +
+        "<div id='102' data-wl-id='102' data-wl-type='group'></div>" +
+        "<div></div>" +
+        "</div>",
+      expectedChildren: ['101', '102']
+    };
   });
 
   it('has a static function getNodeType which is undefined par default', function() {
@@ -188,31 +199,31 @@ describe("GroupView", function() {
   })
 
   describe('will identify all DOM elements with a data-wl-type="group" or without a data-wl-type attribute', function() {
-    ViewsCommonIdentifyTests('div', GroupView, function() {
+    ViewsCommonIdentifyTests('div', groupView, function() {
       return document.createElement('div');
     }, true);
 
-    ViewsCommonIdentifyTests('div', GroupView, function() {
+    ViewsCommonIdentifyTests('div', groupView, function() {
       var element = document.createElement('div');
       element.setAttribute('data-wl-type', 'custom');
       return element;
     }, false);
 
-    ViewsCommonIdentifyTests('head', GroupView, function() {
+    ViewsCommonIdentifyTests('head', groupView, function() {
       return document.createElement('head');
     }, true);
 
-    ViewsCommonIdentifyTests('body', GroupView, function() {
+    ViewsCommonIdentifyTests('body', groupView, function() {
       return document.createElement('body');
     }, true);
 
-    ViewsCommonIdentifyTests('body', GroupView, function() {
+    ViewsCommonIdentifyTests('body', groupView, function() {
       var element = document.createElement('body');
       element.setAttribute('data-wl-type', 'custom');
       return element;
     }, false);
 
-    ViewsCommonIdentifyTests('div data-wl-type="group"', GroupView, function() {
+    ViewsCommonIdentifyTests('div data-wl-type="group"', groupView, function() {
       var element = document.createElement('div');
       element.setAttribute('data-wl-type', 'group');
 

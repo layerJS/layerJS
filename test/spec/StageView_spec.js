@@ -1,4 +1,6 @@
-var StageView = require('../../src/framework/stageview.js');
+var stageView = function() {
+  return require('../../src/framework/stageview.js')
+};
 var CommonViewTests = require('./helpers/commonviewtests.js');
 var CommonGroupViewTests = require('./helpers/commongroupviewtests.js');
 var GroupView_renderChildPositionTests = require('./helpers/groupview_renderchildpositiontests.js');
@@ -22,7 +24,7 @@ describe("StageView", function() {
   CommonGroupViewTests('simple_stagedata.js', function() {
     return {
       data: JSON.parse(JSON.stringify(require('./datasets/simple_stagedata.js'))),
-      ViewType: StageView,
+      ViewType: stageView(),
       parentId: 110540
     };
   });
@@ -30,33 +32,37 @@ describe("StageView", function() {
   CommonGroupViewTests('test_data_set.js', function() {
     return {
       data: JSON.parse(JSON.stringify(require('./datasets/test_data_set.js'))),
-      ViewType: StageView,
+      ViewType: stageView(),
       parentId: 1
     };
   });
 
-  ViewsCommonParseTests({
-    ViewType: StageView
+  ViewsCommonParseTests(function() {
+    return {
+      ViewType: stageView()
+    };
   });
 
-  ViewsGroup_parseChildrenTests({
-    ViewType: StageView,
-    HTML: "<div id='100' data-wl-id='100' data-wl-type='stage'>" +
-      "<div id='101' data-wl-id='101' data-wl-type='layer'></div>" +
-      "<div id='102' data-wl-id='102' data-wl-type='layer'></div>" +
-      "<div/>" +
-      "</div>",
-    expectedChildren: ['101', '102']
+  ViewsGroup_parseChildrenTests(function() {
+    return {
+      ViewType: stageView(),
+      HTML: "<div id='100' data-wl-id='100' data-wl-type='stage'>" +
+        "<div id='101' data-wl-id='101' data-wl-type='layer'></div>" +
+        "<div id='102' data-wl-id='102' data-wl-type='layer'></div>" +
+        "<div/>" +
+        "</div>",
+      expectedChildren: ['101', '102']
+    };
   });
 
-  ViewsCommonIdentifyTests('div data-wl-type="stage"', StageView, function() {
+  ViewsCommonIdentifyTests('div data-wl-type="stage"', stageView, function() {
     var element = document.createElement('div');
     element.setAttribute('data-wl-type', 'stage');
 
     return element;
   }, true);
 
-  ViewsCommonIdentifyTests('div', StageView, function() {
+  ViewsCommonIdentifyTests('div', stageView, function() {
     return document.createElement('div');
   }, false);
 

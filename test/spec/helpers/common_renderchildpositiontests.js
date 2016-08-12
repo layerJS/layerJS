@@ -1,12 +1,12 @@
-var repository = require('../../../src/framework/repository.js');
 var defaults = require('../../../src/framework/defaults.js');
 
 var Common_renderChildPositionTests = function(scenario, initFunction) {
   describe('(base test for all objects that implement _renderChildPosition) ' + scenario, function() {
 
-    var ViewType, data;
+    var ViewType, data, repository;
 
     beforeEach(function() {
+      repository = require('../../../src/framework/repository.js');
       var init = initFunction();
       ViewType = init.ViewType;
       repository.importJSON(init.data, defaults.version);

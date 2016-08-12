@@ -1,15 +1,15 @@
-var repository = require('../../../src/framework/repository.js');
-var defaults = require('../../../src/framework/defaults.js');
-var jsdom = require('jsdom').jsdom;
 var utilities = require("./utilities.js");
 
 var commonGroupViewTests = function(scenario, initFunction) {
   describe('(base tests for views that have children) ' + scenario, function() {
 
 
-    var ViewType, data;
+    var ViewType, data, repository, defaults;
 
     beforeEach(function() {
+      repository = require('../../../src/framework/repository.js');
+      defaults = require('../../../src/framework/defaults.js');
+
       var init = initFunction();
       ViewType = init.ViewType;
       repository.importJSON(init.data, defaults.version);

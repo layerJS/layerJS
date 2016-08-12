@@ -1,7 +1,15 @@
-var repository = require('../../src/framework/repository.js');
-var NodeData = require('../../src/framework/nodedata.js');
+
 
     describe('Repository', function() {
+      var repository;
+      var NodeData;
+
+      beforeEach(function(){
+        repository = require('../../src/framework/repository.js');
+        NodeData = require('../../src/framework/nodedata.js');
+      });
+
+
       it('can generate unique client ids', function() {
         var ids = [];
 

@@ -1,6 +1,12 @@
-var TimeoutObserver = require('../../../src/framework/observer/timeoutobserver.js');
+
 
 describe('TimeoutObserver', function() {
+
+  var TimeoutObserver;
+
+  beforeEach(function(){
+    TimeoutObserver = require('../../../src/framework/observer/timeoutobserver.js');
+  });
 
   it('can be created', function() {
     var element = document.createElement('div');

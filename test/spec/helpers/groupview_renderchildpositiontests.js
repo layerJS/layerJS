@@ -1,14 +1,13 @@
-var repository = require('../../../src/framework/repository.js');
-var defaults = require('../../../src/framework/defaults.js');
-var jsdom = require('jsdom').jsdom;
 var utilities = require("./utilities.js");
 
 var GroupView_renderChildPositionTests = function(scenario, initFunction) {
   describe('(base test for _renderChildPosition for objects the inherit from GroupView) ' + scenario, function() {
 
-    var ViewType, data;
+    var ViewType, data, repository, defaults;
 
     beforeEach(function() {
+      repository = require('../../../src/framework/repository.js');
+      defaults = require('../../../src/framework/defaults.js');
       var init = initFunction();
       ViewType = init.ViewType;
 

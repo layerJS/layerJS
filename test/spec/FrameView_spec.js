@@ -1,6 +1,6 @@
-var jsdom = require("jsdom").jsdom;
-
-var FrameView = require('../../src/framework/frameview.js');
+var frameView = function() {
+  return require('../../src/framework/frameview.js')
+};
 var CommonViewTests = require('./helpers/commonviewtests.js');
 var CommonGroupViewTests = require('./helpers/commongroupviewtests.js');
 var GroupView_renderChildPositionTests = require('./helpers/groupview_renderchildpositiontests.js');
@@ -22,12 +22,12 @@ describe("FrameView", function() {
     });
   */
 
-  ViewsNodeViewTests('simple_framedata.js', FrameView, require('./datasets/simple_framedata.js')[0]);
+  ViewsNodeViewTests('simple_framedata.js', frameView, require('./datasets/simple_framedata.js')[0]);
 
   CommonGroupViewTests('simple_framedata.js', function() {
     return {
       data: JSON.parse(JSON.stringify(require('./datasets/simple_framedata.js'))),
-      ViewType: FrameView,
+      ViewType: frameView(),
       parentId: 110529
     };
   });
@@ -35,7 +35,7 @@ describe("FrameView", function() {
   Common_renderChildPositionTests('simple_framedata.js', function() {
     return {
       data: JSON.parse(JSON.stringify(require('./datasets/simple_framedata.js'))),
-      ViewType: FrameView,
+      ViewType: frameView(),
       parentId: 110529
     };
   });
@@ -43,35 +43,39 @@ describe("FrameView", function() {
   GroupView_renderChildPositionTests('simple_framedata.js', function() {
     return {
       data: JSON.parse(JSON.stringify(require('./datasets/simple_framedata.js'))),
-      ViewType: FrameView,
+      ViewType: frameView(),
       parentId: 110529
     };
   });
 
-  ViewsCommonParseTests({
-    ViewType: FrameView,
-    viewTypeName: 'FrameView',
-    type: 'frame'
+  ViewsCommonParseTests(function() {
+    return {
+      ViewType: frameView(),
+      viewTypeName: 'FrameView',
+      type: 'frame'
+    };
   });
 
-  ViewsGroup_parseChildrenTests({
-    ViewType: FrameView,
-    HTML: "<div id='100' data-wl-id='100' data-wl-type='frame'>" +
-      "<div id='101' data-wl-id='101' data-wl-type='group'></div>" +
-      "<div id='102' data-wl-id='102' data-wl-type='group'></div>" +
-      "<div/>" +
-      "</div>",
-    expectedChildren: ['101', '102']
+  ViewsGroup_parseChildrenTests(function() {
+    return {
+      ViewType: frameView(),
+      HTML: "<div id='100' data-wl-id='100' data-wl-type='frame'>" +
+        "<div id='101' data-wl-id='101' data-wl-type='group'></div>" +
+        "<div id='102' data-wl-id='102' data-wl-type='group'></div>" +
+        "<div/>" +
+        "</div>",
+      expectedChildren: ['101', '102']
+    };
   });
 
-  ViewsCommonIdentifyTests('div data-wl-type="frame"', FrameView, function() {
+  ViewsCommonIdentifyTests('div data-wl-type="frame"', frameView, function() {
     var element = document.createElement('div');
     element.setAttribute('data-wl-type', 'frame');
 
     return element;
   }, true);
 
-  ViewsCommonIdentifyTests('div', FrameView, function() {
+  ViewsCommonIdentifyTests('div', frameView, function() {
     return document.createElement('div');
   }, false);
 

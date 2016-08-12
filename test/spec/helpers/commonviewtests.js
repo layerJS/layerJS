@@ -1,14 +1,14 @@
-var pluginManager = require('../../../src/framework/pluginmanager.js');
-var jsdom = require('jsdom').jsdom;
+
 var utilities = require("./utilities.js");
 
 var commonViewTests = function(scenario, initFunction) {
 
   describe('(basis view tests) ' + scenario, function() {
 
-    var data, ViewType, defaultProperties;
+    var data, ViewType, defaultProperties,pluginManager;
 
     beforeEach(function() {
+      pluginManager = require('../../../src/framework/pluginmanager.js');
       var init = initFunction();
       ViewType = init.ViewType;
       data = new ViewType.Model(init.data);
@@ -184,7 +184,7 @@ var commonViewTests = function(scenario, initFunction) {
       } else {
         expect(element.hasAttribute('target')).toBeFalsy();
       }
-    });  
+    });
 
     it('will listen for changes on its DOM element by default', function() {
       var view = new ViewType(data);

@@ -1,18 +1,19 @@
-var WL = require('../../../../../src/framework/wl.js');
+
 var utilities = require("../../utilities.js");
 
-module.exports = function(options) {
-
-  var ViewType = options.ViewType;
-  var DataType = ViewType.Model;
+module.exports = function(initFunction) {
 
   describe("(elementview tests) parse =>", function() {
 
     var element;
-    var repository = WL.repository;
-    var type,defaultProperties;
+    var WL;
+    var repository;
+    var type,defaultProperties,ViewType,DataType;
 
     beforeEach(function() {
+      var options = initFunction();
+      ViewType = options.ViewType;
+      DataType = ViewType.Model;
       defaultProperties = JSON.parse(JSON.stringify(ViewType.defaultProperties));
       type = defaultProperties.type;
 
@@ -29,6 +30,9 @@ module.exports = function(options) {
       element.className = 'object-default object-' + type + ' someClass';
       element.setAttribute('href', 'url');
       element.setAttribute('target', '_self');
+
+      WL = require('../../../../../src/framework/wl.js');
+      repository = WL.repository;
     });
 
     it('has a parse method that will update the current dataObject and will return it', function() {

@@ -1,19 +1,11 @@
-var WL;
-
-var utilities = {
-  layerjsIsRequired: false
-};
+var utilities = {};
 
 utilities.isNodeContext = function() {
   return (typeof global.window === 'undefined');
 }
 
 utilities._init = function() {
-  if (!this.layerjsIsRequired) {
-    require("../../../src/layerjs.js");
-    WL = require("../../../src/framework/wl.js");
-    this.layerjsIsRequired = true;
-  }
+  require("../../../src/layerjs.js");
 }
 
 utilities._beforeAll = function() {
@@ -29,9 +21,6 @@ utilities._beforeAll = function() {
 
   style.innerHTML = "";
 
-  WL.repository.clear();
-  WL.executeScriptCode = true;
-  //WL.router =
   this.setHtml("");
 }
 
@@ -56,6 +45,12 @@ utilities.beforeEach = function() {
   }
   this._init();
   this._beforeAll();
+}
+
+utilities.afterEach = function() {
+  for (var key in require.cache) {
+    delete require.cache[key];
+  }
 }
 
 utilities.setHtml = function(html) {

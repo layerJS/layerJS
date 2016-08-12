@@ -1,10 +1,11 @@
-var commonViewTests = function(scenario, ViewType, scenarioData) {
+var commonViewTests = function(scenario, viewType, scenarioData) {
 
   describe('(elementview tests) ' + scenario, function() {
 
-    var data;
+    var data, ViewType;
 
     beforeEach(function() {
+      ViewType = viewType();
       data = new ViewType.Model(JSON.parse(JSON.stringify(scenarioData)));
     });
 /*

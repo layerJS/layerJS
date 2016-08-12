@@ -1,18 +1,20 @@
-var WL = require('../../../../../src/framework/wl.js');
 var utilities = require("../../utilities.js");
 
-module.exports = function(options) {
-
-  var ViewType = options.ViewType;
-  var DataType = ViewType.Model;
+module.exports = function(initFunction) {
 
   describe(": parse =>", function() {
 
     var element;
-    var repository = WL.repository;
+    var repository;
     var type, defaultProperties;
+    var ViewType;
+    var DataType;
 
     beforeEach(function() {
+
+      ViewType = initFunction().ViewType;
+      DataType = ViewType.Model;
+
       defaultProperties = JSON.parse(JSON.stringify(ViewType.defaultProperties));
       type = defaultProperties.type;
 
@@ -22,6 +24,8 @@ module.exports = function(options) {
         // text node
         element = document.createTextNode('');
       }
+
+      repository =  require('../../../../../src/framework/wl.js').repository;
     });
 
     it('will contain a Parse method to read the data from a DOM element', function() {
