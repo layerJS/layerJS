@@ -11,7 +11,7 @@ require("./framework/layouts/layerlayout.js");
 require("./framework/layouts/slidelayout.js");
 require("./framework/layouts/canvaslayout.js");
 require("./framework/gestures/gesturemanager.js");
-
+require("./framework/router/router.js");
 
 /* data objects*/
 require("./framework/defaults.js");
@@ -28,8 +28,9 @@ require("./framework/frameview.js");
 require("./framework/stageview.js");
 require("./framework/groupview.js");
 
-require("./framework/filerouter.js");
+var FileRouter = require("./framework/filerouter.js");
 
 WL.init = function() {
   WL.parseManager.parseDocument();
+  WL.router.setCurrentRouter(new FileRouter());
 };

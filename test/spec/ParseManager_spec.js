@@ -1,15 +1,15 @@
-var WL = require('../../src/framework/wl.js');
-var defaults = require('../../src/framework/defaults.js');
-var utilities = require('./helpers/utilities.js');
-
 
 describe('ParseMananger', function() {
+  var WL = require('../../src/framework/wl.js');
+  var defaults = require('../../src/framework/defaults.js');
+  var utilities = require('./helpers/utilities.js');
 
-  var repository = WL.repository;
-  var parseManager = WL.parseManager;
 
   it('will fill add stageData to the repository from DOM elements', function() {
     utilities.setHtml("<div data-wl-id='1' data-wl-type='stage'></div><div data-wl-id='2' data-wl-type='stage'>");
+
+    var repository = WL.repository;
+    var parseManager = WL.parseManager;
 
     parseManager.parseDocument();
 

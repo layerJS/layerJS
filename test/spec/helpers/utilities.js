@@ -1,13 +1,19 @@
-require("../../../src/layerjs.js")
-var WL = require("../../../src/framework/wl.js")
+var WL;
 
-
-var document, window, $;
-
-var utilities = {};
+var utilities = {
+  layerjsIsRequired: false
+};
 
 utilities.isNodeContext = function() {
   return (typeof global.window === 'undefined');
+}
+
+utilities._init = function() {
+  if (!this.layerjsIsRequired) {
+    require("../../../src/layerjs.js");
+    WL = require("../../../src/framework/wl.js");
+    this.layerjsIsRequired = true;
+  }
 }
 
 utilities._beforeAll = function() {
@@ -25,6 +31,7 @@ utilities._beforeAll = function() {
 
   WL.repository.clear();
   WL.executeScriptCode = true;
+  //WL.router =
   this.setHtml("");
 }
 
@@ -44,11 +51,10 @@ utilities._beforeEachBrowser = function() {
 utilities.beforeEach = function() {
   if (this.isNodeContext()) {
     this._beforeEachNodeJS();
-  }
-  else{
+  } else {
     this._beforeEachBrowser();
   }
-
+  this._init();
   this._beforeAll();
 }
 
