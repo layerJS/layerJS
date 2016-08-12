@@ -41,12 +41,15 @@ var Router = Kern.EventManager.extend({
   _navigate: function(href, addToHistory) {
     var navigate = false;
     if (this.currentRouter && this.currentRouter.canHandle(href)) {
+
+      this.currentRouter.handle(href);
+
       // add to history using push state
       if (window.history && addToHistory) {
         window.history.pushState({}, "", href);
       }
 
-      this.currentRouter.handle(href);
+
       navigate = true;
     }
 
