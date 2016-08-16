@@ -12,7 +12,6 @@ describe('router', function() {
   });
 
   it('can set a different router', function() {
-    var currentRouter = WL.router.currentRouter;
     WL.router.setCurrentRouter(undefined);
     expect(WL.router.currentRouter).toBe(undefined);
   });

@@ -18,7 +18,7 @@ describe('NodeView', function() {
   describe(': parse =>', function() {
 
     var NodeView;
-    beforeEach(function(){
+    beforeEach(function() {
       NodeView = nodeView();
     });
 

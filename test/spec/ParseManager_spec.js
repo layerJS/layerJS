@@ -1,8 +1,11 @@
-
 describe('ParseMananger', function() {
-  var WL = require('../../src/framework/wl.js');
-  var defaults = require('../../src/framework/defaults.js');
+  var WL, defaults;
   var utilities = require('./helpers/utilities.js');
+
+  beforeEach(function() {
+    WL = require('../../src/framework/wl.js');
+    defaults = require('../../src/framework/defaults.js');
+  });
 
 
   it('will fill add stageData to the repository from DOM elements', function() {

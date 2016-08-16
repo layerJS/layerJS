@@ -1,10 +1,8 @@
-
-
 describe('TimeoutObserver', function() {
 
   var TimeoutObserver;
 
-  beforeEach(function(){
+  beforeEach(function() {
     TimeoutObserver = require('../../../src/framework/observer/timeoutobserver.js');
   });
 
