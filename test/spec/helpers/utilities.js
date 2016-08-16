@@ -29,6 +29,8 @@ utilities._beforeEachNodeJS = function() {
   document = global.document = jsdom("<html><head></head><body></body></html>");
   window = global.window = document.defaultView;
   $ = document.querySelector;
+
+  global.XMLHttpRequest = require('xmlhttprequest').XMLHttpRequest;
 }
 
 utilities._beforeEachBrowser = function() {
