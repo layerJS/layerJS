@@ -2,6 +2,7 @@
 var WL = require('../wl.js');
 var $ = require('../domhelpers.js');
 var Kern = require('../../kern/kern.js');
+var defaults = require('../defaults.js');
 
 var Router = Kern.EventManager.extend({
   constructor: function(rootEl) {
@@ -33,6 +34,32 @@ var Router = Kern.EventManager.extend({
     });
   },
   /**
+   * Will parse the url for transition parameters and will return a cleaned up url and parameters
+   * @param {string} Url where to navigate
+   * @return {Object} An object containing a cleaned up url and transitionOptions
+   */
+  _parseUrl: function(href) {
+    var result = {
+      url: href,
+      transitionOptions: {}
+    };
+
+    for (var parameter in defaults.transitionParameters) {
+      if (defaults.transitionParameters.hasOwnProperty(parameter)) {
+        var parameterName = defaults.transitionParameters[parameter];
+        var regEx = new RegExp("[?&]" + parameterName + "=([^&]+)");
+        var match = result.url.match(regEx);
+        if (match) {
+          result.transitionOptions[parameter] = match[1];
+          result.url = result.url.replace(regEx, '');
+        }
+      }
+    }
+
+
+    return result;
+  },
+  /**
    * When the router can navigate to the url, it will do this.
    * @param {string} Url where to navigate
    * @param {boolean} Indicate if the url needs to be added to the history
@@ -42,11 +69,12 @@ var Router = Kern.EventManager.extend({
     var navigate = false;
     if (this.currentRouter && this.currentRouter.canHandle(href)) {
 
-      this.currentRouter.handle(href);
+      var options = this._parseUrl(href);
+      this.currentRouter.handle(href, options.transitionOptions);
 
       // add to history using push state
       if (window.history && addToHistory) {
-        window.history.pushState({}, "", href);
+        window.history.pushState({}, "", options.url);
       }
 
 

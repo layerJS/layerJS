@@ -76,7 +76,7 @@ var FileRouter = Kern.EventManager.extend({
  * @param {string} an url
  * @return {void}
  */
-  handle: function(href) {
+  handle: function(href, transition) {
     loadHTML(href).then(function(doc) {
       var paths = getFramePaths(doc);
       var currentPaths = getFramePaths(document);
@@ -111,7 +111,7 @@ var FileRouter = Kern.EventManager.extend({
             // FIXME: Refactor to use new children changed paradigm of layerJS
             // calling internal function _parseChildren is not recommended
             parent._wlView._parseChildren();
-            parent._wlView.transitionTo(paths[i].frame._wlView.data.attributes.name);
+            parent._wlView.transitionTo(paths[i].frame._wlView.data.attributes.name, transition);
             parent._wlView._parseChildren();
             parent.removeChild(currentPaths[j].frame);
 

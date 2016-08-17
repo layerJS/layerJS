@@ -16,7 +16,9 @@
     "jshint": "latest",
     "protractor": "latest",
     "perfcollector.js": "latest",
-    "globule" : "latest"
+    "globule" : "latest",
+    "xmlhttprequest": "latest",
+    "nock": "latest"
   },
   "scripts": {
     "clean": "rimraf build/* dist/*",
