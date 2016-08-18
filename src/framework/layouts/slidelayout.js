@@ -25,7 +25,8 @@ var SlideLayout = LayerLayout.extend({
       left: swipeTransition,
       right: swipeTransition,
       up: swipeTransition,
-      down: swipeTransition
+      down: swipeTransition,
+      fade: swipeTransition
     };
   },
   /**
@@ -94,13 +95,15 @@ var SlideLayout = LayerLayout.extend({
       that._applyTransform(frame, that._currentFrameTransform = that._calcFrameTransform(targetFrameTransformData), targetTransform, {
         transition: transition.duration,
         top: "0px",
-        left: "0px"
+        left: "0px",
+        opacity: "1"
       });
 
       that._applyTransform(currentFrame, t.c1, targetTransform, {
         transition: transition.duration,
         top: "0px",
-        left: "0px"
+        left: "0px",
+        opacity: t.c1_opacity || "1"
       });
       that._preparedTransitions = {};
       // wait until post transforms are applied an signal that animation is now running.
@@ -143,7 +146,7 @@ var SlideLayout = LayerLayout.extend({
       // apply pre position to target frame
       this._applyTransform(frame, prep.t0, this.layer.currentTransform, {
         transition: '',
-        opacity: '1',
+        opacity:  prep.t0_opacity || '1',
         visibility: ''
       });
       prep.transform = targetTransform;
@@ -251,6 +254,13 @@ var SlideLayout = LayerLayout.extend({
         y = Math.max(this.getStageHeight(), ttfd.height) - ttfd.shiftY;
         x = -ctfd.shiftX - ctfd.scrollX * ctfd.scale + ttfd.scrollX * ttfd.scale;
         t.c1 = "translate3d(" + x + "px," + y + "px,0px) scale(" + ctfd.scale + ")";
+        break;
+
+      case 'fade':
+        t.t0 = "scale(" + ttfd.scale + ")";
+        t.t0_opacity = '0';
+        t.c1 = "scale(" + ctfd.scale + ")";
+        t.c1_opacity = '0';
         break;
         // target frame transform time 0
     }
