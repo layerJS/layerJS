@@ -277,10 +277,10 @@ var ElementView = NodeView.extend({
       var attributeValue = attribute.value;
       var dataSource = undefined;
 
-      if (attributeName.indexOf('data-lj-') === 0) {
+      if (attributeName.indexOf('data-lj-') === 0 || attributeName.indexOf('lj-') === 0) {
         // store directly in the data object
         dataSource = data;
-        attributeName = attributeName.replace('data-lj-', '');
+        attributeName = attributeName.replace('data-lj-', '').replace('lj-', '');
       } else {
         // store in data.htmlAttributes
         dataSource = data.htmlAttributes;

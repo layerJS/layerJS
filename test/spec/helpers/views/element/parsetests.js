@@ -70,7 +70,22 @@ module.exports = function(initFunction) {
       expect(view.data.attributes.custom).toBeUndefined();
     });
 
-    it('the Parse method will create a object with properties in the dataModel is the DOM element contains an attribute of formate data-lj-*.* ', function() {
+    it('the Parse method will return a data object with all the lj-* attributes (camelcased) from a DOM element', function() {
+      element = document.createElement('div');
+      element.setAttribute('lj-some-thing', '1');
+      element.setAttribute('lj-some-thing-else', '2');
+      element.setAttribute('data-custom', '3');
+
+      var view = new ViewType(null, {
+        el: element
+      });
+
+      expect(view.data.attributes.someThing).toBe('1');
+      expect(view.data.attributes.someThingElse).toBe('2');
+      expect(view.data.attributes.custom).toBeUndefined();
+    });
+
+    it('the Parse method will create a object with properties in the dataModel is the DOM element contains an attribute of format data-lj-*.* ', function() {
       element = document.createElement('div');
       element.setAttribute('data-lj-some.thing', '1');
       element.setAttribute('data-lj-some.thing-else', '2');
@@ -82,6 +97,20 @@ module.exports = function(initFunction) {
       expect(view.data.attributes.some.thing).toBe('1');
       expect(view.data.attributes.some.thingElse).toBe('2');
     });
+
+    it('the Parse method will create a object with properties in the dataModel is the DOM element contains an attribute of format lj-*.* ', function() {
+      element = document.createElement('div');
+      element.setAttribute('lj-some.thing', '1');
+      element.setAttribute('lj-some.thing-else', '2');
+
+      var view = new ViewType(null, {
+        el: element
+      });
+
+      expect(view.data.attributes.some.thing).toBe('1');
+      expect(view.data.attributes.some.thingElse).toBe('2');
+    });
+
 
     it('if the parse method doesn\' t find a data-lj-id, it will create one', function() {
       element.removeAttribute('data-lj-id');
