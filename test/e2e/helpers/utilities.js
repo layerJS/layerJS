@@ -6,7 +6,7 @@ utilities.transitionTo = function(layerId, frameName, transition, waitTime) {
   waitTime = waitTime || 3000;
 
   return browser.driver.executeAsyncScript(function(layerId, frameName, transition, waitTime, callBack) {
-    WL.select('#' + layerId).transitionTo(frameName, transition);
+    layerJS.select('#' + layerId).transitionTo(frameName, transition);
     window.setTimeout(callBack, waitTime);
   }, layerId, frameName, transition, waitTime);
 };

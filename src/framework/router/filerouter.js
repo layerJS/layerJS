@@ -27,21 +27,21 @@ var getChildIndex = function(type, node) {
   var cc = 0;
   for (i = 0; i < children.length; i++) {
     if (node === children[i]) return cc;
-    if (children[i].getAttribute('data-wl-type') !== type) continue;
+    if (children[i].getAttribute('data-lj-type') !== type) continue;
     cc++;
   }
   throw "node not found in parent";
 };
 var getLayerJSParents = function(path, node) {
-  var type = node.nodeType === 1 && node.getAttribute('data-wl-type');
+  var type = node.nodeType === 1 && node.getAttribute('data-lj-type');
   if (type === 'stage' || type === 'layer' || type === 'frame') {
-    path = (node.getAttribute('data-wl-name') || node.id || type + "[" + getChildIndex(type, node) + "]") + (path ? "." + path : "");
+    path = (node.getAttribute('data-lj-name') || node.id || type + "[" + getChildIndex(type, node) + "]") + (path ? "." + path : "");
   }
   if (!node.parentNode) return path;
   return getLayerJSParents(path, node.parentNode);
 };
 var getFramePaths = function(doc) {
-  var frames = doc.querySelectorAll('[data-wl-type="frame"]');
+  var frames = doc.querySelectorAll('[data-lj-type="frame"]');
   var paths = [];
   var f;
   for (f = 0; f < frames.length; f++) {

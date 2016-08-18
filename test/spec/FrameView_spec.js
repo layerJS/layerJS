@@ -59,18 +59,18 @@ describe("FrameView", function() {
   ViewsGroup_parseChildrenTests(function() {
     return {
       ViewType: frameView(),
-      HTML: "<div id='100' data-wl-id='100' data-wl-type='frame'>" +
-        "<div id='101' data-wl-id='101' data-wl-type='group'></div>" +
-        "<div id='102' data-wl-id='102' data-wl-type='group'></div>" +
+      HTML: "<div id='100' data-lj-id='100' data-lj-type='frame'>" +
+        "<div id='101' data-lj-id='101' data-lj-type='group'></div>" +
+        "<div id='102' data-lj-id='102' data-lj-type='group'></div>" +
         "<div/>" +
         "</div>",
       expectedChildren: ['101', '102']
     };
   });
 
-  ViewsCommonIdentifyTests('div data-wl-type="frame"', frameView, function() {
+  ViewsCommonIdentifyTests('div data-lj-type="frame"', frameView, function() {
     var element = document.createElement('div');
-    element.setAttribute('data-wl-type', 'frame');
+    element.setAttribute('data-lj-type', 'frame');
 
     return element;
   }, true);

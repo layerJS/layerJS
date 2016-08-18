@@ -89,7 +89,7 @@
 
   // Custom Globals
   "globals": {
-    "WL": true
+    "layerJS": true
   }, // additional predefined global variables
 
   "predef"        : [

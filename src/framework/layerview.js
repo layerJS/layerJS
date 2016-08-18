@@ -36,7 +36,7 @@ var LayerView = GroupView.extend({
     this.outerEl = options.el || document.createElement(tag);
 
 
-    var hasScroller = this.outerEl.children.length === 1 && this.outerEl.children[0].getAttribute('data-wl-helper') === 'scroller';
+    var hasScroller = this.outerEl.children.length === 1 && this.outerEl.children[0].getAttribute('data-lj-helper') === 'scroller';
     this.innerEl = hasScroller ? this.outerEl.children[0] : this.outerEl;
 
     // call super constructor
@@ -92,11 +92,11 @@ var LayerView = GroupView.extend({
       this.nativeScroll = nativeScrolling;
 
       this.disableObserver();
-      var hasScroller = this.outerEl.children.length === 1 && this.outerEl.children[0].getAttribute('data-wl-helper') === 'scroller';
+      var hasScroller = this.outerEl.children.length === 1 && this.outerEl.children[0].getAttribute('data-lj-helper') === 'scroller';
 
       if (nativeScrolling) {
         this.innerEl = hasScroller ? this.outerEl.children[0] : $.wrapChildren(this.outerEl);
-        this.innerEl.setAttribute('data-wl-helper', 'scroller');
+        this.innerEl.setAttribute('data-lj-helper', 'scroller');
         if (!this.innerEl._wlView) {
           this.innerEl._wlView = this.outerEl._wlView;
         }
@@ -324,7 +324,7 @@ var LayerView = GroupView.extend({
     nativeScroll: true
   }),
   identify: function(element) {
-    var type = element.getAttribute('data-wl-type');
+    var type = element.getAttribute('data-lj-type');
     return null !== type && type.toLowerCase() === LayerView.defaultProperties.type;
   }
 });

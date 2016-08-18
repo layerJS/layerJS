@@ -54,7 +54,7 @@ var StageView = GroupView.extend({
     type: 'stage'
   }),
   identify: function(element) {
-    var type = element.getAttribute('data-wl-type');
+    var type = element.getAttribute('data-lj-type');
     return null !== type && type.toLowerCase() === StageView.defaultProperties.type;
   }
 });

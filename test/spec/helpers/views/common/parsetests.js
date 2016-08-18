@@ -25,7 +25,7 @@ module.exports = function(initFunction) {
         element = document.createTextNode('');
       }
 
-      repository =  require('../../../../../src/framework/wl.js').repository;
+      repository =  require('../../../../../src/framework/layerjs.js').repository;
     });
 
     it('will contain a Parse method to read the data from a DOM element', function() {

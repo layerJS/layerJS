@@ -10,17 +10,17 @@
   <script type="text/javascript" src="../../dist/layerjs.js"></script>
   <script type="text/javascript">
     (function() {
-      WL.imagePath = "../img/img_dataset1/";
-      WL.repository.importJSON(dataset, 'default');
-      var stageData = WL.repository.get("s1", 'default');
-      var stageView = WL.pluginManager.createView(stageData);
+      layerJS.imagePath = "../img/img_dataset1/";
+      layerJS.repository.importJSON(dataset, 'default');
+      var stageData = layerJS.repository.get("s1", 'default');
+      var stageView = layerJS.pluginManager.createView(stageData);
       //stageView.render();
       document.body.appendChild(stageView.outerEl);
-      WL.gestureManager.register();
+      layerJS.gestureManager.register();
     })();
   </script>
   <style>
-    [data-wl-id='s1'] {
+    [data-lj-id='s1'] {
       position: absolute;
       top: 0px;
       left: 0px;

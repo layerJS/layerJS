@@ -1,5 +1,5 @@
 'use strict';
-var WL = require('./wl.js');
+var layerJS = require('./layerjs.js');
 var defaults = require('./defaults.js');
 var Kern = require('../kern/Kern.js');
 var pluginManager = require('./pluginmanager.js');
@@ -135,5 +135,5 @@ var Repository = Kern.EventManager.extend({
   }
 });
 // initialialize repository
-WL.repository = new Repository();
-module.exports = WL.repository;
+layerJS.repository = new Repository();
+module.exports = layerJS.repository;

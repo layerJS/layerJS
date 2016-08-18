@@ -36,17 +36,17 @@
       transform-style: preserve-3d;
     }
 
-    ._3d [data-wl-type='stage'] {
+    ._3d [data-lj-type='stage'] {
       overflow: visible; // needed for preserve_3d to work
       transition: border 2s;
       border: 1px solid red;
     }
 
-    [data-wl-type='text'] {
+    [data-lj-type='text'] {
       /*margin: 50px;*/
     }
 
-    ._3d [data-wl-type='frame'] {
+    ._3d [data-lj-type='frame'] {
       background-color: rgba(100, 100, 100, 0.5);
       border: 1px solid gray;
       transition: background-color 2s;
@@ -152,10 +152,10 @@
     <button id="toggle3d">toggle 3D</button>
   </div>
   <div id="outer">
-    <div id="stage_root" data-wl-type="stage">
-      <div id="layer_main" data-wl-type="layer" data-wl-native-scroll="false" data-wl-default-frame="content1">
-        <div data-wl-type="frame" data-wl-name="content1" data-wl-fit-to="width" class="frame">
-          <div data-wl-type="text" class="text">
+    <div id="stage_root" data-lj-type="stage">
+      <div id="layer_main" data-lj-type="layer" data-lj-native-scroll="false" data-lj-default-frame="content1">
+        <div data-lj-type="frame" data-lj-name="content1" data-lj-fit-to="width" class="frame">
+          <div data-lj-type="group" class="text">
             <p>
               Proin eget tortor risus. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Donec velit neque, auctor sit amet aliquam vel, ullamcorper sit amet ligula. Nulla porttitor accumsan tincidunt. Lorem ipsum dolor sit amet,
               consectetur adipiscing elit. Vivamus suscipit tortor eget felis porttitor volutpat. Curabitur non nulla sit amet nisl tempus convallis quis ac lectus. Vestibulum ac diam sit amet quam vehicula elementum sed sit amet dui. Vestibulum ante
@@ -180,25 +180,25 @@
                 </div>
               </td>
               <td>
-                <div id="stage_images" data-wl-type="stage">
-                  <div id="layer_image" data-wl-type="layer" data-wl-native-scroll="false" data-wl-default-frame="image1">
-                    <div data-wl-type="frame" data-wl-name="image1" data-wl-fit-to="cover" data-wl-no-scrolling="true" data-wl-start-position="center" data-wl-neighbors.r="image2">
-                      <image data-wl-type="image" src="img/1.jpeg" />
+                <div id="stage_images" data-lj-type="stage">
+                  <div id="layer_image" data-lj-type="layer" data-lj-native-scroll="false" data-lj-default-frame="image1">
+                    <div data-lj-type="frame" data-lj-name="image1" data-lj-fit-to="cover" data-lj-no-scrolling="true" data-lj-start-position="center" data-lj-neighbors.r="image2">
+                      <image data-lj-type="element" src="img/1.jpeg" />
                     </div>
-                    <div data-wl-type="frame" data-wl-name="image2" data-wl-fit-to="cover" data-wl-no-scrolling="true" data-wl-start-position="center" data-wl-neighbors.l="image1" data-wl-neighbors.r="image3">
-                      <image data-wl-type="image" src="img/2.jpeg" />
+                    <div data-lj-type="frame" data-lj-name="image2" data-lj-fit-to="cover" data-lj-no-scrolling="true" data-lj-start-position="center" data-lj-neighbors.l="image1" data-lj-neighbors.r="image3">
+                      <image data-lj-type="element" src="img/2.jpeg" />
                     </div>
-                    <div data-wl-type="frame" data-wl-name="image3" data-wl-fit-to="cover" data-wl-no-scrolling="true" data-wl-start-position="center" data-wl-neighbors.l="image2" data-wl-neighbors.r="image4">
-                      <image data-wl-type="image" src="img/3.jpeg" />
+                    <div data-lj-type="frame" data-lj-name="image3" data-lj-fit-to="cover" data-lj-no-scrolling="true" data-lj-start-position="center" data-lj-neighbors.l="image2" data-lj-neighbors.r="image4">
+                      <image data-lj-type="element" src="img/3.jpeg" />
                     </div>
-                    <div data-wl-type="frame" data-wl-name="image4" data-wl-fit-to="cover" data-wl-no-scrolling="true" data-wl-start-position="center" data-wl-neighbors.l="image3" data-wl-neighbors.r="image5">
-                      <image data-wl-type="image" src="img/4.jpeg" />
+                    <div data-lj-type="frame" data-lj-name="image4" data-lj-fit-to="cover" data-lj-no-scrolling="true" data-lj-start-position="center" data-lj-neighbors.l="image3" data-lj-neighbors.r="image5">
+                      <image data-lj-type="element" src="img/4.jpeg" />
                     </div>
-                    <div data-wl-type="frame" data-wl-name="image5" data-wl-fit-to="cover" data-wl-no-scrolling="true" data-wl-start-position="center" data-wl-neighbors.l="image4" data-wl-neighbors.r="image6">
-                      <image data-wl-type="image" src="img/5.jpeg" />
+                    <div data-lj-type="frame" data-lj-name="image5" data-lj-fit-to="cover" data-lj-no-scrolling="true" data-lj-start-position="center" data-lj-neighbors.l="image4" data-lj-neighbors.r="image6">
+                      <image data-lj-type="element" src="img/5.jpeg" />
                     </div>
-                    <div data-wl-type="frame" data-wl-name="image6" data-wl-fit-to="cover" data-wl-no-scrolling="true" data-wl-start-position="center" data-wl-neighbors.l="image5">
-                      <image data-wl-type="image" src="img/6.jpeg" />
+                    <div data-lj-type="frame" data-lj-name="image6" data-lj-fit-to="cover" data-lj-no-scrolling="true" data-lj-start-position="center" data-lj-neighbors.l="image5">
+                      <image data-lj-type="element" src="img/6.jpeg" />
                     </div>
                   </div>
                 </div>
@@ -224,12 +224,12 @@
 
         </div>
       </div>
-      <div id="layer_menu" data-wl-type="layer" data-wl-native-scroll="false" data-wl-default-frame="menu1" data-wl-layout-type="canvas">
-        <div id="menu1" data-wl-x="0" data-wl-y="0" data-wl-type="frame" data-wl-name="menu1" data-wl-fit-to="width" data-wl-neighbors.t="menu2">
-          <div data-wl-type="text">Navigation bar</div>
+      <div id="layer_menu" data-lj-type="layer" data-lj-native-scroll="false" data-lj-default-frame="menu1" data-lj-layout-type="canvas">
+        <div id="menu1" data-lj-x="0" data-lj-y="0" data-lj-type="frame" data-lj-name="menu1" data-lj-fit-to="width" data-lj-neighbors.t="menu2">
+          <div data-lj-type="node">Navigation bar</div>
         </div>
-        <div id="menu2" data-wl-x="0" data-wl-y="-60" data-wl-type="frame" data-wl-name="menu2" data-wl-fit-to="width" data-wl-neighbors.b="menu1">
-          <div data-wl-type="text">Main Menu</div>
+        <div id="menu2" data-lj-x="0" data-lj-y="-60" data-lj-type="frame" data-lj-name="menu2" data-lj-fit-to="width" data-lj-neighbors.b="menu1">
+          <div data-lj-type="node">Main Menu</div>
         </div>
       </div>
 
@@ -238,14 +238,14 @@
 
   <script src="layerjs.js"></script>
   <script>
-    WL.init();
+    layerJS.init();
 
     var findex = 1;
     document.getElementById('next').addEventListener('click', function() {
       findex++;
       if (findex > 5)
         findex = 1;
-      WL.select('#layer_image').transitionTo("image" + (findex), {
+      layerJS.select('#layer_image').transitionTo("image" + (findex), {
         type: 'left'
       });
     });
@@ -254,7 +254,7 @@
       findex--;
       if (findex < 1)
         findex = 5;
-      WL.select('#layer_image').transitionTo("image" + (findex), {
+      layerJS.select('#layer_image').transitionTo("image" + (findex), {
         type: 'right'
       });
     });

@@ -158,11 +158,11 @@ var ObjView = Kern.EventManager.extend({
       diff = (this.isRendererd ? this.data.changedAttributes : this.data.attributes),
       outerEl = this.outerEl;
     if ('id' in diff) {
-      outerEl.setAttribute("data-wl-id", attr.id); //-> should be a class?
+      outerEl.setAttribute("data-lj-id", attr.id); //-> should be a class?
     }
 
     if ('type' in diff) {
-      outerEl.setAttribute("data-wl-type", attr.type); //-> should be a class?
+      outerEl.setAttribute("data-lj-type", attr.type); //-> should be a class?
     }
 
     if ('elementId' in diff || 'id' in diff) {
@@ -313,8 +313,8 @@ var ObjView = Kern.EventManager.extend({
 
     for (index = 0; index < length; index++) {
       var attribute = attributes[index];
-      if (attribute.name.indexOf('data-wl-') === 0) {
-        var attributeName = attribute.name.replace('data-wl-', '');
+      if (attribute.name.indexOf('data-lj-') === 0) {
+        var attributeName = attribute.name.replace('data-lj-', '');
         var attributeValue = attribute.value;
 
         if (attributeValue === 'true' || attributeValue === 'false') {

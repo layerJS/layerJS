@@ -1,6 +1,6 @@
 'use strict';
 require("./kern/kern.js");
-require("./framework/wl.js");
+require("./framework/layerjs.js");
 
 /* others*/
 require("./framework/pluginmanager.js");
@@ -30,7 +30,7 @@ require("./framework/groupview.js");
 
 var FileRouter = require("./framework/router/filerouter.js");
 
-WL.init = function() {
-  WL.parseManager.parseDocument();
-  WL.router.setCurrentRouter(new FileRouter());
+layerJS.init = function() {
+  layerJS.parseManager.parseDocument();
+  layerJS.router.setCurrentRouter(new FileRouter());
 };

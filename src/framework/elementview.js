@@ -67,11 +67,11 @@ var ElementView = NodeView.extend({
       diff = (this.isRendererd ? this.data.changedAttributes : this.data.attributes),
       outerEl = this.outerEl;
     if ('id' in diff) {
-      outerEl.setAttribute("data-wl-id", attr.id); //-> should be a class?
+      outerEl.setAttribute("data-lj-id", attr.id); //-> should be a class?
     }
 
     if ('type' in diff) {
-      outerEl.setAttribute("data-wl-type", attr.type); //-> should be a class?
+      outerEl.setAttribute("data-lj-type", attr.type); //-> should be a class?
     }
 
     if ('elementId' in diff || 'id' in diff) {
@@ -277,10 +277,10 @@ var ElementView = NodeView.extend({
       var attributeValue = attribute.value;
       var dataSource = undefined;
 
-      if (attributeName.indexOf('data-wl-') === 0) {
+      if (attributeName.indexOf('data-lj-') === 0) {
         // store directly in the data object
         dataSource = data;
-        attributeName = attributeName.replace('data-wl-', '');
+        attributeName = attributeName.replace('data-lj-', '');
       } else {
         // store in data.htmlAttributes
         dataSource = data.htmlAttributes;

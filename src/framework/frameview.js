@@ -276,7 +276,7 @@ var FrameView = GroupView.extend({
     type: 'frame'
   }),
   identify: function(element) {
-    var type = element.getAttribute('data-wl-type');
+    var type = element.getAttribute('data-lj-type');
     return null !== type && type.toLowerCase() === FrameView.defaultProperties.type;
   }
 });

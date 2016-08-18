@@ -30,9 +30,9 @@
 </style>
 
 <body>
-  <div id="root" data-wl-type="stage">
-    <div id="layer1" data-wl-type="layer" data-wl-default-frame="main" data-wl-native-scroll="true" data-wl-layout-type="canvas">
-      <div id="main" data-wl-type="frame" data-wl-x="-300" data-wl-name="main" data-wl-fit-to="width" data-wl-start-position="top" style="width:450px" class="big"> Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea
+  <div id="root" data-lj-type="stage">
+    <div id="layer1" data-lj-type="layer" data-lj-default-frame="main" data-lj-native-scroll="true" data-lj-layout-type="canvas">
+      <div id="main" data-lj-type="frame" data-lj-x="-300" data-lj-name="main" data-lj-fit-to="width" data-lj-start-position="top" style="width:450px" class="big"> Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea
         takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores
         et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.
         <button id="disable">
@@ -50,7 +50,7 @@
 
   <script src="../../dist/layerjs.js"></script>
   <script>
-    WL.init();
+    layerJS.init();
 
     var element = document.getElementById("main");
 
@@ -69,10 +69,10 @@
     }
 
     function fire() {
-      if (element.getAttribute('data-wl-x') === '-500') {
-        element.setAttribute('data-wl-x', '-400');
+      if (element.getAttribute('data-lj-x') === '-500') {
+        element.setAttribute('data-lj-x', '-400');
       } else {
-        element.setAttribute('data-wl-x', '-500');
+        element.setAttribute('data-lj-x', '-500');
       }
     }
   </script>

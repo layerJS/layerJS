@@ -71,7 +71,7 @@ var GroupView = ElementView.extend({
    * - Create Views for the data models if they haven't been created yet.
    * - Rearrange the child views to match the order of the child IDs
    * - be respectful with any HTML childnodes which are not connected to a data
-   * object (i.e. no data-wl-id property); leaves them where they are.
+   * object (i.e. no data-lj-id property); leaves them where they are.
    */
   _buildChildren: function() {
 
@@ -87,7 +87,7 @@ var GroupView = ElementView.extend({
       // jshint ignore:start
       k++;
       var elem;
-      while (!(empty = !(k < that.innerEl.childNodes.length)) && (elem = that.innerEl.childNodes[k]) && (elem.nodeType != 1 || !(nodeId = (elem._wlView && elem._wlView.data.attributes.id) || elem.getAttribute('data-wl-id')))) {
+      while (!(empty = !(k < that.innerEl.childNodes.length)) && (elem = that.innerEl.childNodes[k]) && (elem.nodeType != 1 || !(nodeId = (elem._wlView && elem._wlView.data.attributes.id) || elem.getAttribute('data-lj-id')))) {
         k++;
       }
       // jshint ignore:end
@@ -199,13 +199,13 @@ var GroupView = ElementView.extend({
     for (i = 0; i < cn.length; i++) {
       var elem = cn[i];
 
-      nodeId = (elem._wlView && elem._wlView.data.attributes.id) || elem.getAttribute && elem.getAttribute('data-wl-id');
+      nodeId = (elem._wlView && elem._wlView.data.attributes.id) || elem.getAttribute && elem.getAttribute('data-lj-id');
       try {
         data = nodeId && repository.get(nodeId, this.data.attributes.version);
       } catch (e) {
         data = undefined;
       }
-      nodeType = (elem._wlView && elem._wlView.data.attributes.type) || elem.getAttribute && elem.getAttribute('data-wl-type');
+      nodeType = (elem._wlView && elem._wlView.data.attributes.type) || elem.getAttribute && elem.getAttribute('data-lj-type');
       if (nodeId && (data || nodeType)) {
         // search for nodeId in data.chi ldren
         var k_saved = k;
@@ -517,7 +517,7 @@ var GroupView = ElementView.extend({
   }),
   getNodeType: undefined,
   identify: function(element) {
-    var type = element.getAttribute('data-wl-type');
+    var type = element.getAttribute('data-lj-type');
 
     return element.nodeType === 1 && ((null !== type && type.toLowerCase() === 'group') || !type);
   }

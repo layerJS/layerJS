@@ -38,7 +38,7 @@ module.exports = function(initFunction) {
       var length = expectedChildren.length;
 
       for (var i = 0; i < length; i++) {
-        expect(WL.repository.contains(expectedChildren[i], data.attributes.version)).toBeTruthy();
+        expect(layerJS.repository.contains(expectedChildren[i], data.attributes.version)).toBeTruthy();
       }
     });
 
@@ -60,7 +60,7 @@ module.exports = function(initFunction) {
 
       for (var i = 0; i < length; i++) {
         var childView = view.innerEl.childNodes[i]._wlView;
-        expect(WL.repository.contains(childView.data.attributes.id, view.data.attributes.version)).toBeTruthy();
+        expect(layerJS.repository.contains(childView.data.attributes.id, view.data.attributes.version)).toBeTruthy();
         expect(view.data.attributes.children).toContain(childView.data.attributes.id);
       }
     });
@@ -79,23 +79,23 @@ module.exports = function(initFunction) {
 
       expect(testView).toBeDefined();
       expect(testView.data.attributes.type).toBe(nodeType);
-      expect(WL.repository.get(testView.data.attributes.id, testView.data.attributes.version)).toBeDefined();
+      expect(layerJS.repository.get(testView.data.attributes.id, testView.data.attributes.version)).toBeDefined();
     }
 
     it('can detect a group as nodeType', function() {
-      canParseUnkownElements('<div id="group" data-wl-type="' + ViewType.defaultProperties.type + '" data-wl-version="1"><div id="test"><div/></div></div>', 'group', 'test', 'group');
+      canParseUnkownElements('<div id="group" data-lj-type="' + ViewType.defaultProperties.type + '" data-lj-version="1"><div id="test"><div/></div></div>', 'group', 'test', 'group');
     });
 
     it('can detect an image as nodeType', function() {
-      canParseUnkownElements('<div id="group" data-wl-type="' + ViewType.defaultProperties.type + '" data-wl-version="1"><img id="test"/></div>', 'group', 'test', 'element');
+      canParseUnkownElements('<div id="group" data-lj-type="' + ViewType.defaultProperties.type + '" data-lj-version="1"><img id="test"/></div>', 'group', 'test', 'element');
     });
 
     it('can detect a text as nodeType', function() {
-      canParseUnkownElements('<div id="group" data-wl-type="' + ViewType.defaultProperties.type + '" data-wl-version="1"><div id="test">some text</div></div>', 'group', 'test', 'group');
+      canParseUnkownElements('<div id="group" data-lj-type="' + ViewType.defaultProperties.type + '" data-lj-version="1"><div id="test">some text</div></div>', 'group', 'test', 'group');
     });
 
     it('can detect a node as nodeType', function() {
-      canParseUnkownElements('<div id="group" data-wl-type="' + ViewType.defaultProperties.type + '" data-wl-version="1"><div id="test"/></div>', 'group', 'test', 'group');
+      canParseUnkownElements('<div id="group" data-lj-type="' + ViewType.defaultProperties.type + '" data-lj-version="1"><div id="test"/></div>', 'group', 'test', 'group');
     });
 
   });

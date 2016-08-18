@@ -8,9 +8,9 @@ describe('Filerouter', function() {
     utilities = require('../helpers/utilities.js');
     StageView = require('../../../src/framework/stageview.js');
 
-    utilities.setHtml('<div data-wl-type="stage" id="contentstage">' +
-      '<div data-wl-type="layer" id="contentlayer" data-wl-default-frame="frame1">' +
-      '<div data-wl-type="frame" data-wl-name="frame1" data-wl-fit-to="responsive">' +
+    utilities.setHtml('<div data-lj-type="stage" id="contentstage">' +
+      '<div data-lj-type="layer" id="contentlayer" data-lj-default-frame="frame1">' +
+      '<div data-lj-type="frame" data-lj-name="frame1" data-lj-fit-to="responsive">' +
       'this is frame 1.' +
       '<a id="link" href="http://localhost/somePage.html">link</a>' +
       '</div>' +
@@ -21,9 +21,9 @@ describe('Filerouter', function() {
   function prepareSomePage() {
     var scope = nock('http://localhost')
       .get('/somePage.html')
-      .reply(200, '<div data-wl-type="stage" id="contentstage">' +
-        '<div data-wl-type="layer" id="contentlayer" data-wl-default-frame="frame1">' +
-        '<div data-wl-type="frame" data-wl-name="frame2" data-wl-fit-to="responsive">' +
+      .reply(200, '<div data-lj-type="stage" id="contentstage">' +
+        '<div data-lj-type="layer" id="contentlayer" data-lj-default-frame="frame1">' +
+        '<div data-lj-type="frame" data-lj-name="frame2" data-lj-fit-to="responsive">' +
         'this is frame 2.' +
         '</div>' +
         '</div>' +
@@ -59,9 +59,9 @@ describe('Filerouter', function() {
   it('when no matching path is found, the current frame stays', function(done) {
     var scope = nock('http://localhost')
       .get('/somePage.html')
-      .reply(200, '<div data-wl-type="stage" id="contentstage1">' +
-        '<div data-wl-type="layer" id="contentlayer1" data-wl-default-frame="frame1">' +
-        '<div data-wl-type="frame" data-wl-name="frame2" data-wl-fit-to="responsive">' +
+      .reply(200, '<div data-lj-type="stage" id="contentstage1">' +
+        '<div data-lj-type="layer" id="contentlayer1" data-lj-default-frame="frame1">' +
+        '<div data-lj-type="frame" data-lj-name="frame2" data-lj-fit-to="responsive">' +
         'this is frame 2.' +
         '</div>' +
         '</div>' +

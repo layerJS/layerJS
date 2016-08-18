@@ -1,5 +1,5 @@
 'use strict';
-var WL = require('./wl.js');
+var layerJS = require('./layerjs.js');
 var Kern = require('../kern/Kern.js');
 
 var LayoutManager = Kern.EventManager.extend({
@@ -36,6 +36,6 @@ var LayoutManager = Kern.EventManager.extend({
   }
 });
 // initialialize layoutManager with default plugins
-WL.layoutManager = new LayoutManager();
+layerJS.layoutManager = new LayoutManager();
 // this module does not return the class but a singleton instance, the layoutManager for the project.
-module.exports = WL.layoutManager;
+module.exports = layerJS.layoutManager;

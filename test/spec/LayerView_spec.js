@@ -62,10 +62,10 @@ describe("LayerView", function() {
     }
   });
 
-  it('the Parse method will set nativeScroll to true if the DOM element has a data-wl-native-scroll attribute equals true', function() {
+  it('the Parse method will set nativeScroll to true if the DOM element has a data-lj-native-scroll attribute equals true', function() {
     var element = document.createElement('div');
-    element.setAttribute('data-wl-native-scroll', 'true');
-    element.innerHTML = "<div data-wl-helper='scroller'/>";
+    element.setAttribute('data-lj-native-scroll', 'true');
+    element.innerHTML = "<div data-lj-helper='scroller'/>";
 
     var layerView = new LayerView(null, {
       el: element
@@ -75,9 +75,9 @@ describe("LayerView", function() {
     expect(dataModel.attributes.nativeScroll).toBeTruthy();
   });
 
-  it('the Parse method will set nativeScroll to false if the DOM element has a data-wl-native-scroll attribute equals false', function() {
+  it('the Parse method will set nativeScroll to false if the DOM element has a data-lj-native-scroll attribute equals false', function() {
     var element = document.createElement('div');
-    element.setAttribute('data-wl-native-scroll', 'false');
+    element.setAttribute('data-lj-native-scroll', 'false');
     element.innerHTML = "<div/>";
 
     var layerView = new LayerView(null, {
@@ -93,18 +93,18 @@ describe("LayerView", function() {
       ViewType: layerView(),
       viewTypeName: 'LayerView',
       type: 'layer',
-      HTML: "<div id='100' data-wl-id='100' data-wl-type='layer'>" +
-        "<div id='101' data-wl-id='101' data-wl-type='frame'></div>" +
-        "<div id='102' data-wl-id='102' data-wl-type='frame'></div>" +
+      HTML: "<div id='100' data-lj-id='100' data-lj-type='layer'>" +
+        "<div id='101' data-lj-id='101' data-lj-type='frame'></div>" +
+        "<div id='102' data-lj-id='102' data-lj-type='frame'></div>" +
         "<div/>" +
         "</div>",
       expectedChildren: ['101', '102']
     };
   });
 
-  ViewsCommonIdentifyTests('div data-wl-type="layer"', layerView, function() {
+  ViewsCommonIdentifyTests('div data-lj-type="layer"', layerView, function() {
     var element = document.createElement('div');
-    element.setAttribute('data-wl-type', 'layer');
+    element.setAttribute('data-lj-type', 'layer');
 
     return element;
   }, true);

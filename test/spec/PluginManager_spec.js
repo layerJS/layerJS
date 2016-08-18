@@ -60,10 +60,10 @@ describe('PluginManager', function() {
 
   it('can identify an element\'s viewtype', function() {
     var element = document.createElement('div');
-    element.setAttribute('data-wl-type', 'stage');
+    element.setAttribute('data-lj-type', 'stage');
     expect(pluginmanager.identify(element)).toBe('stage');
 
-    element.setAttribute('data-wl-type', '');
+    element.setAttribute('data-lj-type', '');
     expect(pluginmanager.identify(element)).toBe('group');
 
     var element = document.createTextNode('');

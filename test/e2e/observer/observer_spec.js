@@ -25,7 +25,7 @@ describe('observer', function() {
           browser.driver.executeAsyncScript(function(id, callback) {
             var element = document.getElementById(id);
             var child = document.createElement('p');
-            child.setAttribute('data-wl-type', 'element');
+            child.setAttribute('data-lj-type', 'element');
             element.appendChild(child);
             callback();
           }, elementId).then(function() {
@@ -40,7 +40,7 @@ describe('observer', function() {
 
   describe('elementView', function() {
 
-    detectAttributeChanges('element', 'data-wl-x', 'x', '100');
+    detectAttributeChanges('element', 'data-lj-x', 'x', '100');
 
     it('can\'t detect new children', function() {
       browser.get('observer/observer.html').then(function() {
@@ -58,22 +58,22 @@ describe('observer', function() {
   });
 
   describe('groupView', function() {
-    detectAttributeChanges('group', 'data-wl-x', 'x', '100');
+    detectAttributeChanges('group', 'data-lj-x', 'x', '100');
     detectChildrenChanges('group');
   });
 
   describe('frameView', function() {
-    detectAttributeChanges('frame', 'data-wl-x', 'x', '100');
+    detectAttributeChanges('frame', 'data-lj-x', 'x', '100');
     detectChildrenChanges('frame');
   });
 
   describe('layerView', function() {
-    detectAttributeChanges('layer', 'data-wl-x', 'x', '100');
+    detectAttributeChanges('layer', 'data-lj-x', 'x', '100');
     detectChildrenChanges('layer');
   });
 
   describe('stageView', function() {
-    detectAttributeChanges('stage', 'data-wl-x', 'x', '100');
+    detectAttributeChanges('stage', 'data-lj-x', 'x', '100');
     detectChildrenChanges('stage');
   });
 });

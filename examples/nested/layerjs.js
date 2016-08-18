@@ -1,7 +1,10 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 module.exports = {
   version: 'default',
-  tag: 'div'
+  transitionParameters: {
+    duration: 't',
+    type: 'p'
+  }
 };
 
 },{}],2:[function(require,module,exports){
@@ -30,9 +33,9 @@ var DomHelpers = {
    * @returns {void}
    */
   unwrapChildren: function(element) {
-    var wrapper = element.removeChild(element.childNodes[0]);
-    for (var i = 0; i < wrapper.childNodes.length; i++) {
-      element.appendChild(wrapper.childNodes[i]);
+    var wrapper = element.removeChild(element.children[0]);
+    while (wrapper.childNodes.length) {
+      element.appendChild(wrapper.childNodes[0]);
     }
   },
   /**
@@ -103,17 +106,51 @@ var DomHelpers = {
    * select a layerJS view object using a CSS selector
    * returns only the first view it finds.
    *
-   * @param {string} selector - a CSS selector that identifies an element that is associated with a ObjView
-   * @returns {ObjView} the selected view object
+   * @param {string} selector - a CSS selector that identifies an element that is associated with a NodeView
+   * @returns {NodeView} the selected view object
    */
-  selectView: function(selector){
-    var nodes=document.querySelectorAll(selector);
-    for (var i=0;i<nodes.length;i++){
+  selectView: function(selector) {
+    var nodes = document.querySelectorAll(selector);
+    for (var i = 0; i < nodes.length; i++) {
       if (nodes[i]._wlView) return nodes[i]._wlView;
     }
+  },
+  /**
+   * similar to jquery delegated bind. Will "bind" to all elements matching selector, even if those are added after the listener was added.
+   *
+   * @param {HTMLElement} element - the root element within which elements specified by selector exist or will exist
+   * @param {string} eventName - which event type should be bound
+   * @param {string} selector - the selector for elements that shoud be bound
+   * @param {funcion} fn - the listener
+   * @returns {Type} Description
+   */
+  addDelegtedListener: function(element, eventName, selector, fn) {
+    // install Element.matches polyfill method
+    if (!window.Element.prototype.matches) {
+      window.Element.prototype.matches =
+        window.Element.prototype.matchesSelector ||
+        window.Element.prototype.mozMatchesSelector ||
+        window.Element.prototype.msMatchesSelector ||
+        window.Element.prototype.oMatchesSelector ||
+        window.Element.prototype.webkitMatchesSelector ||
+        function(s) {
+          var matches = (this.document || this.ownerDocument).querySelectorAll(s),
+            i = matches.length;
+          while (--i >= 0 && matches.item(i) !== this) {} // jshint ignore:line
+          return i > -1;
+        };
+    }
+    element.addEventListener(eventName, function(event) {
+      var el = event.target;
+      while (!el.matches(selector) && el !== element) {
+        el = el.parent;
+      }
+      if (el !== element) {
+        fn.call(el, event);
+      }
+    });
   }
 };
-
 DomHelpers.detectBrowser();
 DomHelpers.calculatePrefixes(['transform', 'transform-origin']);
 
@@ -121,31 +158,416 @@ module.exports = DomHelpers;
 
 },{}],3:[function(require,module,exports){
 'use strict';
+var $ = require('./domhelpers.js');
 var Kern = require('../kern/Kern.js');
-var GroupData = require('./groupdata.js');
+var pluginManager = require('./pluginmanager.js');
+
+var NodeView = require('./nodeview.js');
+var defaults = require('./defaults.js');
+var identifyPriority = require('./identifypriority.js');
+var observerFactory = require('./observer/observerfactory.js');
 
 /**
- * @extends GroupData
+ * Defines the view of a ObjData and provides all basic properties and
+ * rendering fuctions that are needed for a visible element.
+ *
+ * @param {ObjData} dataModel the Tailbone Model of the View's data
+ * @param {Object} options {data: json for creating a new data object; el: (optional) HTMLelement already exisitng; outerEl: (optional) link wrapper existing; root: true if that is the root object}
  */
-var FrameData = GroupData.extend({
-  defaults: Kern._extend({}, GroupData.prototype.defaults, {
-    nativeScroll: true,
-    fitTo: 'width',
-    startPosition: 'top',
-    noScrolling: false,
-    type: 'frame'
-  })
+var ElementView = NodeView.extend({
+  constructor: function(dataModel, options) {
+
+    NodeView.call(this, dataModel, options);
+
+    this.disableObserver();
+
+    var that = this;
+    // The change event must change the properties of the HTMLElement el.
+    this.data.on('change', function(model) {
+      if (!that._dataObserverCounter) {
+        if (model.changedAttributes.hasOwnProperty('width') || model.changedAttributes.hasOwnProperty('height')) {
+          that._fixedDimensions();
+        }
+      }
+    }, {
+      ignoreSender: that
+    });
+
+    this._fixedDimensions();
+    this.enableObserver();
+    this.enableDataObserver();
+  },
+  /**
+   * checks if the data object contains fixed width and height and provides those in the properties
+   * fixedWidth and fixedHeight. This allows certain functions (like getTransformData) to calculate
+   * geometries before this element is rendered. Those properties should be accessed via the .width()
+   * and height() methods which also consider the rendered dimensions.
+   *
+   * @returns {void}
+   */
+  _fixedDimensions: function() {
+    var getDimension = function(value) {
+      var match;
+      if (value && typeof value === 'string' && (match = value.match(/(.*)(?:px)?$/))) return parseInt(match[1]);
+      if (value && typeof value === 'number') return value;
+      return undefined;
+    };
+    if (!(this.fixedWidth = getDimension(this.data.attributes.width))) delete this.fixedWidth;
+    if (!(this.fixedWHeight = getDimension(this.data.attributes.height))) delete this.fixedHeight;
+    if (!(this.fixedX = getDimension(this.data.attributes.x))) delete this.fixedX;
+    if (!(this.fixedY = getDimension(this.data.attributes.y))) delete this.fixedY;
+  },
+
+  render: function(options) {
+    options = options || {};
+    this.disableObserver();
+
+    var attr = this.data.attributes,
+      diff = (this.isRendererd ? this.data.changedAttributes : this.data.attributes),
+      outerEl = this.outerEl;
+    if ('id' in diff) {
+      outerEl.setAttribute("data-lj-id", attr.id); //-> should be a class?
+    }
+
+    if ('type' in diff) {
+      outerEl.setAttribute("data-lj-type", attr.type); //-> should be a class?
+    }
+
+    if ('elementId' in diff || 'id' in diff) {
+      outerEl.id = attr.elementId || "wl-obj-" + attr.id; //-> shouldn't we always set an id? (priority of #id based css declarations)
+    }
+
+    // add classes to object
+    if ('classes' in diff) {
+      var classes = 'object-default object-' + this.data.get('type');
+      // this.ui && (classes += ' object-ui');
+      // this.ontop && (classes += ' object-ontop');
+      if (attr.classes) {
+        classes += ' ' + attr.classes;
+      }
+      outerEl.className = classes;
+    }
+
+    // When the object is an anchor, set the necessary attributes
+    if (this.data.attributes.tag.toUpperCase() === 'A') {
+      if ('linkTo' in diff)
+        outerEl.setAttribute('href', this.data.attributes.linkTo);
+
+      if (!this.data.attributes.linkTarget)
+        this.data.attributes.linkTarget = '_self';
+
+      if ('linkTarget' in diff)
+        outerEl.setAttribute('target', this.data.attributes.linkTarget);
+    }
+
+    // Add htmlAttributes to the DOM element
+    if ('htmlAttributes' in diff) {
+      for (var htmlAttribute in diff.htmlAttributes) {
+        if ('style' !== htmlAttribute && diff.htmlAttributes.hasOwnProperty(htmlAttribute)) {
+          outerEl.setAttribute(htmlAttribute.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase(), diff.htmlAttributes[htmlAttribute]);
+        }
+      }
+    }
+
+    // create object css style
+    // these styles are stored in the head of the page index.html
+    // in a style tag with the id object_css
+    // FIXME: we should use $('#object_css').sheet to acces the style sheet and then iterate through the cssrules. The view can keep a reference to its cssrule
+    // FIXME: should we support media queries here. if so how does that work with versions? alternative?
+
+    var selector = (attr.elementId && "#" + attr.elementId) || "#wl-obj-" + attr.id;
+    var oldSelector = (diff.elementId && "#" + diff.elementId) || (diff.id && "#wl-obj-" + diff.id) || selector;
+
+    if (('style' in diff) || (selector !== oldSelector)) {
+      var styleElement = document.getElementById('wl-obj-css');
+      if (!styleElement) {
+        styleElement = document.createElement('style');
+        document.head.appendChild(styleElement);
+      }
+      var cssContent = styleElement.innerHTML;
+      var re;
+
+      if (attr.style) {
+        if (cssContent.indexOf(oldSelector) === -1) {
+          styleElement.innerHTML += selector + '{' + attr.style + '}\n';
+        } else {
+          re = new RegExp(oldSelector + '{[^}]*}', 'g');
+          styleElement.innerHTML = cssContent.replace(re, selector + '{' + attr.style + '}');
+        }
+      } else { // no style provided, if it is is in object_css tag delete it from there
+        if (cssContent.indexOf(oldSelector) !== -1) {
+          re = new RegExp(oldSelector + '{[^}]*}', 'g');
+          styleElement.innerHTML = cssContent.replace(re, '');
+        }
+      }
+    }
+
+    this.isRendered = true;
+
+    this.enableObserver();
+  },
+  /**
+   * apply CSS styles to this view
+   *
+   * @param {Object} arguments - List of styles that should be applied
+   * @returns {Type} Description
+   */
+  applyStyles: function() {
+    this.disableObserver();
+    var len = arguments.length;
+    for (var j = 0; j < len; j++) {
+      var props = Object.keys(arguments[j]); // this does not run through the prototype chain; also does not return special
+      for (var i = 0; i < props.length; i++) {
+        if ($.cssPrefix[props[i]]) this.outerEl.style[$.cssPrefix[props[i]]] = arguments[j][props[i]];
+        // do standard property as well as newer browsers may not accept their own prefixes  (e.g. IE & edge)
+        this.outerEl.style[props[i]] = arguments[j][props[i]];
+      }
+    }
+    this.enableObserver();
+  },
+  /**
+   * returns the width of the object. Note, this is the actual width which may be different then in the data object
+   * Use waitForDimensions() to ensure that this value is correct
+   *
+   * @returns {number} width
+   */
+  width: function() {
+    return this.outerEl.offsetWidth || this.fixedWidth;
+  },
+  /**
+   * returns the height of the object. Note, this is the actual height which may be different then in the data object.
+   * Use waitForDimensions() to ensure that this value is correct
+   *
+   * @returns {number} height
+   */
+  height: function() {
+    return this.outerEl.offsetHeight || this.fixedHeight;
+  },
+  /**
+   * returns the x position of the element
+   *
+   * @returns {number} x
+   */
+  x: function() {
+    return this.outerEl.offsetLeft || this.fixedX;
+  },
+  /**
+   * returns the x position of the element
+   *
+   * @returns {number} x
+   */
+  y: function() {
+    return this.outerEl.offsetTop || this.fixedY;
+  },
+  /**
+   * make sure element has reliable dimensions, either by being rendered or by having fixed dimensions
+   *
+   * @returns {Promise} the promise which becomes fulfilled if dimensions are availabe
+   */
+  waitForDimensions: function() {
+    var p = new Kern.Promise();
+    var w = this.outerEl.offsetWidth || this.fixedWidth;
+    var h = this.outerEl.offsetHeight || this.fixedHeight;
+    var that = this;
+    if (w || h) {
+      p.resolve({
+        width: w || 0,
+        height: h || 0
+      });
+    } else {
+      setTimeout(function f() {
+        var w = that.outerEl.offsetWidth || this.fixedWidth;
+        var h = that.outerEl.offsetHeight || this.fixedHeight;
+        if (w || h) {
+          p.resolve({
+            width: w || 0,
+            height: h || 0
+          });
+        } else {
+          setTimeout(f, 200);
+        }
+      }, 0);
+
+    }
+    return p;
+  },
+  _createObserver: function() {
+    if (this.hasOwnProperty('_observer'))
+      return;
+
+    var that = this;
+    this._observer = observerFactory.getObserver(this.outerEl, {
+      attributes: true,
+      callback: function(result) {
+        that._domElementChanged(result);
+      }
+    });
+  },
+  /**
+   * This function will parse the DOM element and add it to the data of the view.
+   * It will be use by the MutationObserver.
+   * @param {result} an object that contains what has been changed on the DOM element
+   * @return {void}
+   */
+  _domElementChanged: function(result) {
+    if (result.attributes.length > 0) {
+      this.parse(this.outerEl);
+    }
+  },
+  /**
+   * Will create a dataobject based on a DOM element
+   *
+   * @param {element} DOM element to needs to be parsed
+   * @return  {data} a javascript data object
+   */
+  parse: function(element) {
+    var index;
+    var data = {
+      tag: element.tagName,
+      htmlAttributes: {}
+    };
+
+    var elementAttributes = element.attributes;
+    var length = elementAttributes.length;
+
+    for (index = 0; index < length; index++) {
+      var attribute = elementAttributes[index];
+      var attributeName = attribute.name;
+      var attributeValue = attribute.value;
+      var dataSource = undefined;
+
+      if (attributeName.indexOf('data-lj-') === 0) {
+        // store directly in the data object
+        dataSource = data;
+        attributeName = attributeName.replace('data-lj-', '');
+      } else {
+        // store in data.htmlAttributes
+        dataSource = data.htmlAttributes;
+      }
+
+      if (attributeValue === 'true' || attributeValue === 'false') {
+        attributeValue = eval(attributeValue); // jshint ignore:line
+      }
+
+      attributeName = attributeName.replace(/(\-[a-z])/g, function($1) {
+        return $1.toUpperCase().replace('-', '');
+      });
+
+      var attributeNames = attributeName.split('.');
+      var attributesNamesLength = attributeNames.length;
+      var attributeObj = dataSource;
+      for (var i = 0; i < attributesNamesLength; i++) {
+        if (!attributeObj.hasOwnProperty(attributeNames[i])) {
+          attributeObj[attributeNames[i]] = (i === attributesNamesLength - 1) ? attributeValue : {};
+        }
+        attributeObj = attributeObj[attributeNames[i]];
+      }
+    }
+
+    data.classes = element.className.replace("object-default object-" + data.type + " ", ""); //FIXME: remove old webpgr classes
+
+    if (data.tag.toUpperCase() === 'A') {
+      data.linkTo = element.getAttribute('href');
+      data.linkTarget = element.getAttribute('target');
+    }
+
+    var style = element.style;
+
+    if (style.left) {
+      data.x = style.left;
+    }
+    if (style.top) {
+      data.y = style.top;
+    }
+    if (style.display === 'none') {
+      data.hidden = true;
+    }
+    if (style.zIndex) {
+      data.zIndex = style.zIndex;
+    }
+
+    if (style.width !== undefined) {
+      data.width = style.width; //FIXME: how to deal with this?
+    }
+    if (!data.width && element.getAttribute('width')) { // only a limited set of elements support the width attribute
+      data.width = element.getAttribute('width');
+    }
+    if (style.height !== undefined) {
+      data.height = style.height;
+    }
+    if (!data.height && element.getAttribute('height')) { // only a limited set of elements support the width attribute
+      data.height = element.getAttribute('height');
+    }
+    this.disableDataObserver();
+    // modify existing data object, don't trigger any change events to ourselves
+    this.data.setBy(this, data);
+    this.enableDataObserver();
+  },
+}, {
+  defaultProperties: Kern._extend({}, NodeView.defaultProperties, defaults, {
+    type: 'element',
+    nodeType: 1,
+    tag: 'br',
+    elementId: undefined,
+    // CSS string for styling this object
+    style: '',
+    // CSS classes of this object
+    classes: '',
+    // this stores a string for a hyperlink realized by an <a> tag that
+    // wraps the element
+    linkTo: undefined,
+    // defaults to _self, but should not be set because if set a link is
+    // created, this could be fixed
+    linkTarget: undefined,
+    //locked elements can not be edited
+    locked: undefined,
+    // a list of properties that are not allowed to be edited
+    disallow: {},
+    // set to undefined so we can find out if a newly created element
+    // provided positional information
+    x: undefined,
+    y: undefined,
+    width: undefined,
+    height: undefined,
+    // rendering scale
+    scaleX: 1,
+    scaleY: 1,
+    // z-index
+    zIndex: undefined,
+    // this is set in init$el to the current rotation if it was not set
+    // before
+    rotation: undefined,
+    //is the element hidden in presentation mode
+    hidden: undefined
+  }),
+  identify: function(element) {
+    var result = false;
+
+    if (element.nodeType === 1) {
+      var tags = ['area', 'base', 'br', 'col', 'command', 'embed', 'hr', 'img', 'input', 'keygen', 'link', 'meta', 'param', 'source', 'track', 'wbr'];
+      for (var i = 0; i < tags.length; i++) {
+        if (tags[i] === element.tagName.toLowerCase()) {
+          result = true;
+          break;
+        }
+      }
+    }
+    return result;
+  }
 });
 
-module.exports = FrameData;
 
-},{"../kern/Kern.js":28,"./groupdata.js":7}],4:[function(require,module,exports){
+pluginManager.registerType('element', ElementView, identifyPriority.normal);
+
+module.exports = ElementView;
+
+},{"../kern/Kern.js":29,"./defaults.js":1,"./domhelpers.js":2,"./identifypriority.js":8,"./nodeview.js":16,"./observer/observerfactory.js":19,"./pluginmanager.js":22}],4:[function(require,module,exports){
 'use strict';
 var Kern = require('../kern/Kern.js');
 var pluginManager = require('./pluginmanager.js');
-var FrameData = require('./framedata.js');
 var GroupView = require('./groupview.js');
 var Kern = require('../kern/Kern.js');
+var identifyPriority = require('./identifypriority.js');
 
 /**
  * A View which can have child views
@@ -184,6 +606,20 @@ var FrameView = GroupView.extend({
       d.scrollY = d.initialScrollY;
     }
     return d;
+  },
+  /**
+   * Returns the scroll data for this frame
+   *
+   * @returns {object} contains the the startPosition, scrollX and scrollY
+   */
+  getScrollData: function() {
+
+    var scrollData = this.transformData ? {
+      startPosition: this.transformData.startPosition,
+      scrollX: this.transformData.scrollX,
+      scrollY: this.transformData.scrollY
+    } : {};
+    return scrollData;
   },
   /**
    * calculate transform data (scale, scoll position and displacement) when fitting current frame into associated stage.
@@ -396,13 +832,23 @@ var FrameView = GroupView.extend({
     return (this.transformData = d);
   }
 }, {
-  Model: FrameData
+  defaultProperties: Kern._extend({}, GroupView.defaultProperties, {
+    nativeScroll: true,
+    fitTo: 'width',
+    startPosition: 'top',
+    noScrolling: false,
+    type: 'frame'
+  }),
+  identify: function(element) {
+    var type = element.getAttribute('data-lj-type');
+    return null !== type && type.toLowerCase() === FrameView.defaultProperties.type;
+  }
 });
 
-pluginManager.registerType('frame', FrameView);
+pluginManager.registerType('frame', FrameView, identifyPriority.normal);
 module.exports = FrameView;
 
-},{"../kern/Kern.js":28,"./framedata.js":3,"./groupview.js":8,"./pluginmanager.js":20}],5:[function(require,module,exports){
+},{"../kern/Kern.js":29,"./groupview.js":7,"./identifypriority.js":8,"./pluginmanager.js":22}],5:[function(require,module,exports){
 'use strict';
 var Kern = require('../../kern/kern.js');
 
@@ -462,11 +908,11 @@ var Gesture = Kern.Base.extend({
 
 module.exports = Gesture;
 
-},{"../../kern/kern.js":29}],6:[function(require,module,exports){
+},{"../../kern/kern.js":30}],6:[function(require,module,exports){
 'use strict';
 var Kern = require('../../kern/kern.js');
 var Gesture = require('./gesture.js');
-var WL = require('../wl.js');
+var layerJS = require('../layerjs.js');
 
 var GestureManager = Kern.EventManager.extend({
   constructor: function() {
@@ -726,75 +1172,25 @@ var GestureManager = Kern.EventManager.extend({
   }
 });
 
-WL.gestureManager2 = new GestureManager();
+layerJS.gestureManager2 = new GestureManager();
 
-module.exports = WL.gestureManager2;
+module.exports = layerJS.gestureManager2;
 
-},{"../../kern/kern.js":29,"../wl.js":27,"./gesture.js":5}],7:[function(require,module,exports){
-'use strict';
-var Kern = require('../kern/Kern.js');
-var ObjData = require('./objdata.js');
-/**
- * An extension of ObjData that adds the children property which is an
- * array of ObjData IDs
- *
- * @extends ObjData
- */
-var GroupData = ObjData.extend({
-  defaults: Kern._extend({}, ObjData.prototype.defaults, {
-    type: 'group',
-    children: [],
-    tag: 'div'
-  }),
-  addChildren: function(ids) {
-    this.silence();
-    if (Array.isArray(ids)) {
-      for (var i = 0; i < ids.length; i++) {
-        this.addChild(ids[i]);
-      }
-    }
-    this.fire();
-  },
-  addChild: function(id) {
-    this.silence();
-    this.update('children').push(id);
-    this.fire();
-  },
-  removeChildren: function(ids) {
-    this.silence();
-    if (Array.isArray(ids)) {
-      for (var i = 0; i < ids.length; i++) {
-        this.removeChild(ids[i]);
-      }
-    }
-    this.fire();
-  },
-  removeChild: function(id) {
-    var idx = this.attributes.children.indexOf(id);
-    if (idx >= 0) {
-      this.silence();
-      this.update('children').splice(idx, 1);
-      this.fire();
-    }
-  }
-});
-
-module.exports = GroupData;
-
-},{"../kern/Kern.js":28,"./objdata.js":17}],8:[function(require,module,exports){
+},{"../../kern/kern.js":30,"../layerjs.js":9,"./gesture.js":5}],7:[function(require,module,exports){
 'use strict';
 var Kern = require('../kern/Kern.js');
 var pluginManager = require('./pluginmanager.js');
 var repository = require('./repository.js'); // jshint ignore:line
-var ObjView = require('./objview.js');
-var GroupData = require('./groupdata.js');
+var ElementView = require('./elementview.js');
+var identifyPriority = require('./identifypriority.js');
+var observerFactory = require('./observer/observerfactory.js');
 /**
  * A View which can have child views
  * @param {GroupData} dataModel
  * @param {object}        options
- * @extends ObjView
+ * @extends ElementView
  */
-var GroupView = ObjView.extend({
+var GroupView = ElementView.extend({
   /**
    * construct a new view of a GroupData
    *
@@ -808,7 +1204,7 @@ var GroupView = ObjView.extend({
     this._childViews = {};
     this._childNames = {};
 
-    ObjView.call(this, dataModel, Kern._extend({}, options, {
+    ElementView.call(this, dataModel, Kern._extend({}, options, {
       noRender: true
     }));
     // create listener to child changes. need different callbacks for each instance in order to remove listeners separately from child data objects
@@ -841,7 +1237,7 @@ var GroupView = ObjView.extend({
     }
 
     if (this.innerEl.childNodes.length > 0) {
-      this._parseChildren();
+      this._parseChildren(options);
     }
 
     if (!options.noRender && (options.forceRender || !options.el))
@@ -854,7 +1250,7 @@ var GroupView = ObjView.extend({
    * - Create Views for the data models if they haven't been created yet.
    * - Rearrange the child views to match the order of the child IDs
    * - be respectful with any HTML childnodes which are not connected to a data
-   * object (i.e. no data-wl-id property); leaves them where they are.
+   * object (i.e. no data-lj-id property); leaves them where they are.
    */
   _buildChildren: function() {
 
@@ -870,7 +1266,7 @@ var GroupView = ObjView.extend({
       // jshint ignore:start
       k++;
       var elem;
-      while (!(empty = !(k < that.innerEl.childNodes.length)) && (elem = that.innerEl.childNodes[k]) && (elem.nodeType != 1 || !(nodeId = (elem._wlView && elem._wlView.data.attributes.id) || elem.getAttribute('data-wl-id')))) {
+      while (!(empty = !(k < that.innerEl.childNodes.length)) && (elem = that.innerEl.childNodes[k]) && (elem.nodeType != 1 || !(nodeId = (elem._wlView && elem._wlView.data.attributes.id) || elem.getAttribute('data-lj-id')))) {
         k++;
       }
       // jshint ignore:end
@@ -963,7 +1359,8 @@ var GroupView = ObjView.extend({
    *
    * @returns {void}
    */
-  _parseChildren: function() {
+  _parseChildren: function(options) {
+    options = options || {};
     this.disableDataObserver();
     var cn = this.innerEl.childNodes;
     var childIds = this.data.attributes.children;
@@ -980,18 +1377,16 @@ var GroupView = ObjView.extend({
     var data;
     for (i = 0; i < cn.length; i++) {
       var elem = cn[i];
-      if (elem.nodeType !== 1) {
-        continue;
-      }
-      nodeId = (elem._wlView && elem._wlView.data.attributes.id) || elem.getAttribute('data-wl-id');
+
+      nodeId = (elem._wlView && elem._wlView.data.attributes.id) || elem.getAttribute && elem.getAttribute('data-lj-id');
       try {
         data = nodeId && repository.get(nodeId, this.data.attributes.version);
       } catch (e) {
         data = undefined;
       }
-      nodeType = (elem._wlView && elem._wlView.data.attributes.type) || elem.getAttribute('data-wl-type');
+      nodeType = (elem._wlView && elem._wlView.data.attributes.type) || elem.getAttribute && elem.getAttribute('data-lj-type');
       if (nodeId && (data || nodeType)) {
-        // search for nodeId in data.children
+        // search for nodeId in data.chi ldren
         var k_saved = k;
 
         while (k < childIds.length && nodeId !== childIds[k]) {
@@ -1011,10 +1406,11 @@ var GroupView = ObjView.extend({
             parent: this
           });
         } else if (nodeType) { // or  a nodeType?
-          // create new view without data object, just by type. creates data object implicitly with cobjview._parse
+          // create new view without data object, just by type. creates data object implicitly with cElementView._parse
           vo = pluginManager.createView(nodeType, {
             el: elem,
-            parent: this
+            parent: this,
+            parseFull: options.parseFull
           });
           vo.data.attributes.id = nodeId; // overwrite new id generated by above call with nodeid given in HMTL
           vo.data.attributes.version = this.data.attributes.version; // take version from parent (this)
@@ -1028,10 +1424,11 @@ var GroupView = ObjView.extend({
         k++; // next in data.children
 
       } else if (nodeType) {
-        // create new view without data object, just by type. creates data object implicitly with cobjview._parse
+        // create new view without data object, just by type. creates data object implicitly with cElementView._parse
         vo = pluginManager.createView(nodeType, {
           el: elem,
-          parent: this
+          parent: this,
+          parseFull: options.parseFull
         });
         nodeId = vo.data.attributes.id; // id has been generated automatically
         vo.data.attributes.version = this.data.attributes.version; // take version from parent (this)
@@ -1043,8 +1440,24 @@ var GroupView = ObjView.extend({
         if (vo.data.attributes.name) this._childNames[vo.data.attributes.name] = vo;
         vo.data.on('change', this._myChildListenerCallback); // attach child change listener
         k++; // next in data.children
-      } else { // jshint ignore:line
-        // add import of non-typed elements later
+      } else if (options.parseFull) {
+        nodeType = pluginManager.identify(elem);
+        // create new view without data object, just by type. creates data object implicitly with cElementView._parse
+        vo = pluginManager.createView(nodeType, {
+          el: elem,
+          parent: this,
+          parseFull: options.parseFull
+        });
+        nodeId = vo.data.attributes.id; // id has been generated automatically
+        vo.data.attributes.version = this.data.attributes.version; // take version from parent (this)
+        childIds.splice(k, 0, nodeId); // insert new nodeid in data.children
+        if (!repository.contains(vo.data.attributes.id, vo.data.attributes.version)) {
+          repository.add(vo.data, this.data.attributes.version); // add new (implicitly created) data object to repository
+        }
+        this._childViews[nodeId] = vo; // update _childViews
+        if (vo.data.attributes.name) this._childNames[vo.data.attributes.name] = vo;
+        vo.data.on('change', this._myChildListenerCallback); // attach child change listener
+        k++; // next in data.children
       }
     }
     // delete further ids in data.children
@@ -1054,10 +1467,10 @@ var GroupView = ObjView.extend({
     this.enableDataObserver();
   },
   /**
-   * return child ObjView for a given child id
+   * return child ElementView for a given child id
    *
    * @param {string} childId - the id of the requested object
-   * @returns {ObjView} the view object
+   * @returns {ElementView} the view object
    */
   getChildView: function(childId) {
     if (!this._childViews.hasOwnProperty(childId)) throw "unknown child " + childId + " in group " + this.data.attributes.id;
@@ -1067,7 +1480,7 @@ var GroupView = ObjView.extend({
    * return view by name property
    *
    * @param {string} name - the name of the searched child
-   * @returns {ObjView} the view object
+   * @returns {ElementView} the view object
    */
   getChildViewByName: function(name) {
     if (!this._childNames.hasOwnProperty(name)) throw "unknown child with name " + name + " in group " + this.data.attributes.id;
@@ -1096,7 +1509,7 @@ var GroupView = ObjView.extend({
    * This method is the only way to attach an existing view to the parent. If a child is added solely in the dataobject,
    * a new view object is generated via the plugin manager.
    *
-   * @param {ObjView} newView - the view object to be attached as child
+   * @param {ElementView} newView - the view object to be attached as child
    * @returns {Type} Description
    */
   attachView: function(newView) {
@@ -1112,7 +1525,7 @@ var GroupView = ObjView.extend({
    * remove a view from this group. updates dataobject of this group which will trigger change event which
    * will call _buildChildren
    *
-   * @param {ObjView} view - the view object to be removed
+   * @param {ElementView} view - the view object to be removed
    * @returns {Type} Description
    */
   detachView: function(view) {
@@ -1124,13 +1537,13 @@ var GroupView = ObjView.extend({
   },
   /**
    * render the position of the child. This is done similar as setting other style (CSS) properties in
-   * objview's render method. It's important to do this here so that derived classes can overwrite it
+   * ElementView's render method. It's important to do this here so that derived classes can overwrite it
    * and position objects differently
    * Note: this currently implements setting the positional style information directly on the object.
    * This is most likely the best for speed. For rendering on the server, this infor has to go into a
    * separate css style
    *
-   * @param {ObjView} childView - the view to be positioned.
+   * @param {ElementView} childView - the view to be positioned.
    * @returns {Type} Description
    */
   _renderChildPosition: function(childView) {
@@ -1170,10 +1583,13 @@ var GroupView = ObjView.extend({
     if ('height' in diff && attr.height !== undefined) {
       css.height = attr.height;
     }
-    childView.applyStyles(css);
+
+    if (childView.applyStyles) {
+      childView.applyStyles(css);
+    }
   },
   /**
-   * render the group. Uses objview.render to display changes to the object.
+   * render the group. Uses ElementView.render to display changes to the object.
    *
    * @param {Type} Name - Description
    * @returns {Type} Description
@@ -1183,7 +1599,7 @@ var GroupView = ObjView.extend({
     options = options || {};
     this.disableObserver();
 
-    ObjView.prototype.render.call(this, options);
+    ElementView.prototype.render.call(this, options);
 
     if (!this.data.changedAttributes || this.data.changedAttributes.children) {
       var views = Object.keys(this._childViews);
@@ -1243,132 +1659,81 @@ var GroupView = ObjView.extend({
       return true;
     });
   },
+  _createObserver: function() {
+    if (this.hasOwnProperty('_observer'))
+      return;
 
-}, {
-  Model: GroupData
-});
-
-
-pluginManager.registerType("group", GroupView);
-module.exports = GroupView;
-
-},{"../kern/Kern.js":28,"./groupdata.js":7,"./objview.js":18,"./pluginmanager.js":20,"./repository.js":21}],9:[function(require,module,exports){
-'use strict';
-var Kern = require('../kern/Kern.js');
-var ObjData = require('./objdata.js');
-/**
- * #ImageData
- * This data type will contain all the information to render a image
- * @type {Model}
- */
-var ImageData = ObjData.extend({
-  defaults: Kern._extend({}, ObjData.prototype.defaults, {
-    type: 'image',
-    tag: 'img'
-  })
-});
-
-module.exports = ImageData;
-
-},{"../kern/Kern.js":28,"./objdata.js":17}],10:[function(require,module,exports){
-'use strict';
-var ObjView = require('./objview.js');
-var ImageData = require('./imagedata.js');
-var pluginManager = require('./pluginmanager.js');
-var Kern = require('../kern/Kern.js');
-var WL = require('./wl.js');
-
-/**
- * A View which can render images
- * @param {ImageData} dataModel
- * @param {object}        options
- * @extends ObjView
- */
-var ImageView = ObjView.extend({
-  constructor: function(dataModel, options) {
-    options = options || {};
-    ObjView.call(this, dataModel, Kern._extend({}, options, {
-      noRender: true
-    }));
-
-    if (!options.noRender && (options.forceRender || !options.el))
-      this.render();
-  },
-  render: function(options) {
-    options = options || {};
-    this.disableObserver();
-
-    var attr = this.data.attributes,
-      diff = this.data.changedAttributes || this.data.attributes,
-      el = this.outerEl;
-
-    ObjView.prototype.render.call(this, options);
-
-    if ('src' in diff) {
-      el.setAttribute("src", WL.imagePath + attr.src);
-    }
-
-    if ('alt' in diff) {
-      el.setAttribute("alt", attr.alt);
-    }
-
-    this.enableObserver();
+    var that = this;
+    this._observer = observerFactory.getObserver(this.outerEl, {
+      attributes: true,
+      childList: true,
+      callback: function(result) {
+        that._domElementChanged(result);
+      }
+    });
   },
   /**
-   * Will create a dataobject based on a DOM element
-   *
-   * @param {element} DOM element to needs to be parsed
-   * @return  {data} a javascript data object
+   * This function will parse the DOM element and add it to the data of the view.
+   * It will be use by the MutationObserver.
+   * @param {result} an object that contains what has been changed on the DOM element
+   * @return {void}
    */
-  parse: function(element) {
-    ObjView.prototype.parse.call(this, element);
+  _domElementChanged: function(result) {
+    if (result.attributes.length > 0) {
+      this.parse(this.outerEl);
+    }
 
-    var src = element.getAttribute('src');
-    var alt = element.getAttribute('alt');
-
-    this.disableDataObserver();
-    this.data.set("src", src ? src.replace(WL.imagePath, '') : undefined);
-    this.data.set("alt", alt ? alt : undefined);
-    this.enableDataObserver();
+    if (result.removedNodes.length > 0 || result.addedNodes.length > 0) {
+      this._parseChildren();
+    }
   }
+
 }, {
-  Model: ImageData
-});
-
-
-pluginManager.registerType('image', ImageView);
-module.exports = ImageView;
-
-},{"../kern/Kern.js":28,"./imagedata.js":9,"./objview.js":18,"./pluginmanager.js":20,"./wl.js":27}],11:[function(require,module,exports){
-'use strict';
-var Kern = require('../kern/Kern.js');
-var GroupData = require('./groupdata.js');
-
-/**
- * @extends GroupData
- */
-var LayerData = GroupData.extend({
-  defaults: Kern._extend({}, GroupData.prototype.defaults, {
-    type: 'layer',
+  defaultProperties: Kern._extend({}, ElementView.defaultProperties, {
+    type: 'group',
     tag: 'div',
-    layoutType: 'slide',
-    defaultFrame: undefined,
-    nativeScroll: true
-  })
+    children: []
+  }),
+  getNodeType: undefined,
+  identify: function(element) {
+    var type = element.getAttribute('data-lj-type');
+
+    return element.nodeType === 1 && ((null !== type && type.toLowerCase() === 'group') || !type);
+  }
 });
 
-module.exports = LayerData;
 
-},{"../kern/Kern.js":28,"./groupdata.js":7}],12:[function(require,module,exports){
+pluginManager.registerType("group", GroupView, identifyPriority.low);
+module.exports = GroupView;
+
+},{"../kern/Kern.js":29,"./elementview.js":3,"./identifypriority.js":8,"./observer/observerfactory.js":19,"./pluginmanager.js":22,"./repository.js":23}],8:[function(require,module,exports){
+module.exports = {
+  low: 1,
+  normal: 2,
+  high: 3
+};
+
+},{}],9:[function(require,module,exports){
+var $ = require('./domhelpers.js');
+// this module defines a global namespace for all weblayer objects.
+layerJS = {
+  select: $.selectView,
+  imagePath: "/",
+  executeScriptCode : true
+};
+
+module.exports = layerJS;
+
+},{"./domhelpers.js":2}],10:[function(require,module,exports){
 'use strict';
 var $ = require('./domhelpers.js');
 var Kern = require('../kern/Kern.js');
 var pluginManager = require('./pluginmanager.js');
 var layoutManager = require('./layoutmanager.js');
-var LayerData = require('./layerdata.js');
 var GroupView = require('./groupview.js');
 var ScrollTransformer = require('./scrolltransformer.js');
 var gestureManager = require('./gestures/gesturemanager.js');
+var identifyPriority = require('./identifypriority.js');
 
 var directions2neighbors = {
   up: 'b',
@@ -1398,30 +1763,17 @@ var LayerView = GroupView.extend({
     this.outerEl = options.el || document.createElement(tag);
 
 
-    var hasScroller = this.outerEl.children.length === 1 && this.outerEl.children[0].getAttribute('data-wl-helper') === 'scroller';
+    var hasScroller = this.outerEl.children.length === 1 && this.outerEl.children[0].getAttribute('data-lj-helper') === 'scroller';
     this.innerEl = hasScroller ? this.outerEl.children[0] : this.outerEl;
 
     // call super constructor
     GroupView.call(this, dataModel, Kern._extend({}, options, {
       noRender: true
     }));
-    this._layout = new(layoutManager.get(this.data.attributes.layoutType))(this);
-    this._transformer = this._layout.getScrollTransformer() || new ScrollTransformer(this);
 
-    if (hasScroller && !this.data.attributes.nativeScroll) $.unwrapChildren(this.outerEl);
-    // should we have a scroller but don't have one?
-    if (!hasScroller && this.data.attributes.nativeScroll) {
-      // set el to scroller
-      this.innerEl = $.wrapChildren(this.outerEl);
-      hasScroller = true;
-    }
-    if (hasScroller) {
-      this.innerEl = this.outerEl.children[0];
-      this.outerEl.className += ' nativescroll'; // this will be used to add the correct style via css style sheet
-    }
-    // mark scroller as scroller in HTML
-    if (hasScroller) this.innerEl.setAttribute('data-wl-helper', 'scroller');
-    this.nativeScroll = this.data.attributes.nativeScroll;
+    this.switchLayout(this.data.attributes.layoutType, false);
+    this.switchScrolling(this.data.attributes.nativeScroll, false);
+
     // get upper layer where unuseable gestures should be sent to.
     this.parentLayer = this.getParentOfType('layer');
     // register for gestures
@@ -1454,6 +1806,58 @@ var LayerView = GroupView.extend({
       that.gestureListener.apply(that,arguments);
     })
     */
+  },
+  /**
+   * Will toggle native and non-native scrolling
+   *
+   * @param {boolean} nativeScrolling
+   * @returns {void}
+   */
+  switchScrolling: function(nativeScrolling) {
+
+    if (this.nativeScroll !== nativeScrolling) {
+      this.nativeScroll = nativeScrolling;
+
+      this.disableObserver();
+      var hasScroller = this.outerEl.children.length === 1 && this.outerEl.children[0].getAttribute('data-lj-helper') === 'scroller';
+
+      if (nativeScrolling) {
+        this.innerEl = hasScroller ? this.outerEl.children[0] : $.wrapChildren(this.outerEl);
+        this.innerEl.setAttribute('data-lj-helper', 'scroller');
+        if (!this.innerEl._wlView) {
+          this.innerEl._wlView = this.outerEl._wlView;
+        }
+        this.outerEl.className += ' nativescroll';
+      } else {
+        if (hasScroller) {
+          $.unwrapChildren(this.outerEl);
+        }
+        this.innerEl = this.outerEl;
+        this.outerEl.className = this.outerEl.className.replace(' nativescroll', '');
+      }
+
+      this._transformer = this._layout.getScrollTransformer() || new ScrollTransformer(this);
+
+      if (this.currentFrame) {
+        this.showFrame(this.currentFrame.data.attributes.name, this.currentFrame.getScrollData());
+      }
+
+      this.enableObserver();
+    }
+  },
+  /**
+   * Will change the current layout with an other layout
+   *
+   * @param {string} layoutType - the name of the layout type
+   * @returns {void}
+   */
+  switchLayout: function(layoutType) {
+    this._layout = new(layoutManager.get(layoutType))(this);
+    this._transformer = this._layout.getScrollTransformer() || new ScrollTransformer(this);
+
+    if (this.currentFrame) {
+      this.showFrame(this.currentFrame.data.attributes.name);
+    }
   },
   gestureListener: function(gesture) {
     var layerTransform = this._transformer.scrollGestureListener(gesture);
@@ -1512,6 +1916,20 @@ var LayerView = GroupView.extend({
       that.inTransform = false;
     });
   },
+  noFrameTransformdata: function(transitionStartPosition) {
+    var d = {};
+    d.stage = this.stage;
+    d.scale = 1;
+    d.width = d.frameWidth = this.stage.width();
+    d.height = d.frameHeight = this.stage.height();
+    d.shiftX = d.shiftY = d.scrollX = d.scrollY = 0;
+    d.isScrollX = d.isScrollY = false;
+    d.startPosition = transitionStartPosition || 'top';
+    d.initialScrollX = d.scrollX;
+    d.initialScrollY = d.scrollY;
+
+    return d;
+  },
   /**
    * transform to a given frame in this layer with given transition
    *
@@ -1521,13 +1939,13 @@ var LayerView = GroupView.extend({
    */
   transitionTo: function(framename, transition) {
     // is framename  omitted?
-    if (typeof framename === 'object') {
+    if (typeof framename === 'object' && null !== framename) {
       transition = framename;
       framename = transition.framename;
-    } else {
+    } else if (null !== framename) {
       framename = framename || (transition && transition.framename);
     }
-    if (!framename) throw "transformTo: no frame given";
+    if (!framename && null !== framename) throw "transformTo: no frame given";
     // transition ommitted? create some default
     transition = Kern._extend({
       type: 'default',
@@ -1535,8 +1953,8 @@ var LayerView = GroupView.extend({
         // FIXME: add more default values like timing
     }, transition || {});
     // lookup frame by framename
-    var frame = this.getChildViewByName(framename);
-    if (!frame) throw "transformTo: " + framename + " does not exist in layer";
+    var frame = null === framename ? null : this.getChildViewByName(framename);
+    if (!frame && null !== frame) throw "transformTo: " + framename + " does not exist in layer";
     var that = this;
     this.inTransform = true;
     transition.transitionID = ++this.transitionID; // inc transition ID and save new ID into transition record
@@ -1545,7 +1963,7 @@ var LayerView = GroupView.extend({
       // calculate the layer transform for the target frame. Note: this will automatically consider native scrolling
       // getScrollIntermediateTransform will not change the current native scroll position but will calculate
       // a compensatory transform for the target scroll position.
-      var targetFrameTransformData = frame.getTransformData(that.stage, transition.startPosition);
+      var targetFrameTransformData = null === frame ? that.noFrameTransformdata(transition.startPosition) : frame.getTransformData(that.stage, transition.startPosition);
       var targetTransform = that._transformer.getScrollTransform(targetFrameTransformData, transition.scrollX || 0, transition.scrollY || 0, true);
       // check if transition goes to exactly the same position
       if (that.currentFrame === frame && that.currentTransform === targetTransform && that.currentFrameTransformData === targetFrameTransformData) {
@@ -1587,17 +2005,19 @@ var LayerView = GroupView.extend({
    * @param {Type} Name - Description
    * @returns {Type} Description
    */
-  updateClasses: function(newFrame){
-    if (this.currentFrame){
-      this._saveLastFrame=this.currentFrame;
-      this.currentFrame.outerEl.className=this.currentFrame.outerEl.className.replace(/\s*wl\-active\s*/g,'');
-      newFrame.outerEl.className+=" wl-active";
+  updateClasses: function(newFrame) {
+    if (this.currentFrame) {
+      this._saveLastFrame = this.currentFrame;
+      this.currentFrame.outerEl.className = this.currentFrame.outerEl.className.replace(/\s*wl\-active\s*/g, '');
+    }
+    if (null !== newFrame) {
+      newFrame.outerEl.className += " wl-active";
     }
   },
   /**
    * render child positions. overriden default behavior of groupview
    *
-   * @param {ObjView} childView - the child view that has changed
+   * @param {ElementView} childView - the child view that has changed
    * @returns {Type} Description
    */
   _renderChildPosition: function(childView) {
@@ -1611,11 +2031,7 @@ var LayerView = GroupView.extend({
   onResize: function() {
     var childViews = this.getChildViews();
     var length = childViews.length;
-    var scrollData = {
-      startPosition: this.currentFrame.transformData.startPosition,
-      scrollX: this.currentFrame.transformData.scrollX,
-      scrollY: this.currentFrame.transformData.scrollY
-    };
+    var scrollData = this.currentFrame.getScrollData();
 
     for (var i = 0; i < length; i++) {
       var childView = childViews[i];
@@ -1626,18 +2042,28 @@ var LayerView = GroupView.extend({
     this.showFrame(this.currentFrame.data.attributes.name, scrollData);
   }
 }, {
-  Model: LayerData
+  /*
+  Model: LayerData*/
+  defaultProperties: Kern._extend({}, GroupView.defaultProperties, {
+    type: 'layer',
+    layoutType: 'slide',
+    defaultFrame: undefined,
+    nativeScroll: true
+  }),
+  identify: function(element) {
+    var type = element.getAttribute('data-lj-type');
+    return null !== type && type.toLowerCase() === LayerView.defaultProperties.type;
+  }
 });
 
-pluginManager.registerType('layer', LayerView);
+pluginManager.registerType('layer', LayerView, identifyPriority.normal);
 
 module.exports = LayerView;
 
-},{"../kern/Kern.js":28,"./domhelpers.js":2,"./gestures/gesturemanager.js":6,"./groupview.js":8,"./layerdata.js":11,"./layoutmanager.js":13,"./pluginmanager.js":20,"./scrolltransformer.js":22}],13:[function(require,module,exports){
+},{"../kern/Kern.js":29,"./domhelpers.js":2,"./gestures/gesturemanager.js":6,"./groupview.js":7,"./identifypriority.js":8,"./layoutmanager.js":11,"./pluginmanager.js":22,"./scrolltransformer.js":27}],11:[function(require,module,exports){
 'use strict';
-var WL = require('./wl.js');
+var layerJS = require('./layerjs.js');
 var Kern = require('../kern/Kern.js');
-//var ObjView = require('./ObjView.js');
 
 var LayoutManager = Kern.EventManager.extend({
   /**
@@ -1673,11 +2099,11 @@ var LayoutManager = Kern.EventManager.extend({
   }
 });
 // initialialize layoutManager with default plugins
-WL.layoutManager = new LayoutManager();
+layerJS.layoutManager = new LayoutManager();
 // this module does not return the class but a singleton instance, the layoutManager for the project.
-module.exports = WL.layoutManager;
+module.exports = layerJS.layoutManager;
 
-},{"../kern/Kern.js":28,"./wl.js":27}],14:[function(require,module,exports){
+},{"../kern/Kern.js":29,"./layerjs.js":9}],12:[function(require,module,exports){
 'use strict';
 var Kern = require('../../kern/Kern.js');
 var layoutManager = require('../layoutmanager.js');
@@ -1714,7 +2140,8 @@ var CanvasLayout = LayerLayout.extend({
     for (var i = 0; i < framesLength; i++) {
       childFrame = frames[i];
       this._applyTransform(childFrame, this._reverseTransform, transform, {
-        transition: ''
+        transition: '',
+        display: 'block'
       });
     }
   },
@@ -1728,7 +2155,6 @@ var CanvasLayout = LayerLayout.extend({
    * @returns {Kern.Promise} a promise fullfilled after the transition finished. Note: if you start another transtion before the first one finished, this promise will not be resolved.
    */
   transitionTo: function(frame, transition, targetFrameTransformData, targetTransform) {
-    this._reverseTransform = this._calculateReverseTransform(frame, targetFrameTransformData);
     var finished = new Kern.Promise();
 
     var frames = this.layer.getChildViews();
@@ -1738,24 +2164,42 @@ var CanvasLayout = LayerLayout.extend({
     // we only listen to the transitionend of the target frame and hope that's fine
     // NOTE: other frame transitions may end closely afterwards and setting transition time to 0 will let
     // them jump to the final positions (hopefully jump will not be visible)
-    frame.outerEl.addEventListener("transitionend", function f(e) { // FIXME needs webkitTransitionEnd etc
+
+    // NOTE: Maybe this is a solution for not stopping the transitions
+    var lastFrameToTransition = frames[framesLength-1];
+
+    lastFrameToTransition.outerEl.addEventListener("transitionend", function f(e) { // FIXME needs webkitTransitionEnd etc
       e.target.removeEventListener(e.type, f); // remove event listener for transitionEnd.
-      for (var i = 0; i < framesLength; i++) {
+      /*for (var i = 0; i < framesLength; i++) {
         childFrame = frames[i];
         childFrame.applyStyles({
           transition: '' // deactivate transitions for all frames
         });
-      }
+      }*/
       finished.resolve();
     });
 
-    // now apply all transforms to all frames
-    for (var i = 0; i < framesLength; i++) {
-      childFrame = frames[i];
-      this._applyTransform(childFrame, this._reverseTransform, targetTransform, {
-        transition: transition.duration
-      });
+    if (null !== frame) {
+      this._reverseTransform = this._calculateReverseTransform(frame, targetFrameTransformData);
+      // now apply all transforms to all frames
+      for (var i = 0; i < framesLength; i++) {
+        childFrame = frames[i];
+        this._applyTransform(childFrame, this._reverseTransform, targetTransform, {
+          transition: transition.duration,
+          opacity: 1
+        });
+      }
+    } else {
+      for (var x = 0; x < framesLength; x++) {
+        childFrame = frames[x];
+        childFrame.applyStyles({
+          opacity: 0,
+          transition: transition.duration
+        });
+      }
     }
+
+
     return finished;
   },
   /**
@@ -1764,8 +2208,8 @@ var CanvasLayout = LayerLayout.extend({
    * @returns {string} the calculated transform
    */
   _calculateReverseTransform: function(frame, targetFrameTransformData) {
-    var targetFrameX = (parseInt(frame.data.attributes.x, 10) || 0);
-    var targetFrameY = (parseInt(frame.data.attributes.y, 10) || 0);
+    var targetFrameX = (parseInt(frame.x(), 10) || 0);
+    var targetFrameY = (parseInt(frame.y(), 10) || 0);
 
     var transform = "translate3d(" + parseInt(-targetFrameTransformData.shiftX, 10) + "px," + parseInt(-targetFrameTransformData.shiftY, 10) + "px,0px) scale(" + targetFrameTransformData.scale / (frame.data.attributes.scaleX || 1) + "," + targetFrameTransformData.scale / (frame.data.attributes.scaleY || 1) + ") rotate(" + (-frame.data.attributes.rotation || 0) + "deg) translate3d(" + (-targetFrameX) + "px," + (-targetFrameY) + "px,0px)";
     return transform;
@@ -1840,7 +2284,7 @@ layoutManager.registerType('canvas', CanvasLayout);
 
 module.exports = CanvasLayout;
 
-},{"../../kern/Kern.js":28,"../layoutmanager.js":13,"./layerlayout.js":15}],15:[function(require,module,exports){
+},{"../../kern/Kern.js":29,"../layoutmanager.js":11,"./layerlayout.js":13}],13:[function(require,module,exports){
 'use strict';
 var $ = require('../domhelpers.js');
 var Kern = require('../../kern/Kern.js');
@@ -1893,7 +2337,8 @@ var LayerLayout = Kern.EventManager.extend({
    */
   loadFrame: function(frame) {
     var finished = new Kern.Promise();
-    if (document.body.contains(frame.outerEl) && window.getComputedStyle(frame.outerEl).display !== 'none') {
+
+    if (frame === null || (document.body.contains(frame.outerEl) && window.getComputedStyle(frame.outerEl).display !== 'none')) {
       finished.resolve();
     } else {
       // FIXME: add to dom if not in dom
@@ -1944,7 +2389,7 @@ var LayerLayout = Kern.EventManager.extend({
 
 module.exports = LayerLayout;
 
-},{"../../kern/Kern.js":28,"../domhelpers.js":2}],16:[function(require,module,exports){
+},{"../../kern/Kern.js":29,"../domhelpers.js":2}],14:[function(require,module,exports){
 'use strict';
 var $ = require('../domhelpers.js');
 var Kern = require('../../kern/Kern.js');
@@ -1990,7 +2435,9 @@ var SlideLayout = LayerLayout.extend({
     this._applyTransform(frame, this._currentFrameTransform = this._calcFrameTransform(frameTransformData), transform, {
       display: '',
       opacity: 1,
-      visibility: ''
+      visibility: '',
+      top: "0px",
+      left: "0px"
     });
     this._preparedTransitions = {};
   },
@@ -2009,27 +2456,43 @@ var SlideLayout = LayerLayout.extend({
     return this.prepareTransition(frame, transition, targetFrameTransformData, targetTransform).then(function(t) {
       var finished = new Kern.Promise();
       console.log('now for real');
-      frame.outerEl.addEventListener("transitionend", function f(e) { // FIXME needs webkitTransitionEnd etc
-        e.target.removeEventListener(e.type, f); // remove event listener for transitionEnd.
-        if (transition.transitionID === that.layer.transitionID) {
-          currentFrame.applyStyles({
-            transition: '',
-            display: 'none'
+      var frameToTransition = frame || currentFrame;
+
+      if (null !== frameToTransition) {
+        frameToTransition.outerEl.addEventListener("transitionend", function f(e) { // FIXME needs webkitTransitionEnd etc
+          e.target.removeEventListener(e.type, f); // remove event listener for transitionEnd.
+          if (transition.transitionID === that.layer.transitionID) {
+            if (currentFrame) {
+              currentFrame.applyStyles({
+                transition: '',
+                display: 'none'
+              });
+            }
+            if (frame) {
+              frame.applyStyles({
+                transition: ''
+              });
+            }
+          }
+          // wait until above styles are applied;
+          $.postAnimationFrame(function() {
+            finished.resolve();
           });
-          frame.applyStyles({
-            transition: ''
-          });
-        }
-        // wait until above styles are applied;
-        $.postAnimationFrame(function() {
-          finished.resolve();
         });
-      });
+      } else {
+        finished.resolve();
+      }
+
       that._applyTransform(frame, that._currentFrameTransform = that._calcFrameTransform(targetFrameTransformData), targetTransform, {
-        transition: transition.duration
+        transition: transition.duration,
+        top: "0px",
+        left: "0px"
       });
+
       that._applyTransform(currentFrame, t.c1, targetTransform, {
-        transition: transition.duration
+        transition: transition.duration,
+        top: "0px",
+        left: "0px"
       });
       that._preparedTransitions = {};
       // wait until post transforms are applied an signal that animation is now running.
@@ -2054,29 +2517,37 @@ var SlideLayout = LayerLayout.extend({
     // create a promise that will wait for the transform being applied
     var finished = new Kern.Promise();
     var prep;
-    // check if transition is already prepared
-    if ((prep = this._preparedTransitions[frame.data.attributes.id])) {
+
+    if (frame === null) {
+      prep = this.transitions[transition.type](transition.type, this.layer.currentFrameTransformData, targetFrameTransformData);
+      finished.resolve(prep);
+    } else if ((prep = this._preparedTransitions[frame.data.attributes.id])) {
       if (prep.transform === targetTransform && prep.applied) { // if also the targetTransform is already applied we can just continue
         finished.resolve(prep);
-        return finished;
+      } else {
+        prep = undefined;
       }
     }
-    // call the transition type function to calculate all frame positions/transforms
-    prep = this._preparedTransitions[frame.data.attributes.id] = this.transitions[transition.type](transition.type, this.layer.currentFrameTransformData, targetFrameTransformData); // WARNING: this.layer.currentFrameTransformData should still be the old one here. carefull: this.layer.currentFrameTransformData will be set by LayerView before transition ends!
-    // apply pre position to target frame
-    this._applyTransform(frame, prep.t0, this.layer.currentTransform, {
-      transition: '',
-      opacity: '1',
-      visibility: ''
-    });
-    prep.transform = targetTransform;
-    console.log(prep.t0);
-    // wait until new postions are rendered then resolve promise
-    $.postAnimationFrame(function() {
-      prep.applied = true;
-      console.log('resolve');
-      finished.resolve(prep);
-    });
+
+    if (undefined === prep) {
+      // call the transition type function to calculate all frame positions/transforms
+      prep = this._preparedTransitions[frame.data.attributes.id] = this.transitions[transition.type](transition.type, this.layer.currentFrameTransformData, targetFrameTransformData); // WARNING: this.layer.currentFrameTransformData should still be the old one here. carefull: this.layer.currentFrameTransformData will be set by LayerView before transition ends!
+      // apply pre position to target frame
+      this._applyTransform(frame, prep.t0, this.layer.currentTransform, {
+        transition: '',
+        opacity: '1',
+        visibility: ''
+      });
+      prep.transform = targetTransform;
+      console.log(prep.t0);
+      // wait until new postions are rendered then resolve promise
+      $.postAnimationFrame(function() {
+        prep.applied = true;
+        console.log('resolve');
+        finished.resolve(prep);
+      });
+    }
+
     return finished;
   },
   /**
@@ -2097,9 +2568,11 @@ var SlideLayout = LayerLayout.extend({
    * @returns {void}
    */
   _applyTransform: function(frame, frameTransform, addedTransform, styles) {
-    frame.applyStyles(styles || {}, {
-      transform: addedTransform + " " + frameTransform
-    });
+    if (frame) {
+      frame.applyStyles(styles || {}, {
+        transform: addedTransform + " " + frameTransform
+      });
+    }
   },
   /**
    * calculate the transform for a give frame using its transformData record
@@ -2182,102 +2655,90 @@ layoutManager.registerType('slide', SlideLayout);
 
 module.exports = SlideLayout;
 
-},{"../../kern/Kern.js":28,"../domhelpers.js":2,"../layoutmanager.js":13,"./layerlayout.js":15}],17:[function(require,module,exports){
+},{"../../kern/Kern.js":29,"../domhelpers.js":2,"../layoutmanager.js":11,"./layerlayout.js":13}],15:[function(require,module,exports){
 'use strict';
+
 var Kern = require('../kern/Kern.js');
-var defaults = require('./defaults.js');
+
 /**
- * #ObjData
- * This is the base data Model for all Webpgr objects.
- * @type {Model}
+ * Base data class of all view classes
+ *
+ * @extends Kern.Model
  */
-var ObjData = Kern.Model.extend({
-  // these are the default attributes, these attributes will be synced with the server
-  // plugins should extend these attributes when they need to store values on the server
-  // all attributes that are not in here linke `this.ontop` are internal attributes that
-  // will not be stored on the server
-  defaults: {
-    // subclasses must overwrite this or FAIL
-    type: 'node',
-    tag: defaults.tag,
-    elementId: undefined,
+var NodeData = Kern.Model.extend({
+  constructor: function(param) {
+    var data = param || {};
 
-    // CSS string for styling this object
-    style: '',
-    // CSS classes of this object
-    classes: '',
+    if (data.defaultProperties) {
+      data = Kern._extendKeepDeepCopy({}, param.defaultProperties);
+    }
 
-    // this stores a string for a hyperlink realized by an <a> tag that
-    // wraps the element
-    linkTo: undefined,
-    // defaults to _self, but should not be set because if set a link is
-    // created, this could be fixed
-    linkTarget: undefined,
-
-    //locked elements can not be edited
-    locked: undefined,
-    // a list of properties that are not allowed to be edited
-    disallow: {},
-
-    // set to undefined so we can find out if a newly created element
-    // provided positional information
-    x: undefined,
-    y: undefined,
-
-
-    width: undefined,
-    height: undefined,
-
-    // rendering scale
-    scaleX: 1,
-    scaleY: 1,
-
-    // z-index
-    zIndex: undefined,
-    // this is set in init$el to the current rotation if it was not set
-    // before
-    rotation: undefined,
-    //is the element hidden in presentation mode
-    hidden: undefined,
-    // bins are important for the compositor, they tell in which area the
-    // object is located, this is used for faster lookups of elements
-    version: defaults.version
+    Kern.Model.call(this, data);
   },
-  //---
-  // the tag should be overwritten by plugins if neccessary, eg. image plugin will set img here
-  // nogesture: false,
-  // selectable: true,
-  // allowClick: true,
-  // ui: false,
-  // ontop: false,
-  // choose a layer that is below all other objects
-  // onbottom: false,
-  // dontSetSize: false,
+
+  addChildren: function(ids) {
+    this.silence();
+    if (Array.isArray(ids)) {
+      for (var i = 0; i < ids.length; i++) {
+        this.addChild(ids[i]);
+      }
+    }
+    this.fire();
+  },
+
+  addChild: function(id) {
+    this.silence();
+    this.update('children').push(id);
+    this.fire();
+  },
+
+  removeChildren: function(ids) {
+    this.silence();
+    if (Array.isArray(ids)) {
+      for (var i = 0; i < ids.length; i++) {
+        this.removeChild(ids[i]);
+      }
+    }
+    this.fire();
+  },
+
+  removeChild: function(id) {
+    var idx = this.attributes.children.indexOf(id);
+    if (idx >= 0) {
+      this.silence();
+      this.update('children').splice(idx, 1);
+      this.fire();
+    }
+  }
 });
 
-module.exports = ObjData;
+module.exports = NodeData;
 
-},{"../kern/Kern.js":28,"./defaults.js":1}],18:[function(require,module,exports){
+},{"../kern/Kern.js":29}],16:[function(require,module,exports){
 'use strict';
-var $ = require('./domhelpers.js');
-var Kern = require('../kern/Kern.js');
-var pluginManager = require('./pluginmanager.js');
-var repository = require('./repository.js');
-var ObjData = require('./objdata.js');
 
+var Kern = require('../kern/Kern.js');
+var NodeData = require('./nodedata.js');
+var defaults = require('./defaults.js');
+var repository = require('./repository.js');
+var pluginManager = require('./pluginmanager.js');
+var identifyPriority = require('./identifypriority.js');
+var observerFactory = require('./observer/observerfactory.js');
 /**
- * Defines the view of a ObjData and provides all basic properties and
+ * Defines the view of a node and provides all basic properties and
  * rendering fuctions that are needed for a visible element.
  *
- * @param {ObjData} dataModel the Tailbone Model of the View's data
+ * @param {NodeData} dataModel the Tailbone Model of the View's data
  * @param {Object} options {data: json for creating a new data object; el: (optional) HTMLelement already exisitng; outerEl: (optional) link wrapper existing; root: true if that is the root object}
  */
-var ObjView = Kern.EventManager.extend({
+var NodeView = Kern.EventManager.extend({
   constructor: function(dataModel, options) {
     Kern.EventManager.call(this);
     options = options || {};
+
     // dataobject must exist
-    this.data = this.data || dataModel || options.el && new this.constructor.Model();
+    this.data = this.data || dataModel || options.el && new NodeData(this.constructor);
+
     if (!this.data) throw "data object must exist when creating a view";
     this.disableDataObserver();
     // if element is given, parse the element to fill data object
@@ -2305,7 +2766,18 @@ var ObjView = Kern.EventManager.extend({
     // parent if defined
     this.parent = options.parent;
     // DOM element, take either the one provide by a sub constructor, provided in options, or create new
-    this.innerEl = this.innerEl || options.el || document.createElement(this.data.attributes.tag);
+    this.innerEl = this.innerEl || options.el;
+    if (undefined === this.innerEl) {
+      if (this.data.attributes.nodeType === 1 || this.data.attributes.tag) {
+        this.innerEl = document.createElement(this.data.attributes.tag);
+      } else if (this.data.attributes.nodeType === 3) {
+        // text node
+        this.innerEl = document.createTextNode('');
+      } else if (this.data.attributes.nodeType === 8) {
+        // comment node
+        this.innerEl = document.createComment('');
+      }
+    }
     // backlink from DOM to object
     if (this.innerEl._wlView) throw "trying to initialialize view on element that already has a view";
     this.innerEl._wlView = this;
@@ -2316,17 +2788,14 @@ var ObjView = Kern.EventManager.extend({
 
     var that = this;
     // The change event must change the properties of the HTMLElement el.
-    this.data.on('change', function(model) {
+    this.data.on('change', function() {
       if (!that._dataObserverCounter) {
-        if (model.changedAttributes.hasOwnProperty('width') || model.changedAttributes.hasOwnProperty('height')) {
-          that._fixedDimensions();
-        }
         that.render();
       }
     }, {
       ignoreSender: that
     });
-    this._fixedDimensions();
+
     // Only render the element when it is passed in the options
     if (!options.noRender && (options.forceRender || !options.el))
       this.render();
@@ -2334,33 +2803,11 @@ var ObjView = Kern.EventManager.extend({
     this._createObserver();
     this.enableObserver();
     this.enableDataObserver();
-
-  },
-  /**
-   * checks if the data object contains fixed width and height and provides those in the properties
-   * fixedWidth and fixedHeight. This allows certain functions (like getTransformData) to calculate
-   * geometries before this element is rendered. Those properties should be accessed via the .width()
-   * and height() methods which also consider the rendered dimensions.
-   *
-   * @returns {void}
-   */
-  _fixedDimensions: function() {
-    var match;
-    if (this.data.attributes.width && (match = this.data.attributes.width.match(/(.*)px/))) {
-      this.fixedWidth = parseInt(match[1]);
-    } else {
-      delete this.fixedWidth;
-    }
-    if (this.data.attributes.height && (match = this.data.attributes.height.match(/(.*)px/))) {
-      this.fixedHeight = parseInt(match[1]);
-    } else {
-      delete this.fixedHeight;
-    }
   },
   /**
    * add a new parent view
    *
-   * @param {ObjView} parent - the parent of this view
+   * @param {NodeView} parent - the parent of this view
    * @returns {Type} Description
    */
   setParent: function(parent) {
@@ -2371,32 +2818,10 @@ var ObjView = Kern.EventManager.extend({
   /**
    * return the parent view of this view
    *
-   * @returns {ObjView} parent
+   * @returns {NodeView} parent
    */
   getParent: function() {
     return this.parent;
-  },
-  /**
-   * get Parent View of specific type recursively
-   *
-   * @param {string} type - the type the parent should have
-   * @returns {ObjView} the View requested
-   */
-  getParentOfType(type) {
-    if (this.parent && this.parent.data) {
-      if (this.parent.data.attributes.type && this.parent.data.attributes.type === type) return this.parent;
-      return this.parent.getParentOfType(type); // search recursively
-    } else {
-      // we need to to this dom based as there may be non-layerjs elements in the hierarchy
-      var el = this.outerEl.parentNode;
-      if (!el) return undefined; // no parent element return undefined
-      while (!el._wlView) { // search for layerjs element in parent hierarchy
-        if (!el.parentNode) return undefined; // no parent element return undefined
-        el = el.parentNode;
-      }
-      if (el._wlView.data.attributes.type === type) return el._wlView; // found one; is it the right type?
-      return el._wlView.getParentOfType(type); // search recursively
-    }
   },
   /**
    * This property keeps track if the view is already rendered.
@@ -2413,75 +2838,14 @@ var ObjView = Kern.EventManager.extend({
     options = options || {};
     this.disableObserver();
 
-    var attr = this.data.attributes,
-      diff = (this.isRendererd ? this.data.changedAttributes : this.data.attributes),
-      outerEl = this.outerEl;
+    var diff = this.isRendered ? this.data.changedAttributes || {} : this.data.attributes;
+
     if ('id' in diff) {
-      outerEl.setAttribute("data-wl-id", attr.id); //-> should be a class?
+      this.outerEl.id = 'wl-obj-' + this.data.attributes.id;
     }
 
-    if ('type' in diff) {
-      outerEl.setAttribute("data-wl-type", attr.type); //-> should be a class?
-    }
-
-    if ('elementId' in diff || 'id' in diff) {
-      outerEl.id = attr.elementId || "wl-obj-" + attr.id; //-> shouldn't we always set an id? (priority of #id based css declarations)
-    }
-
-    // add classes to object
-    if ('classes' in diff) {
-      var classes = 'object-default object-' + this.data.get('type');
-      // this.ui && (classes += ' object-ui');
-      // this.ontop && (classes += ' object-ontop');
-      if (attr.classes) {
-        classes += ' ' + attr.classes;
-      }
-      outerEl.className = classes;
-    }
-
-    // When the object is an anchor, set the necessary attributes
-    if (this.data.attributes.tag.toUpperCase() === 'A') {
-      if ('linkTo' in diff)
-        outerEl.setAttribute('href', this.data.attributes.linkTo);
-
-      if (!this.data.attributes.linkTarget)
-        this.data.attributes.linkTarget = '_self';
-
-      if ('linkTarget' in diff)
-        outerEl.setAttribute('target', this.data.attributes.linkTarget);
-    }
-
-    // create object css style
-    // these styles are stored in the head of the page index.html
-    // in a style tag with the id object_css
-    // FIXME: we should use $('#object_css').sheet to acces the style sheet and then iterate through the cssrules. The view can keep a reference to its cssrule
-    // FIXME: should we support media queries here. if so how does that work with versions? alternative?
-
-    var selector = (attr.elementId && "#" + attr.elementId) || "#wl-obj-" + attr.id;
-    var oldSelector = (diff.elementId && "#" + diff.elementId) || (diff.id && "#wl-obj-" + diff.id) || selector;
-
-    if (('style' in diff) || (selector !== oldSelector)) {
-      var styleElement = document.getElementById('wl-obj-css');
-      if (!styleElement) {
-        styleElement = document.createElement('style');
-        document.head.appendChild(styleElement);
-      }
-      var cssContent = styleElement.innerHTML;
-      var re;
-
-      if (attr.style) {
-        if (cssContent.indexOf(oldSelector) === -1) {
-          styleElement.innerHTML += selector + '{' + attr.style + '}\n';
-        } else {
-          re = new RegExp(oldSelector + '{[^}]*}', 'g');
-          styleElement.innerHTML = cssContent.replace(re, selector + '{' + attr.style + '}');
-        }
-      } else { // no style provided, if it is is in object_css tag delete it from there
-        if (cssContent.indexOf(oldSelector) !== -1) {
-          re = new RegExp(oldSelector + '{[^}]*}', 'g');
-          styleElement.innerHTML = cssContent.replace(re, '');
-        }
-      }
+    if ('content' in diff && this.data.attributes.nodeType !== 1) {
+      this.outerEl.data = this.data.attributes.content || '';
     }
 
     this.isRendered = true;
@@ -2489,152 +2853,43 @@ var ObjView = Kern.EventManager.extend({
     this.enableObserver();
   },
   /**
-   * apply CSS styles to this view
+   * get Parent View of specific type recursively
    *
-   * @param {Object} arguments - List of styles that should be applied
-   * @returns {Type} Description
+   * @param {string} type - the type the parent should have
+   * @returns {ObjView} the View requested
    */
-  applyStyles: function() {
-    this.disableObserver();
-    var len = arguments.length;
-    for (var j = 0; j < len; j++) {
-      var props = Object.keys(arguments[j]); // this does not run through the prototype chain; also does not return special
-      for (var i = 0; i < props.length; i++) {
-        this.outerEl.style[$.cssPrefix[props[i]] || props[i]] = arguments[j][props[i]];
-      }
-    }
-    this.enableObserver();
-  },
-  /**
-   * returns the width of the object. Note, this is the actual width which may be different then in the data object
-   * Use waitForDimensions() to ensure that this value is correct
-   *
-   * @returns {number} width
-   */
-  width: function() {
-    return this.outerEl.offsetWidth || this.fixedWidth;
-  },
-  /**
-   * returns the height of the object. Note, this is the actual height which may be different then in the data object.
-   * Use waitForDimensions() to ensure that this value is correct
-   *
-   * @returns {number} height
-   */
-  height: function() {
-    return this.outerEl.offsetHeight || this.fixedHeight;
-  },
-  /**
-   * make sure element has reliable dimensions, either by being rendered or by having fixed dimensions
-   *
-   * @returns {Promise} the promise which becomes fulfilled if dimensions are availabe
-   */
-  waitForDimensions: function() {
-    var p = new Kern.Promise();
-    var w = this.outerEl.offsetWidth || this.fixedWidth;
-    var h = this.outerEl.offsetHeight || this.fixedHeight;
-    var that = this;
-    if (w || h) {
-      p.resolve({
-        width: w || 0,
-        height: h || 0
-      });
+  getParentOfType: function(type) {
+    if (this.parent && this.parent.data) {
+      if (this.parent.data.attributes.type && this.parent.data.attributes.type === type) return this.parent;
+      return this.parent.getParentOfType(type); // search recursively
     } else {
-      setTimeout(function f() {
-        var w = that.outerEl.offsetWidth || this.fixedWidth;
-        var h = that.outerEl.offsetHeight || this.fixedHeight;
-        if (w || h) {
-          p.resolve({
-            width: w || 0,
-            height: h || 0
-          });
-        } else {
-          setTimeout(f, 200);
-        }
-      }, 0);
-
+      // we need to to this dom based as there may be non-layerjs elements in the hierarchy
+      var el = this.outerEl.parentNode;
+      if (!el) return undefined; // no parent element return undefined
+      while (!el._wlView) { // search for layerjs element in parent hierarchy
+        if (!el.parentNode) return undefined; // no parent element return undefined
+        el = el.parentNode;
+      }
+      if (el._wlView.data.attributes.type === type) return el._wlView; // found one; is it the right type?
+      return el._wlView.getParentOfType(type); // search recursively
     }
-    return p;
   },
   /**
-   * Will create a dataobject based on a DOM element
+   * Will create a NodeData object based on a DOM element
    *
    * @param {element} DOM element to needs to be parsed
    * @return  {data} a javascript data object
    */
   parse: function(element) {
-    var index;
     var data = {
-      tag: element.tagName
+      content: element.data,
+      nodeType: element.nodeType
     };
 
-    var attributes = element.attributes;
-    var length = attributes.length;
-
-    for (index = 0; index < length; index++) {
-      var attribute = attributes[index];
-      if (attribute.name.indexOf('data-wl-') === 0) {
-        var attributeName = attribute.name.replace('data-wl-', '');
-        var attributeValue = attribute.value;
-
-        if (attributeValue === 'true' || attributeValue === 'false') {
-          attributeValue = eval(attributeValue); // jshint ignore:line
-        }
-
-        attributeName = attributeName.replace(/(\-[a-z])/g, function($1) {
-          return $1.toUpperCase().replace('-', '');
-        });
-
-        var attributeNames = attributeName.split('.');
-        var attributesNamesLength = attributeNames.length;
-        var attributeObj = data;
-        for (var i = 0; i < attributesNamesLength; i++) {
-          if (!attributeObj.hasOwnProperty(attributeNames[i])) {
-            attributeObj[attributeNames[i]] = (i === attributesNamesLength - 1) ? attributeValue : {};
-          }
-          attributeObj = attributeObj[attributeNames[i]];
-        }
-      }
-    }
-
-    data.classes = element.className.replace("object-default object-" + data.type + " ", ""); //FIXME: remove old webpgr classes
-
-    if (data.tag.toUpperCase() === 'A') {
-      data.linkTo = element.getAttribute('href');
-      data.linkTarget = element.getAttribute('target');
-    }
-
-    var style = element.style;
-
-    if (style.left) {
-      data.x = style.left;
-    }
-    if (style.top) {
-      data.y = style.top;
-    }
-    if (style.display === 'none') {
-      data.hidden = true;
-    }
-    if (style.zIndex) {
-      data.zIndex = style.zIndex;
-    }
-
-    if (style.width !== undefined) {
-      data.width = style.width; //FIXME: how to deal with this?
-    }
-    if (!data.width && element.getAttribute('width')) { // only a limited set of elements support the width attribute
-      data.width = element.getAttribute('width');
-    }
-    if (style.height !== undefined) {
-      data.height = style.height;
-    }
-    if (!data.height && element.getAttribute('height')) { // only a limited set of elements support the width attribute
-      data.height = element.getAttribute('height');
-    }
     this.disableDataObserver();
     // modify existing data object, don't trigger any change events to ourselves
     this.data.setBy(this, data);
     this.enableDataObserver();
-
   },
   /**
    * ##destroy
@@ -2644,8 +2899,8 @@ var ObjView = Kern.EventManager.extend({
    * @return {void}
    */
   destroy: function() {
-    if (window.MutationObserver && this._observer) {
-      this._observer.disconnect();
+    if (this._observer) {
+      this._observer.stop();
     }
 
     this.outerEl.parentNode.removeChild(this.outerEl);
@@ -2665,112 +2920,330 @@ var ObjView = Kern.EventManager.extend({
     this._dataObserverCounter++;
   },
   enableObserver: function() {
-    if (!this.hasOwnProperty('_observerCounter')) {
-      this._observerCounter = 0;
-    } else if (this._observerCounter > 0) {
-      this._observerCounter--;
-    }
-    if (window.MutationObserver && this._observerCounter === 0) {
-      this._observer.observe(this.outerEl, {
-        attributes: true,
-        childList: false,
-        characterData: true,
-        subtree: false
-      });
+    if (this._observer) {
+      this._observer.observe();
     }
   },
   disableObserver: function() {
-    if (!this.hasOwnProperty('_observerCounter')) {
-      this._observerCounter = 0;
-    }
-
-    this._observerCounter++;
-    if (window.MutationObserver && this._observer && this._observer.disconnect) {
-      this._observer.disconnect();
+    if (this._observer) {
+      this._observer.stop();
     }
   },
   _createObserver: function() {
-
     if (this.hasOwnProperty('_observer'))
       return;
 
     var that = this;
 
-    if (window.MutationObserver) {
-      this._observer = new MutationObserver(function(mutations) {
-        var i;
-        var trigger = false;
-        for (i = 0; i < mutations.length; i++) {
-          // FIXME: do a similar thing for DOMChangeListeners below
-          if (!(mutations[i].type === "attributes" && mutations[i].attributeName === 'styles')) {
-            trigger = true;
-          }
-        }
-        if (trigger) {
-          that._domElementChanged();
-        }
-      });
-
-      this._observer.observe(this.outerEl, {
-        attributes: true,
-        childList: false,
-        characterData: true,
-        subtree: false
-      });
-    } else {
-      this._observer = {};
-
-      this.outerEl.addEventListener("DOMAttrModified", function() {
-        that._domElementChanged();
-      }, false);
-
-      this.outerEl.addEventListener("DOMAttributeNameChanged", function() {
-        that._domElementChanged();
-      }, false);
-
-      this.outerEl.addEventListener("DOMCharacterDataModified", function() {
-        that._domElementChanged();
-      }, false);
-
-      this.outerEl.addEventListener("DOMElementNameChanged", function() {
-        that._domElementChanged();
-      }, false);
-    }
+    this._observer = observerFactory.getObserver(this.outerEl, {
+      characterData: true,
+      callback: function(result) {
+        that._domElementChanged(result);
+      }
+    });
   },
   /**
    * This function will parse the DOM element and add it to the data of the view.
    * It will be use by the MutationObserver.
+   * @param {result} an object that contains what has been changed on the DOM element
    * @return {void}
    */
-  _domElementChanged: function() {
-    if (this._observerCounter !== 0) return;
-
-    this.parse(this.outerEl);
+  _domElementChanged: function(result) {
+    if (result.characterData) {
+      this.parse(this.outerEl);
+    }
   }
 }, {
   // save model class as static variable
-  Model: ObjData
+  Model: NodeData,
+  identify: function(element) {
+    return element.nodeType !== 1;
+  },
+  defaultProperties: {
+    id: undefined,
+    type: 'node',
+    content: '',
+    nodeType: 3,
+    version: defaults.version
+  }
 });
 
 
-pluginManager.registerType('node', ObjView);
+pluginManager.registerType('node', NodeView, identifyPriority.normal);
 
-module.exports = ObjView;
+module.exports = NodeView;
 
-},{"../kern/Kern.js":28,"./domhelpers.js":2,"./objdata.js":17,"./pluginmanager.js":20,"./repository.js":21}],19:[function(require,module,exports){
+},{"../kern/Kern.js":29,"./defaults.js":1,"./identifypriority.js":8,"./nodedata.js":15,"./observer/observerfactory.js":19,"./pluginmanager.js":22,"./repository.js":23}],17:[function(require,module,exports){
 'use strict';
-var WL = require('./wl.js');
+var Observer = require('./observer.js');
+
+var something = Observer.extend({
+      constructor: function(element, options) {
+        Observer.call(this, element, options);
+
+        var that = this;
+        this.mutationObserver = new MutationObserver(function(mutations) {
+          that.mutationCallback(mutations);
+        });
+      },
+      /**
+       * Will analyse if the element has changed. Will call the callback method that
+       * is provided in the options.
+       */
+      mutationCallback: function(mutations) {
+        var result = {
+          attributes: [],
+          addedNodes: [],
+          removedNodes: []
+        };
+        for (var i = 0; i < mutations.length; i++) {
+          var mutation = mutations[i];
+          if (this.options.attributes && mutation.type === 'attributes') {
+            result.attributes.push(mutation.attributeName);
+          }
+          if (this.options.childList && mutation.type === 'childList') {
+            if (mutation.addedNodes && mutation.addedNodes.length > 0) {
+              result.addedNodes = result.addedNodes.concat(mutation.addedNodes);
+            }
+            if (mutation.removeNodes && mutation.removeNodes.length > 0) {
+              result.removedNodes = result.newNodes.concat(mutation.removeNodes);
+            }
+          }
+        }
+
+        if (this.options.callback && (result.attributes.length > 0 || result.addedNodes.length > 0 || result.removedNodes.length > 0)) {
+            this.options.callback(result);
+          }
+        },
+        /**
+         * Starts the observer
+         */
+        observe: function() {
+            this.mutationObserver.observe(this.element, {
+              attributes: this.options.attributes || false,
+              childList: this.options.childList || false,
+              characterData: this.options.characterData || false
+            });
+          },
+          /**
+           * Stops the observer
+           */
+          stop: function() {
+            this.mutationObserver.disconnect();
+          }
+      });
+
+  module.exports = something;
+
+},{"./observer.js":18}],18:[function(require,module,exports){
+'use strict';
+var Kern = require('../../kern/kern.js');
+
+var Observer = Kern.Base.extend({
+  constructor: function(element, options) {
+    options = options || {};
+    this.element = element;
+    this.options = options;
+    this.counter = 0;
+  },
+  /**
+   * Starts the observer   
+   */
+  observe: function() {
+    throw 'not implemented';
+  },
+  /**
+   * Stops the observer
+   */
+  stop: function() {
+    throw 'not implemented';
+  },
+  /**
+   * Checks if the observer is observing
+   *
+   * @returns {bool} returns true if observer is observing
+   */
+  isObserving: function(){
+    return this.counter === 0;
+  }
+});
+
+module.exports = Observer;
+
+},{"../../kern/kern.js":30}],19:[function(require,module,exports){
+'use strict';
+var Kern = require('../../kern/kern.js');
+var MutationsObserver = require('./mutationsobserver.js');
+var TimeoutObserver = require('./timeoutobserver.js');
+
+var ObserverFactory = Kern.Base.extend({
+  constructor: function() {
+  },
+  /**
+ * Creates an observer
+ *
+ * @param {object} element - a dom element
+ * @returns {object} options
+ */
+  getObserver: function(element, options) {
+    return (window.MutationObserver) ? new MutationsObserver(element, options) : new TimeoutObserver(element, options);
+  }
+});
+
+module.exports = new ObserverFactory();
+
+},{"../../kern/kern.js":30,"./mutationsobserver.js":17,"./timeoutobserver.js":20}],20:[function(require,module,exports){
+'use strict';
+var Observer = require('./observer.js');
+
+var TimeoutObserver = Observer.extend({
+  constructor: function(element, options) {
+    Observer.call(this, element, options);
+
+    this.attributes = {};
+    this.childNodes = [];
+    this.characterData = undefined;
+    this.myTimeout = undefined;
+  },
+  /**
+ * Checks if the elements has changed. Will call the callback method
+ * that is provided in the options
+ */
+  elementModified: function() {
+    var result = {
+      attributes: [],
+      addedNodes: [],
+      removedNodes: [],
+      characterData: false
+    };
+
+    if (this.options.attributes && this.element.nodeType === 1) {
+      var attributeName;
+      var found = {};
+      for (attributeName in this.attributes) {
+        if (this.attributes.hasOwnProperty(attributeName)) {
+          found[attributeName] = false;
+        }
+      }
+      for (var index = 0; index < this.element.attributes.length; index++) {
+        var attribute = this.element.attributes[index];
+        // attribute isn't mapped
+        if (!this.attributes.hasOwnProperty(attribute.name)) {
+          this.attributes[attribute.name] = attribute.value;
+          result.attributes.push(attribute.name);
+        } else if (this.attributes[attribute.name] !== attribute.value) {
+          // attribute is mapped but value has changed
+          result.attributes.push(attribute.name);
+        }
+        found[attribute.name] = true;
+      }
+
+      // detect deleted attributes
+      for (attributeName in found) {
+        if (found.hasOwnProperty(attributeName) && !found[attributeName]) {
+          delete this.attributes[attributeName];
+          result.attributes.push(attributeName);
+        }
+      }
+    }
+
+    if (this.options.childList && this.element.nodeType === 1) {
+      var i, child;
+      //detect delete children
+      for (i = 0; i < this.childNodes.length; i++) {
+        child = this.childNodes[i];
+        if (!this.element.contains(child)) {
+          this.childNodes.splice(i, 1);
+          result.removedNodes.push(child);
+        }
+      }
+      //detect new children
+      for (i = 0; i < this.element.childNodes.length; i++) {
+        child = this.element.childNodes[i];
+        if (-1 === this.childNodes.indexOf(child)) {
+          result.addedNodes.push(child);
+          this.childNodes.push(child);
+        }
+      }
+    }
+
+    // detect changes in characterData
+    if (this.options.characterData && this.element.nodeType === 3) {
+      if (this.characterData !== this.element.data) {
+        result.characterData = true;
+        this.characterData = this.element.data;
+      }
+    }
+
+    if (this.options.callback && (result.attributes.length > 0 || result.addedNodes.length > 0 || result.removedNodes.length > 0 || result.characterData)) {
+      this.options.callback(result);
+    }
+
+    this.observe();
+  },
+  /**
+   * Starts the observer
+   */
+  observe: function() {
+    if (this.counter !== 0) {
+      this.counter--;
+    }
+
+    if (this.counter === 0) {
+      this.attributes = {};
+      this.childNodes = [];
+      this.myTimeout = undefined;
+
+      if (this.element.nodeType === 1) {
+        var length = this.element.attributes.length;
+        for (var index = 0; index < length; index++) {
+          var attribute = this.element.attributes[index];
+          this.attributes[attribute.name] = attribute.value;
+        }
+
+        length = this.element.childNodes.length;
+        for (var i = 0; i < length; i++) {
+          this.childNodes.push(this.element.childNodes[i]);
+        }
+      } else if (this.element.nodeType === 3) {
+        this.characterData = this.element.data;
+      }
+
+      var that = this;
+      this.myTimeout = setTimeout(function() {
+        that.elementModified();
+      }, this.options.timeout || 1000);
+    }
+  },
+  /**
+   * Stops the observer
+   */
+  stop: function() {
+    this.counter++;
+    if (this.myTimeout !== undefined) {
+      clearTimeout(this.myTimeout);
+      this.myTimeout = undefined;
+    }
+  }
+});
+
+module.exports = TimeoutObserver;
+
+},{"./observer.js":18}],21:[function(require,module,exports){
+'use strict';
+var layerJS = require('./layerjs.js');
 var pluginManager = require('./pluginmanager.js');
 
 var ParseManager = function() {
   /**
    * Parses a document for layerJs object
+   * @param {HTMLDocument} doc - an optional root document
    *
    * @returns {void}
    */
-  this.parseDocument = function() {
+  this.parseDocument = function(doc) {
 
-    var stageElements = document.querySelectorAll("[data-wl-type='stage']");
+    var stageElements = (doc || document).querySelectorAll("[data-lj-type='stage']");
 
     var length = stageElements.length;
 
@@ -2783,12 +3256,12 @@ var ParseManager = function() {
 };
 
 
-WL.parseManager = new ParseManager();
-module.exports = WL.parseManager;
+layerJS.parseManager = new ParseManager();
+module.exports = layerJS.parseManager;
 
-},{"./pluginmanager.js":20,"./wl.js":27}],20:[function(require,module,exports){
+},{"./layerjs.js":9,"./pluginmanager.js":22}],22:[function(require,module,exports){
 'use strict';
-var WL = require('./wl.js');
+var layerJS = require('./layerjs.js');
 var Kern = require('../kern/Kern.js');
 
 var PluginManager = Kern.EventManager.extend({
@@ -2801,17 +3274,18 @@ var PluginManager = Kern.EventManager.extend({
    * @param {Object} map - an object mapping Obj types to {view:constructor, model: contructor} data sets
    * @returns {This}
    */
-  constructor: function(map) {
+  constructor: function(map, identifyPriorities) {
     Kern.EventManager.call(this);
     this.map = map || {}; // maps ObjData types to View constructors
+    this.identifyPriorities = identifyPriorities || {};
   },
   /**
    * create a view based on the type in the Obj's model
    *
-   * @param {ObjData} model - the model from which the view should be created
+   * @param {NodeData} model - the model from which the view should be created
    * @param {Object} [options] - create options
    * @param {HTMLElement} options.el - the element of the view
-   * @returns {ObjView} the view object of type ObjView or a sub class
+   * @returns {NodeView} the view object of type NodeView or a sub class
    */
   createView: function(model, options) {
     // return existing view if the provided element already has one
@@ -2849,32 +3323,71 @@ var PluginManager = Kern.EventManager.extend({
    * @param {function} constructor - the constructor of the view class of this type
    * @returns {This}
    */
-  registerType: function(type, constructor) {
+  registerType: function(type, constructor, identifyPriority) {
     this.map[type] = {
       view: constructor,
-      model: constructor.Model
+      model: constructor.Model,
+      identify: constructor.identify
     };
+
+    if (undefined === this.identifyPriorities[identifyPriority])
+      this.identifyPriorities[identifyPriority] = [];
+
+    this.identifyPriorities[identifyPriority].push(constructor);
   },
   /**
-   * make sure a certain plugin is available, continue with callback
+   * Will iterate over the registered ViewTypes and call it's identify
+   * method to find the ViewType of a DOM element
    *
-   * @param {string} type - the type that shoud be present
-   * @param {Function} callback - call when plugins is there
-   * @returns {Type} Description
+   * @param {object} element - A DOM element
+   * @returns {string} the found ViewType
    */
-  // requireType: function(type, callback) {
-  //   if (!this.map[type]) throw "type " + type + " unkonw in pluginmanager. Have no means to load it"; //FIXME at some point this should dynamically load plugins
-  //   return callback(); // FIXME should be refactored with promises or ES 6 yield
-  // }
+  identify: function(element) {
+      var type;
+
+      var sortedKeys = Object.keys(this.identifyPriorities).sort(function(a, b) {
+        return (a - b) * (-1);
+      });
+
+      for (var x = 0; x < sortedKeys.length; x++) {
+        var key = sortedKeys[x];
+        for (var i = 0; i < this.identifyPriorities[key].length; i++) {
+          if (this.identifyPriorities[key][i].identify(element)) {
+            type = this.identifyPriorities[key][i].defaultProperties.type;
+            break;
+          }
+        }
+        if (undefined !== type) {
+          break;
+        }
+      }
+
+      if (undefined === type) {
+        throw "no ViewType found for element '" + element + "'";
+      }
+
+      return type;
+    }
+    /**
+     * make sure a certain plugin is available, continue with callback
+     *
+     * @param {string} type - the type that shoud be present
+     * @param {Function} callback - call when plugins is there
+     * @returns {Type} Description
+     */
+    // requireType: function(type, callback) {
+    //   if (!this.map[type]) throw "type " + type + " unkonw in pluginmanager. Have no means to load it"; //FIXME at some point this should dynamically load plugins
+    //   return callback(); // FIXME should be refactored with promises or ES 6 yield
+    // }
 });
 // initialialize pluginManager with default plugins
-WL.pluginManager = new PluginManager({});
+layerJS.pluginManager = new PluginManager({});
 // this module does not return the class but a singleton instance, the pluginmanager for the project.
-module.exports = WL.pluginManager;
+module.exports = layerJS.pluginManager;
 
-},{"../kern/Kern.js":28,"./wl.js":27}],21:[function(require,module,exports){
+},{"../kern/Kern.js":29,"./layerjs.js":9}],23:[function(require,module,exports){
 'use strict';
-var WL = require('./wl.js');
+var layerJS = require('./layerjs.js');
 var defaults = require('./defaults.js');
 var Kern = require('../kern/Kern.js');
 var pluginManager = require('./pluginmanager.js');
@@ -2909,7 +3422,7 @@ var Repository = Kern.EventManager.extend({
       for (var i = 0; i < data.length; i++) {
         models.push(pluginManager.createModel(data[i]));
       }
-    } else if (typeof data === 'string') {
+    } else if (typeof data === 'string') { //<-- FIXME this seems wrong
       for (var k in Object.keys(data)) {
         if (data.hasOwnProperty(k)) {
           var obj = data[k];
@@ -2919,7 +3432,7 @@ var Repository = Kern.EventManager.extend({
         }
       }
     }
-    this.versions[version] = new Kern.ModelRepository(data);
+    this.versions[version] = new Kern.ModelRepository(models);
   },
   /**
    * clear the repository either for a specified version or for all versions
@@ -3010,10 +3523,312 @@ var Repository = Kern.EventManager.extend({
   }
 });
 // initialialize repository
-WL.repository = new Repository();
-module.exports = WL.repository;
+layerJS.repository = new Repository();
+module.exports = layerJS.repository;
 
-},{"../kern/Kern.js":28,"./defaults.js":1,"./pluginmanager.js":20,"./wl.js":27}],22:[function(require,module,exports){
+},{"../kern/Kern.js":29,"./defaults.js":1,"./layerjs.js":9,"./pluginmanager.js":22}],24:[function(require,module,exports){
+'use strict';
+var Kern = require('../../kern/Kern.js');
+//var ParseManager = require("./parsemanager.js");
+
+/**
+ * load an HTML document by AJAX and return it through a promise
+ *
+ * @param {string} URL - the url of the HMTL document
+ * @returns {Promise} a promise that will return the HTML document
+ */
+var loadHTML = function(URL) {
+  var xhr = new XMLHttpRequest();
+  var p = new Kern.Promise();
+  xhr.onload = function() {
+    var doc = document.implementation.createHTMLDocument("framedoc");
+    doc.documentElement.innerHTML = xhr.responseText;
+    p.resolve(doc);
+  };
+  xhr.open("GET", URL);
+  xhr.responseType = "text";
+  xhr.send();
+  return p;
+};
+var getChildIndex = function(type, node) {
+  var children = node.parent.children;
+  var i;
+  var cc = 0;
+  for (i = 0; i < children.length; i++) {
+    if (node === children[i]) return cc;
+    if (children[i].getAttribute('data-lj-type') !== type) continue;
+    cc++;
+  }
+  throw "node not found in parent";
+};
+var getLayerJSParents = function(path, node) {
+  var type = node.nodeType === 1 && node.getAttribute('data-lj-type');
+  if (type === 'stage' || type === 'layer' || type === 'frame') {
+    path = (node.getAttribute('data-lj-name') || node.id || type + "[" + getChildIndex(type, node) + "]") + (path ? "." + path : "");
+  }
+  if (!node.parentNode) return path;
+  return getLayerJSParents(path, node.parentNode);
+};
+var getFramePaths = function(doc) {
+  var frames = doc.querySelectorAll('[data-lj-type="frame"]');
+  var paths = [];
+  var f;
+  for (f = 0; f < frames.length; f++) {
+    paths.push({
+      frame: frames[f],
+      path: getLayerJSParents("", frames[f])
+    });
+  }
+  paths = paths.sort(function(a, b) {
+    return a.path.length - b.path.length;
+  });
+  return paths;
+};
+
+var FileRouter = Kern.EventManager.extend({
+  /**
+ * Will check if the router can handle the passed in url
+ * @param {string} An url
+ * @return {boolean} True if the router can handle the url
+ */
+  canHandle: function(href) {
+    var result = true;
+    if (href.match(/^\w+:/)) { // absolute URL
+      if (!href.match(new RegExp('^' + window.location.origin))) {
+        result = false;
+      }
+    }
+    return result;
+  },
+  /**
+ * Will do the actual navigation to the url
+ * @param {string} an url
+ * @return {void}
+ */
+  handle: function(href, transition) {
+    loadHTML(href).then(function(doc) {
+      var paths = getFramePaths(doc);
+      var currentPaths = getFramePaths(document);
+      var i, j;
+      var replacedPaths = [];
+      for (i = 0; i < paths.length; i++) {
+        var found = false;
+        for (j = 0; j < replacedPaths.length; j++) {
+          if (paths[i].path.indexOf(replacedPaths[j]) === 0) {
+            found = true;
+            break;
+          }
+        }
+        if (found) continue;
+        found = false;
+        for (j = 0; j < currentPaths.length; j++) {
+          if (paths[i].path === currentPaths[j].path) {
+            found = true;
+            break;
+          }
+        }
+        if (found) continue;
+        found = false;
+        var layerPath = paths[i].path.replace(/^(.*\.)[^\.]*$/, "$1");
+        for (j = 0; j < currentPaths.length; j++) {
+          if (currentPaths[j].path.indexOf(layerPath) === 0 && currentPaths[j].path.slice(layerPath.length).match(/^[^\.]*$/)) {
+            found = true;
+            replacedPaths.push(paths[i].path);
+            var parent = currentPaths[j].frame.parentNode;
+            parent.appendChild(paths[i].frame);
+
+            // FIXME: Refactor to use new children changed paradigm of layerJS
+            // calling internal function _parseChildren is not recommended
+            parent._wlView._parseChildren();
+            parent._wlView.transitionTo(paths[i].frame._wlView.data.attributes.name, transition);
+            parent._wlView._parseChildren();
+            parent.removeChild(currentPaths[j].frame);
+
+            break;
+          }
+        }
+        if (found) continue;
+        window.location.href = href;
+
+      }
+      console.log(paths);
+    });
+  }
+});
+
+module.exports = FileRouter;
+
+},{"../../kern/Kern.js":29}],25:[function(require,module,exports){
+'use strict';
+var layerJS = require('../layerjs.js');
+var $ = require('../domhelpers.js');
+var Kern = require('../../kern/kern.js');
+var defaults = require('../defaults.js');
+
+var Router = Kern.EventManager.extend({
+  constructor: function(rootEl) {
+    this.rootElement = rootEl || document;
+    this.currentRouter = undefined;
+    this._registerLinkClickedListener();
+  },
+  /**
+   * Will set the current router that will be used to navigate
+   * @param {object} A new router
+   */
+  setCurrentRouter: function(router) {
+    this.currentRouter = router;
+  },
+  _registerLinkClickedListener: function() {
+    var that = this;
+
+    window.onpopstate = function() {
+      that._navigate(document.location.href, false);
+    };
+
+    $.addDelegtedListener(this.rootElement, 'click', 'a', function(event) {
+      var href = this.href;
+
+      if (that._navigate(href, true)) {
+        event.preventDefault();
+        event.stopPropagation();
+      }
+    });
+  },
+  /**
+   * Will parse the url for transition parameters and will return a cleaned up url and parameters
+   * @param {string} Url where to navigate
+   * @return {Object} An object containing a cleaned up url and transitionOptions
+   */
+  _parseUrl: function(href) {
+    var result = {
+      url: href,
+      transitionOptions: {}
+    };
+
+    for (var parameter in defaults.transitionParameters) {
+      if (defaults.transitionParameters.hasOwnProperty(parameter)) {
+        var parameterName = defaults.transitionParameters[parameter];
+        var regEx = new RegExp("[?&]" + parameterName + "=([^&]+)");
+        var match = result.url.match(regEx);
+        if (match) {
+          result.transitionOptions[parameter] = match[1];
+          result.url = result.url.replace(regEx, '');
+        }
+      }
+    }
+
+
+    return result;
+  },
+  /**
+   * When the router can navigate to the url, it will do this.
+   * @param {string} Url where to navigate
+   * @param {boolean} Indicate if the url needs to be added to the history
+   * @return {boolean} Indicates if the router could do the navigation to the url
+   */
+  _navigate: function(href, addToHistory) {
+    var navigate = false;
+    if (this.currentRouter && this.currentRouter.canHandle(href)) {
+
+      var options = this._parseUrl(href);
+      this.currentRouter.handle(href, options.transitionOptions);
+
+      // add to history using push state
+      if (window.history && addToHistory) {
+        window.history.pushState({}, "", options.url);
+      }
+
+
+      navigate = true;
+    }
+
+    return navigate;
+  }
+});
+
+module.exports = layerJS.router = new Router();
+
+},{"../../kern/kern.js":30,"../defaults.js":1,"../domhelpers.js":2,"../layerjs.js":9}],26:[function(require,module,exports){
+'use strict';
+var pluginManager = require('./pluginmanager.js');
+var GroupView = require('./groupview.js');
+var Kern = require('../kern/Kern.js');
+var identifyPriority = require('./identifypriority.js');
+var layerJS = require('./layerjs.js');
+
+/**
+ * A View that represents a script DOM element
+ * @param {nodeData} dataModel
+ * @param {object}        options
+ * @extends GroupView
+ */
+var ScriptView = GroupView.extend({
+  constructor: function(dataModel, options) {
+    GroupView.call(this, dataModel, options);
+  },
+  /**
+   * Will render the scriptView. When layerJS.executeScriptCode == false
+   * the src attribute will not be added
+   * @param {object} options
+   */
+  render: function(options) {
+    options = options || {};
+    this.disableObserver();
+
+    var attr = this.data.attributes,
+      diff = (this.isRendererd ? this.data.changedAttributes : this.data.attributes),
+      outerEl = this.outerEl;
+    if ('id' in diff) {
+      outerEl.setAttribute("data-lj-id", attr.id); //-> should be a class?
+    }
+
+    if ('type' in diff) {
+      outerEl.setAttribute("data-lj-type", attr.type); //-> should be a class?
+    }
+
+    if ('elementId' in diff || 'id' in diff) {
+      outerEl.id = attr.elementId || "wl-obj-" + attr.id; //-> shouldn't we always set an id? (priority of #id based css declarations)
+    }
+
+    // Add htmlAttributes to the DOM element
+    if ('htmlAttributes' in diff) {
+      for (var htmlAttribute in diff.htmlAttributes) {
+        if ((layerJS.executeScriptCode || 'src' !== htmlAttribute) && diff.htmlAttributes.hasOwnProperty(htmlAttribute)) {
+          outerEl.setAttribute(htmlAttribute.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase(), diff.htmlAttributes[htmlAttribute]);
+        }
+      }
+    }
+
+    this.enableObserver();
+  },
+  /**
+   * Syncronise the DOM child nodes with the data IDs in the data's
+   * children array. When layerJS.executeScriptCode == false, nothing is done.
+   *
+   * - Create Views for the data models if they haven't been created yet.
+   * - Rearrange the child views to match the order of the child IDs
+   * - be respectful with any HTML childnodes which are not connected to a data
+   * object (i.e. no data-lj-id property); leaves them where they are.
+   */
+  _buildChildren: function() {
+    if (layerJS.executeScriptCode) {
+      GroupView.prototype._buildChildren.call(this);
+    }
+  }
+}, {
+  defaultProperties: Kern._extend({}, GroupView.defaultProperties, {
+    type: 'script',
+    tag: 'script'
+  }),
+  identify: function(element) {
+    return element.nodeType === 1 && element.tagName.toLowerCase() === 'script';
+  }
+});
+
+pluginManager.registerType('script', ScriptView, identifyPriority.normal);
+module.exports = ScriptView;
+
+},{"../kern/Kern.js":29,"./groupview.js":7,"./identifypriority.js":8,"./layerjs.js":9,"./pluginmanager.js":22}],27:[function(require,module,exports){
 'use strict';
 var Kern = require('../kern/Kern.js');
 
@@ -3164,11 +3979,10 @@ var ScrollTransformer = Kern.EventManager.extend({
         // apply inital scroll position
         this.layer.outerEl.scrollLeft = tfd.scrollX * tfd.scale;
         this.layer.outerEl.scrollTop = tfd.scrollY * tfd.scale;
+
         return this.scrollTransform(0, 0); // no transforms as scrolling is achieved by native scrolling
       }
     } else {
-      this.layer.innerEl.style.height = 0;
-      this.layer.innerEl.style.width = 0;
       // in transformscroll we add a transform representing the scroll position.
       return this.scrollTransform(-tfd.scrollX * tfd.scale, -tfd.scrollY * tfd.scale);
     }
@@ -3177,28 +3991,12 @@ var ScrollTransformer = Kern.EventManager.extend({
 
 module.exports = ScrollTransformer;
 
-},{"../kern/Kern.js":28}],23:[function(require,module,exports){
-'use strict';
-var Kern = require('../kern/Kern.js');
-var GroupData = require('./groupdata.js');
-
-/**
- * @extends GroupData
- */
-var StageData = GroupData.extend({
-  defaults: Kern._extend({}, GroupData.prototype.defaults, {
-    type: 'stage'
-  })
-});
-
-module.exports = StageData;
-
-},{"../kern/Kern.js":28,"./groupdata.js":7}],24:[function(require,module,exports){
+},{"../kern/Kern.js":29}],28:[function(require,module,exports){
 'use strict';
 var pluginManager = require('./pluginmanager.js');
-var StageData = require('./stagedata.js');
 var GroupView = require('./groupview.js');
 var Kern = require('../kern/Kern.js');
+var identifyPriority = require('./identifypriority.js');
 
 /**
  * A View which can have child views
@@ -3223,10 +4021,12 @@ var StageView = GroupView.extend({
     }, false);
   },
   _renderChildPosition: function(childView) {
-    childView.disableObserver();
-    childView.outerEl.style.left = "0px";
-    childView.outerEl.style.top = "0px";
-    childView.enableObserver();
+    if (childView.data.attributes.nodeType === 1) {
+      childView.disableObserver();
+      childView.outerEl.style.left = "0px";
+      childView.outerEl.style.top = "0px";
+      childView.enableObserver();
+    }
   },
   /**
    * Method will be invoked when a resize event is detected.
@@ -3236,104 +4036,26 @@ var StageView = GroupView.extend({
     var length = childViews.length;
     for (var i = 0; i < length; i++) {
       var childView = childViews[i];
-        childView.onResize();
+      childView.onResize();
     }
   }
 }, {
-  Model: StageData
+  defaultProperties: Kern._extend({}, GroupView.defaultProperties, {
+    nativeScroll: true,
+    fitTo: 'width',
+    startPosition: 'top',
+    noScrolling: false,
+    type: 'stage'
+  }),
+  identify: function(element) {
+    var type = element.getAttribute('data-lj-type');
+    return null !== type && type.toLowerCase() === StageView.defaultProperties.type;
+  }
 });
-pluginManager.registerType('stage', StageView);
+pluginManager.registerType('stage', StageView, identifyPriority.normal);
 module.exports = StageView;
 
-},{"../kern/Kern.js":28,"./groupview.js":8,"./pluginmanager.js":20,"./stagedata.js":23}],25:[function(require,module,exports){
-'use strict';
-var Kern = require('../kern/Kern.js');
-var ObjData = require('./objdata.js');
-/**
- * #TextData
- * This data type will contain all the information to render some text
- * @type {Model}
- */
-var TextData = ObjData.extend({
-  defaults: Kern._extend({}, ObjData.prototype.defaults, {
-    type: 'text',
-    tag: 'div'
-  })
-});
-
-module.exports = TextData;
-
-},{"../kern/Kern.js":28,"./objdata.js":17}],26:[function(require,module,exports){
-'use strict';
-var ObjView = require('./objview.js');
-var TextData = require('./textdata.js');
-var pluginManager = require('./pluginmanager.js');
-var Kern = require('../kern/Kern.js');
-
-/**
- * A View which can render images
- * @param {TextData} dataModel
- * @param {object}        options
- * @extends ObjView
- */
-var TextView = ObjView.extend({
-  constructor: function(dataModel, options) {
-    options = options || {};
-    ObjView.call(this, dataModel, Kern._extend({}, options, {
-      noRender: true
-    }));
-
-    if (!options.noRender && (options.forceRender || !options.el)) {
-      this.render();
-    }
-  },
-  render: function(options) {
-    options = options || {};
-    this.disableObserver();
-
-    var attr = this.data.attributes,
-      diff = this.data.changedAttributes || this.data.attributes,
-      el = this.innerEl;
-
-    ObjView.prototype.render.call(this, options);
-
-    if ('content' in diff) {
-      el.innerHTML = attr.content;
-    }
-
-    this.enableObserver();
-  },
-  /**
-   * Will create a dataobject based on a DOM element
-   *
-   * @param {element} DOM element to needs to be parsed
-   * @return  {data} a javascript data object
-   */
-  parse: function(element) {
-    ObjView.prototype.parse.call(this, element);
-    this.disableDataObserver();
-    this.data.set("content", element.innerHTML);
-    this.enableDataObserver();
-  }
-}, {
-  Model: TextData
-});
-
-
-pluginManager.registerType('text', TextView);
-module.exports = TextView;
-
-},{"../kern/Kern.js":28,"./objview.js":18,"./pluginmanager.js":20,"./textdata.js":25}],27:[function(require,module,exports){
-var $ = require('./domhelpers.js');
-// this module defines a global namespace for all weblayer objects.
-WL = {
-  select: $.selectView,
-  imagePath: "/"
-};
-
-module.exports = WL;
-
-},{"./domhelpers.js":2}],28:[function(require,module,exports){
+},{"../kern/Kern.js":29,"./groupview.js":7,"./identifypriority.js":8,"./pluginmanager.js":22}],29:[function(require,module,exports){
 'use strict';
 //jshint unused:false
 
@@ -4103,12 +4825,12 @@ module.exports = WL;
   }
 })();
 
-},{}],29:[function(require,module,exports){
-arguments[4][28][0].apply(exports,arguments)
-},{"dup":28}],30:[function(require,module,exports){
+},{}],30:[function(require,module,exports){
+arguments[4][29][0].apply(exports,arguments)
+},{"dup":29}],31:[function(require,module,exports){
 'use strict';
 require("./kern/kern.js");
-require("./framework/wl.js");
+require("./framework/layerjs.js");
 
 /* others*/
 require("./framework/pluginmanager.js");
@@ -4119,29 +4841,28 @@ require("./framework/layouts/layerlayout.js");
 require("./framework/layouts/slidelayout.js");
 require("./framework/layouts/canvaslayout.js");
 require("./framework/gestures/gesturemanager.js");
-
+require("./framework/router/router.js");
 
 /* data objects*/
 require("./framework/defaults.js");
-require("./framework/objdata.js");
-require("./framework/imagedata.js");
-require("./framework/textdata.js");
-require("./framework/groupdata.js");
-require("./framework/framedata.js");
-require("./framework/layerdata.js");
-require("./framework/stagedata.js");
+require("./framework/identifypriority.js");
+require("./framework/nodedata.js");
 
 /* view objects*/
-require("./framework/objview.js");
-require("./framework/imageview.js");
-require("./framework/textview.js");
-require("./framework/groupview.js");
+/* The order in which the views are required is imported for the pluginmanager.identify */
+require("./framework/nodeview.js");
+require("./framework/elementview.js");
+require("./framework/scriptview.js");
 require("./framework/layerview.js");
 require("./framework/frameview.js");
 require("./framework/stageview.js");
+require("./framework/groupview.js");
 
-WL.init = function() {
-  WL.parseManager.parseDocument();
+var FileRouter = require("./framework/router/filerouter.js");
+
+layerJS.init = function() {
+  layerJS.parseManager.parseDocument();
+  layerJS.router.setCurrentRouter(new FileRouter());
 };
 
-},{"./framework/defaults.js":1,"./framework/framedata.js":3,"./framework/frameview.js":4,"./framework/gestures/gesturemanager.js":6,"./framework/groupdata.js":7,"./framework/groupview.js":8,"./framework/imagedata.js":9,"./framework/imageview.js":10,"./framework/layerdata.js":11,"./framework/layerview.js":12,"./framework/layoutmanager.js":13,"./framework/layouts/canvaslayout.js":14,"./framework/layouts/layerlayout.js":15,"./framework/layouts/slidelayout.js":16,"./framework/objdata.js":17,"./framework/objview.js":18,"./framework/parsemanager.js":19,"./framework/pluginmanager.js":20,"./framework/repository.js":21,"./framework/stagedata.js":23,"./framework/stageview.js":24,"./framework/textdata.js":25,"./framework/textview.js":26,"./framework/wl.js":27,"./kern/kern.js":29}]},{},[30]);
+},{"./framework/defaults.js":1,"./framework/elementview.js":3,"./framework/frameview.js":4,"./framework/gestures/gesturemanager.js":6,"./framework/groupview.js":7,"./framework/identifypriority.js":8,"./framework/layerjs.js":9,"./framework/layerview.js":10,"./framework/layoutmanager.js":11,"./framework/layouts/canvaslayout.js":12,"./framework/layouts/layerlayout.js":13,"./framework/layouts/slidelayout.js":14,"./framework/nodedata.js":15,"./framework/nodeview.js":16,"./framework/parsemanager.js":21,"./framework/pluginmanager.js":22,"./framework/repository.js":23,"./framework/router/filerouter.js":24,"./framework/router/router.js":25,"./framework/scriptview.js":26,"./framework/stageview.js":28,"./kern/kern.js":30}]},{},[31]);

@@ -36,7 +36,7 @@ describe('scrolling', function() {
           width: '450px',
           height: '500px'
         }).then(function() {
-          utilities.setAttribute('frame1', 'data-wl-fit-to', 'height').then(function() {
+          utilities.setAttribute('frame1', 'data-lj-fit-to', 'height').then(function() {
             utilities.resizeWindow(800, 599);
             utilities.scrollRight('layer', 3).then(function() {
               protractor.promise.all([utilities.getBoundingClientRect('layer'),
@@ -65,8 +65,8 @@ describe('scrolling', function() {
           height: '500px'
         })]).then(function() {
           utilities.setAttributes('frame2', {
-            'data-wl-start-position': 'bottom',
-            'data-wl-fit-to': 'width'
+            'data-lj-start-position': 'bottom',
+            'data-lj-fit-to': 'width'
           }).then(function() {
             utilities.resizeWindow(800, 599);
             protractor.promise.all([utilities.getBoundingClientRect('frame1'),
@@ -124,12 +124,12 @@ describe('scrolling', function() {
           height: '500px'
         })]).then(function() {
           utilities.setAttributes('frame2', {
-            'data-wl-start-position': 'right',
-            'data-wl-fit-to': 'height'
+            'data-lj-start-position': 'right',
+            'data-lj-fit-to': 'height'
           }).then(function() {
             utilities.setAttributes('frame1', {
-              'data-wl-start-position': 'left',
-              'data-wl-fit-to': 'height'
+              'data-lj-start-position': 'left',
+              'data-lj-fit-to': 'height'
             }).then(function() {
               utilities.resizeWindow(800, 599);
               protractor.promise.all([utilities.getBoundingClientRect('frame1'),
@@ -221,7 +221,7 @@ describe('scrolling', function() {
           })
         ]).then(function() {
           utilities.setAttributes("frame1", {
-            'data-wl-fit-to': 'height'
+            'data-lj-fit-to': 'height'
           }).then(function() {
             utilities.resizeWindow(800, 599);
             utilities.scrollRight('layer', 4).then(function() {
@@ -250,8 +250,8 @@ describe('scrolling', function() {
           height: '500px'
         })]).then(function() {
           utilities.setAttributes('frame2', {
-            'data-wl-start-position': 'bottom',
-            'data-wl-fit-to': 'width'
+            'data-lj-start-position': 'bottom',
+            'data-lj-fit-to': 'width'
           }).then(function() {
             utilities.resizeWindow(800, 599);
             utilities.getBoundingClientRect('frame1').then(function(frame1_dimensions_before) {
@@ -293,8 +293,8 @@ describe('scrolling', function() {
           height: '500px'
         })]).then(function() {
           utilities.setAttributes('frame2', {
-            'data-wl-start-position': 'right',
-            'data-wl-fit-to': 'height'
+            'data-lj-start-position': 'right',
+            'data-lj-fit-to': 'height'
           }).then(function() {
             utilities.resizeWindow(800, 599);
             utilities.getBoundingClientRect('frame1').then(function(frame1_dimensions_before) {
@@ -329,7 +329,7 @@ describe('scrolling', function() {
   describe('can switch scrolling', function() {
     it('from native scrolling to non-native scrolling', function() {
       browser.get('scrolling/native_scrolling.html').then(function() {
-        protractor.promise.all([utilities.setAttribute('frame1', 'data-wl-fit-to', 'fixed'),
+        protractor.promise.all([utilities.setAttribute('frame1', 'data-lj-fit-to', 'fixed'),
           utilities.setStyle('frame1', {
             width: '500px',
             height: '800px'
@@ -363,7 +363,7 @@ describe('scrolling', function() {
 
     it('from non-native scrolling to native scrolling', function() {
       browser.get('scrolling/non_native_scrolling.html').then(function() {
-        protractor.promise.all([utilities.setAttribute('frame1', 'data-wl-fit-to', 'fixed'),
+        protractor.promise.all([utilities.setAttribute('frame1', 'data-lj-fit-to', 'fixed'),
           utilities.setStyle('frame1', {
             width: '500px',
             height: '800px'

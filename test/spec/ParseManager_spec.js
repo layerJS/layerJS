@@ -1,18 +1,18 @@
 describe('ParseMananger', function() {
-  var WL, defaults;
+  var layerJS, defaults;
   var utilities = require('./helpers/utilities.js');
 
   beforeEach(function() {
-    WL = require('../../src/framework/wl.js');
+    layerJS = require('../../src/framework/layerjs.js');
     defaults = require('../../src/framework/defaults.js');
   });
 
 
   it('will fill add stageData to the repository from DOM elements', function() {
-    utilities.setHtml("<div data-wl-id='1' data-wl-type='stage'></div><div data-wl-id='2' data-wl-type='stage'>");
+    utilities.setHtml("<div data-lj-id='1' data-lj-type='stage'></div><div data-lj-id='2' data-lj-type='stage'>");
 
-    var repository = WL.repository;
-    var parseManager = WL.parseManager;
+    var repository = layerJS.repository;
+    var parseManager = layerJS.parseManager;
 
     parseManager.parseDocument();
 

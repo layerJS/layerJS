@@ -142,11 +142,11 @@ describe("GroupView", function() {
 
     repository.importJSON(dataObjects, version);
 
-    utilities.setHtml("<div id='100' data-wl-id='100' data-wl-type='" + data.attributes.type + "'>" +
+    utilities.setHtml("<div id='100' data-lj-id='100' data-lj-type='" + data.attributes.type + "'>" +
       "<div id='element1'></div>" +
-      "<div id='101' data-wl-id='101' data-wl-type='group'></div>" +
+      "<div id='101' data-lj-id='101' data-lj-type='group'></div>" +
       "<div id='element2'></div>" +
-      "<div id='102' data-wl-id='102' data-wl-type='group'></div>" +
+      "<div id='102' data-lj-id='102' data-lj-type='group'></div>" +
       "<div id='element3'></div>" +
       "</div>");
 
@@ -185,9 +185,9 @@ describe("GroupView", function() {
   ViewsGroup_parseChildrenTests(function() {
     return {
       ViewType: groupView(),
-      HTML: "<div id='100' data-wl-id='100' data-wl-type='group'>" +
-        "<div id='101' data-wl-id='101' data-wl-type='group'></div>" +
-        "<div id='102' data-wl-id='102' data-wl-type='group'></div>" +
+      HTML: "<div id='100' data-lj-id='100' data-lj-type='group'>" +
+        "<div id='101' data-lj-id='101' data-lj-type='group'></div>" +
+        "<div id='102' data-lj-id='102' data-lj-type='group'></div>" +
         "<div></div>" +
         "</div>",
       expectedChildren: ['101', '102']
@@ -198,14 +198,14 @@ describe("GroupView", function() {
     expect(GroupView.getNodeType).not.toBeDefined();
   })
 
-  describe('will identify all DOM elements with a data-wl-type="group" or without a data-wl-type attribute', function() {
+  describe('will identify all DOM elements with a data-lj-type="group" or without a data-lj-type attribute', function() {
     ViewsCommonIdentifyTests('div', groupView, function() {
       return document.createElement('div');
     }, true);
 
     ViewsCommonIdentifyTests('div', groupView, function() {
       var element = document.createElement('div');
-      element.setAttribute('data-wl-type', 'custom');
+      element.setAttribute('data-lj-type', 'custom');
       return element;
     }, false);
 
@@ -219,13 +219,13 @@ describe("GroupView", function() {
 
     ViewsCommonIdentifyTests('body', groupView, function() {
       var element = document.createElement('body');
-      element.setAttribute('data-wl-type', 'custom');
+      element.setAttribute('data-lj-type', 'custom');
       return element;
     }, false);
 
-    ViewsCommonIdentifyTests('div data-wl-type="group"', groupView, function() {
+    ViewsCommonIdentifyTests('div data-lj-type="group"', groupView, function() {
       var element = document.createElement('div');
-      element.setAttribute('data-wl-type', 'group');
+      element.setAttribute('data-lj-type', 'group');
 
       return element;
     }, true);

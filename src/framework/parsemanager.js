@@ -1,5 +1,5 @@
 'use strict';
-var WL = require('./wl.js');
+var layerJS = require('./layerjs.js');
 var pluginManager = require('./pluginmanager.js');
 
 var ParseManager = function() {
@@ -11,7 +11,7 @@ var ParseManager = function() {
    */
   this.parseDocument = function(doc) {
 
-    var stageElements = (doc || document).querySelectorAll("[data-wl-type='stage']");
+    var stageElements = (doc || document).querySelectorAll("[data-lj-type='stage']");
 
     var length = stageElements.length;
 
@@ -24,5 +24,5 @@ var ParseManager = function() {
 };
 
 
-WL.parseManager = new ParseManager();
-module.exports = WL.parseManager;
+layerJS.parseManager = new ParseManager();
+module.exports = layerJS.parseManager;

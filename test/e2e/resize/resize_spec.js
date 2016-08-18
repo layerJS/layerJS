@@ -38,7 +38,7 @@ describe('resize', function() {
 
   it('frame will adapt it\'s height on a resize', function() {
     browser.get('resize/resize.html').then(function() {
-      utilities.setAttribute('frame', 'data-wl-fit-to', 'height').then(function() {
+      utilities.setAttribute('frame', 'data-lj-fit-to', 'height').then(function() {
         utilities.resizeWindow(700, 700);
         protractor.promise.all([
           utilities.getBoundingClientRect('stage'),
@@ -74,8 +74,8 @@ describe('resize', function() {
   it('frame will keeps its horizontal scroll position on a resize', function() {
     browser.get('resize/resize.html').then(function() {
       utilities.setAttributes('frame', {
-        'data-wl-fit-to': 'height',
-        'data-wl-start-position': 'left'
+        'data-lj-fit-to': 'height',
+        'data-lj-start-position': 'left'
       }).then(function() {
         utilities.resizeWindow(400, 600);
         utilities.scrollRight('layer', 1).then(function() {

@@ -106,19 +106,19 @@ var commonViewTests = function(scenario, initFunction) {
       }
     });
 
-    it('will add a data-wl-id attribute DOM element', function() {
+    it('will add a data-lj-id attribute DOM element', function() {
       var view = new ViewType(data);
 
       var element = view.outerEl;
-      var data_wl_id = element.getAttribute('data-wl-id');
+      var data_wl_id = element.getAttribute('data-lj-id');
       expect(data_wl_id).toBe(data.attributes.id.toString());
     });
 
-    it('will add a data-wl-type attribute DOM element', function() {
+    it('will add a data-lj-type attribute DOM element', function() {
       var view = new ViewType(data);
 
       var element = view.outerEl;
-      var data_wl_type = element.getAttribute('data-wl-type');
+      var data_wl_type = element.getAttribute('data-lj-type');
       expect(data_wl_type).toBe(data.attributes.type.toString());
     });
 

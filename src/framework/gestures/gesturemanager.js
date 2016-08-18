@@ -1,7 +1,7 @@
 'use strict';
 var Kern = require('../../kern/kern.js');
 var Gesture = require('./gesture.js');
-var WL = require('../wl.js');
+var layerJS = require('../layerjs.js');
 
 var GestureManager = Kern.EventManager.extend({
   constructor: function() {
@@ -261,6 +261,6 @@ var GestureManager = Kern.EventManager.extend({
   }
 });
 
-WL.gestureManager2 = new GestureManager();
+layerJS.gestureManager2 = new GestureManager();
 
-module.exports = WL.gestureManager2;
+module.exports = layerJS.gestureManager2;

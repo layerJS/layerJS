@@ -46,18 +46,18 @@ describe("StageView", function() {
   ViewsGroup_parseChildrenTests(function() {
     return {
       ViewType: stageView(),
-      HTML: "<div id='100' data-wl-id='100' data-wl-type='stage'>" +
-        "<div id='101' data-wl-id='101' data-wl-type='layer'></div>" +
-        "<div id='102' data-wl-id='102' data-wl-type='layer'></div>" +
+      HTML: "<div id='100' data-lj-id='100' data-lj-type='stage'>" +
+        "<div id='101' data-lj-id='101' data-lj-type='layer'></div>" +
+        "<div id='102' data-lj-id='102' data-lj-type='layer'></div>" +
         "<div/>" +
         "</div>",
       expectedChildren: ['101', '102']
     };
   });
 
-  ViewsCommonIdentifyTests('div data-wl-type="stage"', stageView, function() {
+  ViewsCommonIdentifyTests('div data-lj-type="stage"', stageView, function() {
     var element = document.createElement('div');
-    element.setAttribute('data-wl-type', 'stage');
+    element.setAttribute('data-lj-type', 'stage');
 
     return element;
   }, true);

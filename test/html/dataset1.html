@@ -10,10 +10,10 @@
     <script type="text/javascript" src="../../dist/layerjs.js"></script>
     <script type="text/javascript">
         (function(){
-            WL.imagePath = "../img/img_dataset1/";
-            WL.repository.importJSON(dataset, 'default');
-            var stageData = WL.repository.get("1", 'default');
-            var stageView = WL.pluginManager.createView(stageData);
+            layerJS.imagePath = "../img/img_dataset1/";
+            layerJS.repository.importJSON(dataset, 'default');
+            var stageData = layerJS.repository.get("1", 'default');
+            var stageView = layerJS.pluginManager.createView(stageData);
             stageView.render();
 
             document.body.appendChild(stageView.outerEl);

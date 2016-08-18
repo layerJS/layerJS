@@ -1,5 +1,5 @@
 'use strict';
-var WL = require('../wl.js');
+var layerJS = require('../layerjs.js');
 var $ = require('../domhelpers.js');
 var Kern = require('../../kern/kern.js');
 var defaults = require('../defaults.js');
@@ -85,4 +85,4 @@ var Router = Kern.EventManager.extend({
   }
 });
 
-module.exports = WL.router = new Router();
+module.exports = layerJS.router = new Router();

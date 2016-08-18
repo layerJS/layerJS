@@ -1,34 +1,34 @@
 describe('router', function() {
 
-  var WL, defaults;
+  var layerJS, defaults;
 
   beforeEach(function() {
 
-    WL = require('../../../src/framework/wl.js');
+    layerJS = require('../../../src/framework/layerjs.js');
     defaults = require('../../../src/framework/defaults.js');
   });
 
   it('can be created', function() {
-    expect(WL.router).toBeDefined();
+    expect(layerJS.router).toBeDefined();
   });
 
   it('can set a different router', function() {
-    WL.router.setCurrentRouter(undefined);
-    expect(WL.router.currentRouter).toBe(undefined);
+    layerJS.router.setCurrentRouter(undefined);
+    expect(layerJS.router.currentRouter).toBe(undefined);
   });
 
   it('will detect a link click event', function() {
-    var navigate = WL.router._navigate;
+    var navigate = layerJS.router._navigate;
 
     var element = document.createElement('a');
     element.href = 'http://www.google.be';
 
     document.body.appendChild(element);
 
-    spyOn(WL.router, '_navigate');
+    spyOn(layerJS.router, '_navigate');
     element.click();
 
-    expect(WL.router._navigate).toHaveBeenCalled();
+    expect(layerJS.router._navigate).toHaveBeenCalled();
   });
 
   it('will check if the current router can handle the url', function() {
@@ -39,7 +39,7 @@ describe('router', function() {
     };
     spyOn(dummyRouter, 'canHandle');
 
-    WL.router.setCurrentRouter(dummyRouter);
+    layerJS.router.setCurrentRouter(dummyRouter);
     var element = document.createElement('a');
     element.href = 'http://www.google.be';
     document.body.appendChild(element);
@@ -58,7 +58,7 @@ describe('router', function() {
 
     spyOn(dummyRouter, 'handle');
 
-    WL.router.setCurrentRouter(dummyRouter);
+    layerJS.router.setCurrentRouter(dummyRouter);
     var element = document.createElement('a');
     element.href = 'http://www.google.be';
     document.body.appendChild(element);
@@ -80,7 +80,7 @@ describe('router', function() {
     window.history.pushState = function() {};
     spyOn(window.history, 'pushState');
 
-    WL.router.setCurrentRouter(dummyRouter);
+    layerJS.router.setCurrentRouter(dummyRouter);
     var element = document.createElement('a');
     element.href = 'http://www.google.be';
     document.body.appendChild(element);
@@ -97,21 +97,21 @@ describe('router', function() {
       handle: function(url) {}
     };
 
-    spyOn(WL.router, '_navigate');
+    spyOn(layerJS.router, '_navigate');
     window.history.pushState = function() {};
     spyOn(window.history, 'pushState');
 
-    WL.router.setCurrentRouter(dummyRouter);
+    layerJS.router.setCurrentRouter(dummyRouter);
     window.onpopstate();
 
-    expect(WL.router._navigate).toHaveBeenCalled();
+    expect(layerJS.router._navigate).toHaveBeenCalled();
     expect(window.history.pushState).not.toHaveBeenCalled();
   });
 
   it('will parse an url for transition options', function() {
     var url = 'http://localhost/index.html?id=1&t=100s&p=left&cat=p';
 
-    var result = WL.router._parseUrl(url);
+    var result = layerJS.router._parseUrl(url);
 
     expect(result.url).toBe('http://localhost/index.html?id=1&cat=p');
     expect(result.transitionOptions).toEqual({
@@ -133,7 +133,7 @@ describe('router', function() {
       defaults.transitionParameters.duration = duration;
 
       var url = 'http://localhost/index.html?id=1&' + duration + '=100s&' + type + '=left&cat=p';
-      var result = WL.router._parseUrl(url);
+      var result = layerJS.router._parseUrl(url);
 
       expect(result.url).toBe('http://localhost/index.html?id=1&cat=p');
       expect(result.transitionOptions).toEqual({
@@ -159,8 +159,8 @@ describe('router', function() {
       urlHistory = url;
     };
 
-    WL.router.setCurrentRouter(dummyRouter);
-    WL.router._navigate('http://localhost/index.aspx/?1&test=2&t=10s&p=top&a=3', true);
+    layerJS.router.setCurrentRouter(dummyRouter);
+    layerJS.router._navigate('http://localhost/index.aspx/?1&test=2&t=10s&p=top&a=3', true);
 
     expect(urlHistory).toBe('http://localhost/index.aspx/?1&test=2&a=3');
     expect(transitionOptions).toEqual({

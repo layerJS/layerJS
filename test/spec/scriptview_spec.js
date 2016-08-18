@@ -14,12 +14,12 @@ var ElementParseTests = require('./helpers/views/element/parsetests.js');
 
 describe("ScriptView", function() {
 
-  var WL, ScriptView, repository;
+  var layerJS, ScriptView, repository;
 
   beforeEach(function(){
     repository = require('../../src/framework/repository.js');
     ScriptView = scriptView();
-    WL = require('../../src/framework/wl.js');
+    layerJS = require('../../src/framework/layerjs.js');
 
   });
 
@@ -30,7 +30,7 @@ describe("ScriptView", function() {
 
     ViewsCommonIdentifyTests('div', scriptView, function() {
       var element = document.createElement('div');
-      element.setAttribute('data-wl-type', 'script');
+      element.setAttribute('data-lj-type', 'script');
       return element;
     }, false);
 
@@ -71,8 +71,8 @@ describe("ScriptView", function() {
     };
   });
 
-  it('will render the src attribute when WL.executeScriptCode equals true', function() {
-    WL.executeScriptCode = true;
+  it('will render the src attribute when layerJS.executeScriptCode equals true', function() {
+    layerJS.executeScriptCode = true;
     var data = JSON.parse(JSON.stringify(ScriptView.defaultProperties));
     data.htmlAttributes = {
       'src': 'someScript.js'
@@ -87,19 +87,19 @@ describe("ScriptView", function() {
   });
 
 
-  it('will render childNodes when WL.executeScriptCode equals true', function() {
-    WL.executeScriptCode = true;
+  it('will render childNodes when layerJS.executeScriptCode equals true', function() {
+    layerJS.executeScriptCode = true;
     var data = JSON.parse(JSON.stringify(require('./datasets/simple_scriptdata.js')));
-    WL.repository.importJSON(data, data[0].version);
+    layerJS.repository.importJSON(data, data[0].version);
 
-    var viewData = WL.repository.get(data[0].id, data[0].version);
+    var viewData = layerJS.repository.get(data[0].id, data[0].version);
     var view = new ScriptView(viewData);
     var element = view.innerEl;
     expect(element.childNodes.length).toBe(1);
   });
 
-  it('will not render the src attribute when WL.executeScriptCode equals false', function() {
-    WL.executeScriptCode = false;
+  it('will not render the src attribute when layerJS.executeScriptCode equals false', function() {
+    layerJS.executeScriptCode = false;
     var data = JSON.parse(JSON.stringify(ScriptView.defaultProperties));
     data.htmlAttributes = {
       'src': 'someScript.js'
@@ -112,12 +112,12 @@ describe("ScriptView", function() {
     expect(element.hasAttribute('src')).toBeFalsy();
   });
 
-  it('will not render childNodes when WL.executeScriptCode equals false', function() {
-    WL.executeScriptCode = false;
+  it('will not render childNodes when layerJS.executeScriptCode equals false', function() {
+    layerJS.executeScriptCode = false;
     var data = JSON.parse(JSON.stringify(require('./datasets/simple_scriptdata.js')));
-    WL.repository.importJSON(data, data[0].version);
+    layerJS.repository.importJSON(data, data[0].version);
 
-    var viewData = WL.repository.get(data[0].id, data[0].version);
+    var viewData = layerJS.repository.get(data[0].id, data[0].version);
     var view = new ScriptView(viewData);
     var element = view.innerEl;
     expect(element.childNodes.length).toBe(0);
