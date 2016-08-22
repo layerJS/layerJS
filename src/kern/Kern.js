@@ -227,6 +227,7 @@
 
             // copy arguments as we need to remove the first argument (event)
             // and arguments is read only
+            // loop is faster then .slice method
             var length = arguments.length;
             var args = new Array(length - 1);
             for (var j = 0; j < length - 1; j++) {
