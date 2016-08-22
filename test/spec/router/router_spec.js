@@ -21,7 +21,7 @@ describe('router', function() {
     var navigate = layerJS.router._navigate;
 
     var element = document.createElement('a');
-    element.href = 'http://www.google.be';
+    element.href = '#';
 
     document.body.appendChild(element);
 
@@ -41,7 +41,7 @@ describe('router', function() {
 
     layerJS.router.setCurrentRouter(dummyRouter);
     var element = document.createElement('a');
-    element.href = 'http://www.google.be';
+    element.href = '#';
     document.body.appendChild(element);
     element.click();
 
@@ -60,7 +60,7 @@ describe('router', function() {
 
     layerJS.router.setCurrentRouter(dummyRouter);
     var element = document.createElement('a');
-    element.href = 'http://www.google.be';
+    element.href = '#';
     document.body.appendChild(element);
     element.click();
 
@@ -82,7 +82,7 @@ describe('router', function() {
 
     layerJS.router.setCurrentRouter(dummyRouter);
     var element = document.createElement('a');
-    element.href = 'http://www.google.be';
+    element.href = '#';
     document.body.appendChild(element);
     element.click();
 

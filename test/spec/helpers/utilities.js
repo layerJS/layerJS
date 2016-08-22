@@ -50,6 +50,7 @@ utilities.beforeEach = function() {
 }
 
 utilities.afterEach = function() {
+  layerJS.repository.clear();
   for (var key in require.cache) {
     delete require.cache[key];
   }

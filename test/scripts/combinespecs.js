@@ -6,7 +6,8 @@ var globule = require('globule');
 var files = globule.find(["./test/spec/helpers/*.js"]);
 files = files.concat(globule.find(['./test/spec/helpers/**/*.js']));
 files = files.concat(globule.find(['./test/spec/datasets/*.js']));
-files = files.concat(globule.find(['./test/spec/*_spec.js']));
+files = files.concat(globule.find(['./test/spec/*.js']));
+files = files.concat(globule.find(['./test/spec/**/*.js', '!./test/spec/router/filerouter_spec.js']));
 
 var fs = require('fs');
 var stream = fs.createWriteStream("./build/test/js/globalspecs.js");

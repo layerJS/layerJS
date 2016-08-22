@@ -111,7 +111,7 @@ var GroupView_renderChildPositionTests = function(scenario, initFunction) {
         view._renderChildPosition(childView);
         var childElement = childView.outerEl;
 
-        expect(childElement.style.transform).toContain('scale(' + data.attributes.scaleX + ',' + data.attributes.scaleY + ')');
+        expect(childElement.style.transform.replace(/\s+/g, '')).toContain('scale(' + data.attributes.scaleX + ',' + data.attributes.scaleY + ')');
       }
     });
 
