@@ -4,6 +4,7 @@ var that = this;
 
 var globule = require('globule');
 var files = globule.find(["./test/spec/helpers/*.js"]);
+files = files.concat(globule.find(['./test/spec/helpers/**/*.js']));
 files = files.concat(globule.find(['./test/spec/datasets/*.js']));
 files = files.concat(globule.find(['./test/spec/*_spec.js']));
 
