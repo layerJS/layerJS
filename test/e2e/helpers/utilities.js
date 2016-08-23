@@ -387,14 +387,23 @@ utilities.getDataAttribute = function(elementId, dataAttribute) {
     var element = document.getElementById(id);
     var result;
     for (var attributeName in element._wlView.data.attributes) {
-      if(attributeName === dataAttribute){
+      if (attributeName === dataAttribute) {
         result = element._wlView.data.attributes[attributeName];
         break;
       }
     }
-    
+
     callback(result);
   }, elementId, dataAttribute);
+};
+
+utilities.showFrame = function(layerId, frameName, scrollData,waitTime) {
+  waitTime = waitTime || 0;
+
+  return browser.driver.executeAsyncScript(function(id, frameName, scrollData, waitTime,callback) {
+    layerJS.select('#' + id).showFrame(frameName, scrollData);
+    callback();
+  }, layerId, frameName, scrollData, waitTime);
 };
 
 

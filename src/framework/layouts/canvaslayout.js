@@ -26,17 +26,29 @@ var CanvasLayout = LayerLayout.extend({
   showFrame: function(frame, targetFrameTransformData, transform) {
     /*jshint unused: false*/
     transform = transform || "";
-    this._reverseTransform = this._calculateReverseTransform(frame, targetFrameTransformData);
     var frames = this.layer.getChildViews();
     var framesLength = frames.length;
     var childFrame;
-    // now apply all transforms to all frames
-    for (var i = 0; i < framesLength; i++) {
-      childFrame = frames[i];
-      this._applyTransform(childFrame, this._reverseTransform, transform, {
-        transition: '',
-        display: 'block'
-      });
+
+    if (null !== frame) {
+      this._reverseTransform = this._calculateReverseTransform(frame, targetFrameTransformData);
+      // now apply all transforms to all frames
+      for (var i = 0; i < framesLength; i++) {
+        childFrame = frames[i];
+        this._applyTransform(childFrame, this._reverseTransform, transform, {
+          transition: '',
+          opacity: 1,
+          display: 'block'
+        });
+      }
+    } else {
+      for (var x = 0; x < framesLength; x++) {
+        childFrame = frames[x];
+        childFrame.applyStyles({
+          opacity: 0,
+          transition: ''
+        });
+      }
     }
   },
   /**
@@ -60,7 +72,7 @@ var CanvasLayout = LayerLayout.extend({
     // them jump to the final positions (hopefully jump will not be visible)
 
     // NOTE: Maybe this is a solution for not stopping the transitions
-    var lastFrameToTransition = frames[framesLength-1];
+    var lastFrameToTransition = frames[framesLength - 1];
 
     lastFrameToTransition.outerEl.addEventListener("transitionend", function f(e) { // FIXME needs webkitTransitionEnd etc
       e.target.removeEventListener(e.type, f); // remove event listener for transitionEnd.

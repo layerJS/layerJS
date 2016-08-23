@@ -310,6 +310,34 @@ describe("SlideLayout", function() {
     });
   });
 
+  it('can load a null frame directly', function() {
+
+    browser.get('slidelayout/slidelayout.html').then(function() {
+
+      var stage = element(by.id('root'));
+      var layer2 = element(by.id('layer1'));
+      var f1 = element(by.id('main'));
+      var f2 = element(by.id('second'));
+
+      expect(f1.getCssValue('display')).toBe('block');
+      expect(f2.getCssValue('display')).toBe('none');
+
+      utilities.showFrame('layer1', null)
+        .then(function() {
+          protractor.promise.all([
+            f1.getCssValue('display'),
+            f2.getCssValue('display')
+          ]).then(function(data) {
+            var f1_display = data[0];
+            var f2_display = data[1];
+
+            expect(f1_display).toBe('none');
+            expect(f2_display).toBe('none');
+          });
+        });
+    });
+  });
+
   it('can transition from a null frame to an existing frame', function() {
     browser.get('slidelayout/slidelayout.html').then(function() {
       utilities.transitionTo('layer1', null, {

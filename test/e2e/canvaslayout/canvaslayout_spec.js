@@ -188,6 +188,38 @@ describe("CanvasLayout", function() {
     });
   });
 
+  it('can load a null frame directly', function() {
+    browser.get('canvasLayout/canvaslayout.html').then(function() {
+      browser.sleep(3000).then(function() {
+        var stage = element(by.id('root'));
+        var layer1 = element(by.id('layer1'));
+        var f1 = element(by.id('main'));
+        var f2 = element(by.id('second'));
+        var f3 = element(by.id('thirth'));
+
+        expect(f1.getCssValue('display')).toBe('block');
+        expect(f2.getCssValue('display')).toBe('block');
+        expect(f3.getCssValue('display')).toBe('block');
+
+        utilities.showFrame('layer1', null, {}).then(function() {
+          protractor.promise.all([
+            f1.getCssValue('opacity'),
+            f2.getCssValue('opacity'),
+            f3.getCssValue('opacity'),
+          ]).then(function(data) {
+            var f1_opacity = data[0];
+            var f2_opacity = data[1];
+            var f3_opacity = data[2];
+
+            expect(f1_opacity).toBe('0');
+            expect(f2_opacity).toBe('0');
+            expect(f3_opacity).toBe('0');
+          });
+        });
+      });
+    });
+  });
+
   it('will transition from a null frame will fade in all frames within the layer', function() {
     browser.get('canvasLayout/canvaslayout.html').then(function() {
       browser.sleep(3000).then(function() {

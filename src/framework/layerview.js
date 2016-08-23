@@ -179,11 +179,17 @@ var LayerView = GroupView.extend({
     }
     scrollData = scrollData || {};
     var that = this;
-    var frame = this.getChildViewByName(framename);
-    if (!frame) throw "transformTo: " + framename + " does not exist in layer";
+    var frame = null;
+
+    if (null !== framename) {
+      frame = this.getChildViewByName(framename);
+      if (!frame) throw "transformTo: " + framename + " does not exist in layer";
+    }
+
+
     this.inTransform = true;
     this._layout.loadFrame(frame).then(function() {
-      var tfd = that.currentFrameTransformData = frame.getTransformData(that.stage, scrollData.startPosition);
+      var tfd = that.currentFrameTransformData = null === frame ? that.noFrameTransformdata(scrollData.startPosition) : frame.getTransformData(that.stage, scrollData.startPosition);
       that.currentTransform = that._transformer.getScrollTransform(tfd, scrollData.scrollX || (tfd.isScrollX && tfd.scrollX) || 0, scrollData.scrollY || (tfd.isScrollY && tfd.scrollY) || 0);
       that._layout.showFrame(frame, tfd, that.currentTransform);
       that.inTransform = false;
