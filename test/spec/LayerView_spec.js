@@ -1,6 +1,4 @@
-var layerView = function() {
-  return require('../../src/framework/layerview.js');
-};
+var LayerView =require('../../src/framework/layerview.js');
 var CommonViewTests = require('./helpers/commonviewtests.js');
 var CommonGroupViewTests = require('./helpers/commongroupviewtests.js');
 var GroupView_renderChildPositionTests = require('./helpers/groupview_renderchildpositiontests.js');
@@ -19,23 +17,18 @@ describe("LayerView", function() {
         };
       });
   */
-  var LayerView;
-
-  beforeEach(function() {
-    LayerView = layerView();
-  });
 
   CommonGroupViewTests('simple_layerdata.js', function() {
     return {
       data: JSON.parse(JSON.stringify(require('./datasets/simple_layerdata.js'))),
-      ViewType: layerView(),
+      ViewType: LayerView,
       parentId: 5
     };
   });
   Common_renderChildPositionTests('simple_layerdata.js', function() {
     return {
       data: JSON.parse(JSON.stringify(require('./datasets/simple_layerdata.js'))),
-      ViewType: layerView(),
+      ViewType: LayerView,
       parentId: 5
     };
   });
@@ -43,7 +36,7 @@ describe("LayerView", function() {
   CommonGroupViewTests('test_data_set.js', function() {
     return {
       data: JSON.parse(JSON.stringify(require('./datasets/test_data_set.js'))),
-      ViewType: layerView(),
+      ViewType: LayerView,
       parentId: 5
     };
   });
@@ -51,14 +44,14 @@ describe("LayerView", function() {
   Common_renderChildPositionTests('test_data_set.js', function() {
     return {
       data: JSON.parse(JSON.stringify(require('./datasets/test_data_set.js'))),
-      ViewType: layerView(),
+      ViewType: LayerView,
       parentId: 5
     };
   });
 
   ViewsCommonParseTests(function() {
     return {
-      ViewType: layerView()
+      ViewType: LayerView
     }
   });
 
@@ -90,7 +83,7 @@ describe("LayerView", function() {
 
   ViewsGroup_parseChildrenTests(function() {
     return {
-      ViewType: layerView(),
+      ViewType: LayerView,
       viewTypeName: 'LayerView',
       type: 'layer',
       HTML: "<div id='100' data-lj-id='100' data-lj-type='layer'>" +
@@ -102,14 +95,14 @@ describe("LayerView", function() {
     };
   });
 
-  ViewsCommonIdentifyTests('div data-lj-type="layer"', layerView, function() {
+  ViewsCommonIdentifyTests('div data-lj-type="layer"', LayerView, function() {
     var element = document.createElement('div');
     element.setAttribute('data-lj-type', 'layer');
 
     return element;
   }, true);
 
-  ViewsCommonIdentifyTests('div', layerView, function() {
+  ViewsCommonIdentifyTests('div', LayerView, function() {
     return document.createElement('div');
   }, false);
 

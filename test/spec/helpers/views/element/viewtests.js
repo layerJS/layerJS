@@ -5,10 +5,10 @@ var commonViewTests = function(scenario, viewType, scenarioData) {
     var data, ViewType;
 
     beforeEach(function() {
-      ViewType = viewType();
+      ViewType = viewType;
       data = new ViewType.Model(JSON.parse(JSON.stringify(scenarioData)));
     });
-/*
+
     it('the DOM element will have the same tag as defined in the data model', function() {
       var view = new ViewType(data);
       expect(view.innerEl.tagName.toUpperCase()).toBe(data.attributes.tag.toUpperCase());
@@ -70,7 +70,7 @@ var commonViewTests = function(scenario, viewType, scenarioData) {
       };
 
       var fun = function() {
-        var cv = new viewType(data, options);
+        var cv = new ViewType(data, options);
       };
       expect(fun).toThrow()
     });
@@ -164,7 +164,7 @@ var commonViewTests = function(scenario, viewType, scenarioData) {
       } else {
         expect(element.hasAttribute('target')).toBeFalsy();
       }
-    });*/
+    });
 
     it('listens for changes on its DOM element', function(done) {
       var view = new ViewType(data);
@@ -188,7 +188,7 @@ var commonViewTests = function(scenario, viewType, scenarioData) {
       done();
     }, 101);
     });
-/*
+
     it('doesn\'t listen for changes on its DOM element when disableObserver is called', function() {
       var view = new ViewType(data);
       var element = view.outerEl;
@@ -241,7 +241,7 @@ var commonViewTests = function(scenario, viewType, scenarioData) {
       var element = view.outerEl;
 
       expect(element.hasAttribute('style')).toBeFalsy();
-    });*/
+    });
   });
 };
 

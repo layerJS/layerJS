@@ -1,7 +1,5 @@
 
-var scriptView = function() {
-  return require('../../src/framework/scriptview.js');
-};
+var ScriptView =require('../../src/framework/scriptview.js');
 var utilities = require('./helpers/utilities.js');
 
 var ViewsCommonIdentifyTests = require('./helpers/views/common/identifytests.js');
@@ -14,38 +12,37 @@ var ElementParseTests = require('./helpers/views/element/parsetests.js');
 
 describe("ScriptView", function() {
 
-  var layerJS, ScriptView, repository;
+  var layerJS, repository;
 
   beforeEach(function(){
     repository = require('../../src/framework/repository.js');
-    ScriptView = scriptView();
     layerJS = require('../../src/framework/layerjs.js');
 
   });
 
   describe('will identify all DOM elements with a script tag', function() {
-    ViewsCommonIdentifyTests('div', scriptView, function() {
+    ViewsCommonIdentifyTests('div', ScriptView, function() {
       return document.createElement('div');
     }, false);
 
-    ViewsCommonIdentifyTests('div', scriptView, function() {
+    ViewsCommonIdentifyTests('div', ScriptView, function() {
       var element = document.createElement('div');
       element.setAttribute('data-lj-type', 'script');
       return element;
     }, false);
 
-    ViewsCommonIdentifyTests('script', scriptView, function() {
+    ViewsCommonIdentifyTests('script', ScriptView, function() {
       return document.createElement('script');
     }, true);
   });
 
   ViewsCommonParseTests(function() {
     return {
-      ViewType: scriptView()
+      ViewType: ScriptView
     };
   });
 
-  NodeViewTests('simple_scriptdata.js', scriptView, {
+  NodeViewTests('simple_scriptdata.js', ScriptView, {
     "type": "script",
     "id": "116530",
     "nodeType": 1,
@@ -57,7 +54,7 @@ describe("ScriptView", function() {
 
   GroupView_parseChildrenTests(function() {
     return {
-      ViewType: scriptView(),
+      ViewType: ScriptView,
       HTML: "<script id='100'>" +
         "var a = 1;" +
         "</script>",
@@ -67,7 +64,7 @@ describe("ScriptView", function() {
 
   ElementParseTests(function() {
     return {
-      ViewType: scriptView()
+      ViewType: ScriptView
     };
   });
 

@@ -1,7 +1,4 @@
-var groupView = function() {
-  return require('../../src/framework/groupview.js');
-};
-
+var GroupView =  require('../../src/framework/groupview.js');
 var CommonViewTests = require('./helpers/commonviewtests.js');
 var CommonGroupViewTests = require('./helpers/commongroupviewtests.js');
 var GroupView_renderChildPositionTests = require('./helpers/groupview_renderchildpositiontests.js');
@@ -15,33 +12,31 @@ var ViewsCommonIdentifyTests = require('./helpers/views/common/identifytests.js'
 describe("GroupView", function() {
 
   var repository;
-  var GroupView;
   var ElementView;
 
   beforeEach(function() {
     repository = require('../../src/framework/repository.js');
     ElementView = require('../../src/framework/elementview.js');
-    GroupView = groupView();
   });
 
   CommonViewTests('simple_groupdata.js', function() {
     return {
       data: JSON.parse(JSON.stringify(require('./datasets/simple_groupdata.js')[0])),
-      ViewType: groupView()
+      ViewType: GroupView
     };
   });
 
   CommonViewTests('anchor_groupdata.js', function() {
     return {
       data: JSON.parse(JSON.stringify(require('./datasets/anchor_groupdata.js')[0])),
-      ViewType: groupView()
+      ViewType: GroupView
     };
   });
 
   CommonGroupViewTests('groupdata_with_elementdata.js', function() {
     return {
       data: JSON.parse(JSON.stringify(require('./datasets/groupdata_with_elementdata.js'))),
-      ViewType: groupView(),
+      ViewType: GroupView,
       parentId: 110530
     };
   });
@@ -49,7 +44,7 @@ describe("GroupView", function() {
   Common_renderChildPositionTests('groupdata_with_elementdata.js', function() {
     return {
       data: JSON.parse(JSON.stringify(require('./datasets/groupdata_with_elementdata.js'))),
-      ViewType: groupView(),
+      ViewType: GroupView,
       parentId: 110530
     };
   });
@@ -57,7 +52,7 @@ describe("GroupView", function() {
   GroupView_renderChildPositionTests('groupdata_with_elementdata.js', function() {
     return {
       data: JSON.parse(JSON.stringify(require('./datasets/groupdata_with_elementdata.js'))),
-      ViewType: groupView(),
+      ViewType: GroupView,
       parentId: 110530
     };
   });
@@ -178,13 +173,13 @@ describe("GroupView", function() {
 
   ViewsCommonParseTests(function() {
     return {
-      ViewType: groupView()
+      ViewType: GroupView
     }
   });
 
   ViewsGroup_parseChildrenTests(function() {
     return {
-      ViewType: groupView(),
+      ViewType: GroupView,
       HTML: "<div id='100' data-lj-id='100' data-lj-type='group'>" +
         "<div id='101' data-lj-id='101' data-lj-type='group'></div>" +
         "<div id='102' data-lj-id='102' data-lj-type='group'></div>" +
@@ -199,31 +194,31 @@ describe("GroupView", function() {
   })
 
   describe('will identify all DOM elements with a data-lj-type="group" or without a data-lj-type attribute', function() {
-    ViewsCommonIdentifyTests('div', groupView, function() {
+    ViewsCommonIdentifyTests('div', GroupView, function() {
       return document.createElement('div');
     }, true);
 
-    ViewsCommonIdentifyTests('div', groupView, function() {
+    ViewsCommonIdentifyTests('div', GroupView, function() {
       var element = document.createElement('div');
       element.setAttribute('data-lj-type', 'custom');
       return element;
     }, false);
 
-    ViewsCommonIdentifyTests('head', groupView, function() {
+    ViewsCommonIdentifyTests('head', GroupView, function() {
       return document.createElement('head');
     }, true);
 
-    ViewsCommonIdentifyTests('body', groupView, function() {
+    ViewsCommonIdentifyTests('body', GroupView, function() {
       return document.createElement('body');
     }, true);
 
-    ViewsCommonIdentifyTests('body', groupView, function() {
+    ViewsCommonIdentifyTests('body', GroupView, function() {
       var element = document.createElement('body');
       element.setAttribute('data-lj-type', 'custom');
       return element;
     }, false);
 
-    ViewsCommonIdentifyTests('div data-lj-type="group"', groupView, function() {
+    ViewsCommonIdentifyTests('div data-lj-type="group"', GroupView, function() {
       var element = document.createElement('div');
       element.setAttribute('data-lj-type', 'group');
 

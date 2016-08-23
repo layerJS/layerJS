@@ -3,9 +3,14 @@ describe('router', function() {
   var layerJS, defaults;
 
   beforeEach(function() {
-
     layerJS = require('../../../src/framework/layerjs.js');
     defaults = require('../../../src/framework/defaults.js');
+  });
+
+  afterEach(function() {
+    defaults.transitionParameters.type = 'p';
+    defaults.transitionParameters.duration = 't';
+    layerJS.router.setCurrentRouter(require('../../../src/framework/router/filerouter.js'));
   });
 
   it('can be created', function() {
@@ -29,6 +34,8 @@ describe('router', function() {
     element.click();
 
     expect(layerJS.router._navigate).toHaveBeenCalled();
+
+    layerJS.router._navigate.and.callThrough();
   });
 
   it('will check if the current router can handle the url', function() {
@@ -87,6 +94,8 @@ describe('router', function() {
     element.click();
 
     expect(window.history.pushState).toHaveBeenCalled();
+
+    window.history.pushState.and.callThrough();
   });
 
   it('the window.popState will call the navigate method on the router and won\'t add an entry to the history', function() {
@@ -106,6 +115,9 @@ describe('router', function() {
 
     expect(layerJS.router._navigate).toHaveBeenCalled();
     expect(window.history.pushState).not.toHaveBeenCalled();
+
+    layerJS.router._navigate.and.callThrough();
+    window.history.pushState.and.callThrough();
   });
 
   it('will parse an url for transition options', function() {

@@ -5,7 +5,7 @@ var viewTests = function(scenario, viewType, scenarioData) {
     var data,ViewType;
 
     beforeEach(function() {
-      ViewType = viewType();
+      ViewType = viewType;
       data = new ViewType.Model(scenarioData);
     });
 

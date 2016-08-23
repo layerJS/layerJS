@@ -4,7 +4,7 @@ module.exports = function(scenario, viewType, elementFactory, expectedValue) {
 
     var ViewType;
     beforeEach(function(){
-      ViewType = viewType();
+      ViewType = viewType;
     });
 
     it('element can be of ViewType', function() {

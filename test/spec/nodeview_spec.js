@@ -1,6 +1,4 @@
-var nodeView = function() {
-  return require('../../src/framework/nodeview.js')
-};
+var NodeView =  require('../../src/framework/nodeview.js');
 var ViewsNodeViewTests = require('./helpers/views/node/viewtests.js');
 var ViewsCommonIdentifyTests = require('./helpers/views/common/identifytests.js');
 var ViewsCommonParseTests = require('./helpers/views/common/parsetests.js');
@@ -9,18 +7,13 @@ describe('NodeView', function() {
 
   ViewsCommonParseTests(function() {
     return {
-      ViewType: nodeView()
+      ViewType: NodeView
     };
   });
 
-  ViewsNodeViewTests('simple_nodedata.js', nodeView, require('./datasets/simple_nodedata.js')[0]);
+  ViewsNodeViewTests('simple_nodedata.js', NodeView, require('./datasets/simple_nodedata.js')[0]);
 
   describe(': parse =>', function() {
-
-    var NodeView;
-    beforeEach(function() {
-      NodeView = nodeView();
-    });
 
     it('the Parse method will add an content property to the data object', function() {
       var element = document.createTextNode('some content');
@@ -43,14 +36,14 @@ describe('NodeView', function() {
     });
   });
 
-  ViewsCommonIdentifyTests('textNode', nodeView, function() {
+  ViewsCommonIdentifyTests('textNode', NodeView, function() {
     return document.createTextNode('')
   }, true);
-  ViewsCommonIdentifyTests('commentNode', nodeView, function() {
+  ViewsCommonIdentifyTests('commentNode', NodeView, function() {
     return document.createComment('')
   }, true);
 
-  ViewsCommonIdentifyTests('div', nodeView, function() {
+  ViewsCommonIdentifyTests('div', NodeView, function() {
     return document.createElement('div');
   }, false);
 

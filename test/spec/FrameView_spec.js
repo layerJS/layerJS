@@ -1,6 +1,4 @@
-var frameView = function() {
-  return require('../../src/framework/frameview.js')
-};
+var FrameView =require('../../src/framework/frameview.js');
 var CommonViewTests = require('./helpers/commonviewtests.js');
 var CommonGroupViewTests = require('./helpers/commongroupviewtests.js');
 var GroupView_renderChildPositionTests = require('./helpers/groupview_renderchildpositiontests.js');
@@ -22,12 +20,12 @@ describe("FrameView", function() {
     });
   */
 
-  ViewsNodeViewTests('simple_framedata.js', frameView, require('./datasets/simple_framedata.js')[0]);
+  ViewsNodeViewTests('simple_framedata.js', FrameView, require('./datasets/simple_framedata.js')[0]);
 
   CommonGroupViewTests('simple_framedata.js', function() {
     return {
       data: JSON.parse(JSON.stringify(require('./datasets/simple_framedata.js'))),
-      ViewType: frameView(),
+      ViewType: FrameView,
       parentId: 110529
     };
   });
@@ -35,7 +33,7 @@ describe("FrameView", function() {
   Common_renderChildPositionTests('simple_framedata.js', function() {
     return {
       data: JSON.parse(JSON.stringify(require('./datasets/simple_framedata.js'))),
-      ViewType: frameView(),
+      ViewType: FrameView,
       parentId: 110529
     };
   });
@@ -43,14 +41,14 @@ describe("FrameView", function() {
   GroupView_renderChildPositionTests('simple_framedata.js', function() {
     return {
       data: JSON.parse(JSON.stringify(require('./datasets/simple_framedata.js'))),
-      ViewType: frameView(),
+      ViewType: FrameView,
       parentId: 110529
     };
   });
 
   ViewsCommonParseTests(function() {
     return {
-      ViewType: frameView(),
+      ViewType: FrameView,
       viewTypeName: 'FrameView',
       type: 'frame'
     };
@@ -58,7 +56,7 @@ describe("FrameView", function() {
 
   ViewsGroup_parseChildrenTests(function() {
     return {
-      ViewType: frameView(),
+      ViewType: FrameView,
       HTML: "<div id='100' data-lj-id='100' data-lj-type='frame'>" +
         "<div id='101' data-lj-id='101' data-lj-type='group'></div>" +
         "<div id='102' data-lj-id='102' data-lj-type='group'></div>" +
@@ -68,14 +66,14 @@ describe("FrameView", function() {
     };
   });
 
-  ViewsCommonIdentifyTests('div data-lj-type="frame"', frameView, function() {
+  ViewsCommonIdentifyTests('div data-lj-type="frame"', FrameView, function() {
     var element = document.createElement('div');
     element.setAttribute('data-lj-type', 'frame');
 
     return element;
   }, true);
 
-  ViewsCommonIdentifyTests('div', frameView, function() {
+  ViewsCommonIdentifyTests('div', FrameView, function() {
     return document.createElement('div');
   }, false);
 
