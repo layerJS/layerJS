@@ -15,10 +15,10 @@ var commonViewTests = function(scenario, viewType, scenarioData) {
       expect(view.outerEl.tagName.toUpperCase()).toBe(data.attributes.tag.toUpperCase());
     });
 
-    it('will add a _wlView property to the DOM element', function() {
+    it('will add a _ljView property to the DOM element', function() {
       var view = new ViewType(data);
       var element = view.innerEl;
-      expect(element._wlView === view).toBeTruthy();
+      expect(element._ljView === view).toBeTruthy();
     });
 
     it('when initialized with the noRender option true, the view doesn\'t get rendered', function() {
@@ -64,7 +64,7 @@ var commonViewTests = function(scenario, viewType, scenarioData) {
     it('cannot add view to existing element if that is already connected to another view', function() {
       var element = document.createElement('div');
       element.id = '1000';
-      element._wlView = {};
+      element._ljView = {};
       var options = {
         el: element
       };

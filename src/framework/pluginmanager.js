@@ -27,8 +27,8 @@ var PluginManager = Kern.EventManager.extend({
    */
   createView: function(model, options) {
     // return existing view if the provided element already has one
-    if (options && options.el && options.el._wlView) {
-      return options.el._wlView;
+    if (options && options.el && options.el._ljView) {
+      return options.el._ljView;
     }
     if (typeof model === 'string') {
       var type = model;

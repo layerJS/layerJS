@@ -118,7 +118,7 @@
   <script>
     layerJS.init();
     $('[data-lj-type="frame"]').on('click', function(e) {
-      layerJS.select('[data-lj-type="layer"]').transitionTo(e.currentTarget._wlView.data.attributes.name);
+      layerJS.select('[data-lj-type="layer"]').transitionTo(e.currentTarget._ljView.data.attributes.name);
     });
   </script>
 </body>

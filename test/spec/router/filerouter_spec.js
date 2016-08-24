@@ -44,7 +44,7 @@ describe('Filerouter', function() {
       el: document.getElementById('contentstage')
     });
 
-    var layerView = document.getElementById('contentlayer')._wlView;
+    var layerView = document.getElementById('contentlayer')._ljView;
 
     var fileRouter = new FileRouter();
     fileRouter.handle('http://localhost/somePage.html');
@@ -70,7 +70,7 @@ describe('Filerouter', function() {
     new StageView(undefined, {
       el: document.getElementById('contentstage')
     });
-    var layerView = document.getElementById('contentlayer')._wlView;
+    var layerView = document.getElementById('contentlayer')._ljView;
 
     var fileRouter = new FileRouter();
     fileRouter.handle('http://localhost/somePage.html');
@@ -88,7 +88,7 @@ describe('Filerouter', function() {
       el: document.getElementById('contentstage')
     });
 
-    var layerView = document.getElementById('contentlayer')._wlView;
+    var layerView = document.getElementById('contentlayer')._ljView;
     spyOn(layerView, 'transitionTo');
 
     var transitionOptions = {

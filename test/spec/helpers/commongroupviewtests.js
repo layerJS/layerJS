@@ -36,14 +36,14 @@ var commonGroupViewTests = function(scenario, initFunction) {
 
         for (var i = 0; i < view.innerEl.childNodes.length; i++) {
           var childNode = view.innerEl.childNodes[i];
-          expect(childNode._wlView).toBeDefined();
-          var childNodeId = childNode._wlView.data.attributes.id;
+          expect(childNode._ljView).toBeDefined();
+          var childNodeId = childNode._ljView.data.attributes.id;
           expect(childNode.id).toBe('wl-obj-' + childNodeId);
           var childObj = repository.get(childNodeId, defaults.version);
           expect(dataObj.attributes.children).toContain(childObj.attributes.id);
-          expect(childNode._wlView.data).toBe(childObj);
+          expect(childNode._ljView.data).toBe(childObj);
 
-          checkChildrenDataNodes(childObj, childNode._wlView);
+          checkChildrenDataNodes(childObj, childNode._ljView);
         }
       } else if (dataObj.attributes.type === "node") {
         // When the data doesn't have any children, the innerHTML should be empty or equal at the content if data type is text
@@ -57,7 +57,7 @@ var commonGroupViewTests = function(scenario, initFunction) {
 
         for (var i = 0; i < view.innerEl.childNodes.length; i++) {
           var childNode = view.innerEl.childNodes[i];
-          var childView = childNode._wlView;
+          var childView = childNode._ljView;
           expect(childView.parent).toBe(view);
 
           checkChildrenViews(childView);
@@ -66,7 +66,7 @@ var commonGroupViewTests = function(scenario, initFunction) {
         //When the data doesn't have children, it's childnodes should have a view attached.
         for (var index = 0; index < view.innerEl.childNodes.length; index++) {
           var element = view.innerEl.childNodes[index];
-          expect(element._wlView).toBeUndefined();
+          expect(element._ljView).toBeUndefined();
         }
       }
     };

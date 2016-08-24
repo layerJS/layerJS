@@ -102,7 +102,7 @@ var DomHelpers = {
   selectView: function(selector) {
     var nodes = document.querySelectorAll(selector);
     for (var i = 0; i < nodes.length; i++) {
-      if (nodes[i]._wlView) return nodes[i]._wlView;
+      if (nodes[i]._ljView) return nodes[i]._ljView;
     }
   },
   /**

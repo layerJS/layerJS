@@ -34,7 +34,7 @@
     layerJS.init();
     layerJS.select('[data-lj-name="main"]').data.set('neighbors',{l:'second',r:'second',t:'second',b:'second'});
     layerJS.select('[data-lj-name="second"]').data.set('neighbors',{l:'main',r:'main',t:'main',b:'main'});
-    // document.querySelector('[data-lj-name="second"]')._wlView.data.set('neighbors',{l:'main',r:'main'});
+    // document.querySelector('[data-lj-name="second"]')._ljView.data.set('neighbors',{l:'main',r:'main'});
     var frames = ['main', 'second'];
     var findex = 0;
     document.getElementById('next').addEventListener('click', function() {

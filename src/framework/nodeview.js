@@ -62,11 +62,11 @@ var NodeView = Kern.EventManager.extend({
       }
     }
     // backlink from DOM to object
-    if (this.innerEl._wlView) throw "trying to initialialize view on element that already has a view";
-    this.innerEl._wlView = this;
+    if (this.innerEl._ljView) throw "trying to initialialize view on element that already has a view";
+    this.innerEl._ljView = this;
     // possible wrapper element
     this.outerEl = this.outerEl || options.el || this.innerEl;
-    this.outerEl._wlView = this;
+    this.outerEl._ljView = this;
     this.disableObserver();
 
     var that = this;
@@ -149,12 +149,12 @@ var NodeView = Kern.EventManager.extend({
       // we need to to this dom based as there may be non-layerjs elements in the hierarchy
       var el = this.outerEl.parentNode;
       if (!el) return undefined; // no parent element return undefined
-      while (!el._wlView) { // search for layerjs element in parent hierarchy
+      while (!el._ljView) { // search for layerjs element in parent hierarchy
         if (!el.parentNode) return undefined; // no parent element return undefined
         el = el.parentNode;
       }
-      if (el._wlView.data.attributes.type === type) return el._wlView; // found one; is it the right type?
-      return el._wlView.getParentOfType(type); // search recursively
+      if (el._ljView.data.attributes.type === type) return el._ljView; // found one; is it the right type?
+      return el._ljView.getParentOfType(type); // search recursively
     }
   },
   /**

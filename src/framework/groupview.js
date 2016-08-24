@@ -87,7 +87,7 @@ var GroupView = ElementView.extend({
       // jshint ignore:start
       k++;
       var elem;
-      while (!(empty = !(k < that.innerEl.childNodes.length)) && (elem = that.innerEl.childNodes[k]) && (elem.nodeType != 1 || !(nodeId = (elem._wlView && elem._wlView.data.attributes.id) || elem.getAttribute('data-lj-id')))) {
+      while (!(empty = !(k < that.innerEl.childNodes.length)) && (elem = that.innerEl.childNodes[k]) && (elem.nodeType != 1 || !(nodeId = (elem._ljView && elem._ljView.data.attributes.id) || elem.getAttribute('data-lj-id')))) {
         k++;
       }
       // jshint ignore:end
@@ -111,13 +111,13 @@ var GroupView = ElementView.extend({
                 this.innerEl.insertBefore(this.innerEl.childNodes[k], this.innerEl.childNodes[k_saved]);
               }
               // create view object if it does not exist yet (even if the HTML element exist)
-              if (!this.innerEl.childNodes[k_saved]._wlView) {
+              if (!this.innerEl.childNodes[k_saved]._ljView) {
                 vo = pluginManager.createView(repository.get(childId, this.data.attributes.version), {
                   el: this.innerEl.childNodes[k_saved],
                   parent: this
                 });
               } else { // or get existing view
-                vo = this.innerEl.childNodes[k_saved]._wlView;
+                vo = this.innerEl.childNodes[k_saved]._ljView;
               }
 
               // check if we have registered another view under the same id
@@ -161,7 +161,7 @@ var GroupView = ElementView.extend({
       _k_nextChild();
 
       while (!empty) { // some objects need to be deleted (only removes dom elements of wl objects)
-        vo = this.innerEl.childNodes[k]._wlView;
+        vo = this.innerEl.childNodes[k]._ljView;
         if (!vo) { // this object has not been parsed yet, leave it there
           _k_nextChild();
           continue;
@@ -199,13 +199,13 @@ var GroupView = ElementView.extend({
     for (i = 0; i < cn.length; i++) {
       var elem = cn[i];
 
-      nodeId = (elem._wlView && elem._wlView.data.attributes.id) || elem.getAttribute && elem.getAttribute('data-lj-id');
+      nodeId = (elem._ljView && elem._ljView.data.attributes.id) || elem.getAttribute && elem.getAttribute('data-lj-id');
       try {
         data = nodeId && repository.get(nodeId, this.data.attributes.version);
       } catch (e) {
         data = undefined;
       }
-      nodeType = (elem._wlView && elem._wlView.data.attributes.type) || elem.getAttribute && elem.getAttribute('data-lj-type');
+      nodeType = (elem._ljView && elem._ljView.data.attributes.type) || elem.getAttribute && elem.getAttribute('data-lj-type');
       if (nodeId && (data || nodeType)) {
         // search for nodeId in data.chi ldren
         var k_saved = k;

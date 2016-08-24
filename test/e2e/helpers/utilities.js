@@ -368,7 +368,7 @@ utilities.setLayout = function(elementId, layout) {
   return browser.driver.executeAsyncScript(function(elementId, layout, callback) {
     var el = document.getElementById(elementId);
 
-    el._wlView.switchLayout(layout);
+    el._ljView.switchLayout(layout);
     callback();
   }, elementId, layout);
 };
@@ -377,7 +377,7 @@ utilities.switchScrolling = function(elementId, nativeScrolling) {
   return browser.driver.executeAsyncScript(function(elementId, nativeScrolling, callback) {
     var el = document.getElementById(elementId);
 
-    el._wlView.switchScrolling(nativeScrolling);
+    el._ljView.switchScrolling(nativeScrolling);
     callback();
   }, elementId, nativeScrolling);
 };
@@ -386,9 +386,9 @@ utilities.getDataAttribute = function(elementId, dataAttribute) {
   return browser.driver.executeAsyncScript(function(id, dataAttribute, callback) {
     var element = document.getElementById(id);
     var result;
-    for (var attributeName in element._wlView.data.attributes) {
+    for (var attributeName in element._ljView.data.attributes) {
       if (attributeName === dataAttribute) {
-        result = element._wlView.data.attributes[attributeName];
+        result = element._ljView.data.attributes[attributeName];
         break;
       }
     }

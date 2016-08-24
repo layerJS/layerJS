@@ -110,9 +110,9 @@ var FileRouter = Kern.EventManager.extend({
 
             // FIXME: Refactor to use new children changed paradigm of layerJS
             // calling internal function _parseChildren is not recommended
-            parent._wlView._parseChildren();
-            parent._wlView.transitionTo(paths[i].frame._wlView.data.attributes.name, transition);
-            parent._wlView._parseChildren();
+            parent._ljView._parseChildren();
+            parent._ljView.transitionTo(paths[i].frame._ljView.data.attributes.name, transition);
+            parent._ljView._parseChildren();
             parent.removeChild(currentPaths[j].frame);
 
             break;

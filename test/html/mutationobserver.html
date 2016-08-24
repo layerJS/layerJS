@@ -59,13 +59,13 @@
     document.getElementById('log').onclick = log;
 
     function log() {
-      console.log(element._wlView.data.attributes);
+      console.log(element._ljView.data.attributes);
     }
 
     function disable_enableClick() {
-      element._wlView.disableObserver();
+      element._ljView.disableObserver();
       fire();
-      element._wlView.enableObserver();
+      element._ljView.enableObserver();
     }
 
     function fire() {

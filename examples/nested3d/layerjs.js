@@ -112,7 +112,7 @@ var DomHelpers = {
   selectView: function(selector) {
     var nodes = document.querySelectorAll(selector);
     for (var i = 0; i < nodes.length; i++) {
-      if (nodes[i]._wlView) return nodes[i]._wlView;
+      if (nodes[i]._ljView) return nodes[i]._ljView;
     }
   },
   /**
@@ -436,10 +436,10 @@ var ElementView = NodeView.extend({
       var attributeValue = attribute.value;
       var dataSource = undefined;
 
-      if (attributeName.indexOf('data-lj-') === 0) {
+      if (attributeName.indexOf('data-lj-') === 0 || attributeName.indexOf('lj-') === 0) {
         // store directly in the data object
         dataSource = data;
-        attributeName = attributeName.replace('data-lj-', '');
+        attributeName = attributeName.replace('data-lj-', '').replace('lj-', '');
       } else {
         // store in data.htmlAttributes
         dataSource = data.htmlAttributes;
@@ -1266,7 +1266,7 @@ var GroupView = ElementView.extend({
       // jshint ignore:start
       k++;
       var elem;
-      while (!(empty = !(k < that.innerEl.childNodes.length)) && (elem = that.innerEl.childNodes[k]) && (elem.nodeType != 1 || !(nodeId = (elem._wlView && elem._wlView.data.attributes.id) || elem.getAttribute('data-lj-id')))) {
+      while (!(empty = !(k < that.innerEl.childNodes.length)) && (elem = that.innerEl.childNodes[k]) && (elem.nodeType != 1 || !(nodeId = (elem._ljView && elem._ljView.data.attributes.id) || elem.getAttribute('data-lj-id')))) {
         k++;
       }
       // jshint ignore:end
@@ -1290,13 +1290,13 @@ var GroupView = ElementView.extend({
                 this.innerEl.insertBefore(this.innerEl.childNodes[k], this.innerEl.childNodes[k_saved]);
               }
               // create view object if it does not exist yet (even if the HTML element exist)
-              if (!this.innerEl.childNodes[k_saved]._wlView) {
+              if (!this.innerEl.childNodes[k_saved]._ljView) {
                 vo = pluginManager.createView(repository.get(childId, this.data.attributes.version), {
                   el: this.innerEl.childNodes[k_saved],
                   parent: this
                 });
               } else { // or get existing view
-                vo = this.innerEl.childNodes[k_saved]._wlView;
+                vo = this.innerEl.childNodes[k_saved]._ljView;
               }
 
               // check if we have registered another view under the same id
@@ -1340,7 +1340,7 @@ var GroupView = ElementView.extend({
       _k_nextChild();
 
       while (!empty) { // some objects need to be deleted (only removes dom elements of wl objects)
-        vo = this.innerEl.childNodes[k]._wlView;
+        vo = this.innerEl.childNodes[k]._ljView;
         if (!vo) { // this object has not been parsed yet, leave it there
           _k_nextChild();
           continue;
@@ -1378,13 +1378,13 @@ var GroupView = ElementView.extend({
     for (i = 0; i < cn.length; i++) {
       var elem = cn[i];
 
-      nodeId = (elem._wlView && elem._wlView.data.attributes.id) || elem.getAttribute && elem.getAttribute('data-lj-id');
+      nodeId = (elem._ljView && elem._ljView.data.attributes.id) || elem.getAttribute && elem.getAttribute('data-lj-id');
       try {
         data = nodeId && repository.get(nodeId, this.data.attributes.version);
       } catch (e) {
         data = undefined;
       }
-      nodeType = (elem._wlView && elem._wlView.data.attributes.type) || elem.getAttribute && elem.getAttribute('data-lj-type');
+      nodeType = (elem._ljView && elem._ljView.data.attributes.type) || elem.getAttribute && elem.getAttribute('data-lj-type');
       if (nodeId && (data || nodeType)) {
         // search for nodeId in data.chi ldren
         var k_saved = k;
@@ -1824,8 +1824,8 @@ var LayerView = GroupView.extend({
       if (nativeScrolling) {
         this.innerEl = hasScroller ? this.outerEl.children[0] : $.wrapChildren(this.outerEl);
         this.innerEl.setAttribute('data-lj-helper', 'scroller');
-        if (!this.innerEl._wlView) {
-          this.innerEl._wlView = this.outerEl._wlView;
+        if (!this.innerEl._ljView) {
+          this.innerEl._ljView = this.outerEl._ljView;
         }
         this.outerEl.className += ' nativescroll';
       } else {
@@ -1906,11 +1906,17 @@ var LayerView = GroupView.extend({
     }
     scrollData = scrollData || {};
     var that = this;
-    var frame = this.getChildViewByName(framename);
-    if (!frame) throw "transformTo: " + framename + " does not exist in layer";
+    var frame = null;
+
+    if (null !== framename) {
+      frame = this.getChildViewByName(framename);
+      if (!frame) throw "transformTo: " + framename + " does not exist in layer";
+    }
+
+
     this.inTransform = true;
     this._layout.loadFrame(frame).then(function() {
-      var tfd = that.currentFrameTransformData = frame.getTransformData(that.stage, scrollData.startPosition);
+      var tfd = that.currentFrameTransformData = null === frame ? that.noFrameTransformdata(scrollData.startPosition) : frame.getTransformData(that.stage, scrollData.startPosition);
       that.currentTransform = that._transformer.getScrollTransform(tfd, scrollData.scrollX || (tfd.isScrollX && tfd.scrollX) || 0, scrollData.scrollY || (tfd.isScrollY && tfd.scrollY) || 0);
       that._layout.showFrame(frame, tfd, that.currentTransform);
       that.inTransform = false;
@@ -2132,17 +2138,29 @@ var CanvasLayout = LayerLayout.extend({
   showFrame: function(frame, targetFrameTransformData, transform) {
     /*jshint unused: false*/
     transform = transform || "";
-    this._reverseTransform = this._calculateReverseTransform(frame, targetFrameTransformData);
     var frames = this.layer.getChildViews();
     var framesLength = frames.length;
     var childFrame;
-    // now apply all transforms to all frames
-    for (var i = 0; i < framesLength; i++) {
-      childFrame = frames[i];
-      this._applyTransform(childFrame, this._reverseTransform, transform, {
-        transition: '',
-        display: 'block'
-      });
+
+    if (null !== frame) {
+      this._reverseTransform = this._calculateReverseTransform(frame, targetFrameTransformData);
+      // now apply all transforms to all frames
+      for (var i = 0; i < framesLength; i++) {
+        childFrame = frames[i];
+        this._applyTransform(childFrame, this._reverseTransform, transform, {
+          transition: '',
+          opacity: 1,
+          display: 'block'
+        });
+      }
+    } else {
+      for (var x = 0; x < framesLength; x++) {
+        childFrame = frames[x];
+        childFrame.applyStyles({
+          opacity: 0,
+          transition: ''
+        });
+      }
     }
   },
   /**
@@ -2166,7 +2184,7 @@ var CanvasLayout = LayerLayout.extend({
     // them jump to the final positions (hopefully jump will not be visible)
 
     // NOTE: Maybe this is a solution for not stopping the transitions
-    var lastFrameToTransition = frames[framesLength-1];
+    var lastFrameToTransition = frames[framesLength - 1];
 
     lastFrameToTransition.outerEl.addEventListener("transitionend", function f(e) { // FIXME needs webkitTransitionEnd etc
       e.target.removeEventListener(e.type, f); // remove event listener for transitionEnd.
@@ -2417,7 +2435,8 @@ var SlideLayout = LayerLayout.extend({
       left: swipeTransition,
       right: swipeTransition,
       up: swipeTransition,
-      down: swipeTransition
+      down: swipeTransition,
+      fade: swipeTransition
     };
   },
   /**
@@ -2486,13 +2505,15 @@ var SlideLayout = LayerLayout.extend({
       that._applyTransform(frame, that._currentFrameTransform = that._calcFrameTransform(targetFrameTransformData), targetTransform, {
         transition: transition.duration,
         top: "0px",
-        left: "0px"
+        left: "0px",
+        opacity: "1"
       });
 
       that._applyTransform(currentFrame, t.c1, targetTransform, {
         transition: transition.duration,
         top: "0px",
-        left: "0px"
+        left: "0px",
+        opacity: t.c1_opacity || "1"
       });
       that._preparedTransitions = {};
       // wait until post transforms are applied an signal that animation is now running.
@@ -2535,7 +2556,7 @@ var SlideLayout = LayerLayout.extend({
       // apply pre position to target frame
       this._applyTransform(frame, prep.t0, this.layer.currentTransform, {
         transition: '',
-        opacity: '1',
+        opacity:  prep.t0_opacity || '1',
         visibility: ''
       });
       prep.transform = targetTransform;
@@ -2643,6 +2664,13 @@ var SlideLayout = LayerLayout.extend({
         y = Math.max(this.getStageHeight(), ttfd.height) - ttfd.shiftY;
         x = -ctfd.shiftX - ctfd.scrollX * ctfd.scale + ttfd.scrollX * ttfd.scale;
         t.c1 = "translate3d(" + x + "px," + y + "px,0px) scale(" + ctfd.scale + ")";
+        break;
+
+      case 'fade':
+        t.t0 = "scale(" + ttfd.scale + ")";
+        t.t0_opacity = '0';
+        t.c1 = "scale(" + ctfd.scale + ")";
+        t.c1_opacity = '0';
         break;
         // target frame transform time 0
     }
@@ -2779,11 +2807,11 @@ var NodeView = Kern.EventManager.extend({
       }
     }
     // backlink from DOM to object
-    if (this.innerEl._wlView) throw "trying to initialialize view on element that already has a view";
-    this.innerEl._wlView = this;
+    if (this.innerEl._ljView) throw "trying to initialialize view on element that already has a view";
+    this.innerEl._ljView = this;
     // possible wrapper element
     this.outerEl = this.outerEl || options.el || this.innerEl;
-    this.outerEl._wlView = this;
+    this.outerEl._ljView = this;
     this.disableObserver();
 
     var that = this;
@@ -2866,12 +2894,12 @@ var NodeView = Kern.EventManager.extend({
       // we need to to this dom based as there may be non-layerjs elements in the hierarchy
       var el = this.outerEl.parentNode;
       if (!el) return undefined; // no parent element return undefined
-      while (!el._wlView) { // search for layerjs element in parent hierarchy
+      while (!el._ljView) { // search for layerjs element in parent hierarchy
         if (!el.parentNode) return undefined; // no parent element return undefined
         el = el.parentNode;
       }
-      if (el._wlView.data.attributes.type === type) return el._wlView; // found one; is it the right type?
-      return el._wlView.getParentOfType(type); // search recursively
+      if (el._ljView.data.attributes.type === type) return el._ljView; // found one; is it the right type?
+      return el._ljView.getParentOfType(type); // search recursively
     }
   },
   /**
@@ -2978,62 +3006,72 @@ module.exports = NodeView;
 var Observer = require('./observer.js');
 
 var something = Observer.extend({
-      constructor: function(element, options) {
-        Observer.call(this, element, options);
+  constructor: function(element, options) {
+    Observer.call(this, element, options);
 
-        var that = this;
-        this.mutationObserver = new MutationObserver(function(mutations) {
-          that.mutationCallback(mutations);
-        });
-      },
-      /**
-       * Will analyse if the element has changed. Will call the callback method that
-       * is provided in the options.
-       */
-      mutationCallback: function(mutations) {
-        var result = {
-          attributes: [],
-          addedNodes: [],
-          removedNodes: []
-        };
-        for (var i = 0; i < mutations.length; i++) {
-          var mutation = mutations[i];
-          if (this.options.attributes && mutation.type === 'attributes') {
-            result.attributes.push(mutation.attributeName);
-          }
-          if (this.options.childList && mutation.type === 'childList') {
-            if (mutation.addedNodes && mutation.addedNodes.length > 0) {
-              result.addedNodes = result.addedNodes.concat(mutation.addedNodes);
-            }
-            if (mutation.removeNodes && mutation.removeNodes.length > 0) {
-              result.removedNodes = result.newNodes.concat(mutation.removeNodes);
-            }
-          }
+    var that = this;
+    this.mutationObserver = new MutationObserver(function(mutations) {
+      that.mutationCallback(mutations);
+    });
+  },
+  /**
+   * Will analyse if the element has changed. Will call the callback method that
+   * is provided in the options.
+   */
+  mutationCallback: function(mutations) {
+    var result = {
+      attributes: [],
+      addedNodes: [],
+      removedNodes: []
+    };
+    for (var i = 0; i < mutations.length; i++) {
+      var mutation = mutations[i];
+      if (this.options.attributes && mutation.type === 'attributes') {
+        result.attributes.push(mutation.attributeName);
+      }
+      if (this.options.childList && mutation.type === 'childList') {
+        if (mutation.addedNodes && mutation.addedNodes.length > 0) {
+          result.addedNodes = result.addedNodes.concat(mutation.addedNodes);
         }
+        if (mutation.removeNodes && mutation.removeNodes.length > 0) {
+          result.removedNodes = result.newNodes.concat(mutation.removeNodes);
+        }
+      }
+    }
 
-        if (this.options.callback && (result.attributes.length > 0 || result.addedNodes.length > 0 || result.removedNodes.length > 0)) {
-            this.options.callback(result);
-          }
-        },
-        /**
-         * Starts the observer
-         */
-        observe: function() {
-            this.mutationObserver.observe(this.element, {
-              attributes: this.options.attributes || false,
-              childList: this.options.childList || false,
-              characterData: this.options.characterData || false
-            });
-          },
-          /**
-           * Stops the observer
-           */
-          stop: function() {
-            this.mutationObserver.disconnect();
-          }
+    if (this.options.callback && (result.attributes.length > 0 || result.addedNodes.length > 0 || result.removedNodes.length > 0)) {
+      this.options.callback(result);
+    }
+  },
+  /**
+   * Starts the observer
+   */
+  observe: function() {
+    if (this.counter !== 0) {
+      this.counter--;
+    }
+
+    if (this.counter === 0) {
+      this.mutationObserver.observe(this.element, {
+        attributes: this.options.attributes || false,
+        childList: this.options.childList || false,
+        characterData: this.options.characterData || false
       });
+    }
+  },
+  /**
+   * Stops the observer
+   */
+  stop: function() {
+    if (this.counter === 0){
+      this.mutationObserver.disconnect();
+    }
+        
+    this.counter++;
+  }
+});
 
-  module.exports = something;
+module.exports = something;
 
 },{"./observer.js":18}],18:[function(require,module,exports){
 'use strict';
@@ -3047,7 +3085,7 @@ var Observer = Kern.Base.extend({
     this.counter = 0;
   },
   /**
-   * Starts the observer
+   * Starts the observer   
    */
   observe: function() {
     throw 'not implemented';
@@ -3289,8 +3327,8 @@ var PluginManager = Kern.EventManager.extend({
    */
   createView: function(model, options) {
     // return existing view if the provided element already has one
-    if (options && options.el && options.el._wlView) {
-      return options.el._wlView;
+    if (options && options.el && options.el._ljView) {
+      return options.el._ljView;
     }
     if (typeof model === 'string') {
       var type = model;
@@ -3639,9 +3677,9 @@ var FileRouter = Kern.EventManager.extend({
 
             // FIXME: Refactor to use new children changed paradigm of layerJS
             // calling internal function _parseChildren is not recommended
-            parent._wlView._parseChildren();
-            parent._wlView.transitionTo(paths[i].frame._wlView.data.attributes.name, transition);
-            parent._wlView._parseChildren();
+            parent._ljView._parseChildren();
+            parent._ljView.transitionTo(paths[i].frame._ljView.data.attributes.name, transition);
+            parent._ljView._parseChildren();
             parent.removeChild(currentPaths[j].frame);
 
             break;
@@ -4285,6 +4323,7 @@ module.exports = StageView;
 
             // copy arguments as we need to remove the first argument (event)
             // and arguments is read only
+            // loop is faster then .slice method
             var length = arguments.length;
             var args = new Array(length - 1);
             for (var j = 0; j < length - 1; j++) {

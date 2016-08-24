@@ -59,7 +59,7 @@ module.exports = function(initFunction) {
       var length = view.innerEl.childNodes.length;
 
       for (var i = 0; i < length; i++) {
-        var childView = view.innerEl.childNodes[i]._wlView;
+        var childView = view.innerEl.childNodes[i]._ljView;
         expect(layerJS.repository.contains(childView.data.attributes.id, view.data.attributes.version)).toBeTruthy();
         expect(view.data.attributes.children).toContain(childView.data.attributes.id);
       }
@@ -75,7 +75,7 @@ module.exports = function(initFunction) {
       });
 
       var testEl = document.getElementById(unkownId);
-      var testView = testEl._wlView;
+      var testView = testEl._ljView;
 
       expect(testView).toBeDefined();
       expect(testView.data.attributes.type).toBe(nodeType);
