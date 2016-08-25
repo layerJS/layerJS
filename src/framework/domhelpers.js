@@ -132,8 +132,8 @@ var DomHelpers = {
     }
     element.addEventListener(eventName, function(event) {
       var el = event.target;
-      while (!el.matches(selector) && el !== element) {
-        el = el.parent;
+      while (el !== element && !el.matches(selector)) {
+        el = el.parentNode;
       }
       if (el !== element) {
         fn.call(el, event);
