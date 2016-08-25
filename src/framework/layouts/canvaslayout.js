@@ -76,12 +76,12 @@ var CanvasLayout = LayerLayout.extend({
 
     lastFrameToTransition.outerEl.addEventListener("transitionend", function f(e) { // FIXME needs webkitTransitionEnd etc
       e.target.removeEventListener(e.type, f); // remove event listener for transitionEnd.
-      /*for (var i = 0; i < framesLength; i++) {
+      for (var i = 0; i < framesLength; i++) {
         childFrame = frames[i];
         childFrame.applyStyles({
           transition: '' // deactivate transitions for all frames
         });
-      }*/
+      }
       finished.resolve();
     });
 
