@@ -102,8 +102,7 @@ var SlideLayout = LayerLayout.extend({
       that._applyTransform(currentFrame, t.c1, targetTransform, {
         transition: transition.duration,
         top: "0px",
-        left: "0px",
-        opacity: t.c1_opacity || "1"
+        left: "0px"
       });
       that._preparedTransitions = {};
       // wait until post transforms are applied an signal that animation is now running.
@@ -146,7 +145,6 @@ var SlideLayout = LayerLayout.extend({
       // apply pre position to target frame
       this._applyTransform(frame, prep.t0, this.layer.currentTransform, {
         transition: '',
-        opacity:  prep.t0_opacity || '1',
         visibility: ''
       });
       prep.transform = targetTransform;
@@ -180,21 +178,23 @@ var SlideLayout = LayerLayout.extend({
    */
   _applyTransform: function(frame, frameTransform, addedTransform, styles) {
     if (frame) {
-      frame.applyStyles(styles || {}, {
-        transform: addedTransform + " " + frameTransform
-      });
+      var css = Kern._extend({}, frameTransform);
+      css.transform = addedTransform + " " + (css.transform || "");
+      frame.applyStyles(styles || {}, css);
     }
   },
   /**
    * calculate the transform for a give frame using its transformData record
    *
    * @param {Object} frameTransformData - the transform data of the frame
-   * @returns {string} the calculated transform
+   * @returns {object} the calculated transform
    */
   _calcFrameTransform: function(frameTransformData) {
     var x = -frameTransformData.shiftX;
     var y = -frameTransformData.shiftY;
-    return "translate3d(" + x + "px," + y + "px,0px) scale(" + frameTransformData.scale + ")";
+    return {
+      transform: "translate3d(" + x + "px," + y + "px,0px) scale(" + frameTransformData.scale + ")"
+    };
   },
   /**
    * calculates pre and post positions for simple swipe transitions.
@@ -206,7 +206,16 @@ var SlideLayout = LayerLayout.extend({
    * @returns {Object} the "t" record containing pre and post transforms
    */
   swipeTransition: function(type, ctfd, ttfd) {
-    var t = {}; // record taking pre and post positions
+    var t = {
+      t0: {
+        transform: "",
+        opacity: 1
+      },
+      c1: {
+        transform: "",
+        opacity: 1
+      }
+    }; // record taking pre and post positions
     var x, y;
     switch (type) {
       case 'default':
@@ -215,22 +224,22 @@ var SlideLayout = LayerLayout.extend({
         x = Math.max(this.getStageWidth(), ctfd.width) - ctfd.shiftX;
         y = -ttfd.shiftY + ctfd.scrollY * ctfd.scale - ttfd.scrollY * ttfd.scale;
         // FIXME: translate and scale may actually be swapped here, not tested yet as shift was always zero so far!!!
-        t.t0 = "translate3d(" + x + "px," + y + "px,0px) scale(" + ttfd.scale + ")";
+        t.t0.transform = "translate3d(" + x + "px," + y + "px,0px) scale(" + ttfd.scale + ")";
         // current frame transform time 1
         x = -Math.max(this.getStageWidth(), ctfd.width) - ttfd.shiftX;
         y = -ctfd.shiftY - ctfd.scrollY * ctfd.scale + ttfd.scrollY * ttfd.scale;
-        t.c1 = "translate3d(" + x + "px," + y + "px,0px) scale(" + ctfd.scale + ")";
+        t.c1.transform = "translate3d(" + x + "px," + y + "px,0px) scale(" + ctfd.scale + ")";
         break;
 
       case 'right':
         // target frame transform time 0
         x = -Math.max(this.getStageWidth(), ttfd.width) - ctfd.shiftX;
         y = -ttfd.shiftY + ctfd.scrollY * ctfd.scale - ttfd.scrollY * ttfd.scale;
-        t.t0 = "translate3d(" + x + "px," + y + "px,0px) scale(" + ttfd.scale + ")";
+        t.t0.transform = "translate3d(" + x + "px," + y + "px,0px) scale(" + ttfd.scale + ")";
         // current frame transform time 1
         x = Math.max(this.getStageWidth(), ttfd.width) - ttfd.shiftX;
         y = -ctfd.shiftY - ctfd.scrollY * ctfd.scale + ttfd.scrollY * ttfd.scale;
-        t.c1 = "translate3d(" + x + "px," + y + "px,0px) scale(" + ctfd.scale + ")";
+        t.c1.transform = "translate3d(" + x + "px," + y + "px,0px) scale(" + ctfd.scale + ")";
         break;
 
       case 'up':
@@ -238,29 +247,29 @@ var SlideLayout = LayerLayout.extend({
         y = Math.max(this.getStageHeight(), ctfd.height) - ctfd.shiftY;
         x = -ttfd.shiftX + ctfd.scrollX * ctfd.scale - ttfd.scrollX * ttfd.scale;
         // FIXME: translate and scale may actually be swapped here, not tested yet as shift was always zero so far!!!
-        t.t0 = "translate3d(" + x + "px," + y + "px,0px) scale(" + ttfd.scale + ")";
+        t.t0.transform = "translate3d(" + x + "px," + y + "px,0px) scale(" + ttfd.scale + ")";
         // current frame transform time 1
         y = -Math.max(this.getStageHeight(), ctfd.height) - ttfd.shiftY;
         x = -ctfd.shiftX - ctfd.scrollX * ctfd.scale + ttfd.scrollX * ttfd.scale;
-        t.c1 = "translate3d(" + x + "px," + y + "px,0px) scale(" + ctfd.scale + ")";
+        t.c1.transform = "translate3d(" + x + "px," + y + "px,0px) scale(" + ctfd.scale + ")";
         break;
 
       case 'down':
         // target frame transform time 0
         y = -Math.max(this.getStageHeight(), ttfd.height) - ctfd.shiftY;
         x = -ttfd.shiftX + ctfd.scrollX * ctfd.scale - ttfd.scrollX * ttfd.scale;
-        t.t0 = "translate3d(" + x + "px," + y + "px,0px) scale(" + ttfd.scale + ")";
+        t.t0.transform = "translate3d(" + x + "px," + y + "px,0px) scale(" + ttfd.scale + ")";
         // current frame transform time 1
         y = Math.max(this.getStageHeight(), ttfd.height) - ttfd.shiftY;
         x = -ctfd.shiftX - ctfd.scrollX * ctfd.scale + ttfd.scrollX * ttfd.scale;
-        t.c1 = "translate3d(" + x + "px," + y + "px,0px) scale(" + ctfd.scale + ")";
+        t.c1.transform = "translate3d(" + x + "px," + y + "px,0px) scale(" + ctfd.scale + ")";
         break;
 
       case 'fade':
-        t.t0 = "scale(" + ttfd.scale + ")";
-        t.t0_opacity = '0';
-        t.c1 = "scale(" + ctfd.scale + ")";
-        t.c1_opacity = '0';
+        t.t0.transform = "scale(" + ttfd.scale + ")";
+        t.t0.opacity = '0';
+        t.c1.transform = "scale(" + ctfd.scale + ")";
+        t.c1.opacity = '0';
         break;
         // target frame transform time 0
     }
