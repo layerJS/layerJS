@@ -25,8 +25,10 @@ utilities._beforeAll = function() {
 }
 
 utilities._beforeEachNodeJS = function() {
-  var jsdom = require('jsdom').jsdom;
-  document = global.document = jsdom("<html><head></head><body></body></html>");
+  var jsdom = require('jsdom');
+  document = global.document = jsdom.jsdom("<html><head></head><body></body></html>", {
+    url: 'http://localhost'
+  });
   window = global.window = document.defaultView;
   $ = document.querySelector;
 

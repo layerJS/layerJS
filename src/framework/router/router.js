@@ -67,16 +67,13 @@ var Router = Kern.EventManager.extend({
    */
   _navigate: function(href, addToHistory) {
     var navigate = false;
-    if (this.currentRouter && this.currentRouter.canHandle(href)) {
+    var options = this._parseUrl(href);
 
-      var options = this._parseUrl(href);
-      this.currentRouter.handle(href, options.transitionOptions);
-
+    if (this.currentRouter && this.currentRouter.handle(href, options.transitionOptions)) {
       // add to history using push state
       if (window.history && addToHistory) {
         window.history.pushState({}, "", options.url);
       }
-
 
       navigate = true;
     }

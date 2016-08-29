@@ -37,30 +37,9 @@ describe('router', function() {
 
     layerJS.router._navigate.and.callThrough();
   });
-
-  it('will check if the current router can handle the url', function() {
-    var dummyRouter = {
-      canHandle: function() {
-        return false;
-      }
-    };
-    spyOn(dummyRouter, 'canHandle');
-
-    layerJS.router.setCurrentRouter(dummyRouter);
-    var element = document.createElement('a');
-    element.href = '#';
-    document.body.appendChild(element);
-    element.click();
-
-    expect(dummyRouter.canHandle).toHaveBeenCalled();
-  });
-
   it('will let the current router can handle the url', function() {
     var dummyRouter = {
-      canHandle: function() {
-        return true;
-      },
-      handle: function(url) {}
+      handle: function(url) { return true;}
     };
 
     spyOn(dummyRouter, 'handle');
@@ -74,12 +53,9 @@ describe('router', function() {
     expect(dummyRouter.handle).toHaveBeenCalled();
   });
 
-  it('will add a new entry to the history', function() {
+  it('will add a new entry to the history when url is handled', function() {
     var dummyRouter = {
-      canHandle: function() {
-        return true;
-      },
-      handle: function(url) {}
+      handle: function(url) { return true;}
     };
 
     var history = window.history;
@@ -98,12 +74,33 @@ describe('router', function() {
     window.history.pushState.and.callThrough();
   });
 
+  it('will not add a new entry to the history when url can not be handled', function() {
+    var dummyRouter = {
+      handle: function(url) { return false;}
+    };
+
+    var history = window.history;
+
+    window.history.pushState = function() {};
+    spyOn(window.history, 'pushState');
+
+    layerJS.router.setCurrentRouter(dummyRouter);
+    var element = document.createElement('a');
+    element.href = '#';
+    document.body.appendChild(element);
+    element.click();
+
+    expect(window.history.pushState).not.toHaveBeenCalled();
+  
+    window.history.pushState.and.callThrough();
+  });
+
+
   it('the window.popState will call the navigate method on the router and won\'t add an entry to the history', function() {
     var dummyRouter = {
-      canHandle: function() {
+      handle: function(url) {
         return true;
-      },
-      handle: function(url) {}
+      }
     };
 
     spyOn(layerJS.router, '_navigate');
@@ -159,11 +156,10 @@ describe('router', function() {
     var transitionOptions, urlHistory;
 
     var dummyRouter = {
-      canHandle: function() {
-        return true;
-      },
       handle: function(url, transition) {
         transitionOptions = transition;
+
+        return true;
       }
     };
 

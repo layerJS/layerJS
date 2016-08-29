@@ -58,25 +58,18 @@ var getFramePaths = function(doc) {
 
 var FileRouter = Kern.EventManager.extend({
   /**
- * Will check if the router can handle the passed in url
- * @param {string} An url
- * @return {boolean} True if the router can handle the url
- */
-  canHandle: function(href) {
-    var result = true;
-    if (href.match(/^\w+:/)) { // absolute URL
-      if (!href.match(new RegExp('^' + window.location.origin))) {
-        result = false;
-      }
-    }
-    return result;
-  },
-  /**
  * Will do the actual navigation to the url
  * @param {string} an url
- * @return {void}
+ * @return {boolean} True if the router handled the url
  */
   handle: function(href, transition) {
+
+    if (href.match(/^\w+:/)) { // absolute URL
+      if (!href.match(new RegExp('^' + window.location.origin))) {
+        return false;
+      }
+    }
+
     loadHTML(href).then(function(doc) {
       var paths = getFramePaths(doc);
       var currentPaths = getFramePaths(document);
@@ -124,6 +117,8 @@ var FileRouter = Kern.EventManager.extend({
       }
       console.log(paths);
     });
+
+    return true;
   }
 });
 
