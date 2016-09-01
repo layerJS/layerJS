@@ -53,6 +53,7 @@ utilities.beforeEach = function() {
 
 utilities.afterEach = function() {
   layerJS.repository.clear();
+  require("../../../src/framework/state.js").tree = {};
 }
 
 utilities.setHtml = function(html) {

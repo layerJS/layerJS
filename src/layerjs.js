@@ -12,6 +12,7 @@ require("./framework/layouts/slidelayout.js");
 require("./framework/layouts/canvaslayout.js");
 require("./framework/gestures/gesturemanager.js");
 require("./framework/router/router.js");
+require("./framework/state.js");
 
 /* data objects*/
 require("./framework/defaults.js");
