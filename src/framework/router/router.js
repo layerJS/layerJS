@@ -3,19 +3,32 @@ var layerJS = require('../layerjs.js');
 var $ = require('../domhelpers.js');
 var Kern = require('../../kern/kern.js');
 var defaults = require('../defaults.js');
+var StateRouter = require('./staterouter.js');
+var state = require('../state.js');
 
 var Router = Kern.EventManager.extend({
   constructor: function(rootEl) {
     this.rootElement = rootEl || document;
     this.currentRouter = undefined;
+    this.routers = [];
     this._registerLinkClickedListener();
   },
   /**
-   * Will set the current router that will be used to navigate
+   * Will add a new router to the lists of routers
    * @param {object} A new router
    */
-  setCurrentRouter: function(router) {
-    this.currentRouter = router;
+  addRouter: function(router) {
+    if (this.routers.length === 0) {
+      this.routers.push(new StateRouter());
+    }
+
+    this.routers.push(router);
+  },
+  /**
+   * Will clear oll registered routers
+   */
+  clearRouters: function() {
+    this.routers = [];
   },
   _registerLinkClickedListener: function() {
     var that = this;
@@ -68,14 +81,27 @@ var Router = Kern.EventManager.extend({
   _navigate: function(href, addToHistory) {
     var navigate = false;
     var options = this._parseUrl(href);
+    var count = this.routers.length;
 
-    if (this.currentRouter && this.currentRouter.handle(href, options.transitionOptions)) {
-      // add to history using push state
-      if (window.history && addToHistory) {
-        window.history.pushState({}, "", options.url);
+    for (var i = 0; i < count && !navigate; i++) {
+      var currentRouter = this.routers[i];
+
+      if (currentRouter.handle(href, options.transitionOptions)) {
+
+
+        // add to history using push state
+        if (window.history && addToHistory) {
+          window.history.pushState({}, "", options.url);
+
+          if (i !== 0) {
+
+            this.routers[0].addRoute(href, state.exportStateAsArray());
+
+          }
+        }
+
+        navigate = true;
       }
-
-      navigate = true;
     }
 
     return navigate;

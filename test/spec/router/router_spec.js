@@ -1,25 +1,32 @@
 describe('router', function() {
 
-  var layerJS, defaults;
+  var layerJS, defaults, StateRouter;
+  var utilities = require('../helpers/utilities.js');
+  var StageView = require('../../../src/framework/stageview.js');
+  var state = require('../../../src/framework/state.js');
 
   beforeEach(function() {
     layerJS = require('../../../src/framework/layerjs.js');
     defaults = require('../../../src/framework/defaults.js');
+    StateRouter = require('../../../src/framework/router/staterouter.js');
+    layerJS.router.clearRouters();
   });
 
   afterEach(function() {
     defaults.transitionParameters.type = 'p';
     defaults.transitionParameters.duration = 't';
-    layerJS.router.setCurrentRouter(require('../../../src/framework/router/filerouter.js'));
+    layerJS.router.clearRouters();
+    layerJS.router.addRouter(require('../../../src/framework/router/filerouter.js'));
   });
 
   it('can be created', function() {
     expect(layerJS.router).toBeDefined();
   });
 
-  it('can set a different router', function() {
-    layerJS.router.setCurrentRouter(undefined);
-    expect(layerJS.router.currentRouter).toBe(undefined);
+  it('will add the a staterouter at the beginning of the router pipline', function() {
+    layerJS.router.addRouter(undefined)
+    expect(layerJS.router.routers.length).toBe(2);
+    expect(layerJS.router.routers[0] instanceof StateRouter).toBeTruthy();
   });
 
   it('will detect a link click event', function() {
@@ -39,12 +46,14 @@ describe('router', function() {
   });
   it('will let the current router can handle the url', function() {
     var dummyRouter = {
-      handle: function(url) { return true;}
+      handle: function(url) {
+        return true;
+      }
     };
 
     spyOn(dummyRouter, 'handle');
 
-    layerJS.router.setCurrentRouter(dummyRouter);
+    layerJS.router.addRouter(dummyRouter);
     var element = document.createElement('a');
     element.href = '#';
     document.body.appendChild(element);
@@ -55,7 +64,9 @@ describe('router', function() {
 
   it('will add a new entry to the history when url is handled', function() {
     var dummyRouter = {
-      handle: function(url) { return true;}
+      handle: function(url) {
+        return true;
+      }
     };
 
     var history = window.history;
@@ -63,7 +74,7 @@ describe('router', function() {
     window.history.pushState = function() {};
     spyOn(window.history, 'pushState');
 
-    layerJS.router.setCurrentRouter(dummyRouter);
+    layerJS.router.addRouter(dummyRouter);
     var element = document.createElement('a');
     element.href = '#';
     document.body.appendChild(element);
@@ -76,7 +87,9 @@ describe('router', function() {
 
   it('will not add a new entry to the history when url can not be handled', function() {
     var dummyRouter = {
-      handle: function(url) { return false;}
+      handle: function(url) {
+        return false;
+      }
     };
 
     var history = window.history;
@@ -84,14 +97,14 @@ describe('router', function() {
     window.history.pushState = function() {};
     spyOn(window.history, 'pushState');
 
-    layerJS.router.setCurrentRouter(dummyRouter);
+    layerJS.router.addRouter(dummyRouter);
     var element = document.createElement('a');
     element.href = '#';
     document.body.appendChild(element);
     element.click();
 
     expect(window.history.pushState).not.toHaveBeenCalled();
-  
+
     window.history.pushState.and.callThrough();
   });
 
@@ -107,7 +120,7 @@ describe('router', function() {
     window.history.pushState = function() {};
     spyOn(window.history, 'pushState');
 
-    layerJS.router.setCurrentRouter(dummyRouter);
+    layerJS.router.addRouter(dummyRouter);
     window.onpopstate();
 
     expect(layerJS.router._navigate).toHaveBeenCalled();
@@ -167,7 +180,7 @@ describe('router', function() {
       urlHistory = url;
     };
 
-    layerJS.router.setCurrentRouter(dummyRouter);
+    layerJS.router.addRouter(dummyRouter);
     layerJS.router._navigate('http://localhost/index.aspx/?1&test=2&t=10s&p=top&a=3', true);
 
     expect(urlHistory).toBe('http://localhost/index.aspx/?1&test=2&a=3');
@@ -175,5 +188,37 @@ describe('router', function() {
       duration: '10s',
       type: 'top'
     });
+  });
+
+  it('will add the state to the stateRouter when a new navigation is done by a registered router', function() {
+    var url = 'http://localhost/index.html';
+    var dummyRouter = {
+      handle: function() {
+        return true;
+      }
+    }
+
+    var html = "<div data-lj-type='stage' id='stage1'>" +
+      "<div data-lj-type='layer' id='layer1' data-lj-default-frame='frame1'>" +
+      "<div data-lj-type='frame' id='frame1' data-lj-name='frame1'></div>" +
+      "<div data-lj-type='frame' id='frame2' data-lj-name='frame2'></div>" +
+      "</div>" +
+      "</div>";
+
+    utilities.setHtml(html);
+
+    window.history.pushState = function(param1, param2, url) {};
+
+    new StageView(null, {
+      el: document.getElementById('stage1')
+    });
+
+    state.buildTree();
+
+    layerJS.router.addRouter(dummyRouter);
+    layerJS.router._navigate(url, true);
+
+    expect(layerJS.router.routers[0].routes.hasOwnProperty(url)).toBeTruthy();
+    expect(layerJS.router.routers[0].routes[url]).toEqual(['stage1.layer1.frame1']);
   });
 });
