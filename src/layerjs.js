@@ -33,5 +33,5 @@ var FileRouter = require("./framework/router/filerouter.js");
 
 layerJS.init = function() {
   layerJS.parseManager.parseDocument();
-  layerJS.router.setCurrentRouter(new FileRouter());
+  layerJS.router.addRouter(new FileRouter());
 };
