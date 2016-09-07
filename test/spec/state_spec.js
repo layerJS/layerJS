@@ -4,6 +4,24 @@ describe('state', function() {
   var StageView = require('../../src/framework/stageview.js');
   var state = require('../../src/framework/state.js');
 
+
+  function setHtmlForExport() {
+    var html =
+      "<div data-lj-type='stage' id='stage1'>" +
+      "<div data-lj-type='layer' id='layer1' data-lj-default-frame='frame1'>" +
+      "<div data-lj-type='frame' id='frame1' data-lj-name='frame1'>" +
+      "<div data-lj-type='layer' id='layer2' data-lj-default-frame='frame2'>" +
+      "<div data-lj-type='frame' id='frame2' data-lj-name='frame2'></div>" +
+      "<div data-lj-type='frame' id='frame2' data-lj-name='frame3'></div>" +
+      "</div>" +
+      "</div>" +
+      "<div data-lj-type='frame' id='frame4' data-lj-name='frame4'></div>" +
+      "</div>" +
+      "</div>";
+
+    utilities.setHtml(html);
+  }
+
   it('can build a tree that contains all stages, layers and frames', function() {
     var html = "<div data-lj-type='stage' id='stage1'>" +
       "<div data-lj-type='layer' id='layer1' data-lj-default-frame='frame1'>" +
@@ -32,7 +50,7 @@ describe('state', function() {
       el: document.getElementById('stage2')
     });
 
-    state.buildTree();
+    state.buildTree2();
 
     var stageView1Id = 'stage1';
     var stageView2Id = 'stage2';
@@ -105,7 +123,7 @@ describe('state', function() {
       el: document.getElementById('stage1')
     });
 
-    state.buildTree();
+    state.buildTree2();
 
     var stageView1Id = 'stage1';
     var layerView1 = document.getElementById('layer1')._ljView;
@@ -132,7 +150,10 @@ describe('state', function() {
   });
 
   it('will use the lj-name as identifier if the attribute is on the element', function() {
-    var html = "<div data-lj-type='stage' data-lj-name='myStage' id='stage1'></div>";
+    var html = "<div data-lj-type='stage' data-lj-name='myStage' id='stage1'>" +
+      "<div data-lj-type='layer' id='layer1' data-lj-default-frame='frame1'>" +
+      "<div data-lj-type='frame' id='frame1' data-lj-name='frame1'></div>" +
+      "</div></div>";
 
     utilities.setHtml(html);
 
@@ -147,15 +168,17 @@ describe('state', function() {
   });
 
   it('will use the id as identifier when lj-name is not provide', function() {
-    var html = "<div data-lj-type='stage' id='stage1'></div>";
-
+    var html = "<div data-lj-type='stage' id='stage1'>" +
+      "<div data-lj-type='layer' id='layer1' data-lj-default-frame='frame1'>" +
+      "<div data-lj-type='frame' id='frame1' data-lj-name='frame1'></div>" +
+      "</div></div>";
     utilities.setHtml(html);
 
     var stageView1 = new StageView(null, {
       el: document.getElementById('stage1')
     });
 
-    state.buildTree();
+    state.buildTree2();
 
     expect(state.tree['stage1']).toBeDefined();
     expect(state.tree['stage1'].view).toBe(stageView1);
@@ -163,8 +186,12 @@ describe('state', function() {
 
   it('will use child index of the type as identifier', function() {
     var html = "<div data-lj-type='stage' id='stage1'>" +
-      "<div data-lj-type='layer' id='layer1'></div>" +
-      "<div data-lj-type='layer'></div>" +
+      "<div data-lj-type='layer' id='layer1' data-lj-default-frame='frame1'>" +
+      "<div data-lj-type='frame' id='frame1' data-lj-name='frame1'></div>" +
+      "</div>" +
+      "<div data-lj-type='layer' data-lj-default-frame='frame1'>" +
+      "<div data-lj-type='frame' id='frame1' data-lj-name='frame1'></div>" +
+      "</div>" +
       "</div>";
 
     utilities.setHtml(html);
@@ -178,7 +205,7 @@ describe('state', function() {
     var layerView2 = stage1Element.children[1]._ljView;
 
 
-    state.buildTree();
+    state.buildTree2();
     expect(state.tree['stage1']).toBeDefined();
     expect(state.tree['stage1'].view).toBe(stageView1);
     expect(state.tree['stage1']['layer1']).toBeDefined();
@@ -194,7 +221,7 @@ describe('state', function() {
       el: document.getElementById('stage1')
     });
 
-    state.buildTree();
+    state.buildTree2();
 
     var activePaths = state.exportStateAsArray();
     expect(activePaths.length).toBe(2);
@@ -209,28 +236,11 @@ describe('state', function() {
       el: document.getElementById('stage1')
     });
 
-    state.buildTree();
+    state.buildTree2();
 
     var activePaths = state.exportState();
     expect(activePaths).toBe('stage1.layer1.frame1;stage1.layer1.frame1.layer2.frame2');
   });
-
-  function setHtmlForExport() {
-    var html =
-      "<div data-lj-type='stage' id='stage1'>" +
-      "<div data-lj-type='layer' id='layer1' data-lj-default-frame='frame1'>" +
-      "<div data-lj-type='frame' id='frame1' data-lj-name='frame1'>" +
-      "<div data-lj-type='layer' id='layer2' data-lj-default-frame='frame2'>" +
-      "<div data-lj-type='frame' id='frame2' data-lj-name='frame2'></div>" +
-      "<div data-lj-type='frame' id='frame2' data-lj-name='frame3'></div>" +
-      "</div>" +
-      "</div>" +
-      "<div data-lj-type='frame' id='frame4' data-lj-name='frame4'></div>" +
-      "</div>" +
-      "</div>";
-
-    utilities.setHtml(html);
-  }
 
   it('can export the structure as an array of strings', function() {
     setHtmlForExport();
@@ -239,7 +249,7 @@ describe('state', function() {
       el: document.getElementById('stage1')
     });
 
-    state.buildTree();
+    state.buildTree2();
 
     var structure = state.exportStructureAsArray();
     expect(structure.length).toBe(4);
@@ -256,7 +266,7 @@ describe('state', function() {
       el: document.getElementById('stage1')
     });
 
-    state.buildTree();
+    state.buildTree2();
 
     var structure = state.exportStructure();
     expect(structure).toBe('stage1.layer1.frame1;stage1.layer1.frame1.layer2.frame2;stage1.layer1.frame1.layer2.frame3;stage1.layer1.frame4');
@@ -276,7 +286,7 @@ describe('state', function() {
       el: document.getElementById('stage1')
     });
 
-    state.buildTree();
+    state.buildTree2();
 
     var layerView1 = document.getElementById('layer1')._ljView;
 
@@ -288,5 +298,161 @@ describe('state', function() {
       expect(state.exportState()).toBe('stage1.layer1.frame2');
       done();
     }, 500);
+  });
+
+  it('performance test', function() {
+
+    //   setHtmlForExport();
+
+
+    var html =
+      "<div data-lj-type='stage' id='stage1'>" +
+      "<div data-lj-type='layer' data-lj-default-frame='frame1'>" +
+      "<div data-lj-type='frame' data-lj-name='frame1'>" +
+      "<div data-lj-type='layer' data-lj-default-frame='frame2'>" +
+      "<div data-lj-type='frame' data-lj-name='frame2'>" +
+      "<div data-lj-type='layer' data-lj-default-frame='frame2'>" +
+      "<div data-lj-type='frame' data-lj-name='frame2'></div>" +
+      "<div data-lj-type='frame' data-lj-name='frame3'></div>" +
+      "</div>" +
+      "<div data-lj-type='layer' data-lj-default-frame='frame2'>" +
+      "<div data-lj-type='frame' data-lj-name='frame2'></div>" +
+      "<div data-lj-type='frame' data-lj-name='frame3'></div>" +
+      "</div>" +
+      "<div data-lj-type='layer' data-lj-default-frame='frame2'>" +
+      "<div data-lj-type='frame' data-lj-name='frame2'></div>" +
+      "<div data-lj-type='frame' data-lj-name='frame3'></div>" +
+      "</div>" +
+      "<div data-lj-type='layer' data-lj-default-frame='frame2'>" +
+      "<div data-lj-type='frame' data-lj-name='frame2'>" +
+      "<div data-lj-type='layer' data-lj-default-frame='frame2'>" +
+      "<div data-lj-type='frame' data-lj-name='frame2'></div>" +
+      "<div data-lj-type='frame' data-lj-name='frame3'></div>" +
+      "</div>" + "<div data-lj-type='layer' data-lj-default-frame='frame2'>" +
+      "<div data-lj-type='frame' data-lj-name='frame2'></div>" +
+      "<div data-lj-type='frame' data-lj-name='frame3'></div>" +
+      "</div>" + "<div data-lj-type='layer' data-lj-default-frame='frame2'>" +
+      "<div data-lj-type='frame' data-lj-name='frame2'></div>" +
+      "<div data-lj-type='frame' data-lj-name='frame3'></div>" +
+      "</div>" + "<div data-lj-type='layer' data-lj-default-frame='frame2'>" +
+      "<div data-lj-type='frame' data-lj-name='frame2'></div>" +
+      "<div data-lj-type='frame' data-lj-name='frame3'></div>" +
+      "</div>" + "<div data-lj-type='layer' data-lj-default-frame='frame2'>" +
+      "<div data-lj-type='frame' data-lj-name='frame2'></div>" +
+      "<div data-lj-type='frame' data-lj-name='frame3'></div>" +
+      "</div>" + "<div data-lj-type='layer' data-lj-default-frame='frame2'>" +
+      "<div data-lj-type='frame' data-lj-name='frame2'></div>" +
+      "<div data-lj-type='frame' data-lj-name='frame3'></div>" +
+      "</div>" + "<div data-lj-type='layer' data-lj-default-frame='frame2'>" +
+      "<div data-lj-type='frame' data-lj-name='frame2'></div>" +
+      "<div data-lj-type='frame' data-lj-name='frame3'></div>" +
+      "</div>" + "<div data-lj-type='layer' data-lj-default-frame='frame2'>" +
+      "<div data-lj-type='frame' data-lj-name='frame2'></div>" +
+      "<div data-lj-type='frame' data-lj-name='frame3'></div>" +
+      "</div>" + "<div data-lj-type='layer' data-lj-default-frame='frame2'>" +
+      "<div data-lj-type='frame' data-lj-name='frame2'></div>" +
+      "<div data-lj-type='frame' data-lj-name='frame3'>" +
+      "<div data-lj-type='stage' id='stage1'>" +
+      "<div data-lj-type='layer' data-lj-default-frame='frame1'>" +
+      "<div data-lj-type='frame' data-lj-name='frame1'>" +
+      "<div data-lj-type='layer' data-lj-default-frame='frame2'>" +
+      "<div data-lj-type='frame' data-lj-name='frame2'>" +
+      "<div data-lj-type='layer' data-lj-default-frame='frame2'>" +
+      "<div data-lj-type='frame' data-lj-name='frame2'></div>" +
+      "<div data-lj-type='frame' data-lj-name='frame3'></div>" +
+      "</div>" +
+      "<div data-lj-type='layer' data-lj-default-frame='frame2'>" +
+      "<div data-lj-type='frame' data-lj-name='frame2'></div>" +
+      "<div data-lj-type='frame' data-lj-name='frame3'></div>" +
+      "</div>" +
+      "<div data-lj-type='layer' data-lj-default-frame='frame2'>" +
+      "<div data-lj-type='frame' data-lj-name='frame2'></div>" +
+      "<div data-lj-type='frame' data-lj-name='frame3'></div>" +
+      "</div>" +
+      "<div data-lj-type='layer' data-lj-default-frame='frame2'>" +
+      "<div data-lj-type='frame' data-lj-name='frame2'>" +
+      "<div data-lj-type='layer' data-lj-default-frame='frame2'>" +
+      "<div data-lj-type='frame' data-lj-name='frame2'></div>" +
+      "<div data-lj-type='frame' data-lj-name='frame3'></div>" +
+      "</div>" + "<div data-lj-type='layer' data-lj-default-frame='frame2'>" +
+      "<div data-lj-type='frame' data-lj-name='frame2'></div>" +
+      "<div data-lj-type='frame' data-lj-name='frame3'></div>" +
+      "</div>" + "<div data-lj-type='layer' data-lj-default-frame='frame2'>" +
+      "<div data-lj-type='frame' data-lj-name='frame2'></div>" +
+      "<div data-lj-type='frame' data-lj-name='frame3'></div>" +
+      "</div>" + "<div data-lj-type='layer' data-lj-default-frame='frame2'>" +
+      "<div data-lj-type='frame' data-lj-name='frame2'></div>" +
+      "<div data-lj-type='frame' data-lj-name='frame3'></div>" +
+      "</div>" + "<div data-lj-type='layer' data-lj-default-frame='frame2'>" +
+      "<div data-lj-type='frame' data-lj-name='frame2'></div>" +
+      "<div data-lj-type='frame' data-lj-name='frame3'></div>" +
+      "</div>" + "<div data-lj-type='layer' data-lj-default-frame='frame2'>" +
+      "<div data-lj-type='frame' data-lj-name='frame2'></div>" +
+      "<div data-lj-type='frame' data-lj-name='frame3'></div>" +
+      "</div>" + "<div data-lj-type='layer' data-lj-default-frame='frame2'>" +
+      "<div data-lj-type='frame' data-lj-name='frame2'></div>" +
+      "<div data-lj-type='frame' data-lj-name='frame3'></div>" +
+      "</div>" + "<div data-lj-type='layer' data-lj-default-frame='frame2'>" +
+      "<div data-lj-type='frame' data-lj-name='frame2'></div>" +
+      "<div data-lj-type='frame' data-lj-name='frame3'></div>" +
+      "</div>" + "<div data-lj-type='layer' data-lj-default-frame='frame2'>" +
+      "<div data-lj-type='frame' data-lj-name='frame2'></div>" +
+      "<div data-lj-type='frame' data-lj-name='frame3'></div>" +
+      "</div>" +
+      "</div>" +
+      "<div data-lj-type='frame' data-lj-name='frame3'></div>" +
+      "</div>" +
+      "<div data-lj-type='layer' data-lj-default-frame='frame2'>" +
+      "<div data-lj-type='frame' data-lj-name='frame2'></div>" +
+      "<div data-lj-type='frame' data-lj-name='frame3'></div>" +
+      "</div>" +
+      "</div>" +
+      "<div data-lj-type='frame' data-lj-name='frame3'></div>" +
+      "</div>" +
+      "</div>" +
+      "<div data-lj-type='frame' data-lj-name='frame4'></div>" +
+      "</div>" +
+      "</div>"
+    "</div>" +
+    "</div>" +
+    "</div>" +
+    "<div data-lj-type='frame' data-lj-name='frame3'></div>" +
+    "</div>" +
+    "<div data-lj-type='layer' data-lj-default-frame='frame2'>" +
+    "<div data-lj-type='frame' data-lj-name='frame2'></div>" +
+    "<div data-lj-type='frame' data-lj-name='frame3'></div>" +
+    "</div>" +
+    "</div>" +
+    "<div data-lj-type='frame' data-lj-name='frame3'></div>" +
+    "</div>" +
+    "</div>" +
+    "<div data-lj-type='frame' data-lj-name='frame4'></div>" +
+    "</div>" +
+    "</div>";
+
+    utilities.setHtml(html);
+
+    var Perfcollector = require('perfcollector.js');
+
+    var stageView1 = new StageView(null, {
+      el: document.getElementById('stage1')
+    });
+
+    var perfs = Perfcollector.create().enable();
+
+
+
+    var newWay = perfs.start("newWay");
+    state.buildTree2();
+    newWay.end().logToConsole();
+
+    var oldWay = perfs.start("oldWay");
+    state.buildTree();
+    oldWay.end().logToConsole();
+
+
+
+
+
   });
 });

@@ -76,6 +76,56 @@ var State = Kern.Model.extend({
     this.tree = {};
     this._buildTree(this.tree, document.children);
   },
+  buildParent: function(parentNode) {
+    var currentState = {};
+
+    if (null === parentNode) {
+      currentState = this.tree;
+    } else if (parentNode._state) {
+      return parentNode._state;
+    } else {
+
+      currentState = this.buildParent(parentNode.parentElement);
+
+      if (parentNode._ljView && !parentNode.hasAttribute('data-lj-helper')) {
+        var view = parentNode._ljView;
+
+        if (view && (view.data.attributes.type === 'frame' || view.data.attributes.type === 'layer' || view.data.attributes.type === 'stage')) {
+          var type = view.data.attributes.type;
+          var name = (view.data.attributes.name || parentNode.id || type + '[' + this._getNextChildIndexByType(currentState, type) + ']');
+          // layerJS object already added
+          if (!currentState.hasOwnProperty(name)) {
+            currentState[name] = {
+              view: view
+            };
+            if (view.data.attributes.type === 'frame') {
+              currentState[name].active = currentState.view.currentFrame.data.attributes.name === view.data.attributes.name;
+            } else if (view.data.attributes.type === 'layer') {
+              view.on('transitionTo', this._transitionToEvent(currentState[name]));
+            }
+          }
+
+          currentState = currentState[name];
+
+          parentNode._state = currentState;
+        }
+      }
+    }
+
+    return currentState;
+  },
+  /**
+   * Will build a tree structure to represent the layerjs objects in the current document
+   */
+  buildTree2: function() {
+    this.tree = {};
+
+    var frames = document.querySelectorAll('[data-lj-type="frame"]');
+
+    for (var i = 0; i < frames.length; i++) {
+      this.buildParent(frames[i]);
+    }
+  },
   /**
    * Will return all paths to active frames
    * @returns {array} An array of strings pointing to active frames within the document
