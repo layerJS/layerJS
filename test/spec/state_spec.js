@@ -300,6 +300,30 @@ describe('state', function() {
     }, 500);
   });
 
+  it('can detect a direct show frame', function() {
+    var html = "<div data-lj-type='stage' id='stage1'>" +
+      "<div data-lj-type='layer' id='layer1' data-lj-default-frame='frame1'>" +
+      "<div data-lj-type='frame' id='frame1' data-lj-name='frame1'></div>" +
+      "<div data-lj-type='frame' id='frame2' data-lj-name='frame2'></div>" +
+      "</div>" +
+      "</div>";
+
+    utilities.setHtml(html);
+
+    var stageView1 = new StageView(null, {
+      el: document.getElementById('stage1')
+    });
+
+    state.buildTree2();
+
+    var layerView1 = document.getElementById('layer1')._ljView;
+
+    layerView1.showFrame('frame2');
+
+
+    expect(state.exportState()).toBe('stage1.layer1.frame2');
+  });
+
   it('performance test', function() {
 
     //   setHtmlForExport();

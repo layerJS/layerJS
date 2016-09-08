@@ -187,12 +187,15 @@ var LayerView = GroupView.extend({
     }
 
 
+
     this.inTransform = true;
+    that.trigger('transitionTo', framename);
     this._layout.loadFrame(frame).then(function() {
       var tfd = that.currentFrameTransformData = null === frame ? that.noFrameTransformdata(scrollData.startPosition) : frame.getTransformData(that.stage, scrollData.startPosition);
       that.currentTransform = that._transformer.getScrollTransform(tfd, scrollData.scrollX || (tfd.isScrollX && tfd.scrollX) || 0, scrollData.scrollY || (tfd.isScrollY && tfd.scrollY) || 0);
       that._layout.showFrame(frame, tfd, that.currentTransform);
       that.inTransform = false;
+        that.trigger('transitionFinished', framename);
     });
   },
   noFrameTransformdata: function(transitionStartPosition) {
