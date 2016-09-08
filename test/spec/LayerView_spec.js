@@ -1,4 +1,5 @@
-var LayerView =require('../../src/framework/layerview.js');
+var LayerView = require('../../src/framework/layerview.js');
+var StageView = require('../../src/framework/stageview.js');
 var CommonViewTests = require('./helpers/commonviewtests.js');
 var CommonGroupViewTests = require('./helpers/commongroupviewtests.js');
 var GroupView_renderChildPositionTests = require('./helpers/groupview_renderchildpositiontests.js');
@@ -9,6 +10,7 @@ var ViewsCommonIdentifyTests = require('./helpers/views/common/identifytests.js'
 
 describe("LayerView", function() {
 
+  var utilities = require('./helpers/utilities.js');
   /*
       CommonViewTests(function() {
         return {
@@ -105,6 +107,40 @@ describe("LayerView", function() {
   ViewsCommonIdentifyTests('div', LayerView, function() {
     return document.createElement('div');
   }, false);
+
+
+  it('show frame will trigger events', function(done) {
+    var html = "<div data-lj-type='stage' id='stage1'>" +
+      "<div data-lj-type='layer' id='layer1' data-lj-default-frame='frame1'>" +
+      "<div data-lj-type='frame' id='frame1' data-lj-name='frame1'></div>" +
+      "<div data-lj-type='frame' id='frame2' data-lj-name='frame2'></div>" +
+      "</div>" +
+      "</div>";
+
+    utilities.setHtml(html);
+
+    var stageView1 = new StageView(null, {
+      el: document.getElementById('stage1')
+    });
+
+    var layerView1 = document.getElementById('layer1')._ljView;
+    var transitionTo = false;
+    var transitionFinished = false;
+
+    layerView1.on('transitionTo', function() {
+      transitionTo = true;
+    });
+    layerView1.on('transitionFinished', function() {
+      transitionFinished = true;
+    });
+    layerView1.showFrame('frame2');
+
+    setTimeout(function() {
+      expect(transitionTo).toBeTruthy();
+      expect(transitionFinished).toBeTruthy();
+      done();
+    }, 100);
+  });
 
 
 })
