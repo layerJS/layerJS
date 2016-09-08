@@ -1,6 +1,7 @@
 'use strict';
 
 var Kern = require('../kern/Kern.js');
+var layerJS = require('./layerjs.js');
 
 /**
  *  class that will contain the state off all the stages, layers, frames
@@ -197,4 +198,4 @@ var State = Kern.Model.extend({
   }
 });
 
-module.exports = new State();
+module.exports = layerJS.state = new State();
