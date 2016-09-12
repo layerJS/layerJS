@@ -12,7 +12,7 @@ describe('StateRouter', function() {
   })
 
   it('can define states for an url', function() {
-    var url = 'http://localhost/index.html';
+    var url = '/index.html';
     var states = ['stage1.layer1.frame1', 'stage1.layer1.frame1.layer2.frame2'];
 
     stateRouter.addRoute(url, states);
@@ -22,7 +22,7 @@ describe('StateRouter', function() {
   })
 
   it('can handle a predefined route', function(done) {
-    var url = 'http://localhost/test.html';
+    var url = '/test.html';
 
     stateRouter.addRoute(url, ['stage1.layer1.frame2']);
 

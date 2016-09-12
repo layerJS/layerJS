@@ -69,8 +69,37 @@ var Router = Kern.EventManager.extend({
       }
     }
 
+    result.url = result.url.replace(window.location.origin,'');
+
+    var pattern = /^((http|https):\/\/)/;
+    if (!pattern.test(result.url)) {
+      result.url = this._getAbsoluteUrl(result.url);
+    }
 
     return result;
+  },
+  /**
+   *  Will transform a relative url to an absolute url
+   * https://developer.mozilla.org/en-US/docs/Web/API/document/cookie#Using_relative_URLs_in_the_path_parameter
+   * @param {string} url to tranform to an absolute url
+   * @return {string} an absolute url
+   */
+  _getAbsoluteUrl: function(sRelPath) {
+
+    if (sRelPath.startsWith('~/')){
+      return sRelPath.substr(1);
+    }
+    else if(sRelPath.indexOf('/~/') !== -1){
+      return sRelPath.substr(sRelPath.indexOf('/~/') + 2);
+    }
+
+    var nUpLn, sDir = "",
+      sPath = window.location.pathname.replace(/[^\/]*$/, sRelPath.replace(/(\/|^)(?:\.?\/+)+/g, "$1"));
+    for (var nEnd, nStart = 0; nEnd = sPath.indexOf("/../", nStart), nEnd > -1; nStart = nEnd + nUpLn) {
+      nUpLn = /^\/(?:\.\.\/)*/.exec(sPath.slice(nEnd))[0].length;
+      sDir = (sDir + sPath.substring(nStart, nEnd)).replace(new RegExp("(?:\\\/+[^\\\/]*){0," + ((nUpLn - 1) / 3) + "}$"), "/");
+    }
+    return sDir + sPath.substr(nStart);
   },
   /**
    * When the router can navigate to the url, it will do this.

@@ -135,11 +135,50 @@ describe('router', function() {
 
     var result = layerJS.router._parseUrl(url);
 
-    expect(result.url).toBe('http://localhost/index.html?id=1&cat=p');
+    expect(result.url).toBe('/index.html?id=1&cat=p');
     expect(result.transitionOptions).toEqual({
       duration: '100s',
       type: 'left'
     });
+  });
+
+  it('will resolve relative paths', function() {
+    var url = '/dir1/dir2/../index.html';
+    var result = layerJS.router._parseUrl(url);
+
+    expect(result.url).toBe('/dir1/index.html');
+  });
+
+  it('will resolve ~/ paths', function() {
+    var url = '~/index.html';
+
+    var result = layerJS.router._parseUrl(url);
+
+    expect(result.url).toBe('/index.html');
+  });
+
+  it('will resolve /~/ paths', function() {
+    var url = 'test/~/index.html';
+
+    var result = layerJS.router._parseUrl(url);
+
+    expect(result.url).toBe('/index.html');
+  });
+
+  it('will make paths absolute from the same domain', function(){
+    var url = 'http://localhost/dir/../index.html';
+
+    var result = layerJS.router._parseUrl(url);
+
+    expect(result.url).toBe('/index.html');
+  });
+
+  it('will not resolve paths from other domains', function() {
+    var url = 'http://layerjs.org/dir/../index.html';
+
+    var result = layerJS.router._parseUrl(url);
+
+    expect(result.url).toBe('http://layerjs.org/dir/../index.html');
   });
 
   it('the name for the transition options in an url are configurable', function() {
@@ -157,7 +196,7 @@ describe('router', function() {
       var url = 'http://localhost/index.html?id=1&' + duration + '=100s&' + type + '=left&cat=p';
       var result = layerJS.router._parseUrl(url);
 
-      expect(result.url).toBe('http://localhost/index.html?id=1&cat=p');
+      expect(result.url).toBe('/index.html?id=1&cat=p');
       expect(result.transitionOptions).toEqual({
         duration: '100s',
         type: 'left'
@@ -183,7 +222,7 @@ describe('router', function() {
     layerJS.router.addRouter(dummyRouter);
     layerJS.router._navigate('http://localhost/index.aspx/?1&test=2&t=10s&p=top&a=3', true);
 
-    expect(urlHistory).toBe('http://localhost/index.aspx/?1&test=2&a=3');
+    expect(urlHistory).toBe('/index.aspx/?1&test=2&a=3');
     expect(transitionOptions).toEqual({
       duration: '10s',
       type: 'top'

@@ -73,7 +73,7 @@ describe('Filerouter', function() {
     var layerView = document.getElementById('contentlayer')._ljView;
 
     var fileRouter = new FileRouter();
-    fileRouter.handle('http://localhost/somePage.html');
+    fileRouter.handle('/somePage.html');
     scope.done();
 
     setTimeout(function() {
@@ -97,7 +97,7 @@ describe('Filerouter', function() {
     };
 
     var fileRouter = new FileRouter();
-    fileRouter.handle('http://localhost/somePage.html', transitionOptions);
+    fileRouter.handle('/somePage.html', transitionOptions);
     scope.done();
 
     setTimeout(function() {
