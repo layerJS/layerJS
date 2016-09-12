@@ -1,7 +1,7 @@
 var pluginmanager = require('../../src/framework/pluginmanager.js');
 var ElementView = require('../../src/framework/elementview.js');
 var NodeData = ElementView.Model;
-var identifyPriority = require('../../src/framework/identifypriority.js');
+var defaults = require('../../src/framework/defaults.js');
 
 describe('PluginManager', function() {
 
@@ -49,7 +49,7 @@ describe('PluginManager', function() {
       "version": ElementView.defaultProperties.version,
       "tag": ElementView.defaultProperties.tag
     }
-    pluginmanager.registerType('heinz', NV, identifyPriority.low);
+    pluginmanager.registerType('heinz', NV, defaults.identifyPriority.low);
     var nc = pluginmanager.createModel(ndata);
     var v = pluginmanager.createView(nc);
     expect(v instanceof NV).toBe(true);
@@ -81,7 +81,7 @@ describe('PluginManager', function() {
       }
     });
 
-    pluginmanager.registerType('low', Low, identifyPriority.low);
+    pluginmanager.registerType('low', Low, defaults.identifyPriority.low);
     var Normal = ElementView.extend({}, {
       Model: NodeData,
       identify: function(element) {
@@ -92,7 +92,7 @@ describe('PluginManager', function() {
       }
     });
 
-    pluginmanager.registerType('normal', Normal, identifyPriority.normal);
+    pluginmanager.registerType('normal', Normal, defaults.identifyPriority.normal);
 
     var el = document.createElement('div');
     el.id = 'priority';

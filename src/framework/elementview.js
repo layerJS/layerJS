@@ -5,7 +5,6 @@ var pluginManager = require('./pluginmanager.js');
 
 var NodeView = require('./nodeview.js');
 var defaults = require('./defaults.js');
-var identifyPriority = require('./identifypriority.js');
 var observerFactory = require('./observer/observerfactory.js');
 
 /**
@@ -398,6 +397,6 @@ var ElementView = NodeView.extend({
 });
 
 
-pluginManager.registerType('element', ElementView, identifyPriority.normal);
+pluginManager.registerType('element', ElementView, defaults.identifyPriority.normal);
 
 module.exports = ElementView;

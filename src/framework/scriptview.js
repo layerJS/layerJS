@@ -2,7 +2,7 @@
 var pluginManager = require('./pluginmanager.js');
 var GroupView = require('./groupview.js');
 var Kern = require('../kern/Kern.js');
-var identifyPriority = require('./identifypriority.js');
+var defaults = require('./defaults.js');
 var layerJS = require('./layerjs.js');
 
 /**
@@ -74,5 +74,5 @@ var ScriptView = GroupView.extend({
   }
 });
 
-pluginManager.registerType('script', ScriptView, identifyPriority.normal);
+pluginManager.registerType('script', ScriptView, defaults.identifyPriority.normal);
 module.exports = ScriptView;
