@@ -106,9 +106,9 @@ var SlideLayout = LayerLayout.extend({
       });
       that._preparedTransitions = {};
       // wait until post transforms are applied an signal that animation is now running.
-      $.postAnimationFrame(function() {
+    /*  $.postAnimationFrame(function() {
         that.layer.trigger('transitionStarted', frame === null ? null : frame.data.attributes.name);
-      });
+      });*/
       return finished;
     });
   },
