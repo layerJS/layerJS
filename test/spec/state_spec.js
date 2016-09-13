@@ -350,9 +350,9 @@ describe('state', function() {
     state.buildTree2();
     newWay.end().logToConsole();
 
+
     var oldWay = perfs.start("oldWay");
     state.buildTree();
     oldWay.end().logToConsole();
-
   });
 });

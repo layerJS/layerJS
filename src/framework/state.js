@@ -55,7 +55,7 @@ var State = Kern.Model.extend({
         };
 
         if (childView.data.attributes.type === 'layer') {
-          childView.on('transitionTo', this._transitionToEvent(parent[name]));
+          childView.on('transitionStarted', this._transitionToEvent(parent[name]));
         }
 
         if (parent.view && parent.view.data.attributes.type === 'layer' && parent[name].view.data.attributes.type === 'frame') {
@@ -102,7 +102,7 @@ var State = Kern.Model.extend({
             if (view.data.attributes.type === 'frame') {
               currentState[name].active = currentState.view.currentFrame.data.attributes.name === view.data.attributes.name;
             } else if (view.data.attributes.type === 'layer') {
-              view.on('transitionTo', this._transitionToEvent(currentState[name]));
+              view.on('transitionStarted', this._transitionToEvent(currentState[name]));
             }
           }
 

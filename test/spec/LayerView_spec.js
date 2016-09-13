@@ -124,11 +124,11 @@ describe("LayerView", function() {
     });
 
     var layerView1 = document.getElementById('layer1')._ljView;
-    var transitionTo = false;
+    var transitionStarted = false;
     var transitionFinished = false;
 
-    layerView1.on('transitionTo', function() {
-      transitionTo = true;
+    layerView1.on('transitionStarted', function() {
+      transitionStarted = true;
     });
     layerView1.on('transitionFinished', function() {
       transitionFinished = true;
@@ -136,7 +136,7 @@ describe("LayerView", function() {
     layerView1.showFrame('frame2');
 
     setTimeout(function() {
-      expect(transitionTo).toBeTruthy();
+      expect(transitionStarted).toBeTruthy();
       expect(transitionFinished).toBeTruthy();
       done();
     }, 100);

@@ -189,7 +189,7 @@ var LayerView = GroupView.extend({
 
 
     this.inTransform = true;
-    that.trigger('transitionTo', framename);
+    that.trigger('transitionStarted', framename);
     this._layout.loadFrame(frame).then(function() {
       var tfd = that.currentFrameTransformData = null === frame ? that.noFrameTransformdata(scrollData.startPosition) : frame.getTransformData(that.stage, scrollData.startPosition);
       that.currentTransform = that._transformer.getScrollTransform(tfd, scrollData.scrollX || (tfd.isScrollX && tfd.scrollX) || 0, scrollData.scrollY || (tfd.isScrollY && tfd.scrollY) || 0);
@@ -253,7 +253,7 @@ var LayerView = GroupView.extend({
         var p = new Kern.Promise();
         p.resolve();
         that.inTransform = false;
-        that.trigger('transitionTo', framename);
+        that.trigger('transitionStarted', framename);
         that.trigger('transitionFinished', framename);
         return p;
       }
@@ -270,7 +270,7 @@ var LayerView = GroupView.extend({
           });
         }
       });
-      that.trigger('transitionTo', framename);
+      that.trigger('transitionStarted', framename);
       that.updateClasses(frame);
       that.currentFrameTransformData = targetFrameTransformData;
       that.currentFrame = frame;

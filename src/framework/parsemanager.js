@@ -21,7 +21,7 @@ var ParseManager = function() {
         el: stageElements[index]
       });
     }
-    state.buildTree();
+    state.buildTree2();
   };
 };
 
