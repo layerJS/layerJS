@@ -1,19 +1,24 @@
-var utilities = require("./utilities.js");
+module.exports = function(scenario, initFunction) {
 
-var GroupView_renderChildPositionTests = function(scenario, initFunction) {
-  describe('(base test for _renderChildPosition for objects the inherit from GroupView) ' + scenario, function() {
+  var utilities = require('../../utilities.js');
+  var ViewsCommon_renderChildPositionTests = require('../common/_renderchildpositiontests.js');
 
-    var ViewType, data, repository, defaults;
+  ViewsCommon_renderChildPositionTests(scenario, initFunction);
+
+  describe(' _renderChildPosition for a group ' + scenario, function() {
+
+    var defaults = require('../../../../../src/framework/defaults.js');
+    var ViewType, data, repository;
 
     beforeEach(function() {
-      repository = require('../../../src/framework/repository.js');
-      defaults = require('../../../src/framework/defaults.js');
+      repository = require('../../../../../src/framework/repository.js');
       var init = initFunction();
       ViewType = init.ViewType;
-
-      repository.importJSON(init.data, defaults.version);
+      repository.importJSON(JSON.parse(JSON.stringify(init.data)), defaults.version);
       data = repository.get(init.parentId, defaults.version);
     });
+
+
 
     it('will put the x property of its children as the left property of the style of its children DOM element when _renderChildPosition is called', function() {
       var view = new ViewType(data);
@@ -167,6 +172,5 @@ var GroupView_renderChildPositionTests = function(scenario, initFunction) {
         expect(childElement.style.display).toBe(displaySetting);
       }
     });
-  })
+  });
 };
-module.exports = GroupView_renderChildPositionTests;

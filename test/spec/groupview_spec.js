@@ -1,11 +1,10 @@
 var GroupView =  require('../../src/framework/groupview.js');
-var CommonViewTests = require('./helpers/commonviewtests.js');
-var CommonGroupViewTests = require('./helpers/commongroupviewtests.js');
-var GroupView_renderChildPositionTests = require('./helpers/groupview_renderchildpositiontests.js');
-var Common_renderChildPositionTests = require('./helpers/common_renderchildpositiontests.js');
 
+var ViewsGroupViewTests = require('./helpers/views/group/viewtests.js');
 var ViewsCommonParseTests = require('./helpers/views/common/parsetests.js');
+var ViewsCommonViewTests = require('./helpers/views/common/viewtests.js');
 var ViewsGroup_parseChildrenTests = require('./helpers/views/group/_parseChildrentests.js');
+var ViewsGroup_renderchildpositiontests = require('./helpers/views/group/_renderchildpositiontests.js');
 var utilities = require('./helpers/utilities.js');
 var ViewsCommonIdentifyTests = require('./helpers/views/common/identifytests.js');
 
@@ -19,39 +18,31 @@ describe("GroupView", function() {
     ElementView = require('../../src/framework/elementview.js');
   });
 
-  CommonViewTests('simple_groupdata.js', function() {
+  ViewsCommonViewTests('simple_groupdata.js', function() {
     return {
-      data: JSON.parse(JSON.stringify(require('./datasets/simple_groupdata.js')[0])),
+      data: require('./datasets/simple_groupdata.js')[0],
       ViewType: GroupView
     };
   });
 
-  CommonViewTests('anchor_groupdata.js', function() {
+  ViewsCommonViewTests('anchor_groupdata.js', function() {
     return {
-      data: JSON.parse(JSON.stringify(require('./datasets/anchor_groupdata.js')[0])),
+      data: require('./datasets/anchor_groupdata.js')[0],
       ViewType: GroupView
     };
   });
 
-  CommonGroupViewTests('groupdata_with_elementdata.js', function() {
+  ViewsGroupViewTests('groupdata_with_elementdata.js', function() {
     return {
-      data: JSON.parse(JSON.stringify(require('./datasets/groupdata_with_elementdata.js'))),
+      data: require('./datasets/groupdata_with_elementdata.js'),
       ViewType: GroupView,
       parentId: 110530
     };
   });
 
-  Common_renderChildPositionTests('groupdata_with_elementdata.js', function() {
+  ViewsGroup_renderchildpositiontests('groupdata_with_elementdata.js', function() {
     return {
-      data: JSON.parse(JSON.stringify(require('./datasets/groupdata_with_elementdata.js'))),
-      ViewType: GroupView,
-      parentId: 110530
-    };
-  });
-
-  GroupView_renderChildPositionTests('groupdata_with_elementdata.js', function() {
-    return {
-      data: JSON.parse(JSON.stringify(require('./datasets/groupdata_with_elementdata.js'))),
+      data: require('./datasets/groupdata_with_elementdata.js'),
       ViewType: GroupView,
       parentId: 110530
     };
