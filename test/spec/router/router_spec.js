@@ -252,7 +252,7 @@ describe('router', function() {
       el: document.getElementById('stage1')
     });
 
-    state.buildTree();
+    state.buildTree2();
 
     layerJS.router.addRouter(dummyRouter);
     layerJS.router._navigate(url, true);

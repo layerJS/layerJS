@@ -22,7 +22,7 @@ var StateRouter = Kern.EventManager.extend({
 
       for (var i = 0; i < activeFrames.length; i++) {
         var pathToFrame = activeFrames[i].split('.');
-        var parentState = state.tree;
+        var parentState = state._getTree(document);
         for (var x = 0; x < pathToFrame.length - 1; x++) {
           parentState = parentState[pathToFrame[x]];
         }

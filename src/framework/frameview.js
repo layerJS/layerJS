@@ -4,6 +4,7 @@ var pluginManager = require('./pluginmanager.js');
 var GroupView = require('./groupview.js');
 var Kern = require('../kern/Kern.js');
 var defaults = require('./defaults.js');
+var state = require('./state.js');
 
 /**
  * A View which can have child views
@@ -21,6 +22,10 @@ var FrameView = GroupView.extend({
 
     if (!options.noRender && (options.forceRender || !options.el))
       this.render();
+
+    if (this.data.attributes.type === 'frame') {
+      state.registerFrameView(this);
+    }
   },
   /**
    * get the transformData of the frame that describes how to fit the frame into the stage

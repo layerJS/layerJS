@@ -1,21 +1,19 @@
 var StageView = require('../../src/framework/stageview.js');
-//var CommonViewTests = require('./helpers/commonviewtests.js');
 
 var ViewsGroupViewTests = require('./helpers/views/group/viewtests.js');
 var ViewsCommonParseTests = require('./helpers/views/common/parsetests.js');
 var ViewsGroup_parseChildrenTests = require('./helpers/views/group/_parseChildrentests.js');
 var ViewsCommonIdentifyTests = require('./helpers/views/common/identifytests.js');
-
+var ViewsCommonViewTests = require('./helpers/views/common/viewtests.js')
 
 describe("StageView", function() {
-  /*
-    CommonViewTests(function() {
+
+    ViewsCommonViewTests('simple_stagedata_nochilden', function() {
       return {
-          data: JSON.parse(JSON.stringify(require('./datasets/simple_stagedata.js')[0])),
+          data: require('./datasets/simple_stagedata_nochildren.js')[0],
           ViewType : StageView
       };
     });
-  */
 
   ViewsGroupViewTests('simple_stagedata.js', function() {
     return {

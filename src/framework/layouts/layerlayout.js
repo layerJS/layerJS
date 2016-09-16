@@ -51,7 +51,7 @@ var LayerLayout = Kern.EventManager.extend({
   loadFrame: function(frame) {
     var finished = new Kern.Promise();
 
-    if (frame === null || (document.body.contains(frame.outerEl) && window.getComputedStyle(frame.outerEl).display !== 'none')) {
+    if (frame === null || (frame.document.body.contains(frame.outerEl) && frame.document.defaultView.getComputedStyle(frame.outerEl).display !== 'none')) {
       finished.resolve();
     } else {
       // FIXME: add to dom if not in dom

@@ -11,17 +11,18 @@ var ParseManager = function() {
    * @returns {void}
    */
   this.parseDocument = function(doc) {
-
-    var stageElements = (doc || document).querySelectorAll("[data-lj-type='stage']");
+    doc = doc || document;
+    var stageElements = doc.querySelectorAll("[data-lj-type='stage']");
 
     var length = stageElements.length;
 
     for (var index = 0; index < length; index++) {
       pluginManager.createView('stage', {
-        el: stageElements[index]
+        el: stageElements[index],
+        document: doc
       });
     }
-    state.buildTree2();
+    state.buildTree2({ document : doc});
   };
 };
 

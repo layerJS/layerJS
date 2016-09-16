@@ -18,6 +18,7 @@ var NodeView = Kern.EventManager.extend({
     Kern.EventManager.call(this);
     options = options || {};
 
+    this._setDocument(options);
     // dataobject must exist
     this.data = this.data || dataModel || options.el && new NodeData(this.constructor);
 
@@ -51,13 +52,13 @@ var NodeView = Kern.EventManager.extend({
     this.innerEl = this.innerEl || options.el;
     if (undefined === this.innerEl) {
       if (this.data.attributes.nodeType === 1 || this.data.attributes.tag) {
-        this.innerEl = document.createElement(this.data.attributes.tag);
+        this.innerEl = this.document.createElement(this.data.attributes.tag);
       } else if (this.data.attributes.nodeType === 3) {
         // text node
-        this.innerEl = document.createTextNode('');
+        this.innerEl = this.document.createTextNode('');
       } else if (this.data.attributes.nodeType === 8) {
         // comment node
-        this.innerEl = document.createComment('');
+        this.innerEl = this.document.createComment('');
       }
     }
     // backlink from DOM to object
@@ -233,6 +234,23 @@ var NodeView = Kern.EventManager.extend({
   _domElementChanged: function(result) {
     if (result.characterData) {
       this.parse(this.outerEl);
+    }
+  },
+  /**
+   * Will determin which docment object should be associated with this view
+   * @param {result} an object that contains what has been changed on the DOM element
+   * @return {void}
+   */
+  _setDocument: function(options){
+    this.document = document;
+
+    if (options){
+      if (options.document){
+        this.document = options.document;
+      }
+      else if(options.el){
+        this.document = options.el.ownerDocument;
+      }
     }
   }
 }, {

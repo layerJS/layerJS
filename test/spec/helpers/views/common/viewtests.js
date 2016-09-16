@@ -125,7 +125,7 @@ module.exports = function(scenario, initFunction) {
     it('will add a default class to the DOM element', function() {
       var view = new ViewType(data);
 
-      var element = view.outerEl;
+      var element = view.innerEl;
       var classAttribute = element.getAttribute('class');
       expect(classAttribute).toContain('object-default object-' + data.attributes.type);
     });
@@ -133,7 +133,7 @@ module.exports = function(scenario, initFunction) {
     it('will add classes that are defined in a data to the DOM element', function() {
       var view = new ViewType(data);
 
-      var element = view.outerEl;
+      var element = view.innerEl;
       var classAttribute = element.getAttribute('class');
       expect(classAttribute).toContain(data.attributes.classes);
     });
@@ -210,6 +210,16 @@ module.exports = function(scenario, initFunction) {
 
       expect(element.hasAttribute('some-thing')).toBeTruthy();
       expect(element.getAttribute('some-thing')).toBe(data.attributes.htmlAttributes.someThing);
+    });
+
+    it('when the options parameter has no document, the global document will be taken', function(){
+      var view  = new ViewType(data);
+      expect(view.document).toBe(document);
+    });
+
+    it('can pas in a custom document in the options parameter', function(){
+      var view  = new ViewType(data, { document : document});
+      expect(view.document).toBe(document);
     });
   });
 };

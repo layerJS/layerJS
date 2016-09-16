@@ -24,6 +24,7 @@ var directions2neighbors = {
 var LayerView = GroupView.extend({
   constructor: function(dataModel, options) {
     options = options || {};
+    this._setDocument(options);
     var that = this;
     this.inTransform = false; // indicates that transition is still being animated
     this.transitionID = 1; // counts up every call of transitionTo();
@@ -33,7 +34,7 @@ var LayerView = GroupView.extend({
     if (dataModel) {
       tag = dataModel.attributes.tag;
     }
-    this.outerEl = options.el || document.createElement(tag);
+    this.outerEl = options.el || this.document.createElement(tag);
 
 
     var hasScroller = this.outerEl.children.length === 1 && this.outerEl.children[0].getAttribute('data-lj-helper') === 'scroller';
@@ -195,7 +196,7 @@ var LayerView = GroupView.extend({
       that.currentTransform = that._transformer.getScrollTransform(tfd, scrollData.scrollX || (tfd.isScrollX && tfd.scrollX) || 0, scrollData.scrollY || (tfd.isScrollY && tfd.scrollY) || 0);
       that._layout.showFrame(frame, tfd, that.currentTransform);
       that.inTransform = false;
-        that.trigger('transitionFinished', framename);
+      that.trigger('transitionFinished', framename);
     });
   },
   noFrameTransformdata: function(transitionStartPosition) {

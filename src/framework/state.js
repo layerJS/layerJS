@@ -72,21 +72,30 @@ var State = Kern.Model.extend({
   },
   /**
    * Will build a tree structure to represent the layerjs objects in the current document
+   *
+   * @param {object} Represents the options that con be passed into
    */
-  buildTree: function() {
-    this.tree = {};
-    this._buildTree(this.tree, document.children);
+  buildTree: function(options) {
+    options = options || {
+      document: document
+    };
+
+    if (undefined === options.document) {
+      options.document = document;
+    }
+
+    this._buildTree(this._getTree(options.document), options.document.children);
   },
-  buildParent: function(parentNode) {
+  buildParent: function(parentNode, ownerDocument) {
     var currentState = {};
 
     if (null === parentNode) {
-      currentState = this.tree;
+      currentState = this._getTree(ownerDocument);
     } else if (parentNode._state) {
       return parentNode._state;
     } else {
 
-      currentState = this.buildParent(parentNode.parentElement);
+      currentState = this.buildParent(parentNode.parentElement, ownerDocument);
 
       if (parentNode._ljView && !parentNode.hasAttribute('data-lj-helper')) {
         var view = parentNode._ljView;
@@ -117,43 +126,63 @@ var State = Kern.Model.extend({
   },
   /**
    * Will build a tree structure to represent the layerjs objects in the current document
+   * @param {object} Represents the options that con be passed into
    */
-  buildTree2: function() {
-    this.tree = {};
+  buildTree2: function(options) {
+    options = options || {
+      document: document
+    };
 
-    var frames = document.querySelectorAll('[data-lj-type="frame"]');
+    if (undefined === options.document) {
+      options.document = document;
+    }
 
-    for (var i = 0; i < frames.length; i++) {
-      this.buildParent(frames[i]);
+    var frameViews = this._getRegisteredFrameViews(options.document);
+
+    for (var i = 0; i < frameViews.length; i++) {
+      this.buildParent(frameViews[i].innerEl, options.document);
     }
   },
   /**
    * Will return all paths to active frames
+   * @param {object} the document who's state will be exported
    * @returns {array} An array of strings pointing to active frames within the document
    */
-  exportStateAsArray: function() {
-    return this._getPath(this.tree, '', true);
+  exportStateAsArray: function(ownerDocument) {
+    return this._getPath(this._getTree(ownerDocument), '', true);
   },
   /**
    * Will return all paths to frames
+   * @param {object} the document who's state will be exported
    * @returns {array} An array of strings pointing to alle frames within the document
    */
-  exportStructureAsArray: function() {
-    return this._getPath(this.tree, '', false);
+  exportStructureAsArray: function(ownerDocument) {
+    return this._getPath(this._getTree(ownerDocument), '', false);
   },
   /**
    * Will return a delimited string that represents the path to all active frames within the document
+   * @param {object} the document who's state will be exported
    * @returns {string} A delimited string pointing to active frames within the document
    */
-  exportState: function() {
-    return this.exportStateAsArray().join(';');
+  exportState: function(ownerDocument) {
+    return this.exportStateAsArray(ownerDocument).join(';');
   },
   /**
    * Will return a delimited string that represents the path to all frames within the document
+   * @param {object} the document who's state will be exported
    * @returns {string} A delimited string pointing to frames within the document
    */
-  exportStructure: function() {
-    return this.exportStructureAsArray().join(';');
+  exportStructure: function(ownerDocument) {
+    return this.exportStructureAsArray(ownerDocument).join(';');
+  },
+  /**
+   * Will register a FrameView with the state
+   * @param {object} a FrameView
+   */
+  registerFrameView: function(frameView) {
+    var frameViews = this._getRegisteredFrameViews(frameView.document);
+
+    frameViews.push(frameView);
   },
   /**
    * Will build the up the path to the frames
@@ -195,6 +224,38 @@ var State = Kern.Model.extend({
         }
       }
     };
+  },
+  /**
+   * Will return the generated state tree for a document
+   *
+   * @param {object} a document object
+   * @returns {object} a state tree
+   */
+  _getTree: function(ownerDocument) {
+    var doc = ownerDocument || document;
+    var key = '__ljStateTree';
+
+    if (!doc.hasOwnProperty(key)) {
+      doc[key] = {};
+    }
+
+    return doc[key];
+  },
+  /**
+   * Will return all registered frameViews in a document
+   *
+   * @param {object} a document object
+   * @returns {array} an array of frameViews
+   */
+  _getRegisteredFrameViews: function(ownerDocument) {
+    var doc = ownerDocument || document;
+    var key = '__ljStateFrameView';
+
+    if (!doc.hasOwnProperty(key)) {
+      doc[key] = [];
+    }
+
+    return doc[key];
   }
 });
 

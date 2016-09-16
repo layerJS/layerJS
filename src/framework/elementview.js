@@ -119,10 +119,10 @@ var ElementView = NodeView.extend({
     var oldSelector = (diff.elementId && "#" + diff.elementId) || (diff.id && "#wl-obj-" + diff.id) || selector;
 
     if (('style' in diff) || (selector !== oldSelector)) {
-      var styleElement = document.getElementById('wl-obj-css');
+      var styleElement = this.document.getElementById('wl-obj-css');
       if (!styleElement) {
-        styleElement = document.createElement('style');
-        document.head.appendChild(styleElement);
+        styleElement = this.document.createElement('style');
+        this.document.head.appendChild(styleElement);
       }
       var cssContent = styleElement.innerHTML;
       var re;

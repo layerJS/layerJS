@@ -8,18 +8,18 @@ var ViewsCommon_renderChildPositionTests = require('./helpers/views/common/_rend
 var ViewsGroup_parseChildrenTests = require('./helpers/views/group/_parseChildrentests.js');
 
 var ViewsCommonIdentifyTests = require('./helpers/views/common/identifytests.js');
+var ViewsCommonViewTests = require('./helpers/views/common/viewtests.js');
 
 describe("LayerView", function() {
 
   var utilities = require('./helpers/utilities.js');
-  /*
-      CommonViewTests(function() {
+
+  ViewsCommonViewTests('simple_layerdata_nochildren.js', function() {
         return {
-            data: JSON.parse(JSON.stringify(require('./datasets/simple_layerdata.js')[0],
-            ViewType : LayerView
-        };
+          ViewType: LayerView,
+          data: require('./datasets/simple_layerdata_nochildren.js')[0]
+        }
       });
-  */
 
   ViewsGroupViewTests('simple_layerdata.js', function() {
     return {
@@ -143,6 +143,4 @@ describe("LayerView", function() {
       done();
     }, 100);
   });
-
-
 })

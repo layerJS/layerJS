@@ -9,7 +9,7 @@ var DomHelpers = {
    */
   wrapChildren: function(element, options) {
     options = options || {};
-    var wrapper = document.createElement(options.tag || "div");
+    var wrapper = element.ownerDocument.createElement(options.tag || "div");
     while (element.childNodes.length) {
       wrapper.appendChild(element.childNodes[0]);
     }
