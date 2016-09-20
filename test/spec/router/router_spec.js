@@ -131,7 +131,8 @@ describe('router', function() {
   });
 
   it('will parse an url for transition options', function() {
-    var url = 'http://localhost/index.html?id=1&t=100s&p=left&cat=p';
+    console.log();
+    var url = window.location.origin + '/index.html?id=1&t=100s&p=left&cat=p';
 
     var result = layerJS.router._parseUrl(url);
 
@@ -166,7 +167,7 @@ describe('router', function() {
   });
 
   it('will make paths absolute from the same domain', function(){
-    var url = 'http://localhost/dir/../index.html';
+    var url = window.location.origin + '/dir/../index.html';
 
     var result = layerJS.router._parseUrl(url);
 
@@ -193,7 +194,7 @@ describe('router', function() {
       defaults.transitionParameters.type = type;
       defaults.transitionParameters.duration = duration;
 
-      var url = 'http://localhost/index.html?id=1&' + duration + '=100s&' + type + '=left&cat=p';
+      var url =  window.location.origin + '/index.html?id=1&' + duration + '=100s&' + type + '=left&cat=p';
       var result = layerJS.router._parseUrl(url);
 
       expect(result.url).toBe('/index.html?id=1&cat=p');
@@ -220,7 +221,7 @@ describe('router', function() {
     };
 
     layerJS.router.addRouter(dummyRouter);
-    layerJS.router._navigate('http://localhost/index.aspx/?1&test=2&t=10s&p=top&a=3', true);
+    layerJS.router._navigate(window.location.origin + '/index.aspx/?1&test=2&t=10s&p=top&a=3', true);
 
     expect(urlHistory).toBe('/index.aspx/?1&test=2&a=3');
     expect(transitionOptions).toEqual({
@@ -230,7 +231,7 @@ describe('router', function() {
   });
 
   it('will add the state to the stateRouter when a new navigation is done by a registered router', function() {
-    var url = 'http://localhost/index.html';
+    var url = window.location.origin + '/index.html';
     var dummyRouter = {
       handle: function() {
         return true;
