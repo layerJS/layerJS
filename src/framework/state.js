@@ -109,7 +109,10 @@ var State = Kern.Model.extend({
               view: view
             };
             if (view.data.attributes.type === 'frame') {
-              currentState[name].active = currentState.view.currentFrame.data.attributes.name === view.data.attributes.name;
+              currentState[name].active = false;
+              if (currentState.view && currentState.view.currentFrame) {
+                currentState[name].active = currentState.view.currentFrame.data.attributes.name === view.data.attributes.name;
+              }
             } else if (view.data.attributes.type === 'layer') {
               view.on('transitionStarted', this._transitionToEvent(currentState[name]));
             }
@@ -140,7 +143,9 @@ var State = Kern.Model.extend({
     var frameViews = this._getRegisteredFrameViews(options.document);
 
     for (var i = 0; i < frameViews.length; i++) {
-      this.buildParent(frameViews[i].innerEl, options.document);
+      if (frameViews[i].document.body.contains(frameViews[i].innerEl)) {
+        this.buildParent(frameViews[i].innerEl, options.document);
+      }
     }
   },
   /**
@@ -183,6 +188,10 @@ var State = Kern.Model.extend({
     var frameViews = this._getRegisteredFrameViews(frameView.document);
 
     frameViews.push(frameView);
+
+    if (frameView.document.body.contains(frameView.innerEl)) {
+      this.buildParent(frameView.innerEl, frameView.document);
+    }
   },
   /**
    * Will build the up the path to the frames

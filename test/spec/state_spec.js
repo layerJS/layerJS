@@ -407,7 +407,7 @@ describe('state', function() {
         ok = frameView === frameViews[i];
       }
 
-      expect(ok).toBe(true);
+      expect(ok).toBe(true);      
     });
 
   it('performance test', function() {
