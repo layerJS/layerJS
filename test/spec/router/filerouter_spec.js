@@ -22,7 +22,7 @@ describe('Filerouter', function() {
     var scope = nock('http://localhost')
       .get('/somePage.html')
       .reply(200, '<div data-lj-type="stage" id="contentstage">' +
-        '<div data-lj-type="layer" id="contentlayer" data-lj-default-frame="frame1">' +
+        '<div data-lj-type="layer" id="contentlayer" data-lj-default-frame="frame2">' +
         '<div data-lj-type="frame" data-lj-name="frame2" data-lj-fit-to="responsive">' +
         'this is frame 2.' +
         '</div>' +
@@ -53,14 +53,14 @@ describe('Filerouter', function() {
     setTimeout(function() {
       expect(layerView.currentFrame.data.attributes.name).toBe('frame2');
       done();
-    }, 55);
+    }, 1000);
   });
 
   it('when no matching path is found, the current frame stays', function(done) {
     var scope = nock('http://localhost')
       .get('/somePage.html')
       .reply(200, '<div data-lj-type="stage" id="contentstage1">' +
-        '<div data-lj-type="layer" id="contentlayer1" data-lj-default-frame="frame1">' +
+        '<div data-lj-type="layer" id="contentlayer1" data-lj-default-frame="frame2">' +
         '<div data-lj-type="frame" data-lj-name="frame2" data-lj-fit-to="responsive">' +
         'this is frame 2.' +
         '</div>' +

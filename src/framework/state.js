@@ -194,6 +194,23 @@ var State = Kern.Model.extend({
     }
   },
   /**
+   * Will return the view linked to a path
+   * @param {Object} a layerJS View
+   */
+  getViewForPath: function(path, ownerDocument) {
+    ownerDocument = ownerDocument || document;
+    var tree = this._getTree(ownerDocument);
+
+    var pathArray = path.split('.');
+    var currentState = tree;
+
+    for (var i = 0; i < pathArray.length; i++) {
+       currentState = currentState[pathArray[i]];
+    }
+
+    return currentState.view;
+  },
+  /**
    * Will build the up the path to the frames
    *
    * @param {object} Represents the parent
