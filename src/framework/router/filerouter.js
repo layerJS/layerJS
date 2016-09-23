@@ -2,6 +2,7 @@
 var Kern = require('../../kern/Kern.js');
 var parseManager = require("../parsemanager.js");
 var state = require("../state.js");
+var $ = require('../domhelpers.js');
 
 var FileRouter = Kern.EventManager.extend({
   /**
@@ -18,44 +19,46 @@ var FileRouter = Kern.EventManager.extend({
 
     this._loadHTML(href).then(function(doc) {
       parseManager.parseDocument(doc);
-      var loadedActiveFrames = state.exportStateAsArray(doc);
+      var loadedFrames = state.exportStructureAsArray(doc);
       var currentActiveFrames = state.exportStateAsArray(document);
 
-      var toImport = {};
+      var toTransitionTo = {};
+      var layerView;
 
       for (var y = 0; y < currentActiveFrames.length; y++) {
         var layerPath = currentActiveFrames[y].replace(/^(.*\.)[^\.]*$/, "$1").slice(0, -1);
+        layerView = state.getViewForPath(layerPath);
+        toTransitionTo[layerPath] = undefined;
 
-        for (var x = 0; x < loadedActiveFrames.length; x++) {
-          var frameToImportPath = loadedActiveFrames[x].replace(/^(.*\.)[^\.]*$/, "$1").slice(0, -1);
-
-          if (layerPath === frameToImportPath && currentActiveFrames[y] !== loadedActiveFrames[x]) {
-            toImport[layerPath] = loadedActiveFrames[x];
-            break;
+        for (var x = 0; x < loadedFrames.length; x++) {
+          var frameToImportLayerPath = loadedFrames[x].replace(/^(.*\.)[^\.]*$/, "$1").slice(0, -1);
+          if (layerPath === frameToImportLayerPath && currentActiveFrames[y] !== loadedFrames[x]) {
+            var frameState = state.getStateForPath(loadedFrames[x], doc);
+            var frameViewToImport = frameState.view;
+            var adoptedEl = document.adoptNode(frameViewToImport.outerEl);
+            frameViewToImport.document = document;
+            frameViewToImport.outerEl = frameViewToImport.innerEl = adoptedEl;
+            delete adoptedEl._state;
+            layerView.innerEl.appendChild(adoptedEl);
+            // TODO: update state
+            state.registerFrameView(frameViewToImport);
+            if (frameState.active || toTransitionTo[layerPath] === undefined) {
+              toTransitionTo[layerPath] = frameViewToImport.data.attributes.name;
+            }
           }
         }
+
+        layerView._parseChildren();
       }
 
-      console.log(toImport);
-      var imported = false;
-      for (var path in toImport) {
-        if (toImport.hasOwnProperty(path)) {
-          var layerView = state.getViewForPath(path, document);
-          var frameViewToImport = state.getViewForPath(toImport[path], doc);
-
-          var adoptedEl = document.adoptNode(frameViewToImport.outerEl);
-          frameViewToImport.document = document;
-          layerView.innerEl.appendChild(adoptedEl);
-          layerView._parseChildren();
-
-          layerView.transitionTo(frameViewToImport.data.attributes.name, transition);
-          imported = true;
+      $.postAnimationFrame(function() {
+        for (var path in toTransitionTo) {
+          if (toTransitionTo.hasOwnProperty(path) && toTransitionTo[path] !== undefined) {
+            layerView = state.getViewForPath(path);
+            layerView.transitionTo(toTransitionTo[path], transition);
+          }
         }
-      }
-
-      if (!imported) {
-        window.location.href = href;
-      }
+      });
     });
 
     return true;
@@ -66,7 +69,7 @@ var FileRouter = Kern.EventManager.extend({
    * @param {string} URL - the url of the HMTL document
    * @returns {Promise} a promise that will return the HTML document
    */
-  _loadHTML : function(URL) {
+  _loadHTML: function(URL) {
     var xhr = new XMLHttpRequest();
     var p = new Kern.Promise();
     xhr.onload = function() {

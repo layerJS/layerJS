@@ -21,17 +21,10 @@ var StateRouter = Kern.EventManager.extend({
       var activeFrames = this.routes[href];
 
       for (var i = 0; i < activeFrames.length; i++) {
-        var pathToFrame = activeFrames[i].split('.');
-        var parentState = state._getTree(document);
-        for (var x = 0; x < pathToFrame.length - 1; x++) {
-          parentState = parentState[pathToFrame[x]];
-        }
-        var frameState = parentState[pathToFrame[pathToFrame.length - 1]];
-        var frameName = null;
-        if (frameState.view) {
-          frameName = frameState.view.data.attributes.name;
-        }
-        parentState.view.transitionTo(frameName, transition);
+        var layerPath = activeFrames[i].replace(/^(.*\.)[^\.]*$/, "$1").slice(0, -1);
+        var layerView = state.getViewForPath(layerPath);
+        var frameView = state.getViewForPath(activeFrames[i]);
+        layerView.transitionTo(frameView.data.attributes.name, transition);
       }
     }
 

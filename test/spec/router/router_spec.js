@@ -258,7 +258,7 @@ describe('router', function() {
     layerJS.router.addRouter(dummyRouter);
     layerJS.router._navigate(url, true);
 
-    expect(layerJS.router.routers[0].routes.hasOwnProperty(url)).toBeTruthy();
-    expect(layerJS.router.routers[0].routes[url]).toEqual(['stage1.layer1.frame1']);
+    expect(layerJS.router.routers[0].routes.hasOwnProperty('/index.html')).toBeTruthy();
+    expect(layerJS.router.routers[0].routes['/index.html']).toEqual(['stage1.layer1.frame1']);
   });
 });

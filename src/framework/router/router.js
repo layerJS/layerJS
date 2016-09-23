@@ -19,7 +19,10 @@ var Router = Kern.EventManager.extend({
    */
   addRouter: function(router) {
     if (this.routers.length === 0) {
-      this.routers.push(new StateRouter());
+      var stateRouter = new StateRouter();
+      var options = this._parseUrl(window.location.pathname);
+      stateRouter.addRoute(options.url, state.exportStateAsArray());
+      this.routers.push(stateRouter);
     }
 
     this.routers.push(router);
@@ -69,10 +72,10 @@ var Router = Kern.EventManager.extend({
       }
     }
 
-    result.url = result.url.replace(window.location.origin,'');
+    result.url = result.url.replace(window.location.origin, '');
 
     var pattern = /^((http|https):\/\/)/;
-    if (!pattern.test(result.url)) {
+    if (!pattern.test(result.url) && (result.url.indexOf('~/') !== -1 || result.url.indexOf('./') !== -1 || result.url.indexOf('../') !== -1)) {
       result.url = this._getAbsoluteUrl(result.url);
     }
 
@@ -86,10 +89,9 @@ var Router = Kern.EventManager.extend({
    */
   _getAbsoluteUrl: function(sRelPath) {
 
-    if (sRelPath.startsWith('~/')){
+    if (sRelPath.startsWith('~/')) {
       return sRelPath.substr(1);
-    }
-    else if(sRelPath.indexOf('/~/') !== -1){
+    } else if (sRelPath.indexOf('/~/') !== -1) {
       return sRelPath.substr(sRelPath.indexOf('/~/') + 2);
     }
 
@@ -111,21 +113,24 @@ var Router = Kern.EventManager.extend({
     var navigate = false;
     var options = this._parseUrl(href);
     var count = this.routers.length;
+    var that = this;
+
+    var addToStateRouter = function() {
+      if (that.routers[0]) {
+        that.routers[0].addRoute(options.url, state.exportStateAsArray());
+      }
+    };
 
     for (var i = 0; i < count && !navigate; i++) {
       var currentRouter = this.routers[i];
 
-      if (currentRouter.handle(href, options.transitionOptions)) {
-
-
+      if (currentRouter.handle(options.url, options.transitionOptions)) {
         // add to history using push state
         if (window.history && addToHistory) {
           window.history.pushState({}, "", options.url);
 
           if (i !== 0) {
-
-            this.routers[0].addRoute(href, state.exportStateAsArray());
-
+            $.postAnimationFrame(addToStateRouter);
           }
         }
 
