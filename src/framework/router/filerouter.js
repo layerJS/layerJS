@@ -11,9 +11,12 @@ var FileRouter = Kern.EventManager.extend({
    * @return {boolean} True if the router handled the url
    */
   handle: function(href, transition) {
+
+    var promise = new Kern.Promise();
+
     if (href.match(/^\w+:/)) { // absolute URL
       if (!href.match(new RegExp('^' + window.location.origin))) {
-        return false;
+        promise.resolve(false);
       }
     }
 
@@ -58,10 +61,13 @@ var FileRouter = Kern.EventManager.extend({
             layerView.transitionTo(toTransitionTo[path], transition);
           }
         }
+
+        promise.resolve(true);
       });
     });
 
-    return true;
+    return promise;
+  //  return true;
   },
   /**
    * load an HTML document by AJAX and return it through a promise

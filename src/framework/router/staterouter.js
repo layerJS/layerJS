@@ -28,7 +28,10 @@ var StateRouter = Kern.EventManager.extend({
       }
     }
 
-    return result;
+    var promise = new Kern.Promise();
+    promise.resolve(result);
+
+    return promise;
   }
 });
 

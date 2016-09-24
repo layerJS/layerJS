@@ -47,7 +47,9 @@ describe('router', function() {
   it('will let the current router can handle the url', function() {
     var dummyRouter = {
       handle: function(url) {
-        return true;
+        var promise = new Kern.Promise();
+        promise.resolve(true);
+        return promise;
       }
     };
 
@@ -65,7 +67,9 @@ describe('router', function() {
   it('will add a new entry to the history when url is handled', function() {
     var dummyRouter = {
       handle: function(url) {
-        return true;
+        var promise = new Kern.Promise();
+        promise.resolve(true);
+        return promise;
       }
     };
 
@@ -88,7 +92,9 @@ describe('router', function() {
   it('will not add a new entry to the history when url can not be handled', function() {
     var dummyRouter = {
       handle: function(url) {
-        return false;
+        var promise = new Kern.Promise();
+        promise.resolve(false);
+        return promise;
       }
     };
 
@@ -112,7 +118,9 @@ describe('router', function() {
   it('the window.popState will call the navigate method on the router and won\'t add an entry to the history', function() {
     var dummyRouter = {
       handle: function(url) {
-        return true;
+        var promise = new Kern.Promise();
+        promise.resolve(true);
+        return promise;
       }
     };
 
@@ -212,7 +220,9 @@ describe('router', function() {
       handle: function(url, transition) {
         transitionOptions = transition;
 
-        return true;
+        var promise = new Kern.Promise();
+        promise.resolve(true);
+        return promise;
       }
     };
 
@@ -233,10 +243,12 @@ describe('router', function() {
   it('will add the state to the stateRouter when a new navigation is done by a registered router', function() {
     var url = window.location.origin + '/index.html';
     var dummyRouter = {
-      handle: function() {
-        return true;
-      }
+    handle: function(url) {
+      var promise = new Kern.Promise();
+      promise.resolve(true);
+      return promise;
     }
+  };
 
     var html = "<div data-lj-type='stage' id='stage1'>" +
       "<div data-lj-type='layer' id='layer1' data-lj-default-frame='frame1'>" +
