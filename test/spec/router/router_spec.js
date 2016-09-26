@@ -240,7 +240,7 @@ describe('router', function() {
     });
   });
 
-  it('will add the state to the stateRouter when a new navigation is done by a registered router', function() {
+  it('will add the exiting state to the stateRouter when a new navigation is done', function() {
     var url = window.location.origin + '/index.html';
     var dummyRouter = {
     handle: function(url) {
@@ -269,8 +269,7 @@ describe('router', function() {
 
     layerJS.router.addRouter(dummyRouter);
     layerJS.router._navigate(url, true);
-
-    expect(layerJS.router.routers[0].routes.hasOwnProperty('/index.html')).toBeTruthy();
-    expect(layerJS.router.routers[0].routes['/index.html']).toEqual(['stage1.layer1.frame1']);
+    expect(layerJS.router.routers[0].routes.hasOwnProperty('/#')).toBeTruthy();
+    expect(layerJS.router.routers[0].routes['/#']).toEqual(['stage1.layer1.frame1']);
   });
 });

@@ -55,6 +55,7 @@ utilities.afterEach = function() {
   layerJS.repository.clear();
   layerJS.state.tree = {};
   layerJS.router.clearRouters();
+  layerJS.router.previousUrl = undefined;
   delete document.__ljStateTree;
   delete document.__ljStateFrameView;
 }
