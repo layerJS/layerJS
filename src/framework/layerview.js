@@ -195,7 +195,8 @@ var LayerView = GroupView.extend({
       var tfd = that.currentFrameTransformData = null === frame ? that.noFrameTransformdata(scrollData.startPosition) : frame.getTransformData(that.stage, scrollData.startPosition);
       that.currentTransform = that._transformer.getScrollTransform(tfd, scrollData.scrollX || (tfd.isScrollX && tfd.scrollX) || 0, scrollData.scrollY || (tfd.isScrollY && tfd.scrollY) || 0);
       that._layout.showFrame(frame, tfd, that.currentTransform);
-      that.inTransform = false;
+      that.inTransform = false;      
+      that.currentFrame = frame;
       that.trigger('transitionFinished', framename);
     });
   },
