@@ -265,8 +265,6 @@ describe('router', function() {
       el: document.getElementById('stage1')
     });
 
-    state.buildTree2();
-
     layerJS.router.addRouter(dummyRouter);
     layerJS.router._navigate(url, true);
     expect(layerJS.router.routers[0].routes.hasOwnProperty('/#')).toBeTruthy();
