@@ -50,7 +50,7 @@ var LayerLayout = Kern.EventManager.extend({
    */
   loadFrame: function(frame) {
     var finished = new Kern.Promise();
-    var computedStyle = (frame.document.defaultView && frame.document.defaultView.getComputedStyle) || function(el) {
+    var computedStyle = (null !== frame && frame.document.defaultView && frame.document.defaultView.getComputedStyle) || function(el) {
       return el.style;
     };
     if (frame === null || (frame.document.body.contains(frame.outerEl) && computedStyle(frame.outerEl).display !== 'none')) {

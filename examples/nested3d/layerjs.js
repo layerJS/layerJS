@@ -2362,7 +2362,7 @@ var LayerLayout = Kern.EventManager.extend({
    */
   loadFrame: function(frame) {
     var finished = new Kern.Promise();
-    var computedStyle = (frame.document.defaultView && frame.document.defaultView.getComputedStyle) || function(el) {
+    var computedStyle = (null !== frame && frame.document.defaultView && frame.document.defaultView.getComputedStyle) || function(el) {
       return el.style;
     };
     if (frame === null || (frame.document.body.contains(frame.outerEl) && computedStyle(frame.outerEl).display !== 'none')) {
@@ -2684,9 +2684,13 @@ var SlideLayout = LayerLayout.extend({
         break;
 
       case 'fade':
-        t.t0.transform = "scale(" + ttfd.scale + ")";
+        y = - ctfd.shiftY;
+        x = -ttfd.shiftX + ctfd.scrollX * ctfd.scale - ttfd.scrollX * ttfd.scale;
+        t.t0.transform = "translate3d(" + x + "px," + y + "px,0px) scale(" + ttfd.scale + ")";
         t.t0.opacity = '0';
-        t.c1.transform = "scale(" + ctfd.scale + ")";
+        y = - ttfd.shiftY;
+        x = -ctfd.shiftX - ctfd.scrollX * ctfd.scale + ttfd.scrollX * ttfd.scale;
+        t.c1.transform = "translate3d(" + x + "px," + y + "px,0px) scale(" + ctfd.scale + ")";
         t.c1.opacity = '0';
         break;
         // target frame transform time 0
