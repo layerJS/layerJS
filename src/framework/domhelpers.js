@@ -139,6 +139,40 @@ var DomHelpers = {
         fn.call(el, event);
       }
     });
+  },
+  /**
+   * Will get the value for a data-lj-* or lj-* attribute
+   *
+   * @param {HTMLElement} element
+   * @param {string} name - the attribute name
+   * @returns {string}
+   */
+  getAttributeLJ: function(element, name) {
+    return element.getAttribute('data-lj-' + name) || element.getAttribute('lj-' + name);
+  },
+  /**
+   * Check if the element has a data-lj-* or lj-* attribute defined
+   *
+   * @param {HTMLElement} element
+   * @param {string} name - the attribute name
+   * @returns {boolean}
+   */
+  hasAttributeLJ: function(element, name) {
+    return element.hasAttribute('data-lj-' + name) || element.hasAttribute('lj-' + name);
+  },
+  /**
+   * Set the data-lj-* or lj-* attribute
+   *
+   * @param {HTMLElement} element
+   * @param {string} name - the attribute name
+   * @param {string} value - the attribute value
+   */
+  setAttributeLJ: function(element, name, value) {
+    if (element.hasAttribute('lj-' + name)) {
+      element.setAttribute('lj-' + name, value);
+    } else {
+      element.setAttribute('data-lj-' + name, value);
+    }
   }
 };
 DomHelpers.detectBrowser();

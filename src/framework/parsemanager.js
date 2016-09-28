@@ -12,7 +12,7 @@ var ParseManager = function() {
    */
   this.parseDocument = function(doc) {
     doc = doc || document;
-    var stageElements = doc.querySelectorAll("[data-lj-type='stage']");
+    var stageElements = doc.querySelectorAll("[data-lj-type='stage'],[lj-type='stage']");
 
     var length = stageElements.length;
 

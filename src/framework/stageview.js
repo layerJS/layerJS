@@ -3,6 +3,7 @@ var pluginManager = require('./pluginmanager.js');
 var GroupView = require('./groupview.js');
 var Kern = require('../kern/Kern.js');
 var defaults = require('./defaults.js');
+var $ = require('./domhelpers.js');
 
 /**
  * A View which can have child views
@@ -54,7 +55,7 @@ var StageView = GroupView.extend({
     type: 'stage'
   }),
   identify: function(element) {
-    var type = element.getAttribute('data-lj-type');
+    var type = $.getAttributeLJ(element, 'type');
     return null !== type && type.toLowerCase() === StageView.defaultProperties.type;
   }
 });

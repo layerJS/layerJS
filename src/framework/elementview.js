@@ -66,11 +66,11 @@ var ElementView = NodeView.extend({
       diff = (this.isRendererd ? this.data.changedAttributes : this.data.attributes),
       outerEl = this.outerEl;
     if ('id' in diff) {
-      outerEl.setAttribute("data-lj-id", attr.id); //-> should be a class?
+      $.setAttributeLJ(outerEl, "id", attr.id); //-> should be a class?
     }
 
     if ('type' in diff) {
-      outerEl.setAttribute("data-lj-type", attr.type); //-> should be a class?
+      $.setAttributeLJ(outerEl, "type", attr.type); //-> should be a class?
     }
 
     if ('elementId' in diff || 'id' in diff) {

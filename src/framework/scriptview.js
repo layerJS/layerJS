@@ -4,6 +4,7 @@ var GroupView = require('./groupview.js');
 var Kern = require('../kern/Kern.js');
 var defaults = require('./defaults.js');
 var layerJS = require('./layerjs.js');
+var $ = require('./domhelpers.js');
 
 /**
  * A View that represents a script DOM element
@@ -28,11 +29,11 @@ var ScriptView = GroupView.extend({
       diff = (this.isRendererd ? this.data.changedAttributes : this.data.attributes),
       outerEl = this.outerEl;
     if ('id' in diff) {
-      outerEl.setAttribute("data-lj-id", attr.id); //-> should be a class?
+      $.setAttributeLJ(outerEl, "id", attr.id); //-> should be a class?
     }
 
     if ('type' in diff) {
-      outerEl.setAttribute("data-lj-type", attr.type); //-> should be a class?
+      $.setAttributeLJ(outerEl,"type", attr.type); //-> should be a class?
     }
 
     if ('elementId' in diff || 'id' in diff) {

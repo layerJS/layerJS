@@ -5,6 +5,7 @@ var GroupView = require('./groupview.js');
 var Kern = require('../kern/Kern.js');
 var defaults = require('./defaults.js');
 var state = require('./state.js');
+var $ = require('./domhelpers.js');
 
 /**
  * A View which can have child views
@@ -281,7 +282,7 @@ var FrameView = GroupView.extend({
     type: 'frame'
   }),
   identify: function(element) {
-    var type = element.getAttribute('data-lj-type');
+    var type = $.getAttributeLJ(element, 'type');
     return null !== type && type.toLowerCase() === FrameView.defaultProperties.type;
   }
 });

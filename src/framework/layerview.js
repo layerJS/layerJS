@@ -37,7 +37,7 @@ var LayerView = GroupView.extend({
     this.outerEl = options.el || this.document.createElement(tag);
 
 
-    var hasScroller = this.outerEl.children.length === 1 && this.outerEl.children[0].getAttribute('data-lj-helper') === 'scroller';
+    var hasScroller = this.outerEl.children.length === 1 && $.getAttributeLJ(this.outerEl.children[0], 'helper') === 'scroller';
     this.innerEl = hasScroller ? this.outerEl.children[0] : this.outerEl;
 
     // call super constructor
@@ -93,11 +93,11 @@ var LayerView = GroupView.extend({
       this.nativeScroll = nativeScrolling;
 
       this.disableObserver();
-      var hasScroller = this.outerEl.children.length === 1 && this.outerEl.children[0].getAttribute('data-lj-helper') === 'scroller';
+      var hasScroller = this.outerEl.children.length === 1 && $.getAttributeLJ(this.outerEl.children[0], 'helper') === 'scroller';
 
       if (nativeScrolling) {
         this.innerEl = hasScroller ? this.outerEl.children[0] : $.wrapChildren(this.outerEl);
-        this.innerEl.setAttribute('data-lj-helper', 'scroller');
+        $.setAttributeLJ(this.innerEl, 'helper', 'scroller');
         if (!this.innerEl._ljView) {
           this.innerEl._ljView = this.outerEl._ljView;
         }
@@ -195,7 +195,7 @@ var LayerView = GroupView.extend({
       var tfd = that.currentFrameTransformData = null === frame ? that.noFrameTransformdata(scrollData.startPosition) : frame.getTransformData(that.stage, scrollData.startPosition);
       that.currentTransform = that._transformer.getScrollTransform(tfd, scrollData.scrollX || (tfd.isScrollX && tfd.scrollX) || 0, scrollData.scrollY || (tfd.isScrollY && tfd.scrollY) || 0);
       that._layout.showFrame(frame, tfd, that.currentTransform);
-      that.inTransform = false;      
+      that.inTransform = false;
       that.currentFrame = frame;
       that.trigger('transitionFinished', framename);
     });
@@ -335,7 +335,7 @@ var LayerView = GroupView.extend({
     nativeScroll: true
   }),
   identify: function(element) {
-    var type = element.getAttribute('data-lj-type');
+    var type = $.getAttributeLJ(element, 'type');
     return null !== type && type.toLowerCase() === LayerView.defaultProperties.type;
   }
 });

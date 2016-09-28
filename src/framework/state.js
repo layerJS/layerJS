@@ -2,6 +2,7 @@
 
 var Kern = require('../kern/Kern.js');
 var layerJS = require('./layerjs.js');
+var $ = require('./domhelpers.js');
 
 /**
  *  class that will contain the state off all the stages, layers, frames
@@ -97,7 +98,7 @@ var State = Kern.Model.extend({
 
       currentState = this.buildParent(parentNode.parentElement, ownerDocument);
 
-      if (parentNode._ljView && !parentNode.hasAttribute('data-lj-helper')) {
+      if (parentNode._ljView && !$.hasAttributeLJ(parentNode,'helper')) {
         var view = parentNode._ljView;
 
         if (view && (view.data.attributes.type === 'frame' || view.data.attributes.type === 'layer' || view.data.attributes.type === 'stage')) {

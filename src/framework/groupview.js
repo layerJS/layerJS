@@ -5,6 +5,7 @@ var repository = require('./repository.js'); // jshint ignore:line
 var ElementView = require('./elementview.js');
 var defaults = require('./defaults.js');
 var observerFactory = require('./observer/observerfactory.js');
+var $ = require('./domhelpers.js');
 /**
  * A View which can have child views
  * @param {GroupData} dataModel
@@ -87,7 +88,7 @@ var GroupView = ElementView.extend({
       // jshint ignore:start
       k++;
       var elem;
-      while (!(empty = !(k < that.innerEl.childNodes.length)) && (elem = that.innerEl.childNodes[k]) && (elem.nodeType != 1 || !(nodeId = (elem._ljView && elem._ljView.data.attributes.id) || elem.getAttribute('data-lj-id')))) {
+      while (!(empty = !(k < that.innerEl.childNodes.length)) && (elem = that.innerEl.childNodes[k]) && (elem.nodeType != 1 || !(nodeId = (elem._ljView && elem._ljView.data.attributes.id) || $.getAttributeLJ(elem, 'id')))) {
         k++;
       }
       // jshint ignore:end
@@ -199,13 +200,13 @@ var GroupView = ElementView.extend({
     for (i = 0; i < cn.length; i++) {
       var elem = cn[i];
 
-      nodeId = (elem._ljView && elem._ljView.data.attributes.id) || elem.getAttribute && elem.getAttribute('data-lj-id');
+      nodeId = (elem._ljView && elem._ljView.data.attributes.id) || elem.getAttribute && $.getAttributeLJ(elem, 'id');
       try {
         data = nodeId && repository.get(nodeId, this.data.attributes.version);
       } catch (e) {
         data = undefined;
       }
-      nodeType = (elem._ljView && elem._ljView.data.attributes.type) || elem.getAttribute && elem.getAttribute('data-lj-type');
+      nodeType = (elem._ljView && elem._ljView.data.attributes.type) || elem.getAttribute && $.getAttributeLJ(elem, 'type');
       if (nodeId && (data || nodeType)) {
         // search for nodeId in data.chi ldren
         var k_saved = k;
@@ -517,7 +518,7 @@ var GroupView = ElementView.extend({
   }),
   getNodeType: undefined,
   identify: function(element) {
-    var type = element.getAttribute('data-lj-type');
+    var type = $.getAttributeLJ(element, 'type');
 
     return element.nodeType === 1 && ((null !== type && type.toLowerCase() === 'group') || !type);
   }
