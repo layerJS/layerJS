@@ -47,13 +47,14 @@ describe('Filerouter', function() {
     var layerView = document.getElementById('contentlayer')._ljView;
 
     var fileRouter = new FileRouter();
-    fileRouter.handle('http://localhost/somePage.html');
+    var promise = fileRouter.handle('http://localhost/somePage.html');
     scope.done();
 
-    setTimeout(function() {
+    promise.then(function() {
       expect(layerView.currentFrame.data.attributes.name).toBe('frame2');
       done();
-    }, 1000);
+    });
+
   });
 
   it('when no matching path is found, the current frame stays', function(done) {
@@ -73,13 +74,13 @@ describe('Filerouter', function() {
     var layerView = document.getElementById('contentlayer')._ljView;
 
     var fileRouter = new FileRouter();
-    fileRouter.handle('/somePage.html');
+    var promise = fileRouter.handle('/somePage.html');
     scope.done();
 
-    setTimeout(function() {
+    promise.then(function() {
       expect(layerView.currentFrame.data.attributes.name).toBe('frame1');
       done();
-    }, 55);
+    });
   });
 
   it('will pass transition options to the layer when navigating to a frame', function(done) {
@@ -97,13 +98,13 @@ describe('Filerouter', function() {
     };
 
     var fileRouter = new FileRouter();
-    fileRouter.handle('/somePage.html', transitionOptions);
+    var promise = fileRouter.handle('/somePage.html', transitionOptions);
     scope.done();
 
-    setTimeout(function() {
+    promise.then(function() {
       expect(layerView.transitionTo).toHaveBeenCalledWith('frame2', transitionOptions);
       done();
-    }, 55);
+    });
   });
 
 });

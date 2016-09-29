@@ -7,6 +7,7 @@ var GroupView = require('./groupview.js');
 var ScrollTransformer = require('./scrolltransformer.js');
 var gestureManager = require('./gestures/gesturemanager.js');
 var defaults = require('./defaults.js');
+var state = require('./state.js');
 
 var directions2neighbors = {
   up: 'b',
@@ -80,6 +81,8 @@ var LayerView = GroupView.extend({
       that.gestureListener.apply(that,arguments);
     })
     */
+
+    state.registerView(this);
   },
   /**
    * Will toggle native and non-native scrolling
@@ -187,13 +190,15 @@ var LayerView = GroupView.extend({
       if (!frame) throw "transformTo: " + framename + " does not exist in layer";
     }
 
-
+    that.trigger('beforeTransition', framename);
 
     this.inTransform = true;
-    that.trigger('transitionStarted', framename);
+
     this._layout.loadFrame(frame).then(function() {
       var tfd = that.currentFrameTransformData = null === frame ? that.noFrameTransformdata(scrollData.startPosition) : frame.getTransformData(that.stage, scrollData.startPosition);
       that.currentTransform = that._transformer.getScrollTransform(tfd, scrollData.scrollX || (tfd.isScrollX && tfd.scrollX) || 0, scrollData.scrollY || (tfd.isScrollY && tfd.scrollY) || 0);
+      that.currentFrame = frame;
+      that.trigger('transitionStarted', framename);
       that._layout.showFrame(frame, tfd, that.currentTransform);
       that.inTransform = false;
       that.currentFrame = frame;
@@ -240,6 +245,8 @@ var LayerView = GroupView.extend({
     var frame = null === framename ? null : this.getChildViewByName(framename);
     if (!frame && null !== frame) throw "transformTo: " + framename + " does not exist in layer";
     var that = this;
+    that.trigger('beforeTransition', framename);
+
     this.inTransform = true;
     transition.transitionID = ++this.transitionID; // inc transition ID and save new ID into transition record
     // make sure frame is there such that we can calculate dimensions and transform data
@@ -272,11 +279,13 @@ var LayerView = GroupView.extend({
           });
         }
       });
-      that.trigger('transitionStarted', framename);
+
       that.updateClasses(frame);
       that.currentFrameTransformData = targetFrameTransformData;
       that.currentFrame = frame;
       that.currentTransform = targetTransform;
+      that.trigger('transitionStarted', framename);
+
       return layoutPromise;
     });
   },

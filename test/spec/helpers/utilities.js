@@ -56,8 +56,8 @@ utilities.afterEach = function() {
   layerJS.state.tree = {};
   layerJS.router.clearRouters();
   layerJS.router.previousUrl = undefined;
-  delete document.__ljStateTree;
-  delete document.__ljStateFrameView;
+  delete document._ljStateTree;
+  delete document._ljStateFrameView;
 }
 
 utilities.setHtml = function(html) {

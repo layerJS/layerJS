@@ -1,7 +1,6 @@
 'use strict';
 var layerJS = require('./layerjs.js');
 var pluginManager = require('./pluginmanager.js');
-var state = require('./state.js');
 
 var ParseManager = function() {
   /**
@@ -22,7 +21,6 @@ var ParseManager = function() {
         document: doc
       });
     }
-    state.buildTree2({ document : doc});
   };
 };
 

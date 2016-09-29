@@ -40,11 +40,7 @@ describe('state', function() {
       el: customDocument.getElementById('stage1')
     });
 
-    state.buildTree2({
-      document: customDocument
-    });
-
-    expect(state.exportState(customDocument)).toBe('stage1.layer1.frame1');
+    expect(state.exportStateAsArray(customDocument)).toEqual(['stage1.layer1.frame1']);
   });
 
   it('can have a tree per document object', function() {
@@ -74,16 +70,8 @@ describe('state', function() {
       el: customDocument2.getElementById('stage1')
     });
 
-    state.buildTree2({
-      document: customDocument1
-    });
-
-    state.buildTree2({
-      document: customDocument2
-    });
-
-    expect(state.exportState(customDocument1)).toBe('stage1.layer1.frame1');
-    expect(state.exportState(customDocument2)).toBe('stage1.layer1.frame2');
+    expect(state.exportStateAsArray(customDocument1)).toEqual(['stage1.layer1.frame1']);
+    expect(state.exportStateAsArray(customDocument2)).toEqual(['stage1.layer1.frame2']);
 
   });
 
@@ -115,8 +103,6 @@ describe('state', function() {
       el: document.getElementById('stage2')
     });
 
-    state.buildTree2();
-
     var stageView1Id = 'stage1';
     var stageView2Id = 'stage2';
     var layerView1 = document.getElementById('layer1')._ljView;
@@ -141,38 +127,40 @@ describe('state', function() {
 
     var tree = state._getTree(document);
 
-    expect(tree[stageView1Id]).toBeDefined();
-    expect(tree[stageView1Id].view).toBe(stageView1);
+    expect(tree.children[stageView1Id]).toBeDefined();
+    expect(tree.children[stageView1Id].view).toBe(stageView1);
 
-    expect(tree[stageView1Id][layerView1Id]).toBeDefined();
-    expect(tree[stageView1Id][layerView1Id].view).toBe(layerView1);
-    expect(tree[stageView1Id][layerView1Id][frameView1Id]).toBeDefined();
-    expect(tree[stageView1Id][layerView1Id][frameView1Id].view).toBe(frameView1);
-    expect(tree[stageView1Id][layerView1Id][frameView1Id].active).toBeTruthy();
-    expect(tree[stageView1Id][layerView1Id][frameView2Id]).toBeDefined();
-    expect(tree[stageView1Id][layerView1Id][frameView2Id].view).toBe(frameView2);
-    expect(tree[stageView1Id][layerView1Id][frameView2Id].active).toBeFalsy();
+    expect(tree.children[stageView1Id].children[layerView1Id]).toBeDefined();
+    expect(tree.children[stageView1Id].children[layerView1Id].view).toBe(layerView1);
+    expect(tree.children[stageView1Id].children[layerView1Id].children[frameView1Id]).toBeDefined();
+    expect(tree.children[stageView1Id].children[layerView1Id].children[frameView1Id].view).toBe(frameView1);
+    expect(tree.children[stageView1Id].children[layerView1Id].children[frameView1Id].active).toBeTruthy();
+    expect(tree.children[stageView1Id].children[layerView1Id].children[frameView2Id]).toBeDefined();
+    expect(tree.children[stageView1Id].children[layerView1Id].children[frameView2Id].view).toBe(frameView2);
+    expect(tree.children[stageView1Id].children[layerView1Id].children[frameView2Id].active).toBeFalsy();
 
-    expect(tree[stageView1Id][layerView2Id]).toBeDefined();
-    expect(tree[stageView1Id][layerView2Id].view).toBe(layerView2);
-    expect(tree[stageView1Id][layerView2Id][frameView3Id]).toBeDefined();
-    expect(tree[stageView1Id][layerView2Id][frameView3Id].view).toBe(frameView3);
-    expect(tree[stageView1Id][layerView2Id][frameView3Id].active).toBeTruthy();
-    expect(tree[stageView1Id][layerView2Id][frameView4Id]).toBeDefined();
-    expect(tree[stageView1Id][layerView2Id][frameView4Id].view).toBe(frameView4);
-    expect(tree[stageView1Id][layerView2Id][frameView4Id].active).toBeFalsy();
+    expect(tree.children[stageView1Id].children[layerView2Id]).toBeDefined();
+    expect(tree.children[stageView1Id].children[layerView2Id].view).toBe(layerView2);
+    expect(tree.children[stageView1Id].children[layerView2Id].children[frameView3Id]).toBeDefined();
+    expect(tree.children[stageView1Id].children[layerView2Id].children[frameView3Id].view).toBe(frameView3);
+    expect(tree.children[stageView1Id].children[layerView2Id].children[frameView3Id].active).toBeTruthy();
+    expect(tree.children[stageView1Id].children[layerView2Id].children[frameView4Id]).toBeDefined();
+    expect(tree.children[stageView1Id].children[layerView2Id].children[frameView4Id].view).toBe(frameView4);
+    expect(tree.children[stageView1Id].children[layerView2Id].children[frameView4Id].active).toBeFalsy();
 
-    expect(tree[stageView2Id]).toBeDefined();
-    expect(tree[stageView2Id].view).toBe(stageView2);
-    expect(tree[stageView2Id][layerView3Id]).toBeDefined();
-    expect(tree[stageView2Id][layerView3Id].view).toBe(layerView3);
-    expect(tree[stageView2Id][layerView3Id][frameView5Id]).toBeDefined();
-    expect(tree[stageView2Id][layerView3Id][frameView5Id].view).toBe(frameView5);
-    expect(tree[stageView2Id][layerView3Id][frameView5Id].active).toBeTruthy();
-    expect(tree[stageView2Id][layerView3Id][frameView6Id]).toBeDefined();
-    expect(tree[stageView2Id][layerView3Id][frameView6Id].view).toBe(frameView6);
-    expect(tree[stageView2Id][layerView3Id][frameView6Id].active).toBeFalsy();
+    expect(tree.children[stageView2Id]).toBeDefined();
+    expect(tree.children[stageView2Id].view).toBe(stageView2);
+    expect(tree.children[stageView2Id].children[layerView3Id]).toBeDefined();
+    expect(tree.children[stageView2Id].children[layerView3Id].view).toBe(layerView3);
+    expect(tree.children[stageView2Id].children[layerView3Id].children[frameView5Id]).toBeDefined();
+    expect(tree.children[stageView2Id].children[layerView3Id].children[frameView5Id].view).toBe(frameView5);
+    expect(tree.children[stageView2Id].children[layerView3Id].children[frameView5Id].active).toBeTruthy();
+    expect(tree.children[stageView2Id].children[layerView3Id].children[frameView6Id]).toBeDefined();
+    expect(tree.children[stageView2Id].children[layerView3Id].children[frameView6Id].view).toBe(frameView6);
+    expect(tree.children[stageView2Id].children[layerView3Id].children[frameView6Id].active).toBeFalsy();
+
   });
+
 
   it('can build a tree with nested lj elements', function() {
     var html = "<div data-lj-type='stage' id='stage1'>" +
@@ -190,8 +178,6 @@ describe('state', function() {
       el: document.getElementById('stage1')
     });
 
-    state.buildTree2();
-
     var stageView1Id = 'stage1';
     var layerView1 = document.getElementById('layer1')._ljView;
     var layerView2 = document.getElementById('layer2')._ljView;
@@ -205,17 +191,16 @@ describe('state', function() {
 
     var tree = state._getTree(document);
 
-    expect(tree[stageView1Id]).toBeDefined();
-    expect(tree[stageView1Id].view).toBe(stageView1);
-
-    expect(tree[stageView1Id][layerView1Id]).toBeDefined();
-    expect(tree[stageView1Id][layerView1Id].view).toBe(layerView1);
-    expect(tree[stageView1Id][layerView1Id][frameView1Id]).toBeDefined();
-    expect(tree[stageView1Id][layerView1Id][frameView1Id].view).toBe(frameView1);
-    expect(tree[stageView1Id][layerView1Id][frameView1Id].active).toBeTruthy();
-    expect(tree[stageView1Id][layerView1Id][frameView1Id][layerView2Id][frameView2Id]).toBeDefined();
-    expect(tree[stageView1Id][layerView1Id][frameView1Id][layerView2Id][frameView2Id].view).toBe(frameView2);
-    expect(tree[stageView1Id][layerView1Id][frameView1Id][layerView2Id][frameView2Id].active).toBeTruthy();
+    expect(tree.children[stageView1Id]).toBeDefined();
+    expect(tree.children[stageView1Id].view).toBe(stageView1);
+    expect(tree.children[stageView1Id].children[layerView1Id]).toBeDefined();
+    expect(tree.children[stageView1Id].children[layerView1Id].view).toBe(layerView1);
+    expect(tree.children[stageView1Id].children[layerView1Id].children[frameView1Id]).toBeDefined();
+    expect(tree.children[stageView1Id].children[layerView1Id].children[frameView1Id].view).toBe(frameView1);
+    expect(tree.children[stageView1Id].children[layerView1Id].children[frameView1Id].active).toBeTruthy();
+    expect(tree.children[stageView1Id].children[layerView1Id].children[frameView1Id].children[layerView2Id].children[frameView2Id]).toBeDefined();
+    expect(tree.children[stageView1Id].children[layerView1Id].children[frameView1Id].children[layerView2Id].children[frameView2Id].view).toBe(frameView2);
+    expect(tree.children[stageView1Id].children[layerView1Id].children[frameView1Id].children[layerView2Id].children[frameView2Id].active).toBeTruthy();
   });
 
   it('will use the lj-name as identifier if the attribute is on the element', function() {
@@ -230,10 +215,9 @@ describe('state', function() {
       el: document.getElementById('stage1')
     });
 
-    state.buildTree2();
     var tree = state._getTree(document);
-    expect(tree['myStage']).toBeDefined();
-    expect(tree['myStage'].view).toBe(stageView1);
+    expect(tree.children['myStage']).toBeDefined();
+    expect(tree.children['myStage'].view).toBe(stageView1);
   });
 
   it('will use the id as identifier when lj-name is not provide', function() {
@@ -247,11 +231,9 @@ describe('state', function() {
       el: document.getElementById('stage1')
     });
 
-    state.buildTree2();
-
     var tree = state._getTree(document);
-    expect(tree['stage1']).toBeDefined();
-    expect(tree['stage1'].view).toBe(stageView1);
+    expect(tree.children['stage1']).toBeDefined();
+    expect(tree.children['stage1'].view).toBe(stageView1);
   });
 
   it('will use child index of the type as identifier', function() {
@@ -274,16 +256,14 @@ describe('state', function() {
     var layerView1 = stage1Element.children[0]._ljView;
     var layerView2 = stage1Element.children[1]._ljView;
 
-
-    state.buildTree2();
     var tree = state._getTree(document);
 
-    expect(tree['stage1']).toBeDefined();
-    expect(tree['stage1'].view).toBe(stageView1);
-    expect(tree['stage1']['layer1']).toBeDefined();
-    expect(tree['stage1']['layer1'].view).toBe(layerView1);
-    expect(tree['stage1']['layer[1]']).toBeDefined();
-    expect(tree['stage1']['layer[1]'].view).toBe(layerView2);
+    expect(tree.children['stage1']).toBeDefined();
+    expect(tree.children['stage1'].view).toBe(stageView1);
+    expect(tree.children['stage1'].children['layer1']).toBeDefined();
+    expect(tree.children['stage1'].children['layer1'].view).toBe(layerView1);
+    expect(tree.children['stage1'].children['layer[1]']).toBeDefined();
+    expect(tree.children['stage1'].children['layer[1]'].view).toBe(layerView2);
   });
 
   it('can export the state as an array of strings with only active frames', function() {
@@ -293,25 +273,10 @@ describe('state', function() {
       el: document.getElementById('stage1')
     });
 
-    state.buildTree2();
-
     var activePaths = state.exportStateAsArray();
     expect(activePaths.length).toBe(2);
     expect(activePaths[0]).toBe('stage1.layer1.frame1');
     expect(activePaths[1]).toBe('stage1.layer1.frame1.layer2.frame2');
-  });
-
-  it('can export the state as string with only active frames', function() {
-    setHtmlForExport();
-
-    var stageView1 = new StageView(null, {
-      el: document.getElementById('stage1')
-    });
-
-    state.buildTree2();
-
-    var activePaths = state.exportState();
-    expect(activePaths).toBe('stage1.layer1.frame1;stage1.layer1.frame1.layer2.frame2');
   });
 
   it('can export the structure as an array of strings', function() {
@@ -321,27 +286,12 @@ describe('state', function() {
       el: document.getElementById('stage1')
     });
 
-    state.buildTree2();
-
     var structure = state.exportStructureAsArray();
     expect(structure.length).toBe(4);
     expect(structure[0]).toBe('stage1.layer1.frame1');
     expect(structure[1]).toBe('stage1.layer1.frame1.layer2.frame2');
     expect(structure[2]).toBe('stage1.layer1.frame1.layer2.frame3');
     expect(structure[3]).toBe('stage1.layer1.frame4');
-  });
-
-  it('can export the structure as string', function() {
-    setHtmlForExport();
-
-    var stageView1 = new StageView(null, {
-      el: document.getElementById('stage1')
-    });
-
-    state.buildTree2();
-
-    var structure = state.exportStructure();
-    expect(structure).toBe('stage1.layer1.frame1;stage1.layer1.frame1.layer2.frame2;stage1.layer1.frame1.layer2.frame3;stage1.layer1.frame4');
   });
 
   it('can detect a new frame transition', function(done) {
@@ -358,8 +308,6 @@ describe('state', function() {
       el: document.getElementById('stage1')
     });
 
-    state.buildTree2();
-
     var layerView1 = document.getElementById('layer1')._ljView;
 
     layerView1.transitionTo('frame2', {
@@ -367,12 +315,12 @@ describe('state', function() {
     });
 
     setTimeout(function() {
-      expect(state.exportState()).toBe('stage1.layer1.frame2');
+      expect(state.exportStateAsArray()).toEqual(['stage1.layer1.frame2']);
       done();
     }, 500);
   });
 
-  it('can detect a direct show frame', function() {
+  it('can detect a direct show frame', function(done) {
     var html = "<div data-lj-type='stage' id='stage1'>" +
       "<div data-lj-type='layer' id='layer1' data-lj-default-frame='frame1'>" +
       "<div data-lj-type='frame' id='frame1' data-lj-name='frame1'></div>" +
@@ -386,19 +334,19 @@ describe('state', function() {
       el: document.getElementById('stage1')
     });
 
-    state.buildTree2();
-
     var layerView1 = document.getElementById('layer1')._ljView;
-
     layerView1.showFrame('frame2');
 
+    setTimeout(function() {
+      expect(state.exportStateAsArray()).toEqual(['stage1.layer1.frame2']);
+      done();
+    }, 50);
 
-    expect(state.exportState()).toBe('stage1.layer1.frame2');
   });
 
   if ('can register a frame within the state', function() {
       var frameView = new FrameView(new FrameView.Model(FrameView.defaultProperties));
-      state.registerFrameView(frameView);
+      state.registerView(frameView);
 
       var frameViews = state._getRegisteredFrameViews(document);
 
@@ -407,7 +355,7 @@ describe('state', function() {
         ok = frameView === frameViews[i];
       }
 
-      expect(ok).toBe(true);      
+      expect(ok).toBe(true);
     });
 
   it('performance test', function() {
@@ -419,19 +367,17 @@ describe('state', function() {
     utilities.setHtml(html);
 
     var Perfcollector = require('perfcollector.js');
+    var perfs = Perfcollector.create().enable();
 
     var stageView1 = new StageView(null, {
       el: document.getElementById('stage1')
     });
-
     var stageView2 = new StageView(null, {
       el: document.getElementById('stage2')
     });
 
-
-    var perfs = Perfcollector.create().enable();
-
     var newWay = perfs.start("newWay");
+
     state.buildTree2();
     newWay.end().logToConsole();
 

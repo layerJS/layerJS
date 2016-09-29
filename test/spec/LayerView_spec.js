@@ -1,6 +1,7 @@
 var LayerView = require('../../src/framework/layerview.js');
 var StageView = require('../../src/framework/stageview.js');
-//var CommonViewTests = require('./helpers/commonviewtests.js');
+var state = require('../../src/framework/state.js');
+
 var ViewsGroupViewTests = require('./helpers/views/group/viewtests.js');
 
 var ViewsCommonParseTests = require('./helpers/views/common/parsetests.js');
@@ -15,11 +16,11 @@ describe("LayerView", function() {
   var utilities = require('./helpers/utilities.js');
 
   ViewsCommonViewTests('simple_layerdata_nochildren.js', function() {
-        return {
-          ViewType: LayerView,
-          data: require('./datasets/simple_layerdata_nochildren.js')[0]
-        }
-      });
+    return {
+      ViewType: LayerView,
+      data: require('./datasets/simple_layerdata_nochildren.js')[0]
+    }
+  });
 
   ViewsGroupViewTests('simple_layerdata.js', function() {
     return {
@@ -126,9 +127,13 @@ describe("LayerView", function() {
     });
 
     var layerView1 = document.getElementById('layer1')._ljView;
+    var beforeTransition = false;
     var transitionStarted = false;
     var transitionFinished = false;
 
+    layerView1.on('beforeTransition', function() {
+      beforeTransition = true;
+    });
     layerView1.on('transitionStarted', function() {
       transitionStarted = true;
     });
@@ -138,9 +143,16 @@ describe("LayerView", function() {
     layerView1.showFrame('frame2');
 
     setTimeout(function() {
+      expect(beforeTransition).toBeTruthy();
       expect(transitionStarted).toBeTruthy();
       expect(transitionFinished).toBeTruthy();
       done();
     }, 100);
+  });
+
+  it('will register itself with the state', function() {
+    spyOn(state, 'registerView');
+    var layerView = new LayerView(new LayerView.Model(LayerView.defaultProperties));
+    expect(state.registerView).toHaveBeenCalledWith(layerView);
   });
 })

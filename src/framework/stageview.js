@@ -4,6 +4,8 @@ var GroupView = require('./groupview.js');
 var Kern = require('../kern/Kern.js');
 var defaults = require('./defaults.js');
 var $ = require('./domhelpers.js');
+var state = require('./state.js');
+
 
 /**
  * A View which can have child views
@@ -26,6 +28,8 @@ var StageView = GroupView.extend({
     window.addEventListener('resize', function() {
       that.onResize();
     }, false);
+
+    state.registerView(this);
   },
   _renderChildPosition: function(childView) {
     if (childView.data.attributes.nodeType === 1) {

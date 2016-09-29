@@ -1,4 +1,5 @@
 var StageView = require('../../src/framework/stageview.js');
+var state = require('../../src/framework/state.js');
 
 var ViewsGroupViewTests = require('./helpers/views/group/viewtests.js');
 var ViewsCommonParseTests = require('./helpers/views/common/parsetests.js');
@@ -59,5 +60,11 @@ describe("StageView", function() {
   ViewsCommonIdentifyTests('div', StageView, function() {
     return document.createElement('div');
   }, false);
+
+  it('will register itself with the state', function() {
+    spyOn(state, 'registerView');
+    var stageView = new StageView(new StageView.Model(StageView.defaultProperties));
+    expect(state.registerView).toHaveBeenCalledWith(stageView);
+  });
 
 })

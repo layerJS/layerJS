@@ -44,7 +44,7 @@ var FileRouter = Kern.EventManager.extend({
             delete adoptedEl._state;
             layerView.innerEl.appendChild(adoptedEl);
             // TODO: update state
-            state.registerFrameView(frameViewToImport);
+            state.registerView(frameViewToImport);
             if (frameState.active || toTransitionTo[layerPath] === undefined) {
               toTransitionTo[layerPath] = frameViewToImport.data.attributes.name;
             }

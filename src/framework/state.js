@@ -10,9 +10,7 @@ var $ = require('./domhelpers.js');
  * @extends Kern.Model
  */
 var State = Kern.Model.extend({
-  constructor: function() {
-    this.tree = {};
-  },
+  constructor: function() {},
   /**
    * Will return the next index of a layerjs object within it's parent
    *
@@ -22,8 +20,8 @@ var State = Kern.Model.extend({
    */
   _getNextChildIndexByType: function(parent, type) {
     var index = -1;
-    for (var name in parent) {
-      if (parent[name].view && parent[name].view.data.attributes.type === type) {
+    for (var name in parent.children) {
+      if (parent.children[name].view && parent.children[name].view.data.attributes.type === type) {
         ++index;
       }
     }
@@ -51,18 +49,19 @@ var State = Kern.Model.extend({
         var type = childView.data.attributes.type;
 
         var name = (childView.data.attributes.name || child.id || type + '[' + this._getNextChildIndexByType(parent, type) + ']');
-        parent[name] = {
-          view: childView
+        parent.children[name] = {
+          view: childView,
+          children: {}
         };
 
         if (childView.data.attributes.type === 'layer') {
-          childView.on('transitionStarted', this._transitionToEvent(parent[name]));
+          childView.on('transitionStarted', this._transitionToEvent(parent.children[name]));
         }
 
-        if (parent.view && parent.view.data.attributes.type === 'layer' && parent[name].view.data.attributes.type === 'frame') {
-          parent[name].active = parent.view.currentFrame === parent[name].view;
+        if (parent.view && parent.view.data.attributes.type === 'layer' && parent.children[name].view.data.attributes.type === 'frame') {
+          parent.children[name].active = parent.view.currentFrame === parent.children[name].view;
         }
-        this._buildTree(parent[name], childView.innerEl.children);
+        this._buildTree(parent.children[name], childView.innerEl.children);
       }
     }
 
@@ -98,28 +97,29 @@ var State = Kern.Model.extend({
 
       currentState = this.buildParent(parentNode.parentElement, ownerDocument);
 
-      if (parentNode._ljView && !$.hasAttributeLJ(parentNode,'helper')) {
+      if (parentNode._ljView && !$.hasAttributeLJ(parentNode, 'helper')) {
         var view = parentNode._ljView;
 
         if (view && (view.data.attributes.type === 'frame' || view.data.attributes.type === 'layer' || view.data.attributes.type === 'stage')) {
           var type = view.data.attributes.type;
           var name = (view.data.attributes.name || parentNode.id || type + '[' + this._getNextChildIndexByType(currentState, type) + ']');
           // layerJS object already added
-          if (!currentState.hasOwnProperty(name)) {
-            currentState[name] = {
-              view: view
+          if (!currentState.children.hasOwnProperty(name)) {
+            currentState.children[name] = {
+              view: view,
+              children: {}
             };
             if (view.data.attributes.type === 'frame') {
-              currentState[name].active = false;
+              currentState.children[name].active = false;
               if (currentState.view && currentState.view.currentFrame) {
-                currentState[name].active = currentState.view.currentFrame.data.attributes.name === view.data.attributes.name;
+                currentState.children[name].active = currentState.view.currentFrame.data.attributes.name === view.data.attributes.name;
               }
             } else if (view.data.attributes.type === 'layer') {
-              view.on('transitionStarted', this._transitionToEvent(currentState[name]));
+              view.on('transitionStarted', this._transitionToEvent(currentState.children[name]));
             }
           }
 
-          currentState = currentState[name];
+          currentState = currentState.children[name];
 
           parentNode._state = currentState;
         }
@@ -166,32 +166,18 @@ var State = Kern.Model.extend({
     return this._getPath(this._getTree(ownerDocument), '', false);
   },
   /**
-   * Will return a delimited string that represents the path to all active frames within the document
-   * @param {object} the document who's state will be exported
-   * @returns {string} A delimited string pointing to active frames within the document
+   * Will register a View with the state
+   * @param {object} a layerJSView
    */
-  exportState: function(ownerDocument) {
-    return this.exportStateAsArray(ownerDocument).join(';');
-  },
-  /**
-   * Will return a delimited string that represents the path to all frames within the document
-   * @param {object} the document who's state will be exported
-   * @returns {string} A delimited string pointing to frames within the document
-   */
-  exportStructure: function(ownerDocument) {
-    return this.exportStructureAsArray(ownerDocument).join(';');
-  },
-  /**
-   * Will register a FrameView with the state
-   * @param {object} a FrameView
-   */
-  registerFrameView: function(frameView) {
-    var frameViews = this._getRegisteredFrameViews(frameView.document);
+  registerView: function(view) {
 
-    frameViews.push(frameView);
+    if (view.data.attributes.type === 'frame') {
+      var frameViews = this._getRegisteredFrameViews(view.document);
+      frameViews.push(view);
+    }
 
-    if (frameView.document.body.contains(frameView.innerEl)) {
-      this.buildParent(frameView.innerEl, frameView.document);
+    if (view.document.body.contains(view.outerEl)) {
+      this.buildParent(view.outerEl, view.document);
     }
   },
   /**
@@ -206,8 +192,8 @@ var State = Kern.Model.extend({
     var currentState = tree;
 
     for (var i = 0; i < pathArray.length; i++) {
-      if (currentState.hasOwnProperty(pathArray[i])) {
-        currentState = currentState[pathArray[i]];
+      if (currentState.children.hasOwnProperty(pathArray[i])) {
+        currentState = currentState.children[pathArray[i]];
       } else {
         currentState = undefined;
         break;
@@ -235,16 +221,16 @@ var State = Kern.Model.extend({
    */
   _getPath: function(parent, rootpath, active) {
     var paths = [];
-    for (var element in parent) {
-      if (parent.hasOwnProperty(element) && parent[element].hasOwnProperty('view')) {
+    for (var element in parent.children) {
+      if (parent.children.hasOwnProperty(element) && parent.children[element].hasOwnProperty('view')) {
         var path = rootpath;
-        if (parent[element].view.data.attributes.type === 'frame' && (parent[element].active || !active)) {
+        if (parent.children[element].view.data.attributes.type === 'frame' && (parent.children[element].active || !active)) {
           path = rootpath + element;
           paths.push(path);
-          paths = paths.concat(this._getPath(parent[element], path + '.', active));
-        } else if (parent[element].view.data.attributes.type !== 'frame') {
+          paths = paths.concat(this._getPath(parent.children[element], path + '.', active));
+        } else if (parent.children[element].view.data.attributes.type !== 'frame') {
           path += element;
-          paths = paths.concat(this._getPath(parent[element], path + '.', active));
+          paths = paths.concat(this._getPath(parent.children[element], path + '.', active));
         }
       }
     }
@@ -259,9 +245,9 @@ var State = Kern.Model.extend({
    */
   _transitionToEvent: function(layerState) {
     return function(frameName) {
-      for (var name in layerState) {
-        if (layerState.hasOwnProperty(name) && layerState[name].hasOwnProperty('active')) {
-          layerState[name].active = layerState[name].view.data.attributes.name === frameName;
+      for (var name in layerState.children) {
+        if (layerState.children.hasOwnProperty(name) && layerState.children[name].hasOwnProperty('active')) {
+          layerState.children[name].active = layerState.children[name].view.data.attributes.name === frameName;
         }
       }
     };
@@ -274,10 +260,12 @@ var State = Kern.Model.extend({
    */
   _getTree: function(ownerDocument) {
     var doc = ownerDocument || document;
-    var key = '__ljStateTree';
+    var key = '_ljStateTree';
 
     if (!doc.hasOwnProperty(key)) {
-      doc[key] = {};
+      doc[key] = {
+        children: {}
+      };
     }
 
     return doc[key];
@@ -290,7 +278,7 @@ var State = Kern.Model.extend({
    */
   _getRegisteredFrameViews: function(ownerDocument) {
     var doc = ownerDocument || document;
-    var key = '__ljStateFrameView';
+    var key = '_ljStateFrameView';
 
     if (!doc.hasOwnProperty(key)) {
       doc[key] = [];

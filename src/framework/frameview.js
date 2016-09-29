@@ -25,7 +25,7 @@ var FrameView = GroupView.extend({
       this.render();
 
     if (this.data.attributes.type === 'frame') {
-      state.registerFrameView(this);
+      state.registerView(this);
     }
   },
   /**
