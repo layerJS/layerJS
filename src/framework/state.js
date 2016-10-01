@@ -205,7 +205,7 @@ var State = Kern.Model.extend({
       if (currentState.children.hasOwnProperty(pathArray[i])) {
         currentState = currentState.children[pathArray[i]];
       } else {
-        throw "unknown path '" + path + "' for current state"
+        throw "unknown path '" + path + "' for current state";
         // currentState = undefined;
         // break;
       }
