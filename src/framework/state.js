@@ -90,35 +90,44 @@ var State = Kern.Model.extend({
     var currentState = {};
 
     if (null === parentNode) {
+      // if we are at the root of the DOM return the state structure of the document
       currentState = this._getTree(ownerDocument);
     } else if (parentNode._state) {
+      // is the state of the element already present?
       return parentNode._state;
     } else {
 
+      // get the state of the parent layer,stage or frame node
       currentState = this.buildParent(parentNode.parentElement, ownerDocument);
 
+      // layer helper divs are special; ignore them; ignoring means to pass the parent state as current state
       if (parentNode._ljView && !$.hasAttributeLJ(parentNode, 'helper')) {
         var view = parentNode._ljView;
 
+        // ignore everything except frames, layers and stages; ignoring means to pass the parent state as current state
         if (view && (view.data.attributes.type === 'frame' || view.data.attributes.type === 'layer' || view.data.attributes.type === 'stage')) {
           var type = view.data.attributes.type;
           var name = (view.data.attributes.name || parentNode.id || type + '[' + this._getNextChildIndexByType(currentState, type) + ']');
           // layerJS object already added
           if (!currentState.children.hasOwnProperty(name)) {
+            // create the actual current state datastructure as a child of the parent's state structure
             currentState.children[name] = {
               view: view,
               children: {}
             };
             if (view.data.attributes.type === 'frame') {
               currentState.children[name].active = false;
+              // check if the current frame is the active frame
               if (currentState.view && currentState.view.currentFrame) {
                 currentState.children[name].active = currentState.view.currentFrame.data.attributes.name === view.data.attributes.name;
               }
             } else if (view.data.attributes.type === 'layer') {
+              // listen to state changes; state changes when transitions happen in layers
               view.on('transitionStarted', this._transitionToEvent(currentState.children[name]));
             }
           }
 
+          // currentState did contain the parent's state; assing actual current state
           currentState = currentState.children[name];
 
           parentNode._state = currentState;
@@ -176,6 +185,7 @@ var State = Kern.Model.extend({
       frameViews.push(view);
     }
 
+    // only add to state structure if the frame is really shown (attached to DOM)
     if (view.document.body.contains(view.outerEl)) {
       this.buildParent(view.outerEl, view.document);
     }
@@ -195,8 +205,9 @@ var State = Kern.Model.extend({
       if (currentState.children.hasOwnProperty(pathArray[i])) {
         currentState = currentState.children[pathArray[i]];
       } else {
-        currentState = undefined;
-        break;
+        throw "unknown path '" + path + "' for current state"
+        // currentState = undefined;
+        // break;
       }
     }
 
@@ -246,6 +257,7 @@ var State = Kern.Model.extend({
   _transitionToEvent: function(layerState) {
     return function(frameName) {
       for (var name in layerState.children) {
+        // set new active frame; set all other frames to inactive
         if (layerState.children.hasOwnProperty(name) && layerState.children[name].hasOwnProperty('active')) {
           layerState.children[name].active = layerState.children[name].view.data.attributes.name === frameName;
         }
