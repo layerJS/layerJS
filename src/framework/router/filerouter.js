@@ -29,12 +29,12 @@ var FileRouter = Kern.EventManager.extend({
       var layerView;
 
       for (var y = 0; y < currentActiveFrames.length; y++) {
-        var layerPath = currentActiveFrames[y].replace(/^(.*\.)[^\.]*$/, "$1").slice(0, -1);
+        var layerPath = currentActiveFrames[y].replace(/\.[^\.]*$/,""); // remove framename from path
         layerView = state.getViewForPath(layerPath);
         toTransitionTo[layerPath] = undefined;
 
         for (var x = 0; x < loadedFrames.length; x++) {
-          var frameToImportLayerPath = loadedFrames[x].replace(/^(.*\.)[^\.]*$/, "$1").slice(0, -1);
+          var frameToImportLayerPath = loadedFrames[x].replace(/\.[^\.]*$/,""); // remove framename from path
           if (layerPath === frameToImportLayerPath && currentActiveFrames[y] !== loadedFrames[x]) {
             var frameState = state.getStateForPath(loadedFrames[x], doc);
             var frameViewToImport = frameState.view;
