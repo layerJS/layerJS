@@ -37,7 +37,7 @@ describe('Filerouter', function() {
     expect(fileRouter).toBeDefined();
   });
 
-  it('will load a frame from another page', function(done) {
+  xit('will load a frame from another page', function(done) {
     var scope = prepareSomePage();
 
     new StageView(undefined, {

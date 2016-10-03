@@ -11,8 +11,30 @@ var ParseManager = function() {
    */
   this.parseDocument = function(doc) {
     doc = doc || document;
-    var stageElements = doc.querySelectorAll("[data-lj-type='stage'],[lj-type='stage']");
+    this._parse(doc, doc);
+  };
 
+  /**
+   * Parses an existing node for LayerJS objects
+   * @param {HTMLElement} Element
+   *
+   * @returns {void}
+   */
+  this.parseElement = function(element) {
+    if ( element.nodeType === 1){
+      this._parse(element, element.ownerDocument);
+    }
+  };
+
+  /**
+   * Parses an Node for layerJs object
+   * @param {HTMLNode} root - Nodes who's children needs to be parsed
+   * @param {HTMLDocument} doc - an optional root document
+   *
+   * @returns {void}
+   */
+  this._parse = function(root, doc) {
+    var stageElements = root.querySelectorAll("[data-lj-type='stage'],[lj-type='stage']");
     var length = stageElements.length;
 
     for (var index = 0; index < length; index++) {
