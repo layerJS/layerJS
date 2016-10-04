@@ -38,26 +38,23 @@ var FileRouter = Kern.EventManager.extend({
           if (layerPath === frameToImportLayerPath && currentActiveFrames[y] !== loadedFrames[x]) {
             var frameState = state.getStateForPath(loadedFrames[x], doc);
             var frameViewToImport = frameState.view;
-            var adoptedEl = document.adoptNode(frameViewToImport.outerEl);
-            frameViewToImport.document = document;
-            frameViewToImport.outerEl = frameViewToImport.innerEl = adoptedEl;
-            delete adoptedEl._state;
-            layerView.innerEl.appendChild(adoptedEl);
-            // TODO: update state
-            state.registerView(frameViewToImport);
+            layerView.innerEl.insertAdjacentHTML('beforeend', frameViewToImport.outerEl.outerHTML);
+            console.log('added');
             if (frameState.active || toTransitionTo[layerPath] === undefined) {
               toTransitionTo[layerPath] = frameViewToImport.data.attributes.name;
             }
           }
         }
-
-        layerView._parseChildren();
       }
 
+
+
       $.postAnimationFrame(function() {
+
         for (var path in toTransitionTo) {
           if (toTransitionTo.hasOwnProperty(path) && toTransitionTo[path] !== undefined) {
             layerView = state.getViewForPath(path);
+            console.log("transition");
             layerView.transitionTo(toTransitionTo[path], transition);
           }
         }

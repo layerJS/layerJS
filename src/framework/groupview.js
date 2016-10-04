@@ -1,6 +1,7 @@
 'use strict';
 var Kern = require('../kern/Kern.js');
 var pluginManager = require('./pluginmanager.js');
+var parseManager = require('./parsemanager.js');
 var repository = require('./repository.js'); // jshint ignore:line
 var ElementView = require('./elementview.js');
 var defaults = require('./defaults.js');
@@ -243,6 +244,7 @@ var GroupView = ElementView.extend({
         this._childViews[nodeId] = vo; // update _childViews
         if (vo.data.attributes.name) this._childNames[vo.data.attributes.name] = vo;
         vo.data.on('change', this._myChildListenerCallback); // attach child change listener
+        parseManager.parseElement(vo.outerEl);
         k++; // next in data.children
 
       } else if (nodeType) {
@@ -261,6 +263,7 @@ var GroupView = ElementView.extend({
         this._childViews[nodeId] = vo; // update _childViews
         if (vo.data.attributes.name) this._childNames[vo.data.attributes.name] = vo;
         vo.data.on('change', this._myChildListenerCallback); // attach child change listener
+        parseManager.parseElement(vo.outerEl);
         k++; // next in data.children
       } else if (options.parseFull) {
         nodeType = pluginManager.identify(elem);
@@ -279,6 +282,7 @@ var GroupView = ElementView.extend({
         this._childViews[nodeId] = vo; // update _childViews
         if (vo.data.attributes.name) this._childNames[vo.data.attributes.name] = vo;
         vo.data.on('change', this._myChildListenerCallback); // attach child change listener
+        parseManager.parseElement(vo.outerEl);
         k++; // next in data.children
       }
     }

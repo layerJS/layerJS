@@ -340,7 +340,7 @@ describe('state', function() {
     setTimeout(function() {
       expect(state.exportStateAsArray()).toEqual(['stage1.layer1.frame2']);
       done();
-    }, 50);
+    }, 60);
 
   });
 
