@@ -23,48 +23,64 @@ var FileRouter = Kern.EventManager.extend({
     this._loadHTML(href).then(function(doc) {
       parseManager.parseDocument(doc);
       var loadedFrames = state.exportStructureAsArray(doc);
-      var currentActiveFrames = state.exportStateAsArray(document);
 
       var toTransitionTo = {};
-      var layerView;
+      var toParseChildren = {};
+      var alreadyImported = {};
 
-      for (var y = 0; y < currentActiveFrames.length; y++) {
-        var layerPath = currentActiveFrames[y].replace(/\.[^\.]*$/,""); // remove framename from path
-        layerView = state.getViewForPath(layerPath);
-        toTransitionTo[layerPath] = undefined;
+      for (var x = 0; x < loadedFrames.length; x++) {
+        var orginalView = state.getViewForPath(loadedFrames[x], document);
+        if (undefined !== orginalView) {
+          // already imported
+          continue;
+        }
 
-        for (var x = 0; x < loadedFrames.length; x++) {
-          var frameToImportLayerPath = loadedFrames[x].replace(/\.[^\.]*$/,""); // remove framename from path
-          if (layerPath === frameToImportLayerPath && currentActiveFrames[y] !== loadedFrames[x]) {
-            var frameState = state.getStateForPath(loadedFrames[x], doc);
-            var frameViewToImport = frameState.view;
-            layerView.innerEl.insertAdjacentHTML('beforeend', frameViewToImport.outerEl.outerHTML);
-            console.log('added');
-            if (frameState.active || toTransitionTo[layerPath] === undefined) {
-              toTransitionTo[layerPath] = frameViewToImport.data.attributes.name;
-            }
+        let parentView;
+        let parentPath = loadedFrames[x];
+        let pathToImport;
+
+        while (undefined === parentView && parentPath.indexOf('.') > 0 && !alreadyImported.hasOwnProperty(parentPath)) {
+          pathToImport = parentPath;
+          parentPath = pathToImport.replace(/\.[^\.]*$/, "");
+          parentView = state.getViewForPath(parentPath, document);
+          // find parent in existing document or check if it has just been added
+        }
+
+        if (undefined !== parentView && !alreadyImported.hasOwnProperty[parentPath]) {
+          // parent found and not yet imported, add it's child (pathToImport) to it
+          var stateToImport = state.getStateForPath(pathToImport, doc);
+          parentView.innerEl.insertAdjacentHTML('beforeend', stateToImport.view.outerEl.outerHTML);
+          toParseChildren[parentPath] = true;
+          alreadyImported[pathToImport] = true;
+          if (stateToImport.active || (toTransitionTo[parentPath] === undefined && stateToImport.view.data.attributes.type === 'frame')) {
+            toTransitionTo[parentPath] = stateToImport.view.data.attributes.name;
           }
         }
       }
 
-
-
-      $.postAnimationFrame(function() {
-
-        for (var path in toTransitionTo) {
-          if (toTransitionTo.hasOwnProperty(path) && toTransitionTo[path] !== undefined) {
-            layerView = state.getViewForPath(path);
-            console.log("transition");
-            layerView.transitionTo(toTransitionTo[path], transition);
-          }
+      // call the parse children only one time per parent
+      for (var parentPath in toParseChildren) {
+        if (toParseChildren.hasOwnProperty(parentPath)) {
+          state.getViewForPath(parentPath)._parseChildren();
         }
+      }
 
+      if (Object.keys(toTransitionTo).length > 0) {
+        $.postAnimationFrame(function() {
+          for (var path in toTransitionTo) {
+            if (toTransitionTo.hasOwnProperty(path) && toTransitionTo[path] !== undefined) {
+              var layerView = state.getViewForPath(path);
+              layerView.transitionTo(toTransitionTo[path], transition);
+            }
+          }
+          promise.resolve(true);
+        });
+      } else {
         promise.resolve(true);
-      });
+      }
     });
 
     return promise;
-  //  return true;
   },
   /**
    * load an HTML document by AJAX and return it through a promise
