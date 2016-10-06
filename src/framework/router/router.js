@@ -3,14 +3,14 @@ var layerJS = require('../layerjs.js');
 var $ = require('../domhelpers.js');
 var Kern = require('../../kern/kern.js');
 var defaults = require('../defaults.js');
-var StateRouter = require('./staterouter.js');
+var StaticRouter = require('./staticrouter.js');
 var state = require('../state.js');
 
 var Router = Kern.EventManager.extend({
-  constructor: function(rootEl) {
+  constructor: function(rootEl, options) {
     this.rootElement = rootEl || document;
-    this.currentRouter = undefined;
-    this.routers = [];
+    this.routers = [new StaticRouter()]; // always have a state router
+    this.cache = (options ? options.cache : true);
     this._registerLinkClickedListener();
     this.previousUrl = undefined;
   },
@@ -20,31 +20,48 @@ var Router = Kern.EventManager.extend({
    */
   addRouter: function(router) {
     if (this.routers.length === 0) {
-      this.routers.push(new StateRouter());
+      this.routers.push(new StaticRouter());
     }
-
     this.routers.push(router);
   },
   /**
-   * Will clear oll registered routers
+   * convenience function to add a static route to the StaticRouter
+   *
+   * @param {string} url - the url for the route
+   * @param {Array} state - the state for the route
+   * @param {boolean} nomodify - don't modify route if already set
+   * @returns {Type} Description
+   */
+  addStaticRoute: function(url, state, nomodify) {
+    this.routers[0].addRoute(this._parseUrl(url).url, state, nomodify);
+  },
+  /**
+   * Will clear all registered routers except the StaticRouter
    */
   clearRouters: function() {
-    this.routers = [];
+    this.routers = [new StaticRouter()];
   },
+  /**
+   * register a listener to all link cliks that decides if the link target can be resolved using a layerJS transition or needs to be followed by a browser reload
+   *
+   * @returns {Type} Description
+   */
   _registerLinkClickedListener: function() {
     var that = this;
 
+    // listen to history buttons
     window.onpopstate = function() {
       that._navigate(document.location.href, false);
     };
 
+    // register link listener
     $.addDelegtedListener(this.rootElement, 'click', 'a', function(event) {
       var href = this.href;
       event.preventDefault();
       event.stopPropagation();
 
       that._navigate(href, true).then(function(result) {
-        if (!result) {
+        if (!result) { // if no router could handle the url just load the url in the browser
           window.location.href = href;
         }
       });
@@ -119,13 +136,13 @@ var Router = Kern.EventManager.extend({
 
     var index = 0;
 
-    if (this.previousUrl === undefined){
+    // save the exiting state; we need previousUrl as in case of popState, the window.location.href is already the new one
+    if (this.previousUrl === undefined) {
       this.previousUrl = window.location.href;
     }
-
-    // save the exiting state
-    var previous = this._parseUrl(this.previousUrl);
-    that.routers[0].addRoute(previous.url, state.exportStateAsArray());
+    if (this.cache) {
+      this.addStaticRoute(this.previousUrl, state.exportStateAsArray(), true);
+    }
 
     var callRouter = function() {
       if (index < count) {

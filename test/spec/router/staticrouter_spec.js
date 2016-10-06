@@ -1,30 +1,30 @@
-describe('StateRouter', function() {
+describe('staticRouter', function() {
 
-  var StateRouter = require('../../../src/framework/router/staterouter.js');
+  var StaticRouter = require('../../../src/framework/router/staticRouter.js');
   var utilities = require('../helpers/utilities.js');
   var StageView = require('../../../src/framework/stageview.js')
   var state = require('../../../src/framework/state.js');
 
-  var stateRouter;
+  var staticRouter;
 
   beforeEach(function() {
-    stateRouter = new StateRouter();
+    staticRouter = new StaticRouter();
   })
 
   it('can define states for an url', function() {
     var url = '/index.html';
     var states = ['stage1.layer1.frame1', 'stage1.layer1.frame1.layer2.frame2'];
 
-    stateRouter.addRoute(url, states);
+    staticRouter.addRoute(url, states);
 
-    expect(stateRouter.routes.hasOwnProperty(url)).toBeTruthy();
-    expect(stateRouter.routes[url]).toBe(states);
+    expect(staticRouter.routes.hasOwnProperty(url)).toBeTruthy();
+    expect(staticRouter.routes[url]).toBe(states);
   })
 
   it('can handle a predefined route', function(done) {
     var url = '/test.html';
 
-    stateRouter.addRoute(url, ['stage1.layer1.frame2']);
+    staticRouter.addRoute(url, ['stage1.layer1.frame2']);
 
     var html = "<div data-lj-type='stage' id='stage1'>" +
       "<div data-lj-type='layer' id='layer1' data-lj-default-frame='frame1'>" +
@@ -41,7 +41,7 @@ describe('StateRouter', function() {
 
     state.buildTree();
 
-    var handled = stateRouter.handle(url, {});
+    var handled = staticRouter.handle(url, {});
 
     expect(handled).toBeTruthy();
 

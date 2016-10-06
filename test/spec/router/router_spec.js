@@ -1,6 +1,6 @@
 describe('router', function() {
 
-  var layerJS, defaults, StateRouter;
+  var layerJS, defaults, StaticRouter;
   var utilities = require('../helpers/utilities.js');
   var StageView = require('../../../src/framework/stageview.js');
   var state = require('../../../src/framework/state.js');
@@ -8,7 +8,7 @@ describe('router', function() {
   beforeEach(function() {
     layerJS = require('../../../src/framework/layerjs.js');
     defaults = require('../../../src/framework/defaults.js');
-    StateRouter = require('../../../src/framework/router/staterouter.js');
+    StaticRouter = require('../../../src/framework/router/staticrouter.js');
     layerJS.router.clearRouters();
   });
 
@@ -23,10 +23,10 @@ describe('router', function() {
     expect(layerJS.router).toBeDefined();
   });
 
-  it('will add the a staterouter at the beginning of the router pipline', function() {
+  it('will add the a StaticRouter at the beginning of the router pipline', function() {
     layerJS.router.addRouter(undefined)
     expect(layerJS.router.routers.length).toBe(2);
-    expect(layerJS.router.routers[0] instanceof StateRouter).toBeTruthy();
+    expect(layerJS.router.routers[0] instanceof StaticRouter).toBeTruthy();
   });
 
   it('will detect a link click event', function() {
@@ -240,7 +240,7 @@ describe('router', function() {
     });
   });
 
-  it('will add the exiting state to the stateRouter when a new navigation is done', function() {
+  it('will add the exiting state to the StaticRouter when a new navigation is done', function() {
     var url = window.location.origin + '/index.html';
     var dummyRouter = {
     handle: function(url) {
@@ -266,7 +266,10 @@ describe('router', function() {
     });
 
     layerJS.router.addRouter(dummyRouter);
+
+    debugger;
     layerJS.router._navigate(url, true);
+    console.log(layerJS.router.routers[0].routes);
     expect(layerJS.router.routers[0].routes.hasOwnProperty('/#')).toBeTruthy();
     expect(layerJS.router.routers[0].routes['/#']).toEqual(['stage1.layer1.frame1']);
   });
