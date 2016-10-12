@@ -158,7 +158,7 @@ var Router = Kern.EventManager.extend({
             promise.resolve(true);
           }
         });
-      } else {
+      } else {        
         promise.resolve(false);
       }
     };

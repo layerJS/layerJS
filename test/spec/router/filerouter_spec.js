@@ -107,4 +107,18 @@ describe('Filerouter', function() {
     });
   });
 
+  it('will return false when an error occured', function(done) {
+    new StageView(undefined, {
+      el: document.getElementById('contentstage')
+    });
+
+    var fileRouter = new FileRouter();
+    var promise = fileRouter.handle('/somePage.html');
+
+    promise.then(function(result){
+        expect(result).toBe(false);
+        done();
+    });
+  });
+
 });

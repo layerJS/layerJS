@@ -78,6 +78,8 @@ var FileRouter = Kern.EventManager.extend({
       } else {
         promise.resolve(true);
       }
+    }, function(){
+      promise.resolve(false);
     });
 
     return promise;
@@ -89,17 +91,26 @@ var FileRouter = Kern.EventManager.extend({
    * @returns {Promise} a promise that will return the HTML document
    */
   _loadHTML: function(URL) {
-    var xhr = new XMLHttpRequest();
     var p = new Kern.Promise();
-    xhr.onload = function() {
-      var doc = document.implementation.createHTMLDocument("framedoc");
-      doc.documentElement.innerHTML = xhr.responseText;
 
-      p.resolve(doc);
-    };
-    xhr.open("GET", URL);
-    xhr.responseType = "text";
-    xhr.send();
+    try {
+      var xhr = new XMLHttpRequest();
+      xhr.onerror= function(){
+        p.reject();
+      };
+      xhr.onload = function() {
+        var doc = document.implementation.createHTMLDocument("framedoc");
+        doc.documentElement.innerHTML = xhr.responseText;
+
+        p.resolve(doc);
+      };
+      xhr.open("GET", URL);
+      xhr.responseType = "text";
+      xhr.send();
+    } catch (e) {
+      p.reject(e);
+    }
+
     return p;
   }
 });
