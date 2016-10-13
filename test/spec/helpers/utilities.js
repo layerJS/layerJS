@@ -56,6 +56,10 @@ utilities.afterEach = function() {
   layerJS.state.tree = {};
   layerJS.router.clearRouters();
   layerJS.router.previousUrl = undefined;
+
+  var sizeObserver = require("../../../src/framework/observer/sizeobserver.js");
+  sizeObserver.views = {};
+
   delete document._ljStateTree;
   delete document._ljStateFrameView;
 }
