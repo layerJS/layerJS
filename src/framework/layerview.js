@@ -8,6 +8,7 @@ var ScrollTransformer = require('./scrolltransformer.js');
 var gestureManager = require('./gestures/gesturemanager.js');
 var defaults = require('./defaults.js');
 var state = require('./state.js');
+var sizeObserver = require('./observer/sizeobserver.js');
 
 var directions2neighbors = {
   up: 'b',
@@ -333,6 +334,26 @@ var LayerView = GroupView.extend({
       }
     }
     this.showFrame(this.currentFrame.data.attributes.name, scrollData);
+  },
+  /**
+   * analyse list of childNodes (HTMLElements) in this group and create view- (and possibly data-) objects for them.
+   *
+   * @returns {void}
+   */
+  _parseChildren: function(options) {
+    var that = this;
+    // unregister childviews
+    sizeObserver.unregister(this.getChildViews());
+
+    GroupView.prototype._parseChildren.call(this, options);
+
+    var callBack = function() {
+      // when doing a transform, the callback should not be called
+      if (!that.inTransform) {
+        that.onResize();
+      }
+    };
+    sizeObserver.register(this.getChildViews(), callBack);
   }
 }, {
   /*

@@ -154,6 +154,40 @@ var DomHelpers = {
         fn.call(el, event);
       }
     });
+  },
+  /**
+   * Will get the value for a data-lj-* or lj-* attribute
+   *
+   * @param {HTMLElement} element
+   * @param {string} name - the attribute name
+   * @returns {string}
+   */
+  getAttributeLJ: function(element, name) {
+    return element.getAttribute('data-lj-' + name) || element.getAttribute('lj-' + name);
+  },
+  /**
+   * Check if the element has a data-lj-* or lj-* attribute defined
+   *
+   * @param {HTMLElement} element
+   * @param {string} name - the attribute name
+   * @returns {boolean}
+   */
+  hasAttributeLJ: function(element, name) {
+    return element.hasAttribute('data-lj-' + name) || element.hasAttribute('lj-' + name);
+  },
+  /**
+   * Set the data-lj-* or lj-* attribute
+   *
+   * @param {HTMLElement} element
+   * @param {string} name - the attribute name
+   * @param {string} value - the attribute value
+   */
+  setAttributeLJ: function(element, name, value) {
+    if (element.hasAttribute('lj-' + name)) {
+      element.setAttribute('lj-' + name, value);
+    } else {
+      element.setAttribute('data-lj-' + name, value);
+    }
   }
 };
 DomHelpers.detectBrowser();
@@ -230,11 +264,11 @@ var ElementView = NodeView.extend({
       diff = (this.isRendererd ? this.data.changedAttributes : this.data.attributes),
       outerEl = this.outerEl;
     if ('id' in diff) {
-      outerEl.setAttribute("data-lj-id", attr.id); //-> should be a class?
+      $.setAttributeLJ(outerEl, "id", attr.id); //-> should be a class?
     }
 
     if ('type' in diff) {
-      outerEl.setAttribute("data-lj-type", attr.type); //-> should be a class?
+      $.setAttributeLJ(outerEl, "type", attr.type); //-> should be a class?
     }
 
     if ('elementId' in diff || 'id' in diff) {
@@ -565,7 +599,7 @@ pluginManager.registerType('element', ElementView, defaults.identifyPriority.nor
 
 module.exports = ElementView;
 
-},{"../kern/Kern.js":30,"./defaults.js":1,"./domhelpers.js":2,"./nodeview.js":15,"./observer/observerfactory.js":18,"./pluginmanager.js":21}],4:[function(require,module,exports){
+},{"../kern/Kern.js":31,"./defaults.js":1,"./domhelpers.js":2,"./nodeview.js":15,"./observer/observerfactory.js":18,"./pluginmanager.js":22}],4:[function(require,module,exports){
 'use strict';
 var Kern = require('../kern/Kern.js');
 var pluginManager = require('./pluginmanager.js');
@@ -573,6 +607,7 @@ var GroupView = require('./groupview.js');
 var Kern = require('../kern/Kern.js');
 var defaults = require('./defaults.js');
 var state = require('./state.js');
+var $ = require('./domhelpers.js');
 
 /**
  * A View which can have child views
@@ -592,7 +627,7 @@ var FrameView = GroupView.extend({
       this.render();
 
     if (this.data.attributes.type === 'frame') {
-      state.registerFrameView(this);
+      state.registerView(this);
     }
   },
   /**
@@ -849,7 +884,7 @@ var FrameView = GroupView.extend({
     type: 'frame'
   }),
   identify: function(element) {
-    var type = element.getAttribute('data-lj-type');
+    var type = $.getAttributeLJ(element, 'type');
     return null !== type && type.toLowerCase() === FrameView.defaultProperties.type;
   }
 });
@@ -857,7 +892,7 @@ var FrameView = GroupView.extend({
 pluginManager.registerType('frame', FrameView, defaults.identifyPriority.normal);
 module.exports = FrameView;
 
-},{"../kern/Kern.js":30,"./defaults.js":1,"./groupview.js":7,"./pluginmanager.js":21,"./state.js":29}],5:[function(require,module,exports){
+},{"../kern/Kern.js":31,"./defaults.js":1,"./domhelpers.js":2,"./groupview.js":7,"./pluginmanager.js":22,"./state.js":30}],5:[function(require,module,exports){
 'use strict';
 var Kern = require('../../kern/kern.js');
 
@@ -917,7 +952,7 @@ var Gesture = Kern.Base.extend({
 
 module.exports = Gesture;
 
-},{"../../kern/kern.js":31}],6:[function(require,module,exports){
+},{"../../kern/kern.js":32}],6:[function(require,module,exports){
 'use strict';
 var Kern = require('../../kern/kern.js');
 var Gesture = require('./gesture.js');
@@ -1185,14 +1220,16 @@ layerJS.gestureManager2 = new GestureManager();
 
 module.exports = layerJS.gestureManager2;
 
-},{"../../kern/kern.js":31,"../layerjs.js":8,"./gesture.js":5}],7:[function(require,module,exports){
+},{"../../kern/kern.js":32,"../layerjs.js":8,"./gesture.js":5}],7:[function(require,module,exports){
 'use strict';
 var Kern = require('../kern/Kern.js');
 var pluginManager = require('./pluginmanager.js');
+var parseManager = require('./parsemanager.js');
 var repository = require('./repository.js'); // jshint ignore:line
 var ElementView = require('./elementview.js');
 var defaults = require('./defaults.js');
 var observerFactory = require('./observer/observerfactory.js');
+var $ = require('./domhelpers.js');
 /**
  * A View which can have child views
  * @param {GroupData} dataModel
@@ -1275,7 +1312,7 @@ var GroupView = ElementView.extend({
       // jshint ignore:start
       k++;
       var elem;
-      while (!(empty = !(k < that.innerEl.childNodes.length)) && (elem = that.innerEl.childNodes[k]) && (elem.nodeType != 1 || !(nodeId = (elem._ljView && elem._ljView.data.attributes.id) || elem.getAttribute('data-lj-id')))) {
+      while (!(empty = !(k < that.innerEl.childNodes.length)) && (elem = that.innerEl.childNodes[k]) && (elem.nodeType != 1 || !(nodeId = (elem._ljView && elem._ljView.data.attributes.id) || $.getAttributeLJ(elem, 'id')))) {
         k++;
       }
       // jshint ignore:end
@@ -1387,13 +1424,13 @@ var GroupView = ElementView.extend({
     for (i = 0; i < cn.length; i++) {
       var elem = cn[i];
 
-      nodeId = (elem._ljView && elem._ljView.data.attributes.id) || elem.getAttribute && elem.getAttribute('data-lj-id');
+      nodeId = (elem._ljView && elem._ljView.data.attributes.id) || elem.getAttribute && $.getAttributeLJ(elem, 'id');
       try {
         data = nodeId && repository.get(nodeId, this.data.attributes.version);
       } catch (e) {
         data = undefined;
       }
-      nodeType = (elem._ljView && elem._ljView.data.attributes.type) || elem.getAttribute && elem.getAttribute('data-lj-type');
+      nodeType = (elem._ljView && elem._ljView.data.attributes.type) || elem.getAttribute && $.getAttributeLJ(elem, 'type');
       if (nodeId && (data || nodeType)) {
         // search for nodeId in data.chi ldren
         var k_saved = k;
@@ -1430,6 +1467,7 @@ var GroupView = ElementView.extend({
         this._childViews[nodeId] = vo; // update _childViews
         if (vo.data.attributes.name) this._childNames[vo.data.attributes.name] = vo;
         vo.data.on('change', this._myChildListenerCallback); // attach child change listener
+        parseManager.parseElement(vo.outerEl);
         k++; // next in data.children
 
       } else if (nodeType) {
@@ -1448,6 +1486,7 @@ var GroupView = ElementView.extend({
         this._childViews[nodeId] = vo; // update _childViews
         if (vo.data.attributes.name) this._childNames[vo.data.attributes.name] = vo;
         vo.data.on('change', this._myChildListenerCallback); // attach child change listener
+        parseManager.parseElement(vo.outerEl);
         k++; // next in data.children
       } else if (options.parseFull) {
         nodeType = pluginManager.identify(elem);
@@ -1466,6 +1505,7 @@ var GroupView = ElementView.extend({
         this._childViews[nodeId] = vo; // update _childViews
         if (vo.data.attributes.name) this._childNames[vo.data.attributes.name] = vo;
         vo.data.on('change', this._myChildListenerCallback); // attach child change listener
+        parseManager.parseElement(vo.outerEl);
         k++; // next in data.children
       }
     }
@@ -1705,7 +1745,7 @@ var GroupView = ElementView.extend({
   }),
   getNodeType: undefined,
   identify: function(element) {
-    var type = element.getAttribute('data-lj-type');
+    var type = $.getAttributeLJ(element, 'type');
 
     return element.nodeType === 1 && ((null !== type && type.toLowerCase() === 'group') || !type);
   }
@@ -1715,7 +1755,7 @@ var GroupView = ElementView.extend({
 pluginManager.registerType("group", GroupView, defaults.identifyPriority.low);
 module.exports = GroupView;
 
-},{"../kern/Kern.js":30,"./defaults.js":1,"./elementview.js":3,"./observer/observerfactory.js":18,"./pluginmanager.js":21,"./repository.js":22}],8:[function(require,module,exports){
+},{"../kern/Kern.js":31,"./defaults.js":1,"./domhelpers.js":2,"./elementview.js":3,"./observer/observerfactory.js":18,"./parsemanager.js":21,"./pluginmanager.js":22,"./repository.js":23}],8:[function(require,module,exports){
 var $ = require('./domhelpers.js');
 // this module defines a global namespace for all weblayer objects.
 layerJS = {
@@ -1736,6 +1776,8 @@ var GroupView = require('./groupview.js');
 var ScrollTransformer = require('./scrolltransformer.js');
 var gestureManager = require('./gestures/gesturemanager.js');
 var defaults = require('./defaults.js');
+var state = require('./state.js');
+var sizeObserver = require('./observer/sizeobserver.js');
 
 var directions2neighbors = {
   up: 'b',
@@ -1766,7 +1808,7 @@ var LayerView = GroupView.extend({
     this.outerEl = options.el || this.document.createElement(tag);
 
 
-    var hasScroller = this.outerEl.children.length === 1 && this.outerEl.children[0].getAttribute('data-lj-helper') === 'scroller';
+    var hasScroller = this.outerEl.children.length === 1 && $.getAttributeLJ(this.outerEl.children[0], 'helper') === 'scroller';
     this.innerEl = hasScroller ? this.outerEl.children[0] : this.outerEl;
 
     // call super constructor
@@ -1809,6 +1851,8 @@ var LayerView = GroupView.extend({
       that.gestureListener.apply(that,arguments);
     })
     */
+
+    state.registerView(this);
   },
   /**
    * Will toggle native and non-native scrolling
@@ -1822,11 +1866,11 @@ var LayerView = GroupView.extend({
       this.nativeScroll = nativeScrolling;
 
       this.disableObserver();
-      var hasScroller = this.outerEl.children.length === 1 && this.outerEl.children[0].getAttribute('data-lj-helper') === 'scroller';
+      var hasScroller = this.outerEl.children.length === 1 && $.getAttributeLJ(this.outerEl.children[0], 'helper') === 'scroller';
 
       if (nativeScrolling) {
         this.innerEl = hasScroller ? this.outerEl.children[0] : $.wrapChildren(this.outerEl);
-        this.innerEl.setAttribute('data-lj-helper', 'scroller');
+        $.setAttributeLJ(this.innerEl, 'helper', 'scroller');
         if (!this.innerEl._ljView) {
           this.innerEl._ljView = this.outerEl._ljView;
         }
@@ -1916,15 +1960,17 @@ var LayerView = GroupView.extend({
       if (!frame) throw "transformTo: " + framename + " does not exist in layer";
     }
 
-
+    that.trigger('beforeTransition', framename);
 
     this.inTransform = true;
-    that.trigger('transitionStarted', framename);
+
     this._layout.loadFrame(frame).then(function() {
       var tfd = that.currentFrameTransformData = null === frame ? that.noFrameTransformdata(scrollData.startPosition) : frame.getTransformData(that.stage, scrollData.startPosition);
       that.currentTransform = that._transformer.getScrollTransform(tfd, scrollData.scrollX || (tfd.isScrollX && tfd.scrollX) || 0, scrollData.scrollY || (tfd.isScrollY && tfd.scrollY) || 0);
+      that.currentFrame = frame;
+      that.trigger('transitionStarted', framename);
       that._layout.showFrame(frame, tfd, that.currentTransform);
-      that.inTransform = false;      
+      that.inTransform = false;
       that.currentFrame = frame;
       that.trigger('transitionFinished', framename);
     });
@@ -1969,6 +2015,8 @@ var LayerView = GroupView.extend({
     var frame = null === framename ? null : this.getChildViewByName(framename);
     if (!frame && null !== frame) throw "transformTo: " + framename + " does not exist in layer";
     var that = this;
+    that.trigger('beforeTransition', framename);
+
     this.inTransform = true;
     transition.transitionID = ++this.transitionID; // inc transition ID and save new ID into transition record
     // make sure frame is there such that we can calculate dimensions and transform data
@@ -2001,11 +2049,13 @@ var LayerView = GroupView.extend({
           });
         }
       });
-      that.trigger('transitionStarted', framename);
+
       that.updateClasses(frame);
       that.currentFrameTransformData = targetFrameTransformData;
       that.currentFrame = frame;
       that.currentTransform = targetTransform;
+      that.trigger('transitionStarted', framename);
+
       return layoutPromise;
     });
   },
@@ -2053,6 +2103,26 @@ var LayerView = GroupView.extend({
       }
     }
     this.showFrame(this.currentFrame.data.attributes.name, scrollData);
+  },
+  /**
+   * analyse list of childNodes (HTMLElements) in this group and create view- (and possibly data-) objects for them.
+   *
+   * @returns {void}
+   */
+  _parseChildren: function(options) {
+    var that = this;
+    // unregister childviews
+    sizeObserver.unregister(this.getChildViews());
+
+    GroupView.prototype._parseChildren.call(this, options);
+
+    var callBack = function() {
+      // when doing a transform, the callback should not be called
+      if (!that.inTransform) {
+        that.onResize();
+      }
+    };
+    sizeObserver.register(this.getChildViews(), callBack);
   }
 }, {
   /*
@@ -2064,7 +2134,7 @@ var LayerView = GroupView.extend({
     nativeScroll: true
   }),
   identify: function(element) {
-    var type = element.getAttribute('data-lj-type');
+    var type = $.getAttributeLJ(element, 'type');
     return null !== type && type.toLowerCase() === LayerView.defaultProperties.type;
   }
 });
@@ -2073,7 +2143,7 @@ pluginManager.registerType('layer', LayerView, defaults.identifyPriority.normal)
 
 module.exports = LayerView;
 
-},{"../kern/Kern.js":30,"./defaults.js":1,"./domhelpers.js":2,"./gestures/gesturemanager.js":6,"./groupview.js":7,"./layoutmanager.js":10,"./pluginmanager.js":21,"./scrolltransformer.js":27}],10:[function(require,module,exports){
+},{"../kern/Kern.js":31,"./defaults.js":1,"./domhelpers.js":2,"./gestures/gesturemanager.js":6,"./groupview.js":7,"./layoutmanager.js":10,"./observer/sizeobserver.js":19,"./pluginmanager.js":22,"./scrolltransformer.js":28,"./state.js":30}],10:[function(require,module,exports){
 'use strict';
 var layerJS = require('./layerjs.js');
 var Kern = require('../kern/Kern.js');
@@ -2116,7 +2186,7 @@ layerJS.layoutManager = new LayoutManager();
 // this module does not return the class but a singleton instance, the layoutManager for the project.
 module.exports = layerJS.layoutManager;
 
-},{"../kern/Kern.js":30,"./layerjs.js":8}],11:[function(require,module,exports){
+},{"../kern/Kern.js":31,"./layerjs.js":8}],11:[function(require,module,exports){
 'use strict';
 var Kern = require('../../kern/Kern.js');
 var layoutManager = require('../layoutmanager.js');
@@ -2309,7 +2379,7 @@ layoutManager.registerType('canvas', CanvasLayout);
 
 module.exports = CanvasLayout;
 
-},{"../../kern/Kern.js":30,"../layoutmanager.js":10,"./layerlayout.js":12}],12:[function(require,module,exports){
+},{"../../kern/Kern.js":31,"../layoutmanager.js":10,"./layerlayout.js":12}],12:[function(require,module,exports){
 'use strict';
 var $ = require('../domhelpers.js');
 var Kern = require('../../kern/Kern.js');
@@ -2415,7 +2485,7 @@ var LayerLayout = Kern.EventManager.extend({
 
 module.exports = LayerLayout;
 
-},{"../../kern/Kern.js":30,"../domhelpers.js":2}],13:[function(require,module,exports){
+},{"../../kern/Kern.js":31,"../domhelpers.js":2}],13:[function(require,module,exports){
 'use strict';
 var $ = require('../domhelpers.js');
 var Kern = require('../../kern/Kern.js');
@@ -2704,7 +2774,7 @@ layoutManager.registerType('slide', SlideLayout);
 
 module.exports = SlideLayout;
 
-},{"../../kern/Kern.js":30,"../domhelpers.js":2,"../layoutmanager.js":10,"./layerlayout.js":12}],14:[function(require,module,exports){
+},{"../../kern/Kern.js":31,"../domhelpers.js":2,"../layoutmanager.js":10,"./layerlayout.js":12}],14:[function(require,module,exports){
 'use strict';
 
 var Kern = require('../kern/Kern.js');
@@ -2763,7 +2833,7 @@ var NodeData = Kern.Model.extend({
 
 module.exports = NodeData;
 
-},{"../kern/Kern.js":30}],15:[function(require,module,exports){
+},{"../kern/Kern.js":31}],15:[function(require,module,exports){
 'use strict';
 
 var Kern = require('../kern/Kern.js');
@@ -3039,7 +3109,7 @@ pluginManager.registerType('node', NodeView, defaults.identifyPriority.normal);
 
 module.exports = NodeView;
 
-},{"../kern/Kern.js":30,"./defaults.js":1,"./nodedata.js":14,"./observer/observerfactory.js":18,"./pluginmanager.js":21,"./repository.js":22}],16:[function(require,module,exports){
+},{"../kern/Kern.js":31,"./defaults.js":1,"./nodedata.js":14,"./observer/observerfactory.js":18,"./pluginmanager.js":22,"./repository.js":23}],16:[function(require,module,exports){
 'use strict';
 var Observer = require('./observer.js');
 
@@ -3147,7 +3217,7 @@ var Observer = Kern.Base.extend({
 
 module.exports = Observer;
 
-},{"../../kern/kern.js":31}],18:[function(require,module,exports){
+},{"../../kern/kern.js":32}],18:[function(require,module,exports){
 'use strict';
 var Kern = require('../../kern/kern.js');
 var MutationsObserver = require('./mutationsobserver.js');
@@ -3169,7 +3239,71 @@ var ObserverFactory = Kern.Base.extend({
 
 module.exports = new ObserverFactory();
 
-},{"../../kern/kern.js":31,"./mutationsobserver.js":16,"./timeoutobserver.js":19}],19:[function(require,module,exports){
+},{"../../kern/kern.js":32,"./mutationsobserver.js":16,"./timeoutobserver.js":20}],19:[function(require,module,exports){
+'use strict';
+var Kern = require('../../kern/kern.js');
+
+var SizeObserver = Kern.Base.extend({
+  constructor: function(options) {
+    options = options || {};
+    this.options = options;
+    this.views = {};
+    this.checkSize();
+  },
+  /**
+   * Register all views to monitor for dimensions changes
+   *
+   * @param {array} views - An array of layerjs object to monitor
+   * @param {function} callBack - function to execute when a change in dimensions is detected
+   * @returns {string} the found ViewType
+   */
+  register: function(views, callBack) {
+    var length = views.length;
+    for (var i = 0; i < length; i++) {
+      var view = views[i];
+      this.views[view.data.attributes.id] = {
+        view: view,
+        callBack: callBack,
+        boundingClientRect: view.innerEl.getBoundingClientRect()
+      };
+    }
+  },
+  /**
+   * Unregister of views to monitor for dimensions changes
+   *
+   * @param {array} views - An array of layerjs object to unregister
+   */
+  unregister: function(views) {
+    var length = views.length;
+    for (var i = 0; i < length; i++) {
+      delete this.views[views[i].data.attributes.id];
+    }
+  },
+  /**
+   * Will check if dimensions are changed for specified views
+   *  
+   */
+  checkSize: function() {
+    for (var viewId in this.views) {
+      if (this.views.hasOwnProperty(viewId)) {
+        var boundingClientRect = this.views[viewId].view.innerEl.getBoundingClientRect();
+        if (boundingClientRect.width !== this.views[viewId].boundingClientRect.width || boundingClientRect.height !== this.views[viewId].boundingClientRect.height) {
+          this.views[viewId].boundingClientRect = boundingClientRect;
+          this.views[viewId].callBack();
+        }
+      }
+    }
+
+    var that = this;
+    setTimeout(function() {
+      that.checkSize();
+    }, this.options.timeout || 100);
+  }
+});
+
+module.exports = new SizeObserver();
+
+},{"../../kern/kern.js":32}],20:[function(require,module,exports){
 'use strict';
 var Observer = require('./observer.js');
 
@@ -3289,7 +3423,7 @@ var TimeoutObserver = Observer.extend({
       var that = this;
       this.myTimeout = setTimeout(function() {
         that.elementModified();
-      }, this.options.timeout || 1000);
+      }, this.options.timeout || 5);
     }
   },
   /**
@@ -3306,11 +3440,10 @@ var TimeoutObserver = Observer.extend({
 
 module.exports = TimeoutObserver;
 
-},{"./observer.js":17}],20:[function(require,module,exports){
+},{"./observer.js":17}],21:[function(require,module,exports){
 'use strict';
 var layerJS = require('./layerjs.js');
 var pluginManager = require('./pluginmanager.js');
-var state = require('./state.js');
 
 var ParseManager = function() {
   /**
@@ -3321,8 +3454,30 @@ var ParseManager = function() {
    */
   this.parseDocument = function(doc) {
     doc = doc || document;
-    var stageElements = doc.querySelectorAll("[data-lj-type='stage']");
+    this._parse(doc, doc);
+  };
 
+  /**
+   * Parses an existing node for LayerJS objects
+   * @param {HTMLElement} Element
+   *
+   * @returns {void}
+   */
+  this.parseElement = function(element) {
+    if ( element.nodeType === 1){
+      this._parse(element, element.ownerDocument);
+    }
+  };
+
+  /**
+   * Parses an Node for layerJs object
+   * @param {HTMLNode} root - Nodes who's children needs to be parsed
+   * @param {HTMLDocument} doc - an optional root document
+   *
+   * @returns {void}
+   */
+  this._parse = function(root, doc) {
+    var stageElements = root.querySelectorAll("[data-lj-type='stage'],[lj-type='stage']");
     var length = stageElements.length;
 
     for (var index = 0; index < length; index++) {
@@ -3331,7 +3486,6 @@ var ParseManager = function() {
         document: doc
       });
     }
-    state.buildTree2({ document : doc});
   };
 };
 
@@ -3339,7 +3493,7 @@ var ParseManager = function() {
 layerJS.parseManager = new ParseManager();
 module.exports = layerJS.parseManager;
 
-},{"./layerjs.js":8,"./pluginmanager.js":21,"./state.js":29}],21:[function(require,module,exports){
+},{"./layerjs.js":8,"./pluginmanager.js":22}],22:[function(require,module,exports){
 'use strict';
 var layerJS = require('./layerjs.js');
 var Kern = require('../kern/Kern.js');
@@ -3465,7 +3619,7 @@ layerJS.pluginManager = new PluginManager({});
 // this module does not return the class but a singleton instance, the pluginmanager for the project.
 module.exports = layerJS.pluginManager;
 
-},{"../kern/Kern.js":30,"./layerjs.js":8}],22:[function(require,module,exports){
+},{"../kern/Kern.js":31,"./layerjs.js":8}],23:[function(require,module,exports){
 'use strict';
 var layerJS = require('./layerjs.js');
 var defaults = require('./defaults.js');
@@ -3606,7 +3760,7 @@ var Repository = Kern.EventManager.extend({
 layerJS.repository = new Repository();
 module.exports = layerJS.repository;
 
-},{"../kern/Kern.js":30,"./defaults.js":1,"./layerjs.js":8,"./pluginmanager.js":21}],23:[function(require,module,exports){
+},{"../kern/Kern.js":31,"./defaults.js":1,"./layerjs.js":8,"./pluginmanager.js":22}],24:[function(require,module,exports){
 'use strict';
 var Kern = require('../../kern/Kern.js');
 var parseManager = require("../parsemanager.js");
@@ -3632,51 +3786,66 @@ var FileRouter = Kern.EventManager.extend({
     this._loadHTML(href).then(function(doc) {
       parseManager.parseDocument(doc);
       var loadedFrames = state.exportStructureAsArray(doc);
-      var currentActiveFrames = state.exportStateAsArray(document);
 
       var toTransitionTo = {};
-      var layerView;
+      var toParseChildren = {};
+      var alreadyImported = {};
 
-      for (var y = 0; y < currentActiveFrames.length; y++) {
-        var layerPath = currentActiveFrames[y].replace(/^(.*\.)[^\.]*$/, "$1").slice(0, -1);
-        layerView = state.getViewForPath(layerPath);
-        toTransitionTo[layerPath] = undefined;
-
-        for (var x = 0; x < loadedFrames.length; x++) {
-          var frameToImportLayerPath = loadedFrames[x].replace(/^(.*\.)[^\.]*$/, "$1").slice(0, -1);
-          if (layerPath === frameToImportLayerPath && currentActiveFrames[y] !== loadedFrames[x]) {
-            var frameState = state.getStateForPath(loadedFrames[x], doc);
-            var frameViewToImport = frameState.view;
-            var adoptedEl = document.adoptNode(frameViewToImport.outerEl);
-            frameViewToImport.document = document;
-            frameViewToImport.outerEl = frameViewToImport.innerEl = adoptedEl;
-            delete adoptedEl._state;
-            layerView.innerEl.appendChild(adoptedEl);
-            // TODO: update state
-            state.registerFrameView(frameViewToImport);
-            if (frameState.active || toTransitionTo[layerPath] === undefined) {
-              toTransitionTo[layerPath] = frameViewToImport.data.attributes.name;
-            }
-          }
+      for (var x = 0; x < loadedFrames.length; x++) {
+        var orginalView = state.getViewForPath(loadedFrames[x], document);
+        if (undefined !== orginalView) {
+          // already imported
+          continue;
         }
 
-        layerView._parseChildren();
+        let parentView;
+        let parentPath = loadedFrames[x];
+        let pathToImport;
+
+        while (undefined === parentView && parentPath.indexOf('.') > 0 && !alreadyImported.hasOwnProperty(parentPath)) {
+          pathToImport = parentPath;
+          parentPath = pathToImport.replace(/\.[^\.]*$/, "");
+          parentView = state.getViewForPath(parentPath, document);
+          // find parent in existing document or check if it has just been added
+        }
+
+        if (undefined !== parentView && !alreadyImported.hasOwnProperty[parentPath]) {
+          // parent found and not yet imported, add it's child (pathToImport) to it
+          var stateToImport = state.getStateForPath(pathToImport, doc);
+          parentView.innerEl.insertAdjacentHTML('beforeend', stateToImport.view.outerEl.outerHTML);
+          toParseChildren[parentPath] = true;
+          alreadyImported[pathToImport] = true;
+          if (stateToImport.active || (toTransitionTo[parentPath] === undefined && stateToImport.view.data.attributes.type === 'frame')) {
+            toTransitionTo[parentPath] = stateToImport.view.data.attributes.name;
+          }
+        }
       }
 
-      $.postAnimationFrame(function() {
-        for (var path in toTransitionTo) {
-          if (toTransitionTo.hasOwnProperty(path) && toTransitionTo[path] !== undefined) {
-            layerView = state.getViewForPath(path);
-            layerView.transitionTo(toTransitionTo[path], transition);
-          }
+      // call the parse children only one time per parent
+      for (var parentPath in toParseChildren) {
+        if (toParseChildren.hasOwnProperty(parentPath)) {
+          state.getViewForPath(parentPath)._parseChildren();
         }
+      }
 
+      if (Object.keys(toTransitionTo).length > 0) {
+        $.postAnimationFrame(function() {
+          for (var path in toTransitionTo) {
+            if (toTransitionTo.hasOwnProperty(path) && toTransitionTo[path] !== undefined) {
+              var layerView = state.getViewForPath(path);
+              layerView.transitionTo(toTransitionTo[path], transition);
+            }
+          }
+          promise.resolve(true);
+        });
+      } else {
         promise.resolve(true);
-      });
+      }
+    }, function(){
+      promise.resolve(false);
     });
 
     return promise;
-  //  return true;
   },
   /**
    * load an HTML document by AJAX and return it through a promise
@@ -3685,37 +3854,46 @@ var FileRouter = Kern.EventManager.extend({
    * @returns {Promise} a promise that will return the HTML document
    */
   _loadHTML: function(URL) {
-    var xhr = new XMLHttpRequest();
     var p = new Kern.Promise();
-    xhr.onload = function() {
-      var doc = document.implementation.createHTMLDocument("framedoc");
-      doc.documentElement.innerHTML = xhr.responseText;
 
-      p.resolve(doc);
-    };
-    xhr.open("GET", URL);
-    xhr.responseType = "text";
-    xhr.send();
+    try {
+      var xhr = new XMLHttpRequest();
+      xhr.onerror= function(){
+        p.reject();
+      };
+      xhr.onload = function() {
+        var doc = document.implementation.createHTMLDocument("framedoc");
+        doc.documentElement.innerHTML = xhr.responseText;
+
+        p.resolve(doc);
+      };
+      xhr.open("GET", URL);
+      xhr.responseType = "text";
+      xhr.send();
+    } catch (e) {
+      p.reject(e);
+    }
+
     return p;
   }
 });
 
 module.exports = FileRouter;
 
-},{"../../kern/Kern.js":30,"../domhelpers.js":2,"../parsemanager.js":20,"../state.js":29}],24:[function(require,module,exports){
+},{"../../kern/Kern.js":31,"../domhelpers.js":2,"../parsemanager.js":21,"../state.js":30}],25:[function(require,module,exports){
 'use strict';
 var layerJS = require('../layerjs.js');
 var $ = require('../domhelpers.js');
 var Kern = require('../../kern/kern.js');
 var defaults = require('../defaults.js');
-var StateRouter = require('./staterouter.js');
+var StaticRouter = require('./staticrouter.js');
 var state = require('../state.js');
 
 var Router = Kern.EventManager.extend({
-  constructor: function(rootEl) {
+  constructor: function(rootEl, options) {
     this.rootElement = rootEl || document;
-    this.currentRouter = undefined;
-    this.routers = [];
+    this.routers = [new StaticRouter()]; // always have a state router
+    this.cache = (options ? options.cache : true);
     this._registerLinkClickedListener();
     this.previousUrl = undefined;
   },
@@ -3725,31 +3903,48 @@ var Router = Kern.EventManager.extend({
    */
   addRouter: function(router) {
     if (this.routers.length === 0) {
-      this.routers.push(new StateRouter());
+      this.routers.push(new StaticRouter());
     }
-
     this.routers.push(router);
   },
   /**
-   * Will clear oll registered routers
+   * convenience function to add a static route to the StaticRouter
+   *
+   * @param {string} url - the url for the route
+   * @param {Array} state - the state for the route
+   * @param {boolean} nomodify - don't modify route if already set
+   * @returns {Type} Description
+   */
+  addStaticRoute: function(url, state, nomodify) {
+    this.routers[0].addRoute(this._parseUrl(url).url, state, nomodify);
+  },
+  /**
+   * Will clear all registered routers except the StaticRouter
    */
   clearRouters: function() {
-    this.routers = [];
+    this.routers = [new StaticRouter()];
   },
+  /**
+   * register a listener to all link cliks that decides if the link target can be resolved using a layerJS transition or needs to be followed by a browser reload
+   *
+   * @returns {Type} Description
+   */
   _registerLinkClickedListener: function() {
     var that = this;
 
+    // listen to history buttons
     window.onpopstate = function() {
       that._navigate(document.location.href, false);
     };
 
+    // register link listener
     $.addDelegtedListener(this.rootElement, 'click', 'a', function(event) {
       var href = this.href;
       event.preventDefault();
       event.stopPropagation();
 
       that._navigate(href, true).then(function(result) {
-        if (!result) {
+        if (!result) { // if no router could handle the url just load the url in the browser
           window.location.href = href;
         }
       });
@@ -3824,13 +4019,13 @@ var Router = Kern.EventManager.extend({
 
     var index = 0;
 
-    if (this.previousUrl === undefined){
+    // save the exiting state; we need previousUrl as in case of popState, the window.location.href is already the new one
+    if (this.previousUrl === undefined) {
       this.previousUrl = window.location.href;
     }
-
-    // save the exiting state
-    var previous = this._parseUrl(this.previousUrl);
-    that.routers[0].addRoute(previous.url, state.exportStateAsArray());
+    if (this.cache) {
+      this.addStaticRoute(this.previousUrl, state.exportStateAsArray(), true);
+    }
 
     var callRouter = function() {
       if (index < count) {
@@ -3846,7 +4041,7 @@ var Router = Kern.EventManager.extend({
             promise.resolve(true);
           }
         });
-      } else {
+      } else {        
         promise.resolve(false);
       }
     };
@@ -3859,24 +4054,43 @@ var Router = Kern.EventManager.extend({
 
 module.exports = layerJS.router = new Router();
 
-},{"../../kern/kern.js":31,"../defaults.js":1,"../domhelpers.js":2,"../layerjs.js":8,"../state.js":29,"./staterouter.js":25}],25:[function(require,module,exports){
+},{"../../kern/kern.js":32,"../defaults.js":1,"../domhelpers.js":2,"../layerjs.js":8,"../state.js":30,"./staticrouter.js":26}],26:[function(require,module,exports){
 'use strict';
 var Kern = require('../../kern/kern.js');
 var state = require('../state.js');
 
-var StateRouter = Kern.EventManager.extend({
+var StaticRouter = Kern.EventManager.extend({
   constructor: function() {
     this.routes = {};
   },
-  addRoute: function(url, states) {
-    this.routes[url] = states;
+  /**
+   * add a static route to the routers
+   *
+   * @param {string} url - the url of the route
+   * @param {Array} state - the state of the route
+   * @param {boolean} nomodify - don't modify route if already set
+   * @returns {Type} Description
+   */
+  addRoute: function(url, state, nomodify) {
+    if (!nomodify || !this.routes.hasOwnProperty(url)) {
+      this.routes[url] = state;
+    }
+  },
+  /**
+   * check if a route for an url is already registered
+   *
+   * @param {string} url - the url of an route
+   * @returns {Type} Description
+   */
+  hasRoute: function(url) {
+    return this.routes.hasOwnProperty(url);
   },
   /**
    * Will do the actual navigation to the url
    * @param {string} an url
    * @return {void}
    */
-    handle: function(href, transition) {
+  handle: function(href, transition) {
     var result = this.routes.hasOwnProperty(href);
 
     if (result) {
@@ -3897,15 +4111,16 @@ var StateRouter = Kern.EventManager.extend({
   }
 });
 
-module.exports = StateRouter;
+module.exports = StaticRouter;
 
-},{"../../kern/kern.js":31,"../state.js":29}],26:[function(require,module,exports){
+},{"../../kern/kern.js":32,"../state.js":30}],27:[function(require,module,exports){
 'use strict';
 var pluginManager = require('./pluginmanager.js');
 var GroupView = require('./groupview.js');
 var Kern = require('../kern/Kern.js');
 var defaults = require('./defaults.js');
 var layerJS = require('./layerjs.js');
+var $ = require('./domhelpers.js');
 
 /**
  * A View that represents a script DOM element
@@ -3930,11 +4145,11 @@ var ScriptView = GroupView.extend({
       diff = (this.isRendererd ? this.data.changedAttributes : this.data.attributes),
       outerEl = this.outerEl;
     if ('id' in diff) {
-      outerEl.setAttribute("data-lj-id", attr.id); //-> should be a class?
+      $.setAttributeLJ(outerEl, "id", attr.id); //-> should be a class?
     }
 
     if ('type' in diff) {
-      outerEl.setAttribute("data-lj-type", attr.type); //-> should be a class?
+      $.setAttributeLJ(outerEl,"type", attr.type); //-> should be a class?
     }
 
     if ('elementId' in diff || 'id' in diff) {
@@ -3979,7 +4194,7 @@ var ScriptView = GroupView.extend({
 pluginManager.registerType('script', ScriptView, defaults.identifyPriority.normal);
 module.exports = ScriptView;
 
-},{"../kern/Kern.js":30,"./defaults.js":1,"./groupview.js":7,"./layerjs.js":8,"./pluginmanager.js":21}],27:[function(require,module,exports){
+},{"../kern/Kern.js":31,"./defaults.js":1,"./domhelpers.js":2,"./groupview.js":7,"./layerjs.js":8,"./pluginmanager.js":22}],28:[function(require,module,exports){
 'use strict';
 var Kern = require('../kern/Kern.js');
 
@@ -4142,12 +4357,15 @@ var ScrollTransformer = Kern.EventManager.extend({
 
 module.exports = ScrollTransformer;
 
-},{"../kern/Kern.js":30}],28:[function(require,module,exports){
+},{"../kern/Kern.js":31}],29:[function(require,module,exports){
 'use strict';
 var pluginManager = require('./pluginmanager.js');
 var GroupView = require('./groupview.js');
 var Kern = require('../kern/Kern.js');
 var defaults = require('./defaults.js');
+var $ = require('./domhelpers.js');
+var state = require('./state.js');
+
 
 /**
  * A View which can have child views
@@ -4170,6 +4388,8 @@ var StageView = GroupView.extend({
     window.addEventListener('resize', function() {
       that.onResize();
     }, false);
+
+    state.registerView(this);
   },
   _renderChildPosition: function(childView) {
     if (childView.data.attributes.nodeType === 1) {
@@ -4199,18 +4419,19 @@ var StageView = GroupView.extend({
     type: 'stage'
   }),
   identify: function(element) {
-    var type = element.getAttribute('data-lj-type');
+    var type = $.getAttributeLJ(element, 'type');
     return null !== type && type.toLowerCase() === StageView.defaultProperties.type;
   }
 });
 pluginManager.registerType('stage', StageView, defaults.identifyPriority.normal);
 module.exports = StageView;
 
-},{"../kern/Kern.js":30,"./defaults.js":1,"./groupview.js":7,"./pluginmanager.js":21}],29:[function(require,module,exports){
+},{"../kern/Kern.js":31,"./defaults.js":1,"./domhelpers.js":2,"./groupview.js":7,"./pluginmanager.js":22,"./state.js":30}],30:[function(require,module,exports){
 'use strict';
 
 var Kern = require('../kern/Kern.js');
 var layerJS = require('./layerjs.js');
+var $ = require('./domhelpers.js');
 
 /**
  *  class that will contain the state off all the stages, layers, frames
@@ -4218,9 +4439,7 @@ var layerJS = require('./layerjs.js');
  * @extends Kern.Model
  */
 var State = Kern.Model.extend({
-  constructor: function() {
-    this.tree = {};
-  },
+  constructor: function() {},
   /**
    * Will return the next index of a layerjs object within it's parent
    *
@@ -4230,8 +4449,8 @@ var State = Kern.Model.extend({
    */
   _getNextChildIndexByType: function(parent, type) {
     var index = -1;
-    for (var name in parent) {
-      if (parent[name].view && parent[name].view.data.attributes.type === type) {
+    for (var name in parent.children) {
+      if (parent.children[name].view && parent.children[name].view.data.attributes.type === type) {
         ++index;
       }
     }
@@ -4259,18 +4478,19 @@ var State = Kern.Model.extend({
         var type = childView.data.attributes.type;
 
         var name = (childView.data.attributes.name || child.id || type + '[' + this._getNextChildIndexByType(parent, type) + ']');
-        parent[name] = {
-          view: childView
+        parent.children[name] = {
+          view: childView,
+          children: {}
         };
 
         if (childView.data.attributes.type === 'layer') {
-          childView.on('transitionStarted', this._transitionToEvent(parent[name]));
+          childView.on('transitionStarted', this._transitionToEvent(parent.children[name]));
         }
 
-        if (parent.view && parent.view.data.attributes.type === 'layer' && parent[name].view.data.attributes.type === 'frame') {
-          parent[name].active = parent.view.currentFrame === parent[name].view;
+        if (parent.view && parent.view.data.attributes.type === 'layer' && parent.children[name].view.data.attributes.type === 'frame') {
+          parent.children[name].active = parent.view.currentFrame === parent.children[name].view;
         }
-        this._buildTree(parent[name], childView.innerEl.children);
+        this._buildTree(parent.children[name], childView.innerEl.children);
       }
     }
 
@@ -4299,35 +4519,45 @@ var State = Kern.Model.extend({
     var currentState = {};
 
     if (null === parentNode) {
+      // if we are at the root of the DOM return the state structure of the document
       currentState = this._getTree(ownerDocument);
     } else if (parentNode._state) {
+      // is the state of the element already present?
       return parentNode._state;
     } else {
 
+      // get the state of the parent layer,stage or frame node
       currentState = this.buildParent(parentNode.parentElement, ownerDocument);
 
-      if (parentNode._ljView && !parentNode.hasAttribute('data-lj-helper')) {
+      // layer helper divs are special; ignore them; ignoring means to pass the parent state as current state
+      if (parentNode._ljView && !$.hasAttributeLJ(parentNode, 'helper')) {
         var view = parentNode._ljView;
 
+        // ignore everything except frames, layers and stages; ignoring means to pass the parent state as current state
         if (view && (view.data.attributes.type === 'frame' || view.data.attributes.type === 'layer' || view.data.attributes.type === 'stage')) {
           var type = view.data.attributes.type;
           var name = (view.data.attributes.name || parentNode.id || type + '[' + this._getNextChildIndexByType(currentState, type) + ']');
           // layerJS object already added
-          if (!currentState.hasOwnProperty(name)) {
-            currentState[name] = {
-              view: view
+          if (!currentState.children.hasOwnProperty(name)) {
+            // create the actual current state datastructure as a child of the parent's state structure
+            currentState.children[name] = {
+              view: view,
+              children: {}
             };
             if (view.data.attributes.type === 'frame') {
-              currentState[name].active = false;
+              currentState.children[name].active = false;
+              // check if the current frame is the active frame
               if (currentState.view && currentState.view.currentFrame) {
-                currentState[name].active = currentState.view.currentFrame.data.attributes.name === view.data.attributes.name;
+                currentState.children[name].active = currentState.view.currentFrame.data.attributes.name === view.data.attributes.name;
               }
             } else if (view.data.attributes.type === 'layer') {
-              view.on('transitionStarted', this._transitionToEvent(currentState[name]));
+              // listen to state changes; state changes when transitions happen in layers
+              view.on('transitionStarted', this._transitionToEvent(currentState.children[name]));
             }
           }
 
-          currentState = currentState[name];
+          // currentState did contain the parent's state; assing actual current state
+          currentState = currentState.children[name];
 
           parentNode._state = currentState;
         }
@@ -4374,32 +4604,19 @@ var State = Kern.Model.extend({
     return this._getPath(this._getTree(ownerDocument), '', false);
   },
   /**
-   * Will return a delimited string that represents the path to all active frames within the document
-   * @param {object} the document who's state will be exported
-   * @returns {string} A delimited string pointing to active frames within the document
+   * Will register a View with the state
+   * @param {object} a layerJSView
    */
-  exportState: function(ownerDocument) {
-    return this.exportStateAsArray(ownerDocument).join(';');
-  },
-  /**
-   * Will return a delimited string that represents the path to all frames within the document
-   * @param {object} the document who's state will be exported
-   * @returns {string} A delimited string pointing to frames within the document
-   */
-  exportStructure: function(ownerDocument) {
-    return this.exportStructureAsArray(ownerDocument).join(';');
-  },
-  /**
-   * Will register a FrameView with the state
-   * @param {object} a FrameView
-   */
-  registerFrameView: function(frameView) {
-    var frameViews = this._getRegisteredFrameViews(frameView.document);
+  registerView: function(view) {
 
-    frameViews.push(frameView);
+    if (view.data.attributes.type === 'frame') {
+      var frameViews = this._getRegisteredFrameViews(view.document);
+      frameViews.push(view);
+    }
 
-    if (frameView.document.body.contains(frameView.innerEl)) {
-      this.buildParent(frameView.innerEl, frameView.document);
+    // only add to state structure if the frame is really shown (attached to DOM)
+    if (view.document.body.contains(view.outerEl)) {
+      this.buildParent(view.outerEl, view.document);
     }
   },
   /**
@@ -4414,11 +4631,11 @@ var State = Kern.Model.extend({
     var currentState = tree;
 
     for (var i = 0; i < pathArray.length; i++) {
-      if (currentState.hasOwnProperty(pathArray[i])) {
-        currentState = currentState[pathArray[i]];
+      if (currentState.children.hasOwnProperty(pathArray[i])) {
+        currentState = currentState.children[pathArray[i]];
       } else {
-        currentState = undefined;
-        break;
+         currentState = undefined;
+         break;
       }
     }
 
@@ -4443,16 +4660,16 @@ var State = Kern.Model.extend({
    */
   _getPath: function(parent, rootpath, active) {
     var paths = [];
-    for (var element in parent) {
-      if (parent.hasOwnProperty(element) && parent[element].hasOwnProperty('view')) {
+    for (var element in parent.children) {
+      if (parent.children.hasOwnProperty(element) && parent.children[element].hasOwnProperty('view')) {
         var path = rootpath;
-        if (parent[element].view.data.attributes.type === 'frame' && (parent[element].active || !active)) {
+        if (parent.children[element].view.data.attributes.type === 'frame' && (parent.children[element].active || !active)) {
           path = rootpath + element;
           paths.push(path);
-          paths = paths.concat(this._getPath(parent[element], path + '.', active));
-        } else if (parent[element].view.data.attributes.type !== 'frame') {
+          paths = paths.concat(this._getPath(parent.children[element], path + '.', active));
+        } else if (parent.children[element].view.data.attributes.type !== 'frame') {
           path += element;
-          paths = paths.concat(this._getPath(parent[element], path + '.', active));
+          paths = paths.concat(this._getPath(parent.children[element], path + '.', active));
         }
       }
     }
@@ -4467,9 +4684,10 @@ var State = Kern.Model.extend({
    */
   _transitionToEvent: function(layerState) {
     return function(frameName) {
-      for (var name in layerState) {
-        if (layerState.hasOwnProperty(name) && layerState[name].hasOwnProperty('active')) {
-          layerState[name].active = layerState[name].view.data.attributes.name === frameName;
+      for (var name in layerState.children) {
+        // set new active frame; set all other frames to inactive
+        if (layerState.children.hasOwnProperty(name) && layerState.children[name].hasOwnProperty('active')) {
+          layerState.children[name].active = layerState.children[name].view.data.attributes.name === frameName;
         }
       }
     };
@@ -4482,10 +4700,12 @@ var State = Kern.Model.extend({
    */
   _getTree: function(ownerDocument) {
     var doc = ownerDocument || document;
-    var key = '__ljStateTree';
+    var key = '_ljStateTree';
 
     if (!doc.hasOwnProperty(key)) {
-      doc[key] = {};
+      doc[key] = {
+        children: {}
+      };
     }
 
     return doc[key];
@@ -4498,7 +4718,7 @@ var State = Kern.Model.extend({
    */
   _getRegisteredFrameViews: function(ownerDocument) {
     var doc = ownerDocument || document;
-    var key = '__ljStateFrameView';
+    var key = '_ljStateFrameView';
 
     if (!doc.hasOwnProperty(key)) {
       doc[key] = [];
@@ -4510,7 +4730,7 @@ var State = Kern.Model.extend({
 
 module.exports = layerJS.state = new State();
 
-},{"../kern/Kern.js":30,"./layerjs.js":8}],30:[function(require,module,exports){
+},{"../kern/Kern.js":31,"./domhelpers.js":2,"./layerjs.js":8}],31:[function(require,module,exports){
 'use strict';
 //jshint unused:false
 
@@ -5281,9 +5501,9 @@ module.exports = layerJS.state = new State();
   }
 })();
 
-},{}],31:[function(require,module,exports){
-arguments[4][30][0].apply(exports,arguments)
-},{"dup":30}],32:[function(require,module,exports){
+},{}],32:[function(require,module,exports){
+arguments[4][31][0].apply(exports,arguments)
+},{"dup":31}],33:[function(require,module,exports){
 'use strict';
 require("./kern/kern.js");
 require("./framework/layerjs.js");
@@ -5321,4 +5541,4 @@ layerJS.init = function() {
   layerJS.router.addRouter(new FileRouter());
 };
 
-},{"./framework/defaults.js":1,"./framework/elementview.js":3,"./framework/frameview.js":4,"./framework/gestures/gesturemanager.js":6,"./framework/groupview.js":7,"./framework/layerjs.js":8,"./framework/layerview.js":9,"./framework/layoutmanager.js":10,"./framework/layouts/canvaslayout.js":11,"./framework/layouts/layerlayout.js":12,"./framework/layouts/slidelayout.js":13,"./framework/nodedata.js":14,"./framework/nodeview.js":15,"./framework/parsemanager.js":20,"./framework/pluginmanager.js":21,"./framework/repository.js":22,"./framework/router/filerouter.js":23,"./framework/router/router.js":24,"./framework/scriptview.js":26,"./framework/stageview.js":28,"./framework/state.js":29,"./kern/kern.js":31}]},{},[32]);
+},{"./framework/defaults.js":1,"./framework/elementview.js":3,"./framework/frameview.js":4,"./framework/gestures/gesturemanager.js":6,"./framework/groupview.js":7,"./framework/layerjs.js":8,"./framework/layerview.js":9,"./framework/layoutmanager.js":10,"./framework/layouts/canvaslayout.js":11,"./framework/layouts/layerlayout.js":12,"./framework/layouts/slidelayout.js":13,"./framework/nodedata.js":14,"./framework/nodeview.js":15,"./framework/parsemanager.js":21,"./framework/pluginmanager.js":22,"./framework/repository.js":23,"./framework/router/filerouter.js":24,"./framework/router/router.js":25,"./framework/scriptview.js":27,"./framework/stageview.js":29,"./framework/state.js":30,"./kern/kern.js":32}]},{},[33]);
