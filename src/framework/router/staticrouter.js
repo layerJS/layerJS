@@ -38,13 +38,7 @@ var StaticRouter = Kern.EventManager.extend({
 
     if (result) {
       var activeFrames = this.routes[href];
-
-      for (var i = 0; i < activeFrames.length; i++) {
-        var layerPath = activeFrames[i].replace(/^(.*\.)[^\.]*$/, "$1").slice(0, -1);
-        var layerView = state.getViewForPath(layerPath);
-        var frameView = state.getViewForPath(activeFrames[i]);
-        layerView.transitionTo(frameView.data.attributes.name, transition);
-      }
+      state.transitionTo(activeFrames, transition);
     }
 
     var promise = new Kern.Promise();

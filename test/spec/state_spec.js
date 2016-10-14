@@ -344,19 +344,107 @@ describe('state', function() {
 
   });
 
-  if ('can register a frame within the state', function() {
-      var frameView = new FrameView(new FrameView.Model(FrameView.defaultProperties));
-      state.registerView(frameView);
+  function transitionTo(states, expectedState, expectedFrameName, done) {
+    var html = "<div data-lj-type='stage' id='stage1'>" +
+      "<div data-lj-type='layer' id='layer1' data-lj-default-frame='frame1'>" +
+      "<div data-lj-type='frame' id='frame1' data-lj-name='frame1'></div>" +
+      "<div data-lj-type='frame' id='frame2' data-lj-name='frame2'></div>" +
+      "</div>" +
+      "</div>";
 
-      var frameViews = state._getRegisteredFrameViews(document);
+    utilities.setHtml(html);
 
-      var ok = false;
-      for (var i = 0; i < frameViews.length; i++) {
-        ok = frameView === frameViews[i];
-      }
-
-      expect(ok).toBe(true);
+    var stageView1 = new StageView(null, {
+      el: document.getElementById('stage1')
     });
+    var layerView1 = document.getElementById('layer1')._ljView;
+
+    state.transitionTo(states);
+
+    setTimeout(function() {
+      if (expectedFrameName === 'null') {
+        expect(layerView1.currentFrame).toBe(null);
+      } else {
+        expect(layerView1.currentFrame.data.attributes.name).toBe('frame2');
+      }
+      expect(state.exportStateAsArray()).toEqual(expectedState);
+      done();
+    }, 60);
+  }
+
+  it('can transition to a state (full path)', function(done) {
+    transitionTo(['stage1.layer1.frame2'], ['stage1.layer1.frame2'], 'frame2', done);
+  });
+
+  it('can transition to a state (none)', function(done) {
+    transitionTo(['stage1.layer1.none'], ['stage1.layer1.none'], 'null', done);
+  });
+
+  it('can transition to a state (path layer+frame)', function(done) {
+    transitionTo(['layer1.frame2'], ['stage1.layer1.frame2'], 'frame2', done);
+  });
+
+  it('can transition to a state (path frame)', function(done) {
+    transitionTo(['frame2'], ['stage1.layer1.frame2'], 'frame2', done);
+  });
+
+  function showState(states, expectedState, expectedFrameName, done) {
+    var html = "<div data-lj-type='stage' id='stage1'>" +
+      "<div data-lj-type='layer' id='layer1' data-lj-default-frame='frame1'>" +
+      "<div data-lj-type='frame' id='frame1' data-lj-name='frame1'></div>" +
+      "<div data-lj-type='frame' id='frame2' data-lj-name='frame2'></div>" +
+      "</div>" +
+      "</div>";
+
+    utilities.setHtml(html);
+
+    var stageView1 = new StageView(null, {
+      el: document.getElementById('stage1')
+    });
+    var layerView1 = document.getElementById('layer1')._ljView;
+
+    state.showState(states);
+
+    setTimeout(function() {
+      if (expectedFrameName === 'null') {
+        expect(layerView1.currentFrame).toBe(null);
+      } else {
+        expect(layerView1.currentFrame.data.attributes.name).toBe('frame2');
+      }
+      expect(state.exportStateAsArray()).toEqual(expectedState);
+      done();
+    }, 60);
+  }
+
+  it('can show a state (full path)', function(done) {
+    showState(['stage1.layer1.frame2'], ['stage1.layer1.frame2'], 'frame2', done);
+  });
+
+  it('can show a state (none)', function(done) {
+    showState(['stage1.layer1.none'], ['stage1.layer1.none'], 'null', done);
+  });
+
+  it('can show a state (path layer+frame)', function(done) {
+    showState(['layer1.frame2'], ['stage1.layer1.frame2'], 'frame2', done);
+  });
+
+  it('can show a state (path frame)', function(done) {
+    showState(['frame2'], ['stage1.layer1.frame2'], 'frame2', done);
+  });
+
+  it('can register a frame within the state', function() {
+    var frameView = new FrameView(new FrameView.Model(FrameView.defaultProperties));
+    state.registerView(frameView);
+
+    var frameViews = state._getRegisteredFrameViews(document);
+
+    var ok = false;
+    for (var i = 0; i < frameViews.length; i++) {
+      ok = frameView === frameViews[i];
+    }
+
+    expect(ok).toBe(true);
+  });
 
   it('performance test', function() {
 

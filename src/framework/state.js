@@ -205,8 +205,8 @@ var State = Kern.Model.extend({
       if (currentState.children.hasOwnProperty(pathArray[i])) {
         currentState = currentState.children[pathArray[i]];
       } else {
-         currentState = undefined;
-         break;
+        currentState = undefined;
+        break;
       }
     }
 
@@ -222,6 +222,81 @@ var State = Kern.Model.extend({
     return state !== undefined ? state.view : undefined;
   },
   /**
+   * Will transition to a state
+   *
+   * @param {array} states States to transition to
+   * @param {object} transition Transition properties
+   */
+  transitionTo: function(states, transition) {
+
+    var pathsToTransition = this._determineTransitionPaths(states);
+
+    for (let i = 0; i < pathsToTransition.length; i++) {
+      var path = pathsToTransition[i];
+      var frameView = path.endsWith('.none') ? undefined : this.getViewForPath(path);
+      var frameName = null;
+      var layerView = this.getViewForPath(path.replace(/\.[^\.]*$/, ""));
+
+      if (undefined !== frameView) {
+        frameName = frameView.data.attributes.name;
+      }
+
+      layerView.transitionTo(frameName, transition);
+    }
+  },
+  /**
+   * Will show the state without a transition
+   *
+   * @param {array} states States to transition to
+   */
+  showState: function(states) {
+
+    var pathsToTransition = this._determineTransitionPaths(states);
+
+    for (let i = 0; i < pathsToTransition.length; i++) {
+      var path = pathsToTransition[i];
+      var frameView = path.endsWith('.none') ? undefined : this.getViewForPath(path);
+      var frameName = null;
+      var layerView = this.getViewForPath(path.replace(/\.[^\.]*$/, ""));
+
+      if (undefined !== frameView) {
+        frameName = frameView.data.attributes.name;
+      }
+
+      layerView.showFrame(frameName);
+    }
+  },
+  /**
+   * Will return the paths where needs to be transitioned to based on specific states
+   *
+   * @param {array} states States to transition to
+   * @return {array} pathsToTransition
+   */
+  _determineTransitionPaths: function(states) {
+    var length = states.length;
+    var currentStructure = this.exportStructureAsArray();
+    var pathsToTransition = [];
+
+    for (let i = 0; i < length; i++) {
+      for (let x = 0; x < currentStructure.length; x++) {
+
+        var tempStructure = currentStructure[x].replace(new RegExp(states[i] + '$'), '');
+        if ('' === tempStructure || (currentStructure[x] !== tempStructure && tempStructure.endsWith('.'))) {
+          pathsToTransition.push(currentStructure[x]);
+        } else if (states[i].endsWith('.none') || states[i] === 'none') {
+          if (states[i].replace(/\.[^\.]*$/, '') === '') {
+            pathsToTransition.push(currentStructure[x].replace(/\.[^\.]*$/, '.none'));
+          } else if (currentStructure[x].replace(/\.[^\.]*$/, '.none').endsWith(states[i])) {
+            pathsToTransition.push(currentStructure[x].replace(/\.[^\.]*$/, '.none'));
+          }
+        }
+      }
+    }
+
+    return pathsToTransition;
+  },
+
+  /**
    * Will build the up the path to the frames
    *
    * @param {object} Represents the parent
@@ -231,10 +306,14 @@ var State = Kern.Model.extend({
    */
   _getPath: function(parent, rootpath, active) {
     var paths = [];
+    var hasActiveChildren = false;
     for (var element in parent.children) {
       if (parent.children.hasOwnProperty(element) && parent.children[element].hasOwnProperty('view')) {
         var path = rootpath;
         if (parent.children[element].view.data.attributes.type === 'frame' && (parent.children[element].active || !active)) {
+          if (parent.children[element].active) {
+            hasActiveChildren = true;
+          }
           path = rootpath + element;
           paths.push(path);
           paths = paths.concat(this._getPath(parent.children[element], path + '.', active));
@@ -243,6 +322,10 @@ var State = Kern.Model.extend({
           paths = paths.concat(this._getPath(parent.children[element], path + '.', active));
         }
       }
+    }
+
+    if (parent.view && parent.view.data.attributes.type === 'layer' && !hasActiveChildren) {
+      paths.push(rootpath + 'none');
     }
 
     return paths;

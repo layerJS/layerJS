@@ -23,8 +23,6 @@ var FileRouter = Kern.EventManager.extend({
     this._loadHTML(href).then(function(doc) {
       parseManager.parseDocument(doc);
       var loadedFrames = state.exportStructureAsArray(doc);
-
-      var toTransitionTo = {};
       var toParseChildren = {};
       var alreadyImported = {};
 
@@ -52,9 +50,6 @@ var FileRouter = Kern.EventManager.extend({
           parentView.innerEl.insertAdjacentHTML('beforeend', stateToImport.view.outerEl.outerHTML);
           toParseChildren[parentPath] = true;
           alreadyImported[pathToImport] = true;
-          if (stateToImport.active || (toTransitionTo[parentPath] === undefined && stateToImport.view.data.attributes.type === 'frame')) {
-            toTransitionTo[parentPath] = stateToImport.view.data.attributes.name;
-          }
         }
       }
 
@@ -65,20 +60,17 @@ var FileRouter = Kern.EventManager.extend({
         }
       }
 
-      if (Object.keys(toTransitionTo).length > 0) {
+      var framesToTransitionTo = state.exportStateAsArray(doc);
+
+      if (framesToTransitionTo.length > 0) {
         $.postAnimationFrame(function() {
-          for (var path in toTransitionTo) {
-            if (toTransitionTo.hasOwnProperty(path) && toTransitionTo[path] !== undefined) {
-              var layerView = state.getViewForPath(path);
-              layerView.transitionTo(toTransitionTo[path], transition);
-            }
-          }
+          state.transitionTo(framesToTransitionTo, transition);
           promise.resolve(true);
         });
       } else {
         promise.resolve(true);
       }
-    }, function(){
+    }, function() {
       promise.resolve(false);
     });
 
@@ -95,7 +87,7 @@ var FileRouter = Kern.EventManager.extend({
 
     try {
       var xhr = new XMLHttpRequest();
-      xhr.onerror= function(){
+      xhr.onerror = function() {
         p.reject();
       };
       xhr.onload = function() {
