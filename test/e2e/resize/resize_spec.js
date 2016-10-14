@@ -88,4 +88,53 @@ describe('resize', function() {
     });
   });
 
+  it('frame will adapt it\'s width when a large element is added', function() {
+    browser.get('resize/resize.html').then(function() {
+      protractor.promise.all([
+        utilities.getBoundingClientRect('stage'),
+        utilities.getBoundingClientRect('layer'),
+        utilities.getBoundingClientRect('frame'),
+      ]).then(function(data) {
+        frameHasSameWidth(data[0], data[1], data[2]);
+        utilities.addElement('frame', '<div style="width:1000px;height:1px;"></div>').then(function() {
+          utilities.wait(100);
+          protractor.promise.all([
+            utilities.getBoundingClientRect('stage'),
+            utilities.getBoundingClientRect('layer'),
+            utilities.getBoundingClientRect('frame'),
+          ]).then(function(data) {
+            frameHasSameWidth(data[0], data[1], data[2]);
+          });
+        });
+      });
+    });
+  });
+
+  it('frame will adapt it\'s height when a large element is added', function() {
+    browser.get('resize/resize.html').then(function() {
+      utilities.setAttributes('frame', {
+        'data-lj-fit-to': 'height',
+        'data-lj-start-position': 'left'
+      }).then(function() {
+        protractor.promise.all([
+          utilities.getBoundingClientRect('stage'),
+          utilities.getBoundingClientRect('layer'),
+          utilities.getBoundingClientRect('frame'),
+        ]).then(function(data) {
+          frameHasSameHeight(data[0], data[1], data[2]);
+          utilities.addElement('frame', '<div style="width:1px;height:1000px;"></div>').then(function() {
+            utilities.wait(100);
+            protractor.promise.all([
+              utilities.getBoundingClientRect('stage'),
+              utilities.getBoundingClientRect('layer'),
+              utilities.getBoundingClientRect('frame'),
+            ]).then(function(data) {
+              frameHasSameHeight(data[0], data[1], data[2]);
+            });
+          });
+        });
+      });
+    });
+  });
+
 });
