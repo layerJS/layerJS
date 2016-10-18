@@ -144,22 +144,27 @@ var Router = Kern.EventManager.extend({
       this.addStaticRoute(this.previousUrl, state.exportStateAsArray(), true);
     }
 
+    var handled = false;
+
     var callRouter = function() {
       if (index < count) {
         that.routers[index].handle(options.url, options.transitionOptions).then(function(result) {
-          if (!result) {
-            index++;
-            callRouter();
-          } else {
+          if (!handled && result.handled) {
             if (window.history && addToHistory) {
               window.history.pushState({}, "", options.url);
             }
             that.previousUrl = href;
-            promise.resolve(true);
+            handled = result.handled;
           }
+
+          if ((result.handled && !result.stop) || (!result.handled)) {
+            index++;
+            callRouter();
+          } else
+            promise.resolve(handled);
         });
-      } else {        
-        promise.resolve(false);
+      } else {
+        promise.resolve(handled);
       }
     };
 

@@ -29,8 +29,10 @@ require("./framework/stageview.js");
 require("./framework/groupview.js");
 
 var FileRouter = require("./framework/router/filerouter.js");
+var HashRouter = require("./framework/router/hashrouter.js");
 
 layerJS.init = function() {
   layerJS.parseManager.parseDocument();
   layerJS.router.addRouter(new FileRouter());
+  layerJS.router.addRouter(new HashRouter());
 };

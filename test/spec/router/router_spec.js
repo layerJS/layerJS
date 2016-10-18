@@ -17,6 +17,7 @@ describe('router', function() {
     defaults.transitionParameters.duration = 't';
     layerJS.router.clearRouters();
     layerJS.router.addRouter(require('../../../src/framework/router/filerouter.js'));
+    layerJS.router.addRouter(require('../../../src/framework/router/hashrouter.js'));
   });
 
   it('can be created', function() {
@@ -48,7 +49,10 @@ describe('router', function() {
     var dummyRouter = {
       handle: function(url) {
         var promise = new Kern.Promise();
-        promise.resolve(true);
+        promise.resolve({
+          handled: true,
+          stop: true
+        });
         return promise;
       }
     };
@@ -68,7 +72,10 @@ describe('router', function() {
     var dummyRouter = {
       handle: function(url) {
         var promise = new Kern.Promise();
-        promise.resolve(true);
+        promise.resolve({
+          handled: true,
+          stop: true
+        });
         return promise;
       }
     };
@@ -93,7 +100,10 @@ describe('router', function() {
     var dummyRouter = {
       handle: function(url) {
         var promise = new Kern.Promise();
-        promise.resolve(false);
+        promise.resolve({
+          handled: false,
+          stop: false
+        });
         return promise;
       }
     };
@@ -119,7 +129,10 @@ describe('router', function() {
     var dummyRouter = {
       handle: function(url) {
         var promise = new Kern.Promise();
-        promise.resolve(true);
+        promise.resolve({
+          handled: true,
+          stop: true
+        });
         return promise;
       }
     };
@@ -174,7 +187,7 @@ describe('router', function() {
     expect(result.url).toBe('/index.html');
   });
 
-  it('will make paths absolute from the same domain', function(){
+  it('will make paths absolute from the same domain', function() {
     var url = window.location.origin + '/dir/../index.html';
 
     var result = layerJS.router._parseUrl(url);
@@ -202,7 +215,7 @@ describe('router', function() {
       defaults.transitionParameters.type = type;
       defaults.transitionParameters.duration = duration;
 
-      var url =  window.location.origin + '/index.html?id=1&' + duration + '=100s&' + type + '=left&cat=p';
+      var url = window.location.origin + '/index.html?id=1&' + duration + '=100s&' + type + '=left&cat=p';
       var result = layerJS.router._parseUrl(url);
 
       expect(result.url).toBe('/index.html?id=1&cat=p');
@@ -221,7 +234,10 @@ describe('router', function() {
         transitionOptions = transition;
 
         var promise = new Kern.Promise();
-        promise.resolve(true);
+        promise.resolve({
+          handled: true,
+          stop: true
+        });
         return promise;
       }
     };
@@ -243,12 +259,15 @@ describe('router', function() {
   it('will add the exiting state to the StaticRouter when a new navigation is done', function() {
     var url = window.location.origin + '/index.html';
     var dummyRouter = {
-    handle: function(url) {
-      var promise = new Kern.Promise();
-      promise.resolve(true);
-      return promise;
-    }
-  };
+      handle: function(url) {
+        var promise = new Kern.Promise();
+        promise.resolve({
+          handled: true,
+          stop: true
+        });
+        return promise;
+      }
+    };
 
     var html = "<div data-lj-type='stage' id='stage1'>" +
       "<div data-lj-type='layer' id='layer1' data-lj-default-frame='frame1'>" +
@@ -267,10 +286,104 @@ describe('router', function() {
 
     layerJS.router.addRouter(dummyRouter);
 
-    debugger;
     layerJS.router._navigate(url, true);
     console.log(layerJS.router.routers[0].routes);
     expect(layerJS.router.routers[0].routes.hasOwnProperty('/#')).toBeTruthy();
     expect(layerJS.router.routers[0].routes['/#']).toEqual(['stage1.layer1.frame1']);
+  });
+
+  it('will stop iterating routers when a router return stop == true', function() {
+    var url = window.location.origin + '/index.html';
+    var handled = false;
+    var dummyRouter = {
+      handle: function(url) {
+        var promise = new Kern.Promise();
+        promise.resolve({
+          handled: true,
+          stop: true
+        });
+        return promise;
+      }
+    };
+
+    var dummyRouter2 = {
+      handle: function(url) {
+        handled = true;
+        var promise = new Kern.Promise();
+        promise.resolve({
+          handled: true,
+          stop: true
+        });
+        return promise;
+      }
+    };
+
+    var html = "<div data-lj-type='stage' id='stage1'>" +
+      "<div data-lj-type='layer' id='layer1' data-lj-default-frame='frame1'>" +
+      "<div data-lj-type='frame' id='frame1' data-lj-name='frame1'></div>" +
+      "<div data-lj-type='frame' id='frame2' data-lj-name='frame2'></div>" +
+      "</div>" +
+      "</div>";
+
+    utilities.setHtml(html);
+
+    window.history.pushState = function(param1, param2, url) {};
+
+    new StageView(null, {
+      el: document.getElementById('stage1')
+    });
+
+    layerJS.router.addRouter(dummyRouter);
+    layerJS.router.addRouter(dummyRouter2);
+
+    layerJS.router._navigate(url, true);
+    expect(handled).toBe(false);
+  });
+
+  it('will iterate to the next router when a router return stop == false but handled the url', function() {
+    var url = window.location.origin + '/index.html';
+    var handled = false;
+    var dummyRouter = {
+      handle: function(url) {
+        var promise = new Kern.Promise();
+        promise.resolve({
+          handled: true,
+          stop: false
+        });
+        return promise;
+      }
+    };
+
+    var dummyRouter2 = {
+      handle: function(url) {
+        handled = true;
+        var promise = new Kern.Promise();
+        promise.resolve({
+          handled: true,
+          stop: true
+        });
+        return promise;
+      }
+    };
+
+    var html = "<div data-lj-type='stage' id='stage1'>" +
+      "<div data-lj-type='layer' id='layer1' data-lj-default-frame='frame1'>" +
+      "<div data-lj-type='frame' id='frame1' data-lj-name='frame1'></div>" +
+      "<div data-lj-type='frame' id='frame2' data-lj-name='frame2'></div>" +
+      "</div>" +
+      "</div>";
+
+    utilities.setHtml(html);
+
+    window.history.pushState = function(param1, param2, url) {};
+
+    new StageView(null, {
+      el: document.getElementById('stage1')
+    });
+
+    layerJS.router.addRouter(dummyRouter);
+    layerJS.router.addRouter(dummyRouter2);
+    layerJS.router._navigate(url, true);
+    expect(handled).toBe(true);
   });
 });

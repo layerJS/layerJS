@@ -1,30 +1,18 @@
-describe('staticRouter', function() {
+describe('HashRouter', function() {
 
-  var StaticRouter = require('../../../src/framework/router/staticRouter.js');
+  var HashRouter = require('../../../src/framework/router/hashRouter.js');
   var utilities = require('../helpers/utilities.js');
   var StageView = require('../../../src/framework/stageview.js')
   var state = require('../../../src/framework/state.js');
 
-  var staticRouter;
+  var hashRouter;
 
   beforeEach(function() {
-    staticRouter = new StaticRouter();
-  })
+    hashRouter = new HashRouter();
+  });
 
-  it('can define states for an url', function() {
-    var url = '/index.html';
-    var states = ['stage1.layer1.frame1', 'stage1.layer1.frame1.layer2.frame2'];
-
-    staticRouter.addRoute(url, states);
-
-    expect(staticRouter.routes.hasOwnProperty(url)).toBeTruthy();
-    expect(staticRouter.routes[url]).toBe(states);
-  })
-
-  it('can handle a predefined route', function(done) {
-    var url = '/test.html';
-
-    staticRouter.addRoute(url, ['stage1.layer1.frame2']);
+  it('can handle a hashed url', function(done) {
+    var url = window.location.href + '#stage1.layer1.frame2';
 
     var html = "<div data-lj-type='stage' id='stage1'>" +
       "<div data-lj-type='layer' id='layer1' data-lj-default-frame='frame1'>" +
@@ -39,9 +27,7 @@ describe('staticRouter', function() {
       el: document.getElementById('stage1')
     });
 
-    state.buildTree();
-
-    var promise = staticRouter.handle(url, {});
+    var promise = hashRouter.handle(url, {});
 
     promise.then(function(result) {
       expect(result.handled).toBeTruthy();
@@ -50,6 +36,24 @@ describe('staticRouter', function() {
       expect(layerView.currentFrame.data.attributes.name).toBe('frame2');
       done();
     });
-  }); 
+  });
+
+  it('can only handle an url with a hash', function(done) {
+    var promise = hashRouter.handle('http://localhost/', {});
+
+    promise.then(function(result) {
+      expect(result.handled).toBeFalsy();
+      done();
+    });
+  });
+
+  it('can only handle an url with a hash that is the same as the current url', function(done) {
+    var promise = hashRouter.handle('http://localhost/test.html#stage1.layer1.frame2', {});
+
+    promise.then(function(result) {
+      expect(result.handled).toBeFalsy();
+      done();
+    });
+  });
 
 });

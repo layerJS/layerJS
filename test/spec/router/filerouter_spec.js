@@ -50,7 +50,9 @@ describe('Filerouter', function() {
     var promise = fileRouter.handle('http://localhost/somePage.html');
     scope.done();
 
-    promise.then(function() {
+    promise.then(function(result) {
+      expect(result.handled).toBeTruthy();
+      expect(result.stop).toBeFalsy();
       expect(layerView.currentFrame.data.attributes.name).toBe('frame2');
       done();
     });
@@ -115,9 +117,10 @@ describe('Filerouter', function() {
     var fileRouter = new FileRouter();
     var promise = fileRouter.handle('/somePage.html');
 
-    promise.then(function(result){
-        expect(result).toBe(false);
-        done();
+    promise.then(function(result) {
+      expect(result.handled).toBe(false);
+      expect(result.stop).toBe(false);
+      done();
     });
   });
 
