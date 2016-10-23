@@ -86,6 +86,26 @@ var State = Kern.Model.extend({
 
     this._buildTree(this._getTree(options.document), options.document.children);
   },
+  updateChildren: function(view) {
+    var viewState = view.innerEl._state;
+
+    if (undefined === view.childViews)
+      return;
+
+    for (var i = 0; i < view.childViews.length; i++) {
+      var childView = view.childViews[i];
+      var isNewView = true;
+      for (var child in viewState.children) {
+        if (viewState.children[child].view === childView) {
+          isNewView = false;
+          break;
+        }
+      }
+      if (isNewView) {
+        this.buildParent(childView.outerEl);
+      }
+    }
+  },
   buildParent: function(parentNode, ownerDocument) {
     var currentState = {};
 

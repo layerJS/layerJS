@@ -446,6 +446,143 @@ describe('state', function() {
     expect(ok).toBe(true);
   });
 
+
+  it('state is getting updated when views are added to a layer', function() {
+    var html = "<div data-lj-type='stage' id='stage1'>" +
+      "<div data-lj-type='layer' id='layer1' data-lj-default-frame='frame1'>" +
+      "<div data-lj-type='frame' id='frame1' data-lj-name='frame1'>"
+    "</div>" +
+    "</div>" +
+    "</div>";
+
+    utilities.setHtml(html);
+
+    var stageView = new StageView(null, {el: document.getElementById('stage1')});
+    var layerView = document.getElementById('layer1')._ljView;
+
+    var newFrame = document.createElement('div');
+    newFrame.setAttribute('data-lj-type', 'frame');
+    newFrame.setAttribute('data-lj-name', 'newframe');
+    layerView.innerEl.appendChild(newFrame);
+
+    layerView._parseChildren();
+    var exportedState = state.exportStructureAsArray();
+
+    expect(exportedState).toEqual(['stage1.layer1.frame1', 'stage1.layer1.newframe']);
+  });
+
+  xit('state is getting updated when views are removed from a layer', function() {
+    var html = "<div data-lj-type='stage' id='stage1'>" +
+      "<div data-lj-type='layer' id='layer1' data-lj-default-frame='frame1'>" +
+      "<div data-lj-type='frame' id='frame1' data-lj-name='frame1'>"
+    "</div>" +
+    "</div>" +
+    "</div>";
+
+    utilities.setHtml(html);
+
+    var stageView = new StageView(null, {el: document.getElementById('stage1')});
+    var layerView = document.getElementById('layer1')._ljView;
+
+    layerView.innerEl.removeChild(layerView.innerEl.children[0]);
+
+    layerView._parseChildren();
+    var exportedState = state.exportStructureAsArray();
+
+    expect(exportedState).toEqual(['stage1.layer1.none']);
+  });
+
+  it('state is getting updated when views are added to a stage', function() {
+    var html = "<div data-lj-type='stage' id='stage1'>" +
+      "<div data-lj-type='layer' id='layer1' data-lj-default-frame='frame1'>" +
+      "<div data-lj-type='frame' id='frame1' data-lj-name='frame1'>"
+    "</div>" +
+    "</div>" +
+    "</div>";
+
+    utilities.setHtml(html);
+
+    var stageView = new StageView(null, {el: document.getElementById('stage1')});
+
+
+    var newlayer = document.createElement('div');
+    newlayer.setAttribute('data-lj-type', 'layer');
+    newlayer.setAttribute('data-lj-name', 'newLayer');
+    stageView.innerEl.appendChild(newlayer);
+
+    stageView._parseChildren();
+    var exportedState = state.exportStructureAsArray();
+
+    expect(exportedState).toEqual(['stage1.layer1.frame1', 'stage1.newLayer.none']);
+  });
+
+  xit('state is getting updated when views are removed from a stage', function() {
+    var html = "<div data-lj-type='stage' id='stage1'>" +
+      "<div data-lj-type='layer' id='layer1' data-lj-default-frame='frame1'>" +
+      "<div data-lj-type='frame' id='frame1' data-lj-name='frame1'>"
+    "</div>" +
+    "</div>" +
+    "</div>";
+
+    utilities.setHtml(html);
+
+    var stageView = new StageView(null, {el: document.getElementById('stage1')});
+    stageView.innerEl.removeChild(stageView.innerEl.children[0]);
+
+    stageView._parseChildren();
+    var exportedState = state.exportStructureAsArray();
+
+    expect(exportedState).toEqual([]);
+  });
+
+  it('state is getting updated when views are added to a frame', function() {
+    var html = "<div data-lj-type='stage' id='stage1'>" +
+      "<div data-lj-type='layer' id='layer1' data-lj-default-frame='frame1'>" +
+      "<div data-lj-type='frame' id='frame1' data-lj-name='frame1'>"
+    "</div>" +
+    "</div>" +
+    "</div>";
+
+    utilities.setHtml(html);
+
+    var stageView = new StageView(null, {el: document.getElementById('stage1')});
+    var frameView = document.getElementById('frame1')._ljView;
+
+
+    var newlayer = document.createElement('div');
+    newlayer.setAttribute('data-lj-type', 'layer');
+    newlayer.setAttribute('data-lj-name', 'newLayer');
+    frameView.innerEl.appendChild(newlayer);
+
+    frameView._parseChildren();
+    var exportedState = state.exportStructureAsArray();
+
+    expect(exportedState).toEqual(['stage1.layer1.frame1', 'stage1.layer1.frame1.newLayer.none']);
+  });
+
+  xit('state is getting updated when views are removed from a frame', function() {
+    var html = "<div data-lj-type='stage' id='stage1'>" +
+      "<div data-lj-type='layer' id='layer1' data-lj-default-frame='frame1'>" +
+      "<div data-lj-type='frame' id='frame1' data-lj-name='frame1'>" +
+        "<div data-lj-type='layer' id='layer2'>" +
+        "</div>" +
+    "</div>" +
+    "</div>" +
+    "</div>";
+
+    utilities.setHtml(html);
+
+    var stageView = new StageView(null, {el: document.getElementById('stage1')});
+    var frameView = document.getElementById('frame1')._ljView;
+
+    frameView.innerEl.removeChild(frameView.innerEl.children[0]);
+
+    frameView._parseChildren();
+    var exportedState = state.exportStructureAsArray();
+
+    expect(exportedState).toEqual(['stage1.layer1.frame1']);
+  });
+
   it('performance test', function() {
 
     //   setHtmlForExport();
