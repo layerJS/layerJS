@@ -64,7 +64,16 @@ var LayerView = GroupView.extend({
       // FIXME trigger adaption to new stage
     });
     // set current frame from data object or take first child
-    this.currentFrame = (this.data.attributes.defaultFrame && this.getChildViewByName(this.data.attributes.defaultFrame)) || (this.data.attributes.children[0] && this.getChildView(this.data.attributes.children[0]));
+    if (this.data.attributes.defaultFrame) {
+      if (this.data.attributes.defaultFrame === 'none') {
+        this.currentFrame = null;
+      } else {
+        this.currentFrame = this.getChildViewByName(this.data.attributes.defaultFrame);
+      }
+    } else {
+      this.currentFrame = this.data.attributes.children[0] && this.getChildView(this.data.attributes.children[0]);
+    }
+
     if (!options.noRender && (options.forceRender || !options.el)) {
       this.render();
     }
@@ -325,7 +334,7 @@ var LayerView = GroupView.extend({
   onResize: function() {
     var childViews = this.getChildViews();
     var length = childViews.length;
-    var scrollData = this.currentFrame.getScrollData();
+    var scrollData = this.currentFrame !== null ? this.currentFrame.getScrollData() : undefined;
 
     for (var i = 0; i < length; i++) {
       var childView = childViews[i];
@@ -333,7 +342,8 @@ var LayerView = GroupView.extend({
         childView.transformData = null;
       }
     }
-    this.showFrame(this.currentFrame.data.attributes.name, scrollData);
+    var frameName = this.currentFrame === null ? null : this.currentFrame.data.attributes.name;
+    this.showFrame(frameName, scrollData);
   },
   /**
    * analyse list of childNodes (HTMLElements) in this group and create view- (and possibly data-) objects for them.
