@@ -1,7 +1,6 @@
 'use strict';
 var Kern = require('../../kern/Kern.js');
 var state = require("../state.js");
-var $ = require('../domhelpers.js');
 
 var HashRouter = Kern.EventManager.extend({
   /**
@@ -14,7 +13,7 @@ var HashRouter = Kern.EventManager.extend({
     var promise = new Kern.Promise();
     var splitted = href.split('#');
 
-    if (window.location.href.indexOf(splitted[0]) === -1 || splitted.length !== 2  ) {
+    if (window.location.href.indexOf(splitted[0]) === -1 || splitted.length !== 2) {
       // not the same file or no hash in href
       promise.resolve({
         handled: false,
@@ -24,12 +23,9 @@ var HashRouter = Kern.EventManager.extend({
       var hash = splitted[1];
       var states = hash.split(';');
       state.transitionTo(states, transition);
-
-      $.postAnimationFrame(function() {
-        promise.resolve({
-          stop: true,
-          handled: true
-        });
+      promise.resolve({
+        stop: true,
+        handled: true
       });
     }
 
