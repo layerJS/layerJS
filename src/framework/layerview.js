@@ -128,7 +128,7 @@ var LayerView = GroupView.extend({
       if (this.currentFrame) {
         this.showFrame(this.currentFrame.data.attributes.name, this.currentFrame.getScrollData());
       }
-
+      this._observer.element = this.innerEl;
       this.enableObserver();
     }
   },

@@ -218,7 +218,7 @@ var NodeView = Kern.EventManager.extend({
 
     var that = this;
 
-    this._observer = observerFactory.getObserver(this.outerEl, {
+    this._observer = observerFactory.getObserver(this.innerEl, {
       characterData: true,
       callback: function(result) {
         that._domElementChanged(result);

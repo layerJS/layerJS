@@ -490,7 +490,7 @@ var GroupView = ElementView.extend({
       return;
 
     var that = this;
-    this._observer = observerFactory.getObserver(this.outerEl, {
+    this._observer = observerFactory.getObserver(this.innerEl, {
       attributes: true,
       childList: true,
       callback: function(result) {

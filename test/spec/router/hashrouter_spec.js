@@ -30,13 +30,13 @@ describe('HashRouter', function() {
     var promise = hashRouter.handle(url, {});
 
     promise.then(function(result) {
-      setTimeout(function(){
-      expect(result.handled).toBeTruthy();
-      expect(result.stop).toBeTruthy();
-      var layerView = document.getElementById('layer1')._ljView;
-      expect(layerView.currentFrame.data.attributes.name).toBe('frame2');
-      done();
-    }, 500);
+      setTimeout(function() {
+        expect(result.handled).toBeTruthy();
+        expect(result.stop).toBeTruthy();
+        var layerView = document.getElementById('layer1')._ljView;
+        expect(layerView.currentFrame.data.attributes.name).toBe('frame2');
+        done();
+      }, 500);
     });
   });
 

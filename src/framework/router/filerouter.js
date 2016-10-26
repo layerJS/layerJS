@@ -25,7 +25,7 @@ var FileRouter = Kern.EventManager.extend({
       }
     }
     var splitted = href.split('#');
-    if(canHandle && window.location.href.indexOf(splitted[0]) !== -1){
+    if (canHandle && window.location.href.indexOf(splitted[0]) !== -1) {
       // same file
       canHandle = false;
       promise.resolve({
@@ -65,13 +65,6 @@ var FileRouter = Kern.EventManager.extend({
             parentView.innerEl.insertAdjacentHTML('beforeend', stateToImport.view.outerEl.outerHTML);
             toParseChildren[parentPath] = true;
             alreadyImported[pathToImport] = true;
-          }
-        }
-
-        // call the parse children only one time per parent
-        for (var parentPath in toParseChildren) {
-          if (toParseChildren.hasOwnProperty(parentPath)) {
-            state.getViewForPath(parentPath)._parseChildren();
           }
         }
 
