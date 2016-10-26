@@ -44,12 +44,14 @@ describe('staticRouter', function() {
     var promise = staticRouter.handle(url, {});
 
     promise.then(function(result) {
-      expect(result.handled).toBeTruthy();
-      expect(result.stop).toBeTruthy();
-      var layerView = document.getElementById('layer1')._ljView;
-      expect(layerView.currentFrame.data.attributes.name).toBe('frame2');
-      done();
+      setTimeout(function() {
+        expect(result.handled).toBeTruthy();
+        expect(result.stop).toBeTruthy();
+        var layerView = document.getElementById('layer1')._ljView;
+        expect(layerView.currentFrame.data.attributes.name).toBe('frame2');
+        done();
+      }, 500);
     });
-  }); 
+  });
 
 });

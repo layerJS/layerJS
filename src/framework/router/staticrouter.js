@@ -1,7 +1,6 @@
 'use strict';
 var Kern = require('../../kern/kern.js');
 var state = require('../state.js');
-var $ = require('../domhelpers.js');
 
 var StaticRouter = Kern.EventManager.extend({
   constructor: function() {
@@ -41,19 +40,12 @@ var StaticRouter = Kern.EventManager.extend({
     if (result) {
       var activeFrames = this.routes[href];
       state.transitionTo(activeFrames, transition);
-      $.postAnimationFrame(function() {
-        promise.resolve({
-          stop: true,
-          handled: true
-        });
-      });
-    } else {
-      promise.resolve({
-        stop: false,
-        handled: false
-      });
     }
 
+    promise.resolve({
+      stop: result,
+      handled: result
+    });
 
     return promise;
   }
