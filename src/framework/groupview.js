@@ -7,6 +7,7 @@ var ElementView = require('./elementview.js');
 var defaults = require('./defaults.js');
 var observerFactory = require('./observer/observerfactory.js');
 var $ = require('./domhelpers.js');
+var state = require('./state.js');
 /**
  * A View which can have child views
  * @param {GroupData} dataModel
@@ -511,6 +512,7 @@ var GroupView = ElementView.extend({
 
     if (result.removedNodes.length > 0 || result.addedNodes.length > 0) {
       this._parseChildren();
+      state.updateChildren(this, result.addedNodes, result.removedNodes);
     }
   }
 

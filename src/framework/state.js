@@ -86,25 +86,33 @@ var State = Kern.Model.extend({
 
     this._buildTree(this._getTree(options.document), options.document.children);
   },
-  updateChildren: function(view) {
-    var viewState = view.innerEl._state;
+  updateChildren: function(view, addedNodes, removedNodes) {
 
-    if (undefined === view.childViews)
+    var viewState = view.outerEl._state;
+
+    if (undefined === viewState) {
       return;
+    }
 
-    for (var i = 0; i < view.childViews.length; i++) {
-      var childView = view.childViews[i];
-      var isNewView = true;
-      for (var child in viewState.children) {
-        if (viewState.children[child].view === childView) {
-          isNewView = false;
-          break;
-        }
-      }
-      if (isNewView) {
-        this.buildParent(childView.outerEl);
+
+    if (undefined !== addedNodes && addedNodes.length > 0) {
+      for (let i = 0; i < addedNodes.length; i++) {
+        this.buildParent(addedNodes[i], view.document);
       }
     }
+    if (undefined !== removedNodes && removedNodes.length > 0) {
+      for (var i = 0; i < removedNodes.length; i++) {
+        for (var childName in viewState.children) {
+          if (viewState.children.hasOwnProperty(childName)) {
+            if (viewState.children[childName].view === removedNodes[i]._ljView) {
+              delete viewState.children[childName];
+            }
+          }
+        }
+      }
+    }
+
+
   },
   buildParent: function(parentNode, ownerDocument) {
     var currentState = {};
