@@ -141,7 +141,7 @@ var Router = Kern.EventManager.extend({
       this.previousUrl = window.location.href;
     }
     if (this.cache) {
-      this.addStaticRoute(this.previousUrl, state.exportStateAsArray(), true);
+      this.addStaticRoute(this.previousUrl, state.exportState(), true);
     }
 
     var handled = false;

@@ -191,7 +191,7 @@ var State = Kern.Model.extend({
    * @param {object} the document who's state will be exported
    * @returns {array} An array of strings pointing to active frames within the document
    */
-  exportStateAsArray: function(ownerDocument) {
+  exportState: function(ownerDocument) {
     return this._getPath(this._getTree(ownerDocument), '', true);
   },
   /**
@@ -199,7 +199,7 @@ var State = Kern.Model.extend({
    * @param {object} the document who's state will be exported
    * @returns {array} An array of strings pointing to alle frames within the document
    */
-  exportStructureAsArray: function(ownerDocument) {
+  exportStructure: function(ownerDocument) {
     return this._getPath(this._getTree(ownerDocument), '', false);
   },
   /**
@@ -302,7 +302,7 @@ var State = Kern.Model.extend({
    */
   _determineTransitionPaths: function(states) {
     var length = states.length;
-    var currentStructure = this.exportStructureAsArray();
+    var currentStructure = this.exportStructure();
     var pathsToTransition = [];
 
     for (let i = 0; i < length; i++) {

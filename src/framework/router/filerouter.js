@@ -37,7 +37,7 @@ var FileRouter = Kern.EventManager.extend({
     if (canHandle) {
       this._loadHTML(href).then(function(doc) {
         parseManager.parseDocument(doc);
-        var loadedFrames = state.exportStructureAsArray(doc);
+        var loadedFrames = state.exportStructure(doc);
         var toParseChildren = {};
         var alreadyImported = {};
 
@@ -68,7 +68,7 @@ var FileRouter = Kern.EventManager.extend({
           }
         }
 
-        var framesToTransitionTo = state.exportStateAsArray(doc);
+        var framesToTransitionTo = state.exportState(doc);
 
         if (framesToTransitionTo.length > 0) {
           $.postAnimationFrame(function() {

@@ -40,7 +40,7 @@ describe('state', function() {
       el: customDocument.getElementById('stage1')
     });
 
-    expect(state.exportStateAsArray(customDocument)).toEqual(['stage1.layer1.frame1']);
+    expect(state.exportState(customDocument)).toEqual(['stage1.layer1.frame1']);
   });
 
   it('can have a tree per document object', function() {
@@ -70,8 +70,8 @@ describe('state', function() {
       el: customDocument2.getElementById('stage1')
     });
 
-    expect(state.exportStateAsArray(customDocument1)).toEqual(['stage1.layer1.frame1']);
-    expect(state.exportStateAsArray(customDocument2)).toEqual(['stage1.layer1.frame2']);
+    expect(state.exportState(customDocument1)).toEqual(['stage1.layer1.frame1']);
+    expect(state.exportState(customDocument2)).toEqual(['stage1.layer1.frame2']);
 
   });
 
@@ -273,7 +273,7 @@ describe('state', function() {
       el: document.getElementById('stage1')
     });
 
-    var activePaths = state.exportStateAsArray();
+    var activePaths = state.exportState();
     expect(activePaths.length).toBe(2);
     expect(activePaths[0]).toBe('stage1.layer1.frame1');
     expect(activePaths[1]).toBe('stage1.layer1.frame1.layer2.frame2');
@@ -286,7 +286,7 @@ describe('state', function() {
       el: document.getElementById('stage1')
     });
 
-    var structure = state.exportStructureAsArray();
+    var structure = state.exportStructure();
     expect(structure.length).toBe(4);
     expect(structure[0]).toBe('stage1.layer1.frame1');
     expect(structure[1]).toBe('stage1.layer1.frame1.layer2.frame2');
@@ -315,7 +315,7 @@ describe('state', function() {
     });
 
     setTimeout(function() {
-      expect(state.exportStateAsArray()).toEqual(['stage1.layer1.frame2']);
+      expect(state.exportState()).toEqual(['stage1.layer1.frame2']);
       done();
     }, 500);
   });
@@ -338,7 +338,7 @@ describe('state', function() {
     layerView1.showFrame('frame2');
 
     setTimeout(function() {
-      expect(state.exportStateAsArray()).toEqual(['stage1.layer1.frame2']);
+      expect(state.exportState()).toEqual(['stage1.layer1.frame2']);
       done();
     }, 500);
 
@@ -367,7 +367,7 @@ describe('state', function() {
       } else {
         expect(layerView1.currentFrame.data.attributes.name).toBe('frame2');
       }
-      expect(state.exportStateAsArray()).toEqual(expectedState);
+      expect(state.exportState()).toEqual(expectedState);
       done();
     }, 60);
   }
@@ -411,7 +411,7 @@ describe('state', function() {
       } else {
         expect(layerView1.currentFrame.data.attributes.name).toBe('frame2');
       }
-      expect(state.exportStateAsArray()).toEqual(expectedState);
+      expect(state.exportState()).toEqual(expectedState);
       done();
     }, 60);
   }
@@ -468,7 +468,7 @@ describe('state', function() {
     layerView.innerEl.appendChild(newFrame);
 
     setTimeout(function() {
-      var exportedState = state.exportStructureAsArray();
+      var exportedState = state.exportStructure();
       expect(exportedState).toEqual(['stage1.layer1.frame1', 'stage1.layer1.newframe']);
       done();
     }, 500);
@@ -492,7 +492,7 @@ describe('state', function() {
     layerView.innerEl.removeChild(layerView.innerEl.children[0]);
 
     setTimeout(function() {
-      var exportedState = state.exportStructureAsArray();
+      var exportedState = state.exportStructure();
       expect(exportedState).toEqual(['stage1.layer1.none']);
       done();
     }, 500);
@@ -520,7 +520,7 @@ describe('state', function() {
     stageView.innerEl.appendChild(newlayer);
 
     setTimeout(function() {
-      var exportedState = state.exportStructureAsArray();
+      var exportedState = state.exportStructure();
       expect(exportedState).toEqual(['stage1.layer1.frame1', 'stage1.newLayer.none']);
       done();
     }, 500);
@@ -542,7 +542,7 @@ describe('state', function() {
     stageView.innerEl.removeChild(stageView.innerEl.children[0]);
 
     setTimeout(function() {
-      var exportedState = state.exportStructureAsArray();
+      var exportedState = state.exportStructure();
       expect(exportedState).toEqual([]);
       done();
     }, 500);
@@ -571,7 +571,7 @@ describe('state', function() {
     frameView.innerEl.appendChild(newlayer);
 
     setTimeout(function() {
-      var exportedState = state.exportStructureAsArray();
+      var exportedState = state.exportStructure();
       expect(exportedState).toEqual(['stage1.layer1.frame1', 'stage1.layer1.frame1.newLayer.none']);
       done();
     }, 500)
@@ -597,7 +597,7 @@ describe('state', function() {
     frameView.innerEl.removeChild(frameView.innerEl.children[0]);
 
     setTimeout(function() {
-      var exportedState = state.exportStructureAsArray();
+      var exportedState = state.exportStructure();
       expect(exportedState).toEqual(['stage1.layer1.frame1']);
       done();
     }, 500);
