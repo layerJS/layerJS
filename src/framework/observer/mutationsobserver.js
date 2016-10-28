@@ -36,9 +36,7 @@ var something = Observer.extend({
       }
     }
 
-    if (this.options.callback && (result.attributes.length > 0 || result.addedNodes.length > 0 || result.removedNodes.length > 0)) {
-      this.options.callback(result);
-    }
+    this._invokeCallBack(result);
   },
   /**
    * Starts the observer
