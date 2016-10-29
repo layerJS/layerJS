@@ -493,6 +493,7 @@ var GroupView = ElementView.extend({
     var that = this;
     this._observer = observerFactory.getObserver(this.innerEl, {
       attributes: true,
+      attributeFilter: ['id', 'name', 'data-lj-*'],
       childList: true,
       callback: function(result) {
         that._domElementChanged(result);

@@ -238,6 +238,7 @@ var ElementView = NodeView.extend({
     var that = this;
     this._observer = observerFactory.getObserver(this.innerEl, {
       attributes: true,
+      attributeFilter: ['id', 'name', 'data-lj-*'],
       callback: function(result) {
         that._domElementChanged(result);
       }
