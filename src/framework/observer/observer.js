@@ -38,10 +38,15 @@ var Observer = Kern.Base.extend({
       var attributes = [];
 
       for (let i = 0; i < result.attributes.length; i++) {
-        var attribute = result.attributes[i];
+        var attribute = result.attributes[i].toUpperCase();
 
-        if (this.options.attributeFilter.indexOf(attribute) !== -1) {
-          attributes.push(attribute);
+        for (let x = 0; x < this.options.attributeFilter.length; x++) {
+          let attributeFiltered = this.options.attributeFilter[x].toUpperCase();
+          // attribute match filter or attribute match filter that ends with '*'
+          let isMatch = attributeFiltered === attribute || (attributeFiltered.endsWith('*') && attribute.startsWith(attributeFiltered.slice(0, -1)));
+          if (isMatch) {
+            attributes.push(result.attributes[i]);
+          }
         }
       }
 
