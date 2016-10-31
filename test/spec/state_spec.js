@@ -603,6 +603,41 @@ describe('state', function() {
     }, 500);
   });
 
+  it('state is getting updated when a frameView (not linked to the dom) is added to the dom', function(done) {
+    var html = "<div data-lj-type='stage' id='stage1'>" +
+      "<div data-lj-type='layer' id='layer1' data-lj-default-frame='frame1'>" +
+      "<div data-lj-type='frame' id='frame1' data-lj-name='frame1'>" +
+      "</div>" +
+      "</div>" +
+      "</div>";
+
+    utilities.setHtml(html);
+
+    var stageView = new StageView(null, {
+      el: document.getElementById('stage1')
+    });
+
+    var newFrame = document.createElement('div');
+    newFrame.setAttribute('data-lj-name','frame2');
+    newFrame.setAttribute('data-lj-type','frame');
+
+    var frameView = new FrameView(null, {
+      el: newFrame
+    });
+
+    expect(newFrame._state).not.toBeDefined();
+    var exportedState = state.exportStructure();
+    expect(exportedState).toEqual(['stage1.layer1.frame1']);
+
+    document.getElementById('layer1')._ljView.innerEl.appendChild(newFrame);
+
+    setTimeout(function() {
+      exportedState = state.exportStructure();
+      expect(exportedState).toEqual(['stage1.layer1.frame1', 'stage1.layer1.frame2']);
+      done();
+    }, 500);
+  });
+
   it('performance test', function() {
 
     //   setHtmlForExport();
