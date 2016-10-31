@@ -30,7 +30,8 @@
     "build": "npm run build:scripts -s",
     "build:scripts": "mkdirp build && browserify -e src/layerjs.js -o build/layerjs.js && npm run package",
     "build:compressed": "mkdirp build && browserify -e src/layerjs.js | uglifyjs -c -m -o build/layerjs.js && npm run package",
-    "package": "mkdirp ./dist/css && node ./scripts/copy.js ./build/layerjs.js ./dist/layerjs.js && node ./scripts/copy.js ./dist/layerjs.js ./dist/layerjs-$npm_package_version.js && node ./scripts/copy.js ./src/css/layerjs.css ./dist/css/layerjs.css && cd dist && zip layerjs-$npm_package_version.zip layerjs-$npm_package_version.js css/*",
+    "package": "mkdirp ./dist/css && node ./scripts/copy.js ./build/layerjs.js ./dist/layerjs.js && node ./scripts/copy.js ./dist/layerjs.js ./dist/layerjs-$npm_package_version.js && node ./scripts/copy.js ./src/css/layerjs.css ./dist/css/layerjs.css",
+    "zip": "cd dist && zip layerjs-$npm_package_version.zip layerjs-$npm_package_version.js css/*",
 
     "buildexamples": "for i in `find ./examples | grep layerjs.js` ; do rm $i;done;for i in `find ./examples | grep layerjs.css` ; do rm $i;done;for i in `ls -d ./examples/*/` ;do echo $i;cp ./dist/layerjs.js $i;cp ./dist/css/layerjs.css $i;done",
 
