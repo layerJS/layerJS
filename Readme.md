@@ -55,14 +55,30 @@ WL.select('#layer1').transitionTo('second',{type: 'left'});
 
 above code example will trigger a 'swipe left' transition between the two frames.
 
+
 ## How to build ##
 
-Building layerjs requires nodejs and npm. Necessary node packages can be installed using:
+Building layerjs requires nodejs and npm. Necessary node packages can be installed by following these simple instructions:
+
+Open a console/command line (for example: command prompt (CMD) or Terminal).
+
+Clone the repository by entering the following command:
+```
+hg clone https://bitbucket.org/layerjs/layerjs
+```
+Navigate to the layerJS folder: 
+```
+cd layerjs
+```
+Enter the command:
 ```
 npm install
 ```
+and press Enter.
 
-The build process can be started using
+At the end of the installation, in order to start The build process, 
+
+enter the command:
 ```
 npm run build
 ```
