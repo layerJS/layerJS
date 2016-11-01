@@ -62,10 +62,13 @@ Building layerjs requires nodejs and npm. Necessary node packages can be install
 
 Open a console/command line (for example: command prompt (CMD) or Terminal).
 
-Clone the repository by entering the following command:
+Install mercurial (if you haven't already) and clone the repository with the following command:
+
 ```
 hg clone https://bitbucket.org/layerjs/layerjs
 ```
+you can also use other programs like Sourcetree to clone the directory.
+
 Navigate to the layerJS folder: 
 ```
 cd layerjs
