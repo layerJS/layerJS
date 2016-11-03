@@ -308,7 +308,7 @@ var State = Kern.Model.extend({
     for (let i = 0; i < length; i++) {
       for (let x = 0; x < currentStructure.length; x++) {
 
-        var tempStructure = currentStructure[x].replace(new RegExp(states[i] + '$'), '');
+        var tempStructure = currentStructure[x].replace(new RegExp(this._escapeRegex(states[i]) + '$'), '');
         if ('' === tempStructure || (currentStructure[x] !== tempStructure && tempStructure.endsWith('.'))) {
           pathsToTransition.push(currentStructure[x]);
         } else if (states[i].endsWith('.none') || states[i] === 'none') {
@@ -407,7 +407,17 @@ var State = Kern.Model.extend({
     }
 
     return doc[key];
+  },
+  /**
+   * Will escape the brackets in the regex string
+   *
+   * @param {string} regex string to escape
+   * @returns {string} an escaped regex string
+   */
+  _escapeRegex: function(str) {
+    return str.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, "\\$&");
   }
+
 });
 
 module.exports = layerJS.state = new State();
