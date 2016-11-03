@@ -61,7 +61,7 @@ In the last part the library is actually initialized using `layerJS.init()`.
 
 ## Issues, bug reports and feature requests ##
 
-If you experience any issues or bugs using layerJS or you would like to request features, please let us now through bitbucket [issue tracking](https://bitbucket.org/layerjs/layerjs/issues?status=new&status=open). This issue tracker is open to everyone so we encourage discussion on all issues.
+If you experience any issues or bugs using layerJS or you would like to request features, please let us know through bitbucket [issue tracking](https://bitbucket.org/layerjs/layerjs/issues?status=new&status=open). This issue tracker is open to everyone so we encourage discussion on all issues.
 
 ## How to contribute ##
 
