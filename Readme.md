@@ -30,7 +30,7 @@ In the simplest case layerJS will fit a frame which exists on a layer into a sin
 </div>
 ```
 
-The above example will fit the fixed-width frame 'main' into the stage (whose site can be set by regular CSS) by scaling it such that the frame's width fits the stage's width. There is many other fitting types available.
+The above example will fit the fixed-width frame 'main' into the stage (whose site can be set by regular CSS) by scaling it such that the frame's width fits the stage's width. There are many other fitting types available.
 
 In the above example layerJS wouldn't support any transitions between frames until there is another frame available in the same layer:
 
