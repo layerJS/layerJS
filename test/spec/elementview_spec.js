@@ -1,11 +1,19 @@
-  var ElementView =require('../../src/framework/elementview.js');
+  var ElementView = require('../../src/framework/elementview.js');
   var ViewsNodeViewTests = require('./helpers/views/node/viewtests.js');
   var ViewsElementViewTests = require('./helpers/views/element/viewtests.js');
   var ViewsElementParseTests = require('./helpers/views/element/parsetests.js');
   var ViewsCommonParseTests = require('./helpers/views/common/parsetests.js');
   var ViewsCommonIdentifyTests = require('./helpers/views/common/identifytests.js');
+  var ViewsCommonViewTests = require('./helpers/views/common/viewtests.js')
 
   describe('ElementView', function() {
+
+    ViewsCommonViewTests('simple_elementdata.js', function() {
+      return {
+        ViewType: ElementView,
+        data: require('./datasets/simple_elementdata.js')[0]
+      }
+    });
 
     ViewsCommonParseTests(function() {
       return {

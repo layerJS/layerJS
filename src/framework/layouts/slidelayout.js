@@ -106,9 +106,9 @@ var SlideLayout = LayerLayout.extend({
       });
       that._preparedTransitions = {};
       // wait until post transforms are applied an signal that animation is now running.
-      $.postAnimationFrame(function() {
-        that.layer.trigger('transitionStarted');
-      });
+    /*  $.postAnimationFrame(function() {
+        that.layer.trigger('transitionStarted', frame === null ? null : frame.data.attributes.name);
+      });*/
       return finished;
     });
   },
@@ -266,9 +266,13 @@ var SlideLayout = LayerLayout.extend({
         break;
 
       case 'fade':
-        t.t0.transform = "scale(" + ttfd.scale + ")";
+        y = - ctfd.shiftY;
+        x = -ttfd.shiftX + ctfd.scrollX * ctfd.scale - ttfd.scrollX * ttfd.scale;
+        t.t0.transform = "translate3d(" + x + "px," + y + "px,0px) scale(" + ttfd.scale + ")";
         t.t0.opacity = '0';
-        t.c1.transform = "scale(" + ctfd.scale + ")";
+        y = - ttfd.shiftY;
+        x = -ctfd.shiftX - ctfd.scrollX * ctfd.scale + ttfd.scrollX * ttfd.scale;
+        t.c1.transform = "translate3d(" + x + "px," + y + "px,0px) scale(" + ctfd.scale + ")";
         t.c1.opacity = '0';
         break;
         // target frame transform time 0

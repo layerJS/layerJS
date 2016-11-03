@@ -1,97 +1,63 @@
 # Introduction #
 
-layerJS is an open source Javascript UI/UX library allowing intuitive, visually intense, mobile app-like experiences for web apps and websites. 
+layerJS is an open source Javascript UI/UX library allowing intuitive, visually intense, mobile app-like experiences for web apps and websites.
 
-We believe that any kind of interactive web content can be created by placing media elements on moving layers. Unlike existing UI frameworks layerJS does not provide various UI elements (use your favorite lib for that) but focusses on how larger blocks are put together to form websites and apps.
+We believe that any kind of interactive web content can be created by placing media elements on moving layers. Unlike existing UI frameworks, layerJS does not provide various UI elements (use your favorite lib for that) but focusses on how larger blocks are put together to form websites and apps.
 
 layerJS introduces the Stage-Frame concept. Frames are arbitrary HTML fragments - the content of your site - that can be fit into Stages (viewports) dynamically. The root Stage is usually the browser window and its Frames represent sub pages or app screens. Frames can be exchanged within Stages using animated transitions like swipes, fades or 3D transitions. Stages and Frames can be nested such that a slider can exists within an animated frame. Frames can be placed on overlapping layers allowing effects like floating menus or parallax backgrounds.
 
 layerJS supports directional touch and touchpad gestures to trigger transitions.  Use your fingers to pull down menus or swipe through a list of sub pages. Transitions can further be triggered through API calls or above mentioned links.
 
-Check out the [Wiki](https://bitbucket.org/layerjs/layerjs/wiki/) for more details.
+Check out the [Wiki](https://bitbucket.org/layerjs/layerjs/wiki/) for more details and examples.
 
 ## Quickstart ##
 
-Download [layerJS](https://bitbucket.org/layerjs/layerjs/downloads). Extract the zip file. In your HTML, link the layerjs.js and the layerjs.css.
+layerJS can be included into your site from our CDN. Simply include the following tags into the head of your HTML document.
+```
+<script src="http://cdn.layerjs.org/libs/layerjs/layerjs-0.3.0.js"></script>
+<link href="http://cdn.layerjs.org/libs/layerjs/layerjs-0.3.0.css" type="text/css" rel="stylesheet" />
+```
+If you would like to use the libraries locally, you can download the pre-build archives in the
+[Download](https://bitbucket.org/layerjs/layerjs/downloads) section. Extract the zip file. In your HTML, link the layerjs.js and the layerjs.css.
 
+In layerJS you will define stages, layers in frame simply by adding HTML-attributes to `<div>`s. Here is an example structure:
 ```
-<link rel="stylesheet" type="text/css" href="/path/to/layerjs.css">
-<script src="/path/to/layerjs.js"></script>
-```
-
-In the simplest case layerJS will fit a frame which exists on a layer into a single stage
-```
-<div data-wl-type="stage">
-    <div data-wl-type="layer" data-wl-default-frame="main" >
-        <div data-wl-type="frame" data-wl-name="main" data-wl-fit-to="width" data-wl-startPostion="top" width="1440">
+<div data-lj-type="stage">
+    <div data-lj-type="layer" data-lj-default-frame="main" >
+        <div data-lj-type="frame" >
             … your HTML code …
         </div>
     </div>
 </div>
 ```
-
-The above example will fit the fixed-width frame 'main' into the stage (whose site can be set by regular CSS) by scaling it such that the frame's width fits the stage's width. There are many other fitting types available.
-
-In the above example layerJS wouldn't support any transitions between frames until there is another frame available in the same layer:
-
+The following example HMTL document will create a slider that can be controlled by two links at the bottom:
 ```
-<div data-wl-type="stage">
-    <div id="layer1" data-wl-type="layer" data-wl-default-frame="main" >
-        <div data-wl-type="frame" data-wl-name="main" data-wl-fit-to="width" data-wl-start-postion="top" width="1440">
-            … your HTML code for frame 'main'…
-        </div>
-        <div data-wl-type="frame" data-wl-name="second" data-wl-fit-to="width" data-wl-start-postion="top" width="1440">
-            … your HTML code for frame 'second'…
-        </div>
+<html>
+<head>
+  <script src="http://cdn.layerjs.org/libs/layerjs/layerjs-0.3.0.js"></script>
+  <link href="http://cdn.layerjs.org/libs/layerjs/layerjs-0.3.0.css" type="text/css" rel="stylesheet" />
+</head>
+<body>
+  <div lj-type="stage" style="width:100%;height:500px">
+    <div lj-type="layer" lj-default-frame="frame1">
+      <div lj-type="frame" lj-name="frame1">
+        ... content of frame 1 ...
+      </div>
+      <div lj-type="frame" lj-name="frame2">
+        ... content of frame 2 ...
+      </div>
     </div>
-</div>
+  </div>
+  <a href="#frame1">Frame 1</a>
+  <a href="#frame2">Frame 2</a>
+  <script>
+    layerJS.init();
+  </script>
+</body>
+</html>
 ```
-
-layerJS can now be used to trigger transitions between the two frames. Place this initialization script to the end of your html (right before the closing body tag).
-```
-<script>
-  WL.init();
-  WL.select('#layer1').transitionTo('second',{type: 'left'});
-</script>
-```
-
-above code example will trigger a 'swipe left' transition between the two frames.
-
-
-## How to build ##
-
-Building layerjs requires nodejs and npm. Necessary node packages can be installed by following these simple instructions:
-
-Open a console/command line (for example: command prompt (CMD) or Terminal).
-
-Install mercurial (if you haven't already) and clone the repository with the following command:
-
-```
-hg clone https://bitbucket.org/layerjs/layerjs
-```
-you can also use other programs like Sourcetree to clone the directory.
-
-Navigate to the layerJS folder: 
-```
-cd layerjs
-```
-Enter the command:
-```
-npm install
-```
-and press Enter.
-
-At the end of the installation, in order to start The build process, 
-
-enter the command:
-```
-npm run build
-```
-which automatically runs all unit tests via `npm test`. The result can be found in the `./dist` directory.
-
-## More examples ##
-
-Check out the `./examples` directory in the package to find more examples on how to use layerjs.
+The example first includes the library from our CDN, then a structure of two frames inside a single stage with `width:100%`and `height:500px` is defined. This becomes the slider. Below that to links are included that link to `#frame1` and `#frame2` which will trigger transitions to frame1 and frame2, respectively.
+In the last part the library is actually initialized using `layerJS.init()`.
 
 ## Issues, bug reports and feature requests ##
 
@@ -99,8 +65,9 @@ If you experience any issues or bugs using layerJS or you would like to request 
 
 ## How to contribute ##
 
-layerJS is in alpha currently so things still change. It's best to get in contact with us at [developers@layerjs.org](mailto:developers@layerjs.org) and discuss your ideas.
+Contributions to layerJS are more than welcome. Get in touch with us at [developers@layerjs.org](mailto:developers@layerjs.org) and discuss your ideas. You can also fork the repository and start building.
 
-Of course it is possible to fork the repo and submit pull requests.
+layerJS uses a contribution agreement to be able to republish code under future licenses if necessary:
+[layerJS contribution agreement](https://bitbucket.org/layerjs/layerjs/wiki/Contribution.md)
 
-In order to have your code included into the layerJS framework you need to sign our [Harmony Code Contribution agreement](https://bitbucket.org/layerjs/layerjs/wiki/Contribution.md) which allows us to additionally license layerJS under other license terms in future. [Learn more about Harmony agreements.](harmonyagreements.org)
+[Learn more about Harmony agreements.](harmonyagreements.org)

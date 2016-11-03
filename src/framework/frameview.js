@@ -3,7 +3,9 @@ var Kern = require('../kern/Kern.js');
 var pluginManager = require('./pluginmanager.js');
 var GroupView = require('./groupview.js');
 var Kern = require('../kern/Kern.js');
-var identifyPriority = require('./identifypriority.js');
+var defaults = require('./defaults.js');
+var state = require('./state.js');
+var $ = require('./domhelpers.js');
 
 /**
  * A View which can have child views
@@ -21,6 +23,10 @@ var FrameView = GroupView.extend({
 
     if (!options.noRender && (options.forceRender || !options.el))
       this.render();
+
+    if (this.data.attributes.type === 'frame') {
+      state.registerView(this);
+    }
   },
   /**
    * get the transformData of the frame that describes how to fit the frame into the stage
@@ -276,10 +282,10 @@ var FrameView = GroupView.extend({
     type: 'frame'
   }),
   identify: function(element) {
-    var type = element.getAttribute('data-lj-type');
+    var type = $.getAttributeLJ(element, 'type');
     return null !== type && type.toLowerCase() === FrameView.defaultProperties.type;
   }
 });
 
-pluginManager.registerType('frame', FrameView, identifyPriority.normal);
+pluginManager.registerType('frame', FrameView, defaults.identifyPriority.normal);
 module.exports = FrameView;

@@ -1,10 +1,13 @@
 'use strict';
 var Kern = require('../kern/Kern.js');
 var pluginManager = require('./pluginmanager.js');
+var parseManager = require('./parsemanager.js');
 var repository = require('./repository.js'); // jshint ignore:line
 var ElementView = require('./elementview.js');
-var identifyPriority = require('./identifypriority.js');
+var defaults = require('./defaults.js');
 var observerFactory = require('./observer/observerfactory.js');
+var $ = require('./domhelpers.js');
+var state = require('./state.js');
 /**
  * A View which can have child views
  * @param {GroupData} dataModel
@@ -87,7 +90,7 @@ var GroupView = ElementView.extend({
       // jshint ignore:start
       k++;
       var elem;
-      while (!(empty = !(k < that.innerEl.childNodes.length)) && (elem = that.innerEl.childNodes[k]) && (elem.nodeType != 1 || !(nodeId = (elem._ljView && elem._ljView.data.attributes.id) || elem.getAttribute('data-lj-id')))) {
+      while (!(empty = !(k < that.innerEl.childNodes.length)) && (elem = that.innerEl.childNodes[k]) && (elem.nodeType != 1 || !(nodeId = (elem._ljView && elem._ljView.data.attributes.id) || $.getAttributeLJ(elem, 'id')))) {
         k++;
       }
       // jshint ignore:end
@@ -199,13 +202,13 @@ var GroupView = ElementView.extend({
     for (i = 0; i < cn.length; i++) {
       var elem = cn[i];
 
-      nodeId = (elem._ljView && elem._ljView.data.attributes.id) || elem.getAttribute && elem.getAttribute('data-lj-id');
+      nodeId = (elem._ljView && elem._ljView.data.attributes.id) || elem.getAttribute && $.getAttributeLJ(elem, 'id');
       try {
         data = nodeId && repository.get(nodeId, this.data.attributes.version);
       } catch (e) {
         data = undefined;
       }
-      nodeType = (elem._ljView && elem._ljView.data.attributes.type) || elem.getAttribute && elem.getAttribute('data-lj-type');
+      nodeType = (elem._ljView && elem._ljView.data.attributes.type) || elem.getAttribute && $.getAttributeLJ(elem, 'type');
       if (nodeId && (data || nodeType)) {
         // search for nodeId in data.chi ldren
         var k_saved = k;
@@ -242,6 +245,7 @@ var GroupView = ElementView.extend({
         this._childViews[nodeId] = vo; // update _childViews
         if (vo.data.attributes.name) this._childNames[vo.data.attributes.name] = vo;
         vo.data.on('change', this._myChildListenerCallback); // attach child change listener
+        parseManager.parseElement(vo.outerEl);
         k++; // next in data.children
 
       } else if (nodeType) {
@@ -260,6 +264,7 @@ var GroupView = ElementView.extend({
         this._childViews[nodeId] = vo; // update _childViews
         if (vo.data.attributes.name) this._childNames[vo.data.attributes.name] = vo;
         vo.data.on('change', this._myChildListenerCallback); // attach child change listener
+        parseManager.parseElement(vo.outerEl);
         k++; // next in data.children
       } else if (options.parseFull) {
         nodeType = pluginManager.identify(elem);
@@ -278,6 +283,7 @@ var GroupView = ElementView.extend({
         this._childViews[nodeId] = vo; // update _childViews
         if (vo.data.attributes.name) this._childNames[vo.data.attributes.name] = vo;
         vo.data.on('change', this._myChildListenerCallback); // attach child change listener
+        parseManager.parseElement(vo.outerEl);
         k++; // next in data.children
       }
     }
@@ -485,8 +491,9 @@ var GroupView = ElementView.extend({
       return;
 
     var that = this;
-    this._observer = observerFactory.getObserver(this.outerEl, {
+    this._observer = observerFactory.getObserver(this.innerEl, {
       attributes: true,
+      attributeFilter: ['id', 'name', 'data-lj-*'],
       childList: true,
       callback: function(result) {
         that._domElementChanged(result);
@@ -506,6 +513,7 @@ var GroupView = ElementView.extend({
 
     if (result.removedNodes.length > 0 || result.addedNodes.length > 0) {
       this._parseChildren();
+      state.updateChildren(this, result.addedNodes, result.removedNodes);
     }
   }
 
@@ -517,12 +525,12 @@ var GroupView = ElementView.extend({
   }),
   getNodeType: undefined,
   identify: function(element) {
-    var type = element.getAttribute('data-lj-type');
+    var type = $.getAttributeLJ(element, 'type');
 
     return element.nodeType === 1 && ((null !== type && type.toLowerCase() === 'group') || !type);
   }
 });
 
 
-pluginManager.registerType("group", GroupView, identifyPriority.low);
+pluginManager.registerType("group", GroupView, defaults.identifyPriority.low);
 module.exports = GroupView;

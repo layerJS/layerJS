@@ -12,10 +12,10 @@ require("./framework/layouts/slidelayout.js");
 require("./framework/layouts/canvaslayout.js");
 require("./framework/gestures/gesturemanager.js");
 require("./framework/router/router.js");
+require("./framework/state.js");
 
 /* data objects*/
 require("./framework/defaults.js");
-require("./framework/identifypriority.js");
 require("./framework/nodedata.js");
 
 /* view objects*/
@@ -29,8 +29,10 @@ require("./framework/stageview.js");
 require("./framework/groupview.js");
 
 var FileRouter = require("./framework/router/filerouter.js");
+var HashRouter = require("./framework/router/hashrouter.js");
 
 layerJS.init = function() {
   layerJS.parseManager.parseDocument();
-  layerJS.router.setCurrentRouter(new FileRouter());
+  layerJS.router.addRouter(new FileRouter());
+  layerJS.router.addRouter(new HashRouter());
 };

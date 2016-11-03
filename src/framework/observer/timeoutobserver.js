@@ -11,9 +11,9 @@ var TimeoutObserver = Observer.extend({
     this.myTimeout = undefined;
   },
   /**
- * Checks if the elements has changed. Will call the callback method
- * that is provided in the options
- */
+   * Checks if the elements has changed. Will call the callback method
+   * that is provided in the options
+   */
   elementModified: function() {
     var result = {
       attributes: [],
@@ -80,9 +80,7 @@ var TimeoutObserver = Observer.extend({
       }
     }
 
-    if (this.options.callback && (result.attributes.length > 0 || result.addedNodes.length > 0 || result.removedNodes.length > 0 || result.characterData)) {
-      this.options.callback(result);
-    }
+    this._invokeCallBack(result);
 
     this.observe();
   },
@@ -117,7 +115,7 @@ var TimeoutObserver = Observer.extend({
       var that = this;
       this.myTimeout = setTimeout(function() {
         that.elementModified();
-      }, this.options.timeout || 1000);
+      }, this.options.timeout || 5);
     }
   },
   /**

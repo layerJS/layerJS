@@ -28,4 +28,25 @@ describe('ParseMananger', function() {
     expect(stage.attributes.type).toBe('stage');
     expect(stage.attributes.children.length).toBe(0);
   });
+
+  it('will add stageData to the repository from a specific dom element', function() {
+    utilities.setHtml("<div id='container' ><div data-lj-id='1' data-lj-type='stage'></div><div data-lj-id='2' data-lj-type='stage'></div>");
+
+    var repository = layerJS.repository;
+    var parseManager = layerJS.parseManager;
+
+    parseManager.parseElement(document.getElementById('container'));
+
+    var stage = repository.get(1, defaults.version);
+    expect(stage).toBeDefined();
+    expect(stage.attributes.id).toBe('1');
+    expect(stage.attributes.type).toBe('stage');
+    expect(stage.attributes.children.length).toBe(0);
+
+    stage = repository.get(2, defaults.version);
+    expect(stage).toBeDefined();
+    expect(stage.attributes.id).toBe('2');
+    expect(stage.attributes.type).toBe('stage');
+    expect(stage.attributes.children.length).toBe(0);
+  });
 });

@@ -2,7 +2,10 @@
 var pluginManager = require('./pluginmanager.js');
 var GroupView = require('./groupview.js');
 var Kern = require('../kern/Kern.js');
-var identifyPriority = require('./identifypriority.js');
+var defaults = require('./defaults.js');
+var $ = require('./domhelpers.js');
+var state = require('./state.js');
+
 
 /**
  * A View which can have child views
@@ -25,6 +28,8 @@ var StageView = GroupView.extend({
     window.addEventListener('resize', function() {
       that.onResize();
     }, false);
+
+    state.registerView(this);
   },
   _renderChildPosition: function(childView) {
     if (childView.data.attributes.nodeType === 1) {
@@ -54,9 +59,9 @@ var StageView = GroupView.extend({
     type: 'stage'
   }),
   identify: function(element) {
-    var type = element.getAttribute('data-lj-type');
+    var type = $.getAttributeLJ(element, 'type');
     return null !== type && type.toLowerCase() === StageView.defaultProperties.type;
   }
 });
-pluginManager.registerType('stage', StageView, identifyPriority.normal);
+pluginManager.registerType('stage', StageView, defaults.identifyPriority.normal);
 module.exports = StageView;

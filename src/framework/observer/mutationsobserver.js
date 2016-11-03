@@ -6,7 +6,8 @@ var something = Observer.extend({
     Observer.call(this, element, options);
 
     var that = this;
-    this.mutationObserver = new MutationObserver(function(mutations) {
+    var elementWindow = element.ownerDocument.defaultView || element.ownerDocument.parentWindow;
+    this.mutationObserver = new elementWindow.MutationObserver(function(mutations) {
       that.mutationCallback(mutations);
     });
   },
@@ -35,9 +36,7 @@ var something = Observer.extend({
       }
     }
 
-    if (this.options.callback && (result.attributes.length > 0 || result.addedNodes.length > 0 || result.removedNodes.length > 0)) {
-      this.options.callback(result);
-    }
+    this._invokeCallBack(result);
   },
   /**
    * Starts the observer
@@ -62,7 +61,7 @@ var something = Observer.extend({
     if (this.counter === 0){
       this.mutationObserver.disconnect();
     }
-        
+
     this.counter++;
   }
 });

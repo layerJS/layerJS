@@ -25,8 +25,10 @@ utilities._beforeAll = function() {
 }
 
 utilities._beforeEachNodeJS = function() {
-  var jsdom = require('jsdom').jsdom;
-  document = global.document = jsdom("<html><head></head><body></body></html>");
+  var jsdom = require('jsdom');
+  document = global.document = jsdom.jsdom("<html><head></head><body></body></html>", {
+    url: 'http://localhost'
+  });
   window = global.window = document.defaultView;
   $ = document.querySelector;
 
@@ -51,6 +53,15 @@ utilities.beforeEach = function() {
 
 utilities.afterEach = function() {
   layerJS.repository.clear();
+  layerJS.state.tree = {};
+  layerJS.router.clearRouters();
+  layerJS.router.previousUrl = undefined;
+
+  var sizeObserver = require("../../../src/framework/observer/sizeobserver.js");
+  sizeObserver.views = {};
+
+  delete document._ljStateTree;
+  delete document._ljStateFrameView;
 }
 
 utilities.setHtml = function(html) {

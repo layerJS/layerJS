@@ -1,129 +1,127 @@
 'use strict';
 var Kern = require('../../kern/Kern.js');
-//var ParseManager = require("./parsemanager.js");
-
-/**
- * load an HTML document by AJAX and return it through a promise
- *
- * @param {string} URL - the url of the HMTL document
- * @returns {Promise} a promise that will return the HTML document
- */
-var loadHTML = function(URL) {
-  var xhr = new XMLHttpRequest();
-  var p = new Kern.Promise();
-  xhr.onload = function() {
-    var doc = document.implementation.createHTMLDocument("framedoc");
-    doc.documentElement.innerHTML = xhr.responseText;
-    p.resolve(doc);
-  };
-  xhr.open("GET", URL);
-  xhr.responseType = "text";
-  xhr.send();
-  return p;
-};
-var getChildIndex = function(type, node) {
-  var children = node.parent.children;
-  var i;
-  var cc = 0;
-  for (i = 0; i < children.length; i++) {
-    if (node === children[i]) return cc;
-    if (children[i].getAttribute('data-lj-type') !== type) continue;
-    cc++;
-  }
-  throw "node not found in parent";
-};
-var getLayerJSParents = function(path, node) {
-  var type = node.nodeType === 1 && node.getAttribute('data-lj-type');
-  if (type === 'stage' || type === 'layer' || type === 'frame') {
-    path = (node.getAttribute('data-lj-name') || node.id || type + "[" + getChildIndex(type, node) + "]") + (path ? "." + path : "");
-  }
-  if (!node.parentNode) return path;
-  return getLayerJSParents(path, node.parentNode);
-};
-var getFramePaths = function(doc) {
-  var frames = doc.querySelectorAll('[data-lj-type="frame"]');
-  var paths = [];
-  var f;
-  for (f = 0; f < frames.length; f++) {
-    paths.push({
-      frame: frames[f],
-      path: getLayerJSParents("", frames[f])
-    });
-  }
-  paths = paths.sort(function(a, b) {
-    return a.path.length - b.path.length;
-  });
-  return paths;
-};
+var parseManager = require("../parsemanager.js");
+var state = require("../state.js");
+var $ = require('../domhelpers.js');
 
 var FileRouter = Kern.EventManager.extend({
   /**
- * Will check if the router can handle the passed in url
- * @param {string} An url
- * @return {boolean} True if the router can handle the url
- */
-  canHandle: function(href) {
-    var result = true;
+   * Will do the actual navigation to the url
+   * @param {string} an url
+   * @return {boolean} True if the router handled the url
+   */
+  handle: function(href, transition) {
+
+    var promise = new Kern.Promise();
+    var canHandle = true;
+
     if (href.match(/^\w+:/)) { // absolute URL
       if (!href.match(new RegExp('^' + window.location.origin))) {
-        result = false;
+        canHandle = false;
+        promise.resolve({
+          handled: false,
+          stop: false
+        });
       }
     }
-    return result;
+    var splitted = href.split('#');
+    if (canHandle && window.location.href.indexOf(splitted[0]) !== -1) {
+      // same file
+      canHandle = false;
+      promise.resolve({
+        handled: false,
+        stop: false
+      });
+    }
+
+    if (canHandle) {
+      this._loadHTML(href).then(function(doc) {
+        parseManager.parseDocument(doc);
+        var loadedFrames = state.exportStructure(doc);
+        var toParseChildren = {};
+        var alreadyImported = {};
+
+        for (var x = 0; x < loadedFrames.length; x++) {
+          var orginalView = state.getViewForPath(loadedFrames[x], document);
+          if (undefined !== orginalView) {
+            // already imported
+            continue;
+          }
+
+          let parentView;
+          let parentPath = loadedFrames[x];
+          let pathToImport;
+
+          while (undefined === parentView && parentPath.indexOf('.') > 0 && !alreadyImported.hasOwnProperty(parentPath)) {
+            pathToImport = parentPath;
+            parentPath = pathToImport.replace(/\.[^\.]*$/, "");
+            parentView = state.getViewForPath(parentPath, document);
+            // find parent in existing document or check if it has just been added
+          }
+
+          if (undefined !== parentView && !alreadyImported.hasOwnProperty[parentPath]) {
+            // parent found and not yet imported, add it's child (pathToImport) to it
+            var stateToImport = state.getStateForPath(pathToImport, doc);
+            parentView.innerEl.insertAdjacentHTML('beforeend', stateToImport.view.outerEl.outerHTML);
+            toParseChildren[parentPath] = true;
+            alreadyImported[pathToImport] = true;
+          }
+        }
+
+        var framesToTransitionTo = state.exportState(doc);
+
+        if (framesToTransitionTo.length > 0) {
+          $.postAnimationFrame(function() {
+            state.transitionTo(framesToTransitionTo, transition);
+            promise.resolve({
+              stop: false,
+              handled: true
+            });
+          });
+        } else {
+          promise.resolve({
+            stop: false,
+            handled: true
+          });
+        }
+      }, function() {
+        promise.resolve({
+          stop: false,
+          handled: false
+        });
+      });
+    }
+
+    return promise;
   },
   /**
- * Will do the actual navigation to the url
- * @param {string} an url
- * @return {void}
- */
-  handle: function(href, transition) {
-    loadHTML(href).then(function(doc) {
-      var paths = getFramePaths(doc);
-      var currentPaths = getFramePaths(document);
-      var i, j;
-      var replacedPaths = [];
-      for (i = 0; i < paths.length; i++) {
-        var found = false;
-        for (j = 0; j < replacedPaths.length; j++) {
-          if (paths[i].path.indexOf(replacedPaths[j]) === 0) {
-            found = true;
-            break;
-          }
-        }
-        if (found) continue;
-        found = false;
-        for (j = 0; j < currentPaths.length; j++) {
-          if (paths[i].path === currentPaths[j].path) {
-            found = true;
-            break;
-          }
-        }
-        if (found) continue;
-        found = false;
-        var layerPath = paths[i].path.replace(/^(.*\.)[^\.]*$/, "$1");
-        for (j = 0; j < currentPaths.length; j++) {
-          if (currentPaths[j].path.indexOf(layerPath) === 0 && currentPaths[j].path.slice(layerPath.length).match(/^[^\.]*$/)) {
-            found = true;
-            replacedPaths.push(paths[i].path);
-            var parent = currentPaths[j].frame.parentNode;
-            parent.appendChild(paths[i].frame);
+   * load an HTML document by AJAX and return it through a promise
+   *
+   * @param {string} URL - the url of the HMTL document
+   * @returns {Promise} a promise that will return the HTML document
+   */
+  _loadHTML: function(URL) {
+    var p = new Kern.Promise();
 
-            // FIXME: Refactor to use new children changed paradigm of layerJS
-            // calling internal function _parseChildren is not recommended
-            parent._ljView._parseChildren();
-            parent._ljView.transitionTo(paths[i].frame._ljView.data.attributes.name, transition);
-            parent._ljView._parseChildren();
-            parent.removeChild(currentPaths[j].frame);
+    try {
+      var xhr = new XMLHttpRequest();
+      xhr.onerror = function() {
+        p.reject();
+      };
+      xhr.onload = function() {
+        var doc = document.implementation.createHTMLDocument("framedoc");
+        doc.documentElement.innerHTML = xhr.responseText;
 
-            break;
-          }
-        }
-        if (found) continue;
-        window.location.href = href;
+        p.resolve(doc);
+      };
+      xhr.open("GET", URL);
+      xhr.responseType = "text";
+      xhr.send();
+    } catch (e) {
+      p.reject(e);
+    }
 
-      }
-      console.log(paths);
-    });
+    return p;
   }
 });
 

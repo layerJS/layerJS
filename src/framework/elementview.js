@@ -5,7 +5,6 @@ var pluginManager = require('./pluginmanager.js');
 
 var NodeView = require('./nodeview.js');
 var defaults = require('./defaults.js');
-var identifyPriority = require('./identifypriority.js');
 var observerFactory = require('./observer/observerfactory.js');
 
 /**
@@ -67,11 +66,11 @@ var ElementView = NodeView.extend({
       diff = (this.isRendererd ? this.data.changedAttributes : this.data.attributes),
       outerEl = this.outerEl;
     if ('id' in diff) {
-      outerEl.setAttribute("data-lj-id", attr.id); //-> should be a class?
+      $.setAttributeLJ(outerEl, "id", attr.id); //-> should be a class?
     }
 
     if ('type' in diff) {
-      outerEl.setAttribute("data-lj-type", attr.type); //-> should be a class?
+      $.setAttributeLJ(outerEl, "type", attr.type); //-> should be a class?
     }
 
     if ('elementId' in diff || 'id' in diff) {
@@ -120,10 +119,10 @@ var ElementView = NodeView.extend({
     var oldSelector = (diff.elementId && "#" + diff.elementId) || (diff.id && "#wl-obj-" + diff.id) || selector;
 
     if (('style' in diff) || (selector !== oldSelector)) {
-      var styleElement = document.getElementById('wl-obj-css');
+      var styleElement = this.document.getElementById('wl-obj-css');
       if (!styleElement) {
-        styleElement = document.createElement('style');
-        document.head.appendChild(styleElement);
+        styleElement = this.document.createElement('style');
+        this.document.head.appendChild(styleElement);
       }
       var cssContent = styleElement.innerHTML;
       var re;
@@ -237,8 +236,9 @@ var ElementView = NodeView.extend({
       return;
 
     var that = this;
-    this._observer = observerFactory.getObserver(this.outerEl, {
+    this._observer = observerFactory.getObserver(this.innerEl, {
       attributes: true,
+      attributeFilter: ['id', 'name', 'data-lj-*'],
       callback: function(result) {
         that._domElementChanged(result);
       }
@@ -398,6 +398,6 @@ var ElementView = NodeView.extend({
 });
 
 
-pluginManager.registerType('element', ElementView, identifyPriority.normal);
+pluginManager.registerType('element', ElementView, defaults.identifyPriority.normal);
 
 module.exports = ElementView;

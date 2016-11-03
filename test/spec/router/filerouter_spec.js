@@ -22,7 +22,7 @@ describe('Filerouter', function() {
     var scope = nock('http://localhost')
       .get('/somePage.html')
       .reply(200, '<div data-lj-type="stage" id="contentstage">' +
-        '<div data-lj-type="layer" id="contentlayer" data-lj-default-frame="frame1">' +
+        '<div data-lj-type="layer" id="contentlayer" data-lj-default-frame="frame2">' +
         '<div data-lj-type="frame" data-lj-name="frame2" data-lj-fit-to="responsive">' +
         'this is frame 2.' +
         '</div>' +
@@ -47,20 +47,23 @@ describe('Filerouter', function() {
     var layerView = document.getElementById('contentlayer')._ljView;
 
     var fileRouter = new FileRouter();
-    fileRouter.handle('http://localhost/somePage.html');
+    var promise = fileRouter.handle('http://localhost/somePage.html');
     scope.done();
 
-    setTimeout(function() {
+    promise.then(function(result) {
+      expect(result.handled).toBeTruthy();
+      expect(result.stop).toBeFalsy();
       expect(layerView.currentFrame.data.attributes.name).toBe('frame2');
       done();
-    }, 55);
+    });
+
   });
 
   it('when no matching path is found, the current frame stays', function(done) {
     var scope = nock('http://localhost')
       .get('/somePage.html')
       .reply(200, '<div data-lj-type="stage" id="contentstage1">' +
-        '<div data-lj-type="layer" id="contentlayer1" data-lj-default-frame="frame1">' +
+        '<div data-lj-type="layer" id="contentlayer1" data-lj-default-frame="frame2">' +
         '<div data-lj-type="frame" data-lj-name="frame2" data-lj-fit-to="responsive">' +
         'this is frame 2.' +
         '</div>' +
@@ -73,13 +76,13 @@ describe('Filerouter', function() {
     var layerView = document.getElementById('contentlayer')._ljView;
 
     var fileRouter = new FileRouter();
-    fileRouter.handle('http://localhost/somePage.html');
+    var promise = fileRouter.handle('/somePage.html');
     scope.done();
 
-    setTimeout(function() {
+    promise.then(function() {
       expect(layerView.currentFrame.data.attributes.name).toBe('frame1');
       done();
-    }, 55);
+    });
   });
 
   it('will pass transition options to the layer when navigating to a frame', function(done) {
@@ -97,13 +100,28 @@ describe('Filerouter', function() {
     };
 
     var fileRouter = new FileRouter();
-    fileRouter.handle('http://localhost/somePage.html', transitionOptions);
+    var promise = fileRouter.handle('/somePage.html', transitionOptions);
     scope.done();
 
-    setTimeout(function() {
+    promise.then(function() {
       expect(layerView.transitionTo).toHaveBeenCalledWith('frame2', transitionOptions);
       done();
-    }, 55);
+    });
+  });
+
+  it('will return false when an error occured', function(done) {
+    new StageView(undefined, {
+      el: document.getElementById('contentstage')
+    });
+
+    var fileRouter = new FileRouter();
+    var promise = fileRouter.handle('/somePage.html');
+
+    promise.then(function(result) {
+      expect(result.handled).toBe(false);
+      expect(result.stop).toBe(false);
+      done();
+    });
   });
 
 });

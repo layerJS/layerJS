@@ -97,6 +97,70 @@ describe('TimeoutObserver', function() {
       }, 55);
     });
 
+
+    it('can apply an attributeFilter', function(done) {
+      var element = document.createElement('div');
+      element.setAttribute('something', '1');
+      var ok = false;
+      var callBack = function(param) {
+        ok = true;
+      };
+      var options = {
+        attributes: true,
+        childList: false,
+        callback: callBack,
+        attributeFilter : ['id'],
+        timeout: 50
+      };
+
+      var observer = new TimeoutObserver(element, options);
+      observer.observe();
+      element.setAttribute('something', '2');
+
+      setTimeout(function() {
+        expect(ok).toBe(false);
+        element.setAttribute('id', '1');
+        setTimeout(function(){
+          expect(ok).toBe(true);
+          done();
+        },55);
+      }, 55);
+    });
+
+
+    it('attributeFilter can accept wildcards', function(done) {
+      var element = document.createElement('div');
+      element.setAttribute('something', '1');
+      element.setAttribute('data-lj-something', '1');
+      var ok = false;
+      var callBack = function(param) {
+        ok = true;
+      };
+      var options = {
+        attributes: true,
+        childList: false,
+        callback: callBack,
+        attributeFilter : ['data-lj-*'],
+        timeout: 50
+      };
+
+      var observer = new TimeoutObserver(element, options);
+      observer.observe();
+      element.setAttribute('something', '2');
+
+      setTimeout(function() {
+        expect(ok).toBe(false);
+        element.setAttribute('data-lj-something', '2');
+        setTimeout(function(){
+          expect(ok).toBe(true);
+          done();
+        },55);
+      }, 55);
+    });
+
+
+
+
   });
 
   describe('childNodes', function() {

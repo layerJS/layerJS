@@ -2,7 +2,7 @@
   "name": "layerJS",
   "description": "layerJS, a lean javascript UX framework",
   "author": "LayerJs",
-  "version": "0.2.2",
+  "version": "0.3.0",
   "devDependencies": {
     "browserify": "latest",
     "jasmine": "latest",
@@ -30,9 +30,10 @@
     "build": "npm run build:scripts -s",
     "build:scripts": "mkdirp build && browserify -e src/layerjs.js -o build/layerjs.js && npm run package",
     "build:compressed": "mkdirp build && browserify -e src/layerjs.js | uglifyjs -c -m -o build/layerjs.js && npm run package",
-    "package": "mkdirp ./dist/css && node ./scripts/copy.js ./build/layerjs.js ./dist/layerjs.js && node ./scripts/copy.js ./dist/layerjs.js ./dist/layerjs-$npm_package_version.js && node ./scripts/copy.js ./src/css/layerjs.css ./dist/css/layerjs.css && cd dist && zip layerjs-$npm_package_version.zip layerjs-$npm_package_version.js css/*",
+    "package": "mkdirp ./dist/css && node ./scripts/copy.js ./build/layerjs.js ./dist/layerjs.js && node ./scripts/copy.js ./dist/layerjs.js ./dist/layerjs-$npm_package_version.js && node ./scripts/copy.js ./src/css/layerjs.css ./dist/css/layerjs.css && node ./scripts/copy.js ./src/css/layerjs.css ./dist/css/layerjs-$npm_package_version.css",
+    "zip": "cd dist && zip layerjs-$npm_package_version.zip layerjs-$npm_package_version.js css/*",
 
-    "fixlibs": "for i in `find ./examples | grep layerjs.js` ; do rm $i;cp ./dist/layerjs.js $i;done;for i in `find ./examples | grep layerjs.css` ; do rm $i; cp ./dist/css/layerjs.css $i;done;",
+    "buildexamples": "for i in `find ./examples | grep layerjs.js` ; do rm $i;done;for i in `find ./examples | grep layerjs.css` ; do rm $i;done;for i in `ls -d ./examples/*/` ;do echo $i;cp ./dist/layerjs.js $i;cp ./dist/css/layerjs.css $i;done",
 
     "pretest": "npm run jshint",
 
@@ -46,6 +47,8 @@
     "e2eTest": "./node_modules/.bin/protractor protractorconfig.js",
 
     "prebuildSpecs" : "rimraf ./build/* && mkdirp ./build/test/js && node ./scripts/copy.js ./test/jasmine/lib ./build/test/lib && node ./scripts/copy.js ./test/SpecsInBrowser.html ./build/test/SpecsInBrowser.html",
-    "buildSpecs": "node ./test/scripts/combinespecs.js && browserify ./build/test/js/globalspecs.js > ./build/test/js/specs.js"
+    "buildSpecs": "node ./test/scripts/combinespecs.js && browserify ./build/test/js/globalspecs.js > ./build/test/js/specs.js",
+
+    "deployCDN": "scp ./dist/layerjs-$npm_package_version.js ./dist/css/layerjs-$npm_package_version.css www-data@layerjs.org:cdn/layerjs.org/libs/layerjs/"
   }
 }

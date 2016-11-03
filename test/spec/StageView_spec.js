@@ -1,35 +1,32 @@
 var StageView = require('../../src/framework/stageview.js');
-var CommonViewTests = require('./helpers/commonviewtests.js');
-var CommonGroupViewTests = require('./helpers/commongroupviewtests.js');
-var GroupView_renderChildPositionTests = require('./helpers/groupview_renderchildpositiontests.js');
-var Common_renderChildPositionTests = require('./helpers/common_renderchildpositiontests.js');
+var state = require('../../src/framework/state.js');
 
+var ViewsGroupViewTests = require('./helpers/views/group/viewtests.js');
 var ViewsCommonParseTests = require('./helpers/views/common/parsetests.js');
 var ViewsGroup_parseChildrenTests = require('./helpers/views/group/_parseChildrentests.js');
 var ViewsCommonIdentifyTests = require('./helpers/views/common/identifytests.js');
-
+var ViewsCommonViewTests = require('./helpers/views/common/viewtests.js')
 
 describe("StageView", function() {
-  /*
-    CommonViewTests(function() {
+
+    ViewsCommonViewTests('simple_stagedata_nochilden', function() {
       return {
-          data: JSON.parse(JSON.stringify(require('./datasets/simple_stagedata.js')[0])),
+          data: require('./datasets/simple_stagedata_nochildren.js')[0],
           ViewType : StageView
       };
     });
-  */
 
-  CommonGroupViewTests('simple_stagedata.js', function() {
+  ViewsGroupViewTests('simple_stagedata.js', function() {
     return {
-      data: JSON.parse(JSON.stringify(require('./datasets/simple_stagedata.js'))),
+      data: require('./datasets/simple_stagedata.js'),
       ViewType: StageView,
       parentId: 110540
     };
   });
 
-  CommonGroupViewTests('test_data_set.js', function() {
+  ViewsGroupViewTests('test_data_set.js', function() {
     return {
-      data: JSON.parse(JSON.stringify(require('./datasets/test_data_set.js'))),
+      data:require('./datasets/test_data_set.js'),
       ViewType: StageView,
       parentId: 1
     };
@@ -63,5 +60,11 @@ describe("StageView", function() {
   ViewsCommonIdentifyTests('div', StageView, function() {
     return document.createElement('div');
   }, false);
+
+  it('will register itself with the state', function() {
+    spyOn(state, 'registerView');
+    var stageView = new StageView(new StageView.Model(StageView.defaultProperties));
+    expect(state.registerView).toHaveBeenCalledWith(stageView);
+  });
 
 })

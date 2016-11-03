@@ -1,39 +1,44 @@
-var LayerView =require('../../src/framework/layerview.js');
-var CommonViewTests = require('./helpers/commonviewtests.js');
-var CommonGroupViewTests = require('./helpers/commongroupviewtests.js');
-var GroupView_renderChildPositionTests = require('./helpers/groupview_renderchildpositiontests.js');
-var Common_renderChildPositionTests = require('./helpers/common_renderchildpositiontests.js');
+var LayerView = require('../../src/framework/layerview.js');
+var StageView = require('../../src/framework/stageview.js');
+var state = require('../../src/framework/state.js');
+
+var ViewsGroupViewTests = require('./helpers/views/group/viewtests.js');
+
 var ViewsCommonParseTests = require('./helpers/views/common/parsetests.js');
+var ViewsCommon_renderChildPositionTests = require('./helpers/views/common/_renderchildpositiontests.js');
 var ViewsGroup_parseChildrenTests = require('./helpers/views/group/_parseChildrentests.js');
+
 var ViewsCommonIdentifyTests = require('./helpers/views/common/identifytests.js');
+var ViewsCommonViewTests = require('./helpers/views/common/viewtests.js');
 
 describe("LayerView", function() {
 
-  /*
-      CommonViewTests(function() {
-        return {
-            data: JSON.parse(JSON.stringify(require('./datasets/simple_layerdata.js')[0],
-            ViewType : LayerView
-        };
-      });
-  */
+  var utilities = require('./helpers/utilities.js');
 
-  CommonGroupViewTests('simple_layerdata.js', function() {
+  ViewsCommonViewTests('simple_layerdata_nochildren.js', function() {
     return {
-      data: JSON.parse(JSON.stringify(require('./datasets/simple_layerdata.js'))),
       ViewType: LayerView,
-      parentId: 5
-    };
+      data: require('./datasets/simple_layerdata_nochildren.js')[0]
+    }
   });
-  Common_renderChildPositionTests('simple_layerdata.js', function() {
+
+  ViewsGroupViewTests('simple_layerdata.js', function() {
     return {
-      data: JSON.parse(JSON.stringify(require('./datasets/simple_layerdata.js'))),
+      data: require('./datasets/simple_layerdata.js'),
       ViewType: LayerView,
       parentId: 5
     };
   });
 
-  CommonGroupViewTests('test_data_set.js', function() {
+  ViewsCommon_renderChildPositionTests('simple_layerdata.js', function() {
+    return {
+      data: require('./datasets/simple_layerdata.js'),
+      ViewType: LayerView,
+      parentId: 5
+    };
+  });
+
+  ViewsGroupViewTests('test_data_set.js', function() {
     return {
       data: JSON.parse(JSON.stringify(require('./datasets/test_data_set.js'))),
       ViewType: LayerView,
@@ -41,9 +46,9 @@ describe("LayerView", function() {
     };
   });
 
-  Common_renderChildPositionTests('test_data_set.js', function() {
+  ViewsCommon_renderChildPositionTests('test_data_set.js', function() {
     return {
-      data: JSON.parse(JSON.stringify(require('./datasets/test_data_set.js'))),
+      data: require('./datasets/test_data_set.js'),
       ViewType: LayerView,
       parentId: 5
     };
@@ -107,4 +112,47 @@ describe("LayerView", function() {
   }, false);
 
 
+  it('show frame will trigger events', function(done) {
+    var html = "<div data-lj-type='stage' id='stage1'>" +
+      "<div data-lj-type='layer' id='layer1' data-lj-default-frame='frame1'>" +
+      "<div data-lj-type='frame' id='frame1' data-lj-name='frame1'></div>" +
+      "<div data-lj-type='frame' id='frame2' data-lj-name='frame2'></div>" +
+      "</div>" +
+      "</div>";
+
+    utilities.setHtml(html);
+
+    var stageView1 = new StageView(null, {
+      el: document.getElementById('stage1')
+    });
+
+    var layerView1 = document.getElementById('layer1')._ljView;
+    var beforeTransition = false;
+    var transitionStarted = false;
+    var transitionFinished = false;
+
+    layerView1.on('beforeTransition', function() {
+      beforeTransition = true;
+    });
+    layerView1.on('transitionStarted', function() {
+      transitionStarted = true;
+    });
+    layerView1.on('transitionFinished', function() {
+      transitionFinished = true;
+    });
+    layerView1.showFrame('frame2');
+
+    setTimeout(function() {
+      expect(beforeTransition).toBeTruthy();
+      expect(transitionStarted).toBeTruthy();
+      expect(transitionFinished).toBeTruthy();
+      done();
+    }, 100);
+  });
+
+  it('will register itself with the state', function() {
+    spyOn(state, 'registerView');
+    var layerView = new LayerView(new LayerView.Model(LayerView.defaultProperties));
+    expect(state.registerView).toHaveBeenCalledWith(layerView);
+  });
 })

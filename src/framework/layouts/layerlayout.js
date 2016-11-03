@@ -50,8 +50,10 @@ var LayerLayout = Kern.EventManager.extend({
    */
   loadFrame: function(frame) {
     var finished = new Kern.Promise();
-
-    if (frame === null || (document.body.contains(frame.outerEl) && window.getComputedStyle(frame.outerEl).display !== 'none')) {
+    var computedStyle = (null !== frame && frame.document.defaultView && frame.document.defaultView.getComputedStyle) || function(el) {
+      return el.style;
+    };
+    if (frame === null || (frame.document.body.contains(frame.outerEl) && computedStyle(frame.outerEl).display !== 'none')) {
       finished.resolve();
     } else {
       // FIXME: add to dom if not in dom
@@ -89,13 +91,12 @@ var LayerLayout = Kern.EventManager.extend({
     throw "transitionTo() not implemented";
   },
   // jshint ignore:start
-  prepareTransition: function() {
-  },
+  prepareTransition: function() {},
   // jshint ignore:end
   parametricTransition: function() {
     throw "parametricTransition() not implemented";
   },
-  getScrollTransformer: function(){
+  getScrollTransformer: function() {
     return undefined;
   }
 });

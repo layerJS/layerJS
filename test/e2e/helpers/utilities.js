@@ -406,5 +406,13 @@ utilities.showFrame = function(layerId, frameName, scrollData,waitTime) {
   }, layerId, frameName, scrollData, waitTime);
 };
 
+utilities.addElement= function(parentId, elementHTML) {
+  return browser.driver.executeAsyncScript(function(parentId, elementHTML, callBack) {
+    var el = document.getElementById(parentId);
+    el.insertAdjacentHTML('beforeend', elementHTML);
+    callBack();
+  }, parentId, elementHTML);
+};
+
 
 module.exports = utilities;
