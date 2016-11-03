@@ -12,7 +12,7 @@ Check out the [Wiki](https://bitbucket.org/layerjs/layerjs/wiki/) for more detai
 
 ## Quickstart ##
 
-Download [layerJS](https://bitbucket.org/layerjs/layerjs/downloads). Extract the zip file. In your HTML link the layerjs.js and the layerjs.css.
+Download [layerJS](https://bitbucket.org/layerjs/layerjs/downloads). Extract the zip file. In your HTML, link the layerjs.js and the layerjs.css.
 
 ```
 <link rel="stylesheet" type="text/css" href="/path/to/layerjs.css">
