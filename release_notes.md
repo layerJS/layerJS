@@ -1,6 +1,6 @@
 # Release notes #
 
-## New in 0.2
+## New in 0.3
 * ObjData, GroupData, FrameData, LayerData and StageData have been removed and replaced with a NodeData object.
 * View objects now have a static property that will provide default data that can be used to create a NodeData objects.
 * View objects now have a static method that can be used to detect if an HTML-tag is of a specific View.
