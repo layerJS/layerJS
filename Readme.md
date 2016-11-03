@@ -47,10 +47,12 @@ In the above example layerJS wouldn't support any transitions between frames unt
 </div>
 ```
 
-layerJS can now be used to trigger transitions between the two frames:
+layerJS can now be used to trigger transitions between the two frames. Place this initialization script to the end of your html (right before the closing body tag).
 ```
-WL.init();
-WL.select('#layer1').transitionTo('second',{type: 'left'});
+<script>
+  WL.init();
+  WL.select('#layer1').transitionTo('second',{type: 'left'});
+</script>
 ```
 
 above code example will trigger a 'swipe left' transition between the two frames.
