@@ -344,20 +344,13 @@ describe('state', function() {
 
   });
 
-  function transitionTo(states, expectedState, expectedFrameName, done) {
-    var html = "<div data-lj-type='stage' id='stage1'>" +
-      "<div data-lj-type='layer' id='layer1' data-lj-default-frame='frame1'>" +
-      "<div data-lj-type='frame' id='frame1' data-lj-name='frame1'></div>" +
-      "<div data-lj-type='frame' id='frame2' data-lj-name='frame2'></div>" +
-      "</div>" +
-      "</div>";
-
+  function transitionTo(html, states, expectedState, expectedFrameName, done) {
     utilities.setHtml(html);
 
     var stageView1 = new StageView(null, {
-      el: document.getElementById('stage1')
+      el: document.querySelector("[data-lj-type='stage']")
     });
-    var layerView1 = document.getElementById('layer1')._ljView;
+    var layerView1 = document.querySelector("[data-lj-type='layer']")._ljView;
 
     state.transitionTo(states);
 
@@ -372,23 +365,7 @@ describe('state', function() {
     }, 60);
   }
 
-  it('can transition to a state (full path)', function(done) {
-    transitionTo(['stage1.layer1.frame2'], ['stage1.layer1.frame2'], 'frame2', done);
-  });
-
-  it('can transition to a state (none)', function(done) {
-    transitionTo(['stage1.layer1.none'], ['stage1.layer1.none'], 'null', done);
-  });
-
-  it('can transition to a state (path layer+frame)', function(done) {
-    transitionTo(['layer1.frame2'], ['stage1.layer1.frame2'], 'frame2', done);
-  });
-
-  it('can transition to a state (path frame)', function(done) {
-    transitionTo(['frame2'], ['stage1.layer1.frame2'], 'frame2', done);
-  });
-
-  function showState(states, expectedState, expectedFrameName, done) {
+  describe('can transition to a named state', function() {
     var html = "<div data-lj-type='stage' id='stage1'>" +
       "<div data-lj-type='layer' id='layer1' data-lj-default-frame='frame1'>" +
       "<div data-lj-type='frame' id='frame1' data-lj-name='frame1'></div>" +
@@ -396,12 +373,55 @@ describe('state', function() {
       "</div>" +
       "</div>";
 
+    it('full path', function(done) {
+      transitionTo(html, ['stage1.layer1.frame2'], ['stage1.layer1.frame2'], 'frame2', done);
+    });
+
+    it('none', function(done) {
+      transitionTo(html, ['stage1.layer1.none'], ['stage1.layer1.none'], 'null', done);
+    });
+
+    it('path layer+frame', function(done) {
+      transitionTo(html, ['layer1.frame2'], ['stage1.layer1.frame2'], 'frame2', done);
+    });
+
+    it('path frame', function(done) {
+      transitionTo(html, ['frame2'], ['stage1.layer1.frame2'], 'frame2', done);
+    });
+  });
+
+  describe('can transition to a anonymous state', function() {
+    var html = "<div data-lj-type='stage'>" +
+      "<div data-lj-type='layer' data-lj-default-frame='frame1'>" +
+      "<div data-lj-type='frame' data-lj-name='frame1'></div>" +
+      "<div data-lj-type='frame' data-lj-name='frame2'></div>" +
+      "</div>" +
+      "</div>";
+
+    it('full path', function(done) {
+      transitionTo(html, ['stage[0].layer[0].frame2'], ['stage[0].layer[0].frame2'], 'frame2', done);
+    });
+
+    it('none', function(done) {
+      transitionTo(html, ['stage[0].layer[0].none'], ['stage[0].layer[0].none'], 'null', done);
+    });
+
+    it('path layer+frame', function(done) {
+      transitionTo(html, ['layer[0].frame2'], ['stage[0].layer[0].frame2'], 'frame2', done);
+    });
+
+    it('path frame', function(done) {
+      transitionTo(html, ['frame2'], ['stage[0].layer[0].frame2'], 'frame2', done);
+    });
+  });
+
+  function showState(html, states, expectedState, expectedFrameName, done) {
     utilities.setHtml(html);
 
     var stageView1 = new StageView(null, {
-      el: document.getElementById('stage1')
+      el: document.querySelector("[data-lj-type='stage']")
     });
-    var layerView1 = document.getElementById('layer1')._ljView;
+    var layerView1 = document.querySelector("[data-lj-type='layer']")._ljView;
 
     state.showState(states);
 
@@ -416,20 +436,54 @@ describe('state', function() {
     }, 60);
   }
 
-  it('can show a state (full path)', function(done) {
-    showState(['stage1.layer1.frame2'], ['stage1.layer1.frame2'], 'frame2', done);
+  describe('can show to a named state', function() {
+    var html = "<div data-lj-type='stage' id='stage1'>" +
+      "<div data-lj-type='layer' id='layer1' data-lj-default-frame='frame1'>" +
+      "<div data-lj-type='frame' id='frame1' data-lj-name='frame1'></div>" +
+      "<div data-lj-type='frame' id='frame2' data-lj-name='frame2'></div>" +
+      "</div>" +
+      "</div>";
+
+    it('full path', function(done) {
+      showState(html, ['stage1.layer1.frame2'], ['stage1.layer1.frame2'], 'frame2', done);
+    });
+
+    it('none', function(done) {
+      showState(html, ['stage1.layer1.none'], ['stage1.layer1.none'], 'null', done);
+    });
+
+    it('path layer+frame', function(done) {
+      showState(html, ['layer1.frame2'], ['stage1.layer1.frame2'], 'frame2', done);
+    });
+
+    it('path frame', function(done) {
+      showState(html, ['frame2'], ['stage1.layer1.frame2'], 'frame2', done);
+    });
   });
 
-  it('can show a state (none)', function(done) {
-    showState(['stage1.layer1.none'], ['stage1.layer1.none'], 'null', done);
-  });
+  describe('can show to a anonymous state', function() {
+    var html = "<div data-lj-type='stage'>" +
+      "<div data-lj-type='layer' data-lj-default-frame='frame1'>" +
+      "<div data-lj-type='frame' data-lj-name='frame1'></div>" +
+      "<div data-lj-type='frame' data-lj-name='frame2'></div>" +
+      "</div>" +
+      "</div>";
 
-  it('can show a state (path layer+frame)', function(done) {
-    showState(['layer1.frame2'], ['stage1.layer1.frame2'], 'frame2', done);
-  });
+    it('full path', function(done) {
+      showState(html, ['stage[0].layer[0].frame2'], ['stage[0].layer[0].frame2'], 'frame2', done);
+    });
 
-  it('can show a state (path frame)', function(done) {
-    showState(['frame2'], ['stage1.layer1.frame2'], 'frame2', done);
+    it('none', function(done) {
+      showState(html, ['stage[0].layer[0].none'], ['stage[0].layer[0].none'], 'null', done);
+    });
+
+    it('path layer+frame', function(done) {
+      showState(html, ['layer[0].frame2'], ['stage[0].layer[0].frame2'], 'frame2', done);
+    });
+
+    it('path frame', function(done) {
+      showState(html, ['frame2'], ['stage[0].layer[0].frame2'], 'frame2', done);
+    });
   });
 
   it('can register a frame within the state', function() {
@@ -445,7 +499,6 @@ describe('state', function() {
 
     expect(ok).toBe(true);
   });
-
 
   it('state is getting updated when views are added to a layer', function(done) {
     var html = "<div data-lj-type='stage' id='stage1'>" +
@@ -618,8 +671,8 @@ describe('state', function() {
     });
 
     var newFrame = document.createElement('div');
-    newFrame.setAttribute('data-lj-name','frame2');
-    newFrame.setAttribute('data-lj-type','frame');
+    newFrame.setAttribute('data-lj-name', 'frame2');
+    newFrame.setAttribute('data-lj-type', 'frame');
 
     var frameView = new FrameView(null, {
       el: newFrame
