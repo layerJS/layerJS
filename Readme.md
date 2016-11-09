@@ -8,7 +8,7 @@ layerJS introduces the Stage-Frame concept. Frames are arbitrary HTML fragments 
 
 layerJS supports directional touch and touchpad gestures to trigger transitions.  Use your fingers to pull down menus or swipe through a list of sub pages. Transitions can further be triggered through API calls or above mentioned links.
 
-Check out the [Wiki](https://bitbucket.org/layerjs/layerjs/wiki/) for more details and examples.
+Check out the [Wiki](https://github.com/layerJS/layerJS/wiki) for more details and examples.
 
 ## Quickstart ##
 
@@ -18,7 +18,7 @@ layerJS can be included into your site from our CDN. Simply include the followin
 <link href="http://cdn.layerjs.org/libs/layerjs/layerjs-0.3.0.css" type="text/css" rel="stylesheet" />
 ```
 If you would like to use the libraries locally, you can download the pre-build archives in the
-[Download](https://bitbucket.org/layerjs/layerjs/downloads) section. Extract the zip file. In your HTML, link the layerjs.js and the layerjs.css.
+[releases](https://github.com/layerJS/layerJS/releases) section. Extract the zip file. In your HTML, link the layerjs.js and the layerjs.css.
 
 In layerJS you will define stages, layers in frame simply by adding HTML-attributes to `<div>`s. Here is an example structure:
 ```
@@ -61,7 +61,7 @@ In the last part the library is actually initialized using `layerJS.init()`.
 
 ## Issues, bug reports and feature requests ##
 
-If you experience any issues or bugs using layerJS or you would like to request features, please let us know through bitbucket [issue tracking](https://bitbucket.org/layerjs/layerjs/issues?status=new&status=open). This issue tracker is open to everyone so we encourage discussion on all issues.
+If you experience any issues or bugs using layerJS or you would like to request features, please let us know through bitbucket [issue tracking](https://github.com/layerJS/layerJS/issues). This issue tracker is open to everyone so we encourage discussion on all issues.
 
 ## How to contribute ##
 
