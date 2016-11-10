@@ -10,12 +10,6 @@ var defaults = require('./defaults.js');
 var state = require('./state.js');
 var sizeObserver = require('./observer/sizeobserver.js');
 
-var directions2neighbors = {
-  up: 'b',
-  down: 't',
-  left: 'r',
-  right: 'l'
-};
 /**
  * A View which can have child views
  * @param {LayerData} dataModel
@@ -163,11 +157,11 @@ var LayerView = GroupView.extend({
       // gesture.cancelled = true;
       var cattr = this.currentFrame.data.attributes;
       if (gesture.direction) {
-        if (cattr.neighbors && cattr.neighbors[directions2neighbors[gesture.direction]]) {
+        if (cattr.neighbors && cattr.neighbors[defaults.directions2neighbors[gesture.direction]]) {
           gesture.preventDefault = true;
           if (!this.inTransform && (gesture.last || (gesture.wheel && gesture.enoughDistance()))) {
-            this.transitionTo(cattr.neighbors[directions2neighbors[gesture.direction]], {
-              type: gesture.direction
+            this.transitionTo(cattr.neighbors[defaults.directions2neighbors[gesture.direction]], {
+              type: defaults.neighbors2transition[defaults.directions2neighbors[gesture.direction]]
             });
           }
         } else { //jshint ignore:line

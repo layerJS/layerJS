@@ -16,17 +16,24 @@ var SlideLayout = LayerLayout.extend({
     var that = this;
     this._preparedTransitions = {};
     // create a bound version of swipeTransition() that will be stored to the transitions hash
-    var swipeTransition = function(type, currentFrameTransformData, targetFrameTransformData) {
+    var wrap_swipeTransition = function(type, currentFrameTransformData, targetFrameTransformData) {
       return that.swipeTransition(type, currentFrameTransformData, targetFrameTransformData);
+    };
+    var wrap_slideOverTransition = function(type, currentFrameTransformData, targetFrameTransformData) {
+      return that.slideOverTransition(type, currentFrameTransformData, targetFrameTransformData);
     };
 
     this.transitions = {
-      default: swipeTransition,
-      left: swipeTransition,
-      right: swipeTransition,
-      up: swipeTransition,
-      down: swipeTransition,
-      fade: swipeTransition
+      default: wrap_swipeTransition,
+      left: wrap_swipeTransition,
+      right: wrap_swipeTransition,
+      up: wrap_swipeTransition,
+      down: wrap_swipeTransition,
+      fade: wrap_swipeTransition,
+      slideOverLeft: wrap_slideOverTransition,
+      slideOverRight: wrap_slideOverTransition,
+      slideOverUp: wrap_slideOverTransition,
+      slideOverDown: wrap_slideOverTransition
     };
   },
   /**
@@ -106,9 +113,9 @@ var SlideLayout = LayerLayout.extend({
       });
       that._preparedTransitions = {};
       // wait until post transforms are applied an signal that animation is now running.
-    /*  $.postAnimationFrame(function() {
-        that.layer.trigger('transitionStarted', frame === null ? null : frame.data.attributes.name);
-      });*/
+      /*  $.postAnimationFrame(function() {
+          that.layer.trigger('transitionStarted', frame === null ? null : frame.data.attributes.name);
+        });*/
       return finished;
     });
   },
@@ -266,16 +273,79 @@ var SlideLayout = LayerLayout.extend({
         break;
 
       case 'fade':
-        y = - ctfd.shiftY;
+        y = -ctfd.shiftY;
         x = -ttfd.shiftX + ctfd.scrollX * ctfd.scale - ttfd.scrollX * ttfd.scale;
         t.t0.transform = "translate3d(" + x + "px," + y + "px,0px) scale(" + ttfd.scale + ")";
         t.t0.opacity = '0';
-        y = - ttfd.shiftY;
+        y = -ttfd.shiftY;
         x = -ctfd.shiftX - ctfd.scrollX * ctfd.scale + ttfd.scrollX * ttfd.scale;
         t.c1.transform = "translate3d(" + x + "px," + y + "px,0px) scale(" + ctfd.scale + ")";
         t.c1.opacity = '0';
         break;
         // target frame transform time 0
+    }
+
+    return t;
+  },
+  slideOverTransition: function(type, ctfd, ttfd) {
+    var t = {
+      t0: {
+        transform: "",
+        opacity: 1
+      },
+      c1: {
+        transform: "",
+        opacity: 1
+      }
+    }; // record taking pre and post positions
+    var x, y;
+    switch (type) {
+
+      case 'slideOverLeft':
+        // target frame transform time 0
+        x = Math.max(this.getStageWidth(), ctfd.width) - ctfd.shiftX;
+        y = -ttfd.shiftY + ctfd.scrollY * ctfd.scale - ttfd.scrollY * ttfd.scale;
+        // original comment from case 'left': FIXME: translate and scale may actually be swapped here, not tested yet as shift was always zero so far!!!
+        t.t0["z-index"] = 2;
+        t.t0.transform = "translate3d(" + x + "px," + y + "px,0px) scale(" + ttfd.scale + ")";
+        // current frame transform time 1
+        t.c1 = this._currentFrameTransform;
+        t.c1["z-index"] = 1;
+        break;
+
+      case 'slideOverRight':
+        // target frame transform time 0
+        x = -Math.max(this.getStageWidth(), ttfd.width) - ctfd.shiftX;
+        y = -ttfd.shiftY + ctfd.scrollY * ctfd.scale - ttfd.scrollY * ttfd.scale;
+        t.t0["z-index"] = 2;
+        t.t0.transform = "translate3d(" + x + "px," + y + "px,0px) scale(" + ttfd.scale + ")";
+        // current frame transform time 1
+        t.c1 = this._currentFrameTransform;
+        t.c1["z-index"] = 1;
+        break;
+
+      case 'slideOverUp':
+        // target frame transform time 0
+        y = Math.max(this.getStageHeight(), ctfd.height) - ctfd.shiftY;
+        x = -ttfd.shiftX + ctfd.scrollX * ctfd.scale - ttfd.scrollX * ttfd.scale;
+        // original comment from case 'up': FIXME: translate and scale may actually be swapped here, not tested yet as shift was always zero so far!!!
+        t.t0["z-index"] = 2;
+        t.t0.transform = "translate3d(" + x + "px," + y + "px,0px) scale(" + ttfd.scale + ")";
+        // current frame transform time 1
+        t.c1 = this._currentFrameTransform;
+        t.c1["z-index"] = 1;
+        break;
+
+      case 'slideOverDown':
+        // target frame transform time 0
+        y = -Math.max(this.getStageHeight(), ttfd.height) - ctfd.shiftY;
+        x = -ttfd.shiftX + ctfd.scrollX * ctfd.scale - ttfd.scrollX * ttfd.scale;
+        t.t0["z-index"] = 2;
+        t.t0.transform = "translate3d(" + x + "px," + y + "px,0px) scale(" + ttfd.scale + ")";
+        // current frame transform time 1
+        t.c1 = this._currentFrameTransform;
+        t.c1["z-index"] = 1;
+        break;
     }
 
     return t;
