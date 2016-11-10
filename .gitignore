@@ -1,0 +1,9 @@
+*.orig
+*.rej
+node_modules
+dist
+build
+*.log
+.DS_Store
+examples/*/layerjs.js
+examples/*/layerjs.css
