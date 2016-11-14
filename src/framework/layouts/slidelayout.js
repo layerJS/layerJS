@@ -33,7 +33,19 @@ var SlideLayout = LayerLayout.extend({
       slideOverLeft: wrap_slideOverTransition,
       slideOverRight: wrap_slideOverTransition,
       slideOverUp: wrap_slideOverTransition,
-      slideOverDown: wrap_slideOverTransition
+      slideOverDown: wrap_slideOverTransition,
+      slideOverLeftFade: wrap_slideOverTransition,
+      slideOverRightFade: wrap_slideOverTransition,
+      slideOverUpFade: wrap_slideOverTransition,
+      slideOverDownFade: wrap_slideOverTransition,
+      slideAwayLeft: wrap_slideOverTransition,
+      slideAwayRight: wrap_slideOverTransition,
+      slideAwayUp: wrap_slideOverTransition,
+      slideAwayDown: wrap_slideOverTransition,
+      slideAwayLeftFade: wrap_slideOverTransition,
+      slideAwayRightFade: wrap_slideOverTransition,
+      slideAwayUpFade: wrap_slideOverTransition,
+      slideAwayDownFade: wrap_slideOverTransition
     };
   },
   /**
@@ -302,6 +314,7 @@ var SlideLayout = LayerLayout.extend({
     switch (type) {
 
       case 'slideOverLeft':
+      case 'slideOverLeftFade':
         // target frame transform time 0
         x = Math.max(this.getStageWidth(), ctfd.width) - ctfd.shiftX;
         y = -ttfd.shiftY + ctfd.scrollY * ctfd.scale - ttfd.scrollY * ttfd.scale;
@@ -311,9 +324,13 @@ var SlideLayout = LayerLayout.extend({
         // current frame transform time 1
         t.c1 = this._currentFrameTransform;
         t.c1["z-index"] = 1;
+        if (type.match(/Fade/)) {
+          t.c1.opacity = 0;
+        }
         break;
 
       case 'slideOverRight':
+      case 'slideOverRightFade':
         // target frame transform time 0
         x = -Math.max(this.getStageWidth(), ttfd.width) - ctfd.shiftX;
         y = -ttfd.shiftY + ctfd.scrollY * ctfd.scale - ttfd.scrollY * ttfd.scale;
@@ -322,9 +339,13 @@ var SlideLayout = LayerLayout.extend({
         // current frame transform time 1
         t.c1 = this._currentFrameTransform;
         t.c1["z-index"] = 1;
+        if (type.match(/Fade/)) {
+          t.c1.opacity = 0;
+        }
         break;
 
       case 'slideOverUp':
+      case 'slideOverUpFade':
         // target frame transform time 0
         y = Math.max(this.getStageHeight(), ctfd.height) - ctfd.shiftY;
         x = -ttfd.shiftX + ctfd.scrollX * ctfd.scale - ttfd.scrollX * ttfd.scale;
@@ -334,9 +355,13 @@ var SlideLayout = LayerLayout.extend({
         // current frame transform time 1
         t.c1 = this._currentFrameTransform;
         t.c1["z-index"] = 1;
+        if (type.match(/Fade/)) {
+          t.c1.opacity = 0;
+        }
         break;
 
       case 'slideOverDown':
+      case 'slideOverDownFade':
         // target frame transform time 0
         y = -Math.max(this.getStageHeight(), ttfd.height) - ctfd.shiftY;
         x = -ttfd.shiftX + ctfd.scrollX * ctfd.scale - ttfd.scrollX * ttfd.scale;
@@ -345,6 +370,53 @@ var SlideLayout = LayerLayout.extend({
         // current frame transform time 1
         t.c1 = this._currentFrameTransform;
         t.c1["z-index"] = 1;
+        if (type.match(/Fade/)) {
+          t.c1.opacity = 0;
+        }
+        break;
+
+      case 'slideAwayLeft':
+      case 'slideAwayLeftFade':
+        // target frame transform time 0
+        t.t0 = this._calcFrameTransform(ttfd);
+        t.t0.opacity = (type.match(/Fade/) ? 0 : 1);
+        // current frame transform time 1
+        x = -Math.max(this.getStageWidth(), ctfd.width) - ttfd.shiftX;
+        y = -ctfd.shiftY - ctfd.scrollY * ctfd.scale + ttfd.scrollY * ttfd.scale;
+        t.c1.transform = "translate3d(" + x + "px," + y + "px,0px) scale(" + ctfd.scale + ")";
+        break;
+
+      case 'slideAwayRight':
+      case 'slideAwayRightFade':
+        // target frame transform time 0
+        t.t0 = this._calcFrameTransform(ttfd);
+        t.t0.opacity = (type.match(/Fade/) ? 0 : 1);
+        // current frame transform time 1
+        x = Math.max(this.getStageWidth(), ttfd.width) - ttfd.shiftX;
+        y = -ctfd.shiftY - ctfd.scrollY * ctfd.scale + ttfd.scrollY * ttfd.scale;
+        t.c1.transform = "translate3d(" + x + "px," + y + "px,0px) scale(" + ctfd.scale + ")";
+        break;
+
+      case 'slideAwayUp':
+      case 'slideAwayUpFade':
+        // target frame transform time 0
+        t.t0 = this._calcFrameTransform(ttfd);
+        t.t0.opacity = (type.match(/Fade/) ? 0 : 1);
+        // current frame transform time 1
+        y = -Math.max(this.getStageHeight(), ctfd.height) - ttfd.shiftY;
+        x = -ctfd.shiftX - ctfd.scrollX * ctfd.scale + ttfd.scrollX * ttfd.scale;
+        t.c1.transform = "translate3d(" + x + "px," + y + "px,0px) scale(" + ctfd.scale + ")";
+        break;
+
+      case 'slideAwayDown':
+      case 'slideAwayDownFade':
+        // target frame transform time 0
+        t.t0 = this._calcFrameTransform(ttfd);
+        t.t0.opacity = (type.match(/Fade/) ? 0 : 1);
+        // current frame transform time 1
+        y = Math.max(this.getStageHeight(), ttfd.height) - ttfd.shiftY;
+        x = -ctfd.shiftX - ctfd.scrollX * ctfd.scale + ttfd.scrollX * ttfd.scale;
+        t.c1.transform = "translate3d(" + x + "px," + y + "px,0px) scale(" + ctfd.scale + ")";
         break;
     }
 
