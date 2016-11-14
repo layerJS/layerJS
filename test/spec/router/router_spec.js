@@ -386,4 +386,16 @@ describe('router', function() {
     layerJS.router._navigate(url, true);
     expect(handled).toBe(true);
   });
+
+  it('layerJS.init() will call the navigate function', function() {
+    var promise = new Kern.Promise();
+    promise.resolve(true);
+    spyOn(layerJS.router, '_navigate').and.returnValue(promise);
+
+    layerJS.init();
+
+    expect(layerJS.router._navigate).toHaveBeenCalled();
+
+    layerJS.router._navigate.and.callThrough();
+  });
 });
