@@ -35,4 +35,9 @@ layerJS.init = function() {
   layerJS.parseManager.parseDocument();
   layerJS.router.addRouter(new FileRouter());
   layerJS.router.addRouter(new HashRouter());
+
+  layerJS.router.cache = false;
+  layerJS.router._navigate(window.location.href, false).then(function() {
+    layerJS.router.cache = true;    
+  });
 };

@@ -691,6 +691,42 @@ describe('state', function() {
     }, 500);
   });
 
+  it('state is getting updated only for stage, layer and frame views', function(done) {
+    var html = "<div data-lj-type='stage' id='stage1'>" +
+      "</div>";
+
+    utilities.setHtml(html);
+
+    var stageView = new StageView(null, {
+      el: document.getElementById('stage1')
+    });
+
+    var el = document.createElement('div');
+    el.id = 'layer1';
+    el.setAttribute('data-lj-type', 'layer');
+    stageView.innerEl.appendChild(el);
+
+    el = document.createElement('div');
+    el.id = 'frame1';
+    el.setAttribute('data-lj-type', 'frame');
+    el.setAttribute('data-lj-name', 'frame1');
+    stageView.innerEl.children[0].appendChild(el);
+
+   el = document.createElement('div');
+    el.id = 'something';
+    el.setAttribute('data-lj-type', 'group');
+    stageView.innerEl.children[0].appendChild(el);
+
+    stageView.innerEl.children[0].appendChild(document.createTextNode("Hello World"));
+
+
+    setTimeout(function() {
+      var exportedState = state.exportStructure();
+      expect(exportedState).toEqual(['stage1.layer1.frame1']);
+      done();
+    }, 500);
+  });
+
   it('performance test', function() {
 
     //   setHtmlForExport();
