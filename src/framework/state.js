@@ -10,7 +10,9 @@ var $ = require('./domhelpers.js');
  * @extends Kern.Model
  */
 var State = Kern.Model.extend({
-  constructor: function() {},
+  constructor: function() {
+    this.viewTypes = ['stage', 'layer', 'frame'];
+  },
   /**
    * Will return the next index of a layerjs object within it's parent
    *
@@ -45,7 +47,7 @@ var State = Kern.Model.extend({
 
       if (undefined === childView) {
         this._buildTree(parent, child.children);
-      } else if (childView.data.attributes.type === 'stage' || childView.data.attributes.type === 'layer' || childView.data.attributes.type === 'frame') {
+      } else if (-1 !== this.viewTypes.indexOf(childView.data.attributes.type)) {
         var type = childView.data.attributes.type;
 
         var name = (childView.data.attributes.name || child.id || type + '[' + this._getNextChildIndexByType(parent, type) + ']');
@@ -94,25 +96,26 @@ var State = Kern.Model.extend({
       return;
     }
 
-
     if (undefined !== addedNodes && addedNodes.length > 0) {
       for (let i = 0; i < addedNodes.length; i++) {
-        this.buildParent(addedNodes[i], view.document);
+        if (addedNodes[i]._ljView && -1 !== this.viewTypes.indexOf(addedNodes[i]._ljView.data.attributes.type)) {
+          this.buildParent(addedNodes[i], view.document);
+        }
       }
     }
     if (undefined !== removedNodes && removedNodes.length > 0) {
       for (var i = 0; i < removedNodes.length; i++) {
-        for (var childName in viewState.children) {
-          if (viewState.children.hasOwnProperty(childName)) {
-            if (viewState.children[childName].view === removedNodes[i]._ljView) {
-              delete viewState.children[childName];
+        if (removedNodes[i]._ljView && -1 !== this.viewTypes.indexOf(removedNodes[i]._ljView.data.attributes.type)) {
+          for (var childName in viewState.children) {
+            if (viewState.children.hasOwnProperty(childName)) {
+              if (viewState.children[childName].view === removedNodes[i]._ljView) {
+                delete viewState.children[childName];
+              }
             }
           }
         }
       }
     }
-
-
   },
   buildParent: function(parentNode, ownerDocument) {
     var currentState = {};
@@ -133,7 +136,7 @@ var State = Kern.Model.extend({
         var view = parentNode._ljView;
 
         // ignore everything except frames, layers and stages; ignoring means to pass the parent state as current state
-        if (view && (view.data.attributes.type === 'frame' || view.data.attributes.type === 'layer' || view.data.attributes.type === 'stage')) {
+        if (view && -1 !== (this.viewTypes.indexOf(view.data.attributes.type))) {
           var type = view.data.attributes.type;
           var name = (view.data.attributes.name || parentNode.id || type + '[' + this._getNextChildIndexByType(currentState, type) + ']');
           // layerJS object already added
