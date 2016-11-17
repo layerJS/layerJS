@@ -36,7 +36,7 @@ var CanvasLayout = LayerLayout.extend({
       for (var i = 0; i < framesLength; i++) {
         childFrame = frames[i];
         this._applyTransform(childFrame, this._reverseTransform, transform, {
-          transition: '',
+          transition: 'none',
           opacity: 1,
           display: 'block'
         });
@@ -46,7 +46,7 @@ var CanvasLayout = LayerLayout.extend({
         childFrame = frames[x];
         childFrame.applyStyles({
           opacity: 0,
-          transition: ''
+          transition: 'none'
         });
       }
     }
@@ -62,6 +62,7 @@ var CanvasLayout = LayerLayout.extend({
    */
   transitionTo: function(frame, transition, targetFrameTransformData, targetTransform) {
     var finished = new Kern.Promise();
+    var that = this;
 
     var frames = this.layer.getChildViews();
     var framesLength = frames.length;
@@ -76,11 +77,15 @@ var CanvasLayout = LayerLayout.extend({
 
     lastFrameToTransition.outerEl.addEventListener("transitionend", function f(e) { // FIXME needs webkitTransitionEnd etc
       e.target.removeEventListener(e.type, f); // remove event listener for transitionEnd.
-      for (var i = 0; i < framesLength; i++) {
-        childFrame = frames[i];
-        childFrame.applyStyles({
-          transition: '' // deactivate transitions for all frames
-        });
+      // console.log("canvaslayout transitionend", transition.transitionID);
+      if (transition.transitionID === that.layer.transitionID) {
+        for (var i = 0; i < framesLength; i++) {
+          childFrame = frames[i];
+          // console.log("canvaslayout transition off", transition.transitionID);
+          childFrame.applyStyles({
+            transition: 'none' // deactivate transitions for all frames
+          });
+        }
       }
       finished.resolve();
     });
@@ -129,12 +134,13 @@ var CanvasLayout = LayerLayout.extend({
     var frames = this.layer.getChildViews();
     var framesLength = frames.length;
     var childFrame;
+    // console.log('canvaslayout: setLayerTransform');
     // now apply all transforms to all frames
     for (var i = 0; i < framesLength; i++) {
       childFrame = frames[i];
-      this._applyTransform(childFrame, this._reverseTransform, transform, {
-        transition: ''
-      });
+      this._applyTransform(childFrame, this._reverseTransform, transform, this.layer.inTransition() ? {
+        transition: this.layer.getRemainingTransitionTime() + 'ms'
+      } : {});
     }
   },
   /**
@@ -179,6 +185,7 @@ var CanvasLayout = LayerLayout.extend({
    */
   _applyTransform: function(frame, reverseTransform, addedTransform, styles) {
     var attr = frame.data.attributes;
+    // console.log('canvaslayout: applystyles', frame.data.attributes.name, styles.transition);
     // we need to add the frame transform (x,y,rot,scale) the reverse transform (that moves the current frame into the stage) and the transform representing the current scroll/displacement
     frame.applyStyles(styles || {}, {
       transform: addedTransform + " " + reverseTransform + " " + (this._frameTransforms[attr.id] || (this._frameTransforms[attr.id] = "translate3d(" + (attr.x || 0) + "px," + (attr.y || 0) + "px,0px) rotate(" + (attr.rotation || 0) + "deg) scale(" + attr.scaleX + "," + attr.scaleY + ")"))

@@ -400,7 +400,7 @@ var GroupView = ElementView.extend({
     }
 
     if ('hidden' in diff) {
-      css.display = attr.hidden ? 'none' : '';
+      css.display = attr.hidden ? 'none' : 'initial';
     }
 
     if ('width' in diff && attr.width !== undefined) {

@@ -61,9 +61,9 @@ var SlideLayout = LayerLayout.extend({
       this.layer.innerEl.children[i].style.display = 'none';
     }
     this._applyTransform(frame, this._currentFrameTransform = this._calcFrameTransform(frameTransformData), transform, {
-      display: '',
+      display: 'block',
       opacity: 1,
-      visibility: '',
+      visibility: 'initial',
       top: "0px",
       left: "0px"
     });
@@ -83,7 +83,6 @@ var SlideLayout = LayerLayout.extend({
     var currentFrame = that.layer.currentFrame;
     return this.prepareTransition(frame, transition, targetFrameTransformData, targetTransform).then(function(t) {
       var finished = new Kern.Promise();
-      console.log('now for real');
       var frameToTransition = frame || currentFrame;
 
       if (null !== frameToTransition) {
@@ -92,13 +91,13 @@ var SlideLayout = LayerLayout.extend({
           if (transition.transitionID === that.layer.transitionID) {
             if (currentFrame) {
               currentFrame.applyStyles({
-                transition: '',
+                transition: 'none',
                 display: 'none'
               });
             }
             if (frame) {
               frame.applyStyles({
-                transition: ''
+                transition: 'none'
               });
             }
           }
@@ -163,15 +162,13 @@ var SlideLayout = LayerLayout.extend({
       prep = this._preparedTransitions[frame.data.attributes.id] = this.transitions[transition.type](transition.type, this.layer.currentFrameTransformData, targetFrameTransformData); // WARNING: this.layer.currentFrameTransformData should still be the old one here. carefull: this.layer.currentFrameTransformData will be set by LayerView before transition ends!
       // apply pre position to target frame
       this._applyTransform(frame, prep.t0, this.layer.currentTransform, {
-        transition: '',
-        visibility: ''
+        transition: 'none',
+        visibility: 'inital'
       });
       prep.transform = targetTransform;
-      console.log(prep.t0);
       // wait until new postions are rendered then resolve promise
       $.postAnimationFrame(function() {
         prep.applied = true;
-        console.log('resolve');
         finished.resolve(prep);
       });
     }
@@ -184,7 +181,9 @@ var SlideLayout = LayerLayout.extend({
    * @param {string} transform - the scrolling transform
    */
   setLayerTransform: function(transform) {
-    this._applyTransform(this.layer.currentFrame, this._currentFrameTransform, transform);
+    this._applyTransform(this.layer.currentFrame, this._currentFrameTransform, transform, this.layer.inTransition() ? {
+      transition: this.layer.getRemainingTransitionTime() + 'ms'
+    } : {});
   },
   /**
    * apply transform by combining the frames base transform with the added scroll transform

@@ -53,7 +53,7 @@ var ScrollTransformer = Kern.EventManager.extend({
       return true;
     }
     // primary direction
-    var axis = (Math.abs(gesture.shiftX) > Math.abs(gesture.shiftY) ? "x" : "y");
+    var axis = (Math.abs(gesture.shift.x) > Math.abs(gesture.shift.y) ? "x" : "y");
     // check if can't scroll in primary direction
     if (axis === "x" && !tfd.isScrollX) return false;
     if (axis === "y" && !tfd.isScrollY) return false;
