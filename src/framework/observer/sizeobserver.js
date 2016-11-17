@@ -19,11 +19,20 @@ var SizeObserver = Kern.Base.extend({
     var length = views.length;
     for (var i = 0; i < length; i++) {
       var view = views[i];
-      this.views[view.data.attributes.id] = {
-        view: view,
-        callBack: callBack,
-        boundingClientRect: view.innerEl.getBoundingClientRect()
-      };
+      if (!this.views.hasOwnProperty(view.data.attributes.id) || this.views[view.data.attributes.id].callBack !== callBack) { // only register if view does not exist already in list
+        this.views[view.data.attributes.id] = {
+          view: view,
+          callBack: callBack,
+          size_inner: {
+            width: view.innerEl.scrollWidth,
+            height: view.innerEl.scrollHeight
+          },
+          size: {
+            width: view.innerEl.clientWidth,
+            height: view.innerEl.clientHeight
+          }
+        };
+      }
     }
   },
   /**
@@ -31,7 +40,7 @@ var SizeObserver = Kern.Base.extend({
    *
    * @param {array} views - An array of layerjs object to unregister
    */
-  unregister: function(views) {
+  unRegister: function(views) {
     var length = views.length;
     for (var i = 0; i < length; i++) {
       delete this.views[views[i].data.attributes.id];
@@ -39,14 +48,25 @@ var SizeObserver = Kern.Base.extend({
   },
   /**
    * Will check if dimensions are changed for specified views
-   *  
+   *
    */
   checkSize: function() {
     for (var viewId in this.views) {
       if (this.views.hasOwnProperty(viewId)) {
-        var boundingClientRect = this.views[viewId].view.innerEl.getBoundingClientRect();
-        if (boundingClientRect.width !== this.views[viewId].boundingClientRect.width || boundingClientRect.height !== this.views[viewId].boundingClientRect.height) {
-          this.views[viewId].boundingClientRect = boundingClientRect;
+        var el = this.views[viewId].view.innerEl;
+        var iwidth = el.scrollWidth;
+        var iheight = el.scrollHeight;
+        var width = el.clientWidth;
+        var height = el.clientHeight;
+        if (width !== this.views[viewId].size.width || height !== this.views[viewId].size.height || iwidth !== this.views[viewId].size_inner.width || iheight !== this.views[viewId].size_inner.height) {
+          this.views[viewId].size = {
+            width: width,
+            height: height
+          };
+          this.views[viewId].size_inner = {
+            width: iwidth,
+            height: iheight
+          };
           this.views[viewId].callBack();
         }
       }

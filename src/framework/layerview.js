@@ -36,6 +36,13 @@ var LayerView = GroupView.extend({
     var hasScroller = this.outerEl.children.length === 1 && $.getAttributeLJ(this.outerEl.children[0], 'helper') === 'scroller';
     this.innerEl = hasScroller ? this.outerEl.children[0] : this.outerEl;
 
+    this.onResizeCallBack = function() {
+      // when doing a transform, the callback should not be called
+      if (!that.inTransition()) {
+        that.onResize();
+      }
+    };
+
     // call super constructor
     GroupView.call(this, dataModel, Kern._extend({}, options, {
       noRender: true
@@ -53,8 +60,15 @@ var LayerView = GroupView.extend({
 
     // this is my stage and add listener to keep it updated
     this.stage = this.parent;
+
+    if (this.stage) {
+      sizeObserver.register([this.stage], this.onResizeCallBack);
+    }
+
     this.on('parent', function() {
+      sizeObserver.unregister([that.stage]);
       that.stage = that.parent;
+      sizeObserver.register([that.stage], that.onResizeCallBack);
       // FIXME trigger adaption to new stage
     });
     // set current frame from data object or take first child
@@ -345,19 +359,12 @@ var LayerView = GroupView.extend({
    * @returns {void}
    */
   _parseChildren: function(options) {
-    var that = this;
     // unregister childviews
-    sizeObserver.unregister(this.getChildViews());
+    // sizeObserver.unregister(this.getChildViews()); we don't need to unregister since they will only be added if new
 
     GroupView.prototype._parseChildren.call(this, options);
 
-    var callBack = function() {
-      // when doing a transform, the callback should not be called
-      if (!that.inTransform) {
-        that.onResize();
-      }
-    };
-    sizeObserver.register(this.getChildViews(), callBack);
+    sizeObserver.register(this.getChildViews(), this.onResizeCallBack);
   }
 }, {
   /*
