@@ -400,17 +400,6 @@ describe('router', function() {
   });
 
   it('will append the layer path to a local special frame name', function() {
-    var dummyRouter = {
-      handle: function(url) {
-        var promise = new Kern.Promise();
-        promise.resolve({
-          handled: true,
-          stop: true
-        });
-        return promise;
-      }
-    };
-
     var html = "<div data-lj-type='stage' id='stage1'>" +
       "<div data-lj-type='layer' id='layer1' data-lj-default-frame='frame1'>" +
       "<div data-lj-type='frame' id='frame1' data-lj-name='frame1'><a id='next' href='#!next'>next</a></div>" +

@@ -186,7 +186,7 @@ var DomHelpers = {
     var found = false;
 
     while (parent && !found) {
-      if (parent._ljView && parent._ljView.data.attributes.type ===  type) {
+      if (parent._ljView && parent._ljView.data.attributes.type === type) {
         found = true;
       } else {
         parent = parent.parentElement;
@@ -194,9 +194,30 @@ var DomHelpers = {
     }
 
     return found ? parent._ljView : undefined;
+  },
+  timeToMS: function(time) {
+    var match = time.match(/^([\d\.]*)(s|ms|min|h)$/);
+    if (!match) return 0;
+    switch (match[2]) {
+      case 'ms':
+        return match[1];
+      case 's':
+        return match[1] * 1000;
+      case 'min':
+        return match[1] * 60 * 1000;
+      case 'h':
+        return match[1] * 60 * 60 * 1000;
+    }
+    return 0;
   }
 };
 DomHelpers.detectBrowser();
 DomHelpers.calculatePrefixes(['transform', 'transform-origin']);
 
+// enable this function to get timing information into the console logs
+// var oldlog = console.log;
+// var log0 = Date.now();
+// console.log = function() {
+//   oldlog.apply(this, [((Date.now() - log0) / 1000).toFixed(2) + "s"].concat(Array.prototype.slice.call(arguments)));
+// };
 module.exports = DomHelpers;

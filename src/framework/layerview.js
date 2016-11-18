@@ -22,7 +22,7 @@ var LayerView = GroupView.extend({
     options = options || {};
     this._setDocument(options);
     var that = this;
-    this.inTransform = false; // indicates that transition is still being animated
+    this._inTransition = false; // indicates that transition is still being animated
     this.transitionID = 1; // counts up every call of transitionTo();
 
     var tag = 'div';
@@ -35,6 +35,13 @@ var LayerView = GroupView.extend({
 
     var hasScroller = this.outerEl.children.length === 1 && $.getAttributeLJ(this.outerEl.children[0], 'helper') === 'scroller';
     this.innerEl = hasScroller ? this.outerEl.children[0] : this.outerEl;
+
+    this.onResizeCallBack = function() {
+      // when doing a transform, the callback should not be called
+      if (!that.inTransition()) {
+        that.onResize();
+      }
+    };
 
     // call super constructor
     GroupView.call(this, dataModel, Kern._extend({}, options, {
@@ -53,8 +60,15 @@ var LayerView = GroupView.extend({
 
     // this is my stage and add listener to keep it updated
     this.stage = this.parent;
+
+    if (this.stage) {
+      sizeObserver.register([this.stage], this.onResizeCallBack);
+    }
+
     this.on('parent', function() {
+      sizeObserver.unregister([that.stage]);
       that.stage = that.parent;
+      sizeObserver.register([that.stage], that.onResizeCallBack);
       // FIXME trigger adaption to new stage
     });
     // set current frame from data object or take first child
@@ -87,6 +101,44 @@ var LayerView = GroupView.extend({
     */
 
     state.registerView(this);
+  },
+  /**
+   * This method is called if a transition is started. It has a timeout function that will automatically remove
+   * the _inTransition flag because DOM's transitionend is unreliable and this may block the whole swiping mechanism
+   *
+   * @param {number} duration - specify the expected length of the transition.
+   * @returns {boolean} inTranstion or not
+   */
+  inTransition: function(_inTransition, duration) {
+    if (_inTransition) {
+      var that = this;
+      this._inTransitionTimestamp = Date.now();
+      var tID = this.transitionID;
+      this._inTransitionDuration = duration;
+      this._inTransition = true;
+      setTimeout(function() {
+        if (tID === that.transitionID) {
+          delete that._inTransitionTimestamp;
+          delete that._inTransitionDuration;
+          that._inTransition = false;
+        }
+      }, duration);
+    } else if (_inTransition === false) {
+      this._inTransition = false;
+    }
+    return this._inTransition;
+  },
+  /**
+   * returns the number of milliseconds left on the current transition or false if no transition is currently on going
+   *
+   * @returns {number/boolean} duration left in ms or false
+   */
+  getRemainingTransitionTime: function() {
+    if (this._inTransition) {
+      return Math.max(0, this._inTransitionDuration - (Date.now() - this._inTransitionTimestamp));
+    } else {
+      return false;
+    }
   },
   /**
    * Will toggle native and non-native scrolling
@@ -153,13 +205,13 @@ var LayerView = GroupView.extend({
       this._layout.setLayerTransform(this.currentTransform = layerTransform);
       gesture.preventDefault = true;
     } else {
-      if (this.inTransform) gesture.preventDefault = true; // we need to differentiate here later as we may have to check up stream handlers
+      if (this.inTransition()) gesture.preventDefault = true; // we need to differentiate here later as we may have to check up stream handlers
       // gesture.cancelled = true;
       var cattr = this.currentFrame.data.attributes;
       if (gesture.direction) {
         if (cattr.neighbors && cattr.neighbors[defaults.directions2neighbors[gesture.direction]]) {
           gesture.preventDefault = true;
-          if (!this.inTransform && (gesture.last || (gesture.wheel && gesture.enoughDistance()))) {
+          if (!this.inTransition() && (gesture.last || (gesture.wheel && gesture.enoughDistance()))) {
             this.transitionTo(cattr.neighbors[defaults.directions2neighbors[gesture.direction]], {
               type: defaults.neighbors2transition[defaults.directions2neighbors[gesture.direction]]
             });
@@ -199,7 +251,7 @@ var LayerView = GroupView.extend({
 
     that.trigger('beforeTransition', framename);
 
-    this.inTransform = true;
+    // this.inTransition(true, 0);
 
     this._layout.loadFrame(frame).then(function() {
       var tfd = that.currentFrameTransformData = null === frame ? that.noFrameTransformdata(scrollData.startPosition) : frame.getTransformData(that.stage, scrollData.startPosition);
@@ -207,7 +259,7 @@ var LayerView = GroupView.extend({
       that.currentFrame = frame;
       that.trigger('transitionStarted', framename);
       that._layout.showFrame(frame, tfd, that.currentTransform);
-      that.inTransform = false;
+      that.inTransition(false); // we stop all transitions if we do a showframe
       that.currentFrame = frame;
       that.trigger('transitionFinished', framename);
     });
@@ -260,8 +312,8 @@ var LayerView = GroupView.extend({
 
     that.trigger('beforeTransition', framename);
 
-    this.inTransform = true;
     transition.transitionID = ++this.transitionID; // inc transition ID and save new ID into transition record
+    this.inTransition(true, $.timeToMS(transition.duration));
     // make sure frame is there such that we can calculate dimensions and transform data
     return this._layout.loadFrame(frame).then(function() {
       // calculate the layer transform for the target frame. Note: this will automatically consider native scrolling
@@ -274,7 +326,7 @@ var LayerView = GroupView.extend({
         // don't do a transition, just execute Promise
         var p = new Kern.Promise();
         p.resolve();
-        that.inTransform = false;
+        that.inTransition(false);
         that.trigger('transitionStarted', framename);
         that.trigger('transitionFinished', framename);
         return p;
@@ -286,7 +338,7 @@ var LayerView = GroupView.extend({
           that.currentTransform = that._transformer.getScrollTransform(targetFrameTransformData, transition.scrollX || 0, transition.scrollY || 0, false);
           // apply new transform (will be 0,0 in case of native scrolling)
           that._layout.setLayerTransform(that.currentTransform);
-          that.inTransform = false;
+          that.inTransition(false);
           $.postAnimationFrame(function() {
             that.trigger('transitionFinished', framename);
           });
@@ -470,27 +522,12 @@ var LayerView = GroupView.extend({
    * @returns {void}
    */
   _parseChildren: function(options) {
-    var that = this;
     // unregister childviews
-    sizeObserver.unregister(this.getChildViews());
+    // sizeObserver.unregister(this.getChildViews()); we don't need to unregister since they will only be added if new
 
     GroupView.prototype._parseChildren.call(this, options);
 
-    var callBack = function() {
-      // when doing a transform, the callback should not be called
-      if (!that.inTransform) {
-        that.onResize();
-      }
-    };
-    sizeObserver.register(this.getChildViews(), callBack);
-  },
-  /**
-   * Get a framename
-   *
-   * @returns {string}
-   */
-  getFrameName: function(frameName) {
-    return frameName;
+    sizeObserver.register(this.getChildViews(), this.onResizeCallBack);
   }
 }, {
   /*

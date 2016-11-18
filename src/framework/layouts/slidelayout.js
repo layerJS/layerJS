@@ -33,7 +33,19 @@ var SlideLayout = LayerLayout.extend({
       slideOverLeft: wrap_slideOverTransition,
       slideOverRight: wrap_slideOverTransition,
       slideOverUp: wrap_slideOverTransition,
-      slideOverDown: wrap_slideOverTransition
+      slideOverDown: wrap_slideOverTransition,
+      slideOverLeftFade: wrap_slideOverTransition,
+      slideOverRightFade: wrap_slideOverTransition,
+      slideOverUpFade: wrap_slideOverTransition,
+      slideOverDownFade: wrap_slideOverTransition,
+      slideAwayLeft: wrap_slideOverTransition,
+      slideAwayRight: wrap_slideOverTransition,
+      slideAwayUp: wrap_slideOverTransition,
+      slideAwayDown: wrap_slideOverTransition,
+      slideAwayLeftFade: wrap_slideOverTransition,
+      slideAwayRightFade: wrap_slideOverTransition,
+      slideAwayUpFade: wrap_slideOverTransition,
+      slideAwayDownFade: wrap_slideOverTransition
     };
   },
   /**
@@ -49,9 +61,9 @@ var SlideLayout = LayerLayout.extend({
       this.layer.innerEl.children[i].style.display = 'none';
     }
     this._applyTransform(frame, this._currentFrameTransform = this._calcFrameTransform(frameTransformData), transform, {
-      display: '',
+      display: 'block',
       opacity: 1,
-      visibility: '',
+      visibility: 'initial',
       top: "0px",
       left: "0px"
     });
@@ -71,7 +83,6 @@ var SlideLayout = LayerLayout.extend({
     var currentFrame = that.layer.currentFrame;
     return this.prepareTransition(frame, transition, targetFrameTransformData, targetTransform).then(function(t) {
       var finished = new Kern.Promise();
-      console.log('now for real');
       var frameToTransition = frame || currentFrame;
 
       if (null !== frameToTransition) {
@@ -80,13 +91,13 @@ var SlideLayout = LayerLayout.extend({
           if (transition.transitionID === that.layer.transitionID) {
             if (currentFrame) {
               currentFrame.applyStyles({
-                transition: '',
+                transition: 'none',
                 display: 'none'
               });
             }
             if (frame) {
               frame.applyStyles({
-                transition: ''
+                transition: 'none'
               });
             }
           }
@@ -151,15 +162,13 @@ var SlideLayout = LayerLayout.extend({
       prep = this._preparedTransitions[frame.data.attributes.id] = this.transitions[transition.type](transition.type, this.layer.currentFrameTransformData, targetFrameTransformData); // WARNING: this.layer.currentFrameTransformData should still be the old one here. carefull: this.layer.currentFrameTransformData will be set by LayerView before transition ends!
       // apply pre position to target frame
       this._applyTransform(frame, prep.t0, this.layer.currentTransform, {
-        transition: '',
-        visibility: ''
+        transition: 'none',
+        visibility: 'inital'
       });
       prep.transform = targetTransform;
-      console.log(prep.t0);
       // wait until new postions are rendered then resolve promise
       $.postAnimationFrame(function() {
         prep.applied = true;
-        console.log('resolve');
         finished.resolve(prep);
       });
     }
@@ -172,7 +181,9 @@ var SlideLayout = LayerLayout.extend({
    * @param {string} transform - the scrolling transform
    */
   setLayerTransform: function(transform) {
-    this._applyTransform(this.layer.currentFrame, this._currentFrameTransform, transform);
+    this._applyTransform(this.layer.currentFrame, this._currentFrameTransform, transform, this.layer.inTransition() ? {
+      transition: this.layer.getRemainingTransitionTime() + 'ms'
+    } : {});
   },
   /**
    * apply transform by combining the frames base transform with the added scroll transform
@@ -302,6 +313,7 @@ var SlideLayout = LayerLayout.extend({
     switch (type) {
 
       case 'slideOverLeft':
+      case 'slideOverLeftFade':
         // target frame transform time 0
         x = Math.max(this.getStageWidth(), ctfd.width) - ctfd.shiftX;
         y = -ttfd.shiftY + ctfd.scrollY * ctfd.scale - ttfd.scrollY * ttfd.scale;
@@ -311,9 +323,13 @@ var SlideLayout = LayerLayout.extend({
         // current frame transform time 1
         t.c1 = this._currentFrameTransform;
         t.c1["z-index"] = 1;
+        if (type.match(/Fade/)) {
+          t.c1.opacity = 0;
+        }
         break;
 
       case 'slideOverRight':
+      case 'slideOverRightFade':
         // target frame transform time 0
         x = -Math.max(this.getStageWidth(), ttfd.width) - ctfd.shiftX;
         y = -ttfd.shiftY + ctfd.scrollY * ctfd.scale - ttfd.scrollY * ttfd.scale;
@@ -322,9 +338,13 @@ var SlideLayout = LayerLayout.extend({
         // current frame transform time 1
         t.c1 = this._currentFrameTransform;
         t.c1["z-index"] = 1;
+        if (type.match(/Fade/)) {
+          t.c1.opacity = 0;
+        }
         break;
 
       case 'slideOverUp':
+      case 'slideOverUpFade':
         // target frame transform time 0
         y = Math.max(this.getStageHeight(), ctfd.height) - ctfd.shiftY;
         x = -ttfd.shiftX + ctfd.scrollX * ctfd.scale - ttfd.scrollX * ttfd.scale;
@@ -334,9 +354,13 @@ var SlideLayout = LayerLayout.extend({
         // current frame transform time 1
         t.c1 = this._currentFrameTransform;
         t.c1["z-index"] = 1;
+        if (type.match(/Fade/)) {
+          t.c1.opacity = 0;
+        }
         break;
 
       case 'slideOverDown':
+      case 'slideOverDownFade':
         // target frame transform time 0
         y = -Math.max(this.getStageHeight(), ttfd.height) - ctfd.shiftY;
         x = -ttfd.shiftX + ctfd.scrollX * ctfd.scale - ttfd.scrollX * ttfd.scale;
@@ -345,6 +369,53 @@ var SlideLayout = LayerLayout.extend({
         // current frame transform time 1
         t.c1 = this._currentFrameTransform;
         t.c1["z-index"] = 1;
+        if (type.match(/Fade/)) {
+          t.c1.opacity = 0;
+        }
+        break;
+
+      case 'slideAwayLeft':
+      case 'slideAwayLeftFade':
+        // target frame transform time 0
+        t.t0 = this._calcFrameTransform(ttfd);
+        t.t0.opacity = (type.match(/Fade/) ? 0 : 1);
+        // current frame transform time 1
+        x = -Math.max(this.getStageWidth(), ctfd.width) - ttfd.shiftX;
+        y = -ctfd.shiftY - ctfd.scrollY * ctfd.scale + ttfd.scrollY * ttfd.scale;
+        t.c1.transform = "translate3d(" + x + "px," + y + "px,0px) scale(" + ctfd.scale + ")";
+        break;
+
+      case 'slideAwayRight':
+      case 'slideAwayRightFade':
+        // target frame transform time 0
+        t.t0 = this._calcFrameTransform(ttfd);
+        t.t0.opacity = (type.match(/Fade/) ? 0 : 1);
+        // current frame transform time 1
+        x = Math.max(this.getStageWidth(), ttfd.width) - ttfd.shiftX;
+        y = -ctfd.shiftY - ctfd.scrollY * ctfd.scale + ttfd.scrollY * ttfd.scale;
+        t.c1.transform = "translate3d(" + x + "px," + y + "px,0px) scale(" + ctfd.scale + ")";
+        break;
+
+      case 'slideAwayUp':
+      case 'slideAwayUpFade':
+        // target frame transform time 0
+        t.t0 = this._calcFrameTransform(ttfd);
+        t.t0.opacity = (type.match(/Fade/) ? 0 : 1);
+        // current frame transform time 1
+        y = -Math.max(this.getStageHeight(), ctfd.height) - ttfd.shiftY;
+        x = -ctfd.shiftX - ctfd.scrollX * ctfd.scale + ttfd.scrollX * ttfd.scale;
+        t.c1.transform = "translate3d(" + x + "px," + y + "px,0px) scale(" + ctfd.scale + ")";
+        break;
+
+      case 'slideAwayDown':
+      case 'slideAwayDownFade':
+        // target frame transform time 0
+        t.t0 = this._calcFrameTransform(ttfd);
+        t.t0.opacity = (type.match(/Fade/) ? 0 : 1);
+        // current frame transform time 1
+        y = Math.max(this.getStageHeight(), ttfd.height) - ttfd.shiftY;
+        x = -ctfd.shiftX - ctfd.scrollX * ctfd.scale + ttfd.scrollX * ttfd.scale;
+        t.c1.transform = "translate3d(" + x + "px," + y + "px,0px) scale(" + ctfd.scale + ")";
         break;
     }
 
