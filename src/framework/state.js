@@ -3,6 +3,7 @@
 var Kern = require('../kern/Kern.js');
 var layerJS = require('./layerjs.js');
 var $ = require('./domhelpers.js');
+var defaults = require('./defaults.js');
 
 /**
  *  class that will contain the state off all the stages, layers, frames
@@ -144,7 +145,8 @@ var State = Kern.Model.extend({
             // create the actual current state datastructure as a child of the parent's state structure
             currentState.children[name] = {
               view: view,
-              children: {}
+              children: {},
+              parent: currentState
             };
             if (view.data.attributes.type === 'frame') {
               currentState.children[name].active = false;
@@ -259,19 +261,11 @@ var State = Kern.Model.extend({
    * @param {object} transition Transition properties
    */
   transitionTo: function(states, transition) {
-
     var pathsToTransition = this._determineTransitionPaths(states);
-
     for (let i = 0; i < pathsToTransition.length; i++) {
       var path = pathsToTransition[i];
-      var frameView = path.endsWith('.none') ? undefined : this.getViewForPath(path);
-      var frameName = null;
       var layerView = this.getViewForPath(path.replace(/\.[^\.]*$/, ""));
-
-      if (undefined !== frameView) {
-        frameName = frameView.data.attributes.name;
-      }
-
+      var frameName = path.substr(path.lastIndexOf(".") + 1);
       layerView.transitionTo(frameName, transition);
     }
   },
@@ -281,22 +275,47 @@ var State = Kern.Model.extend({
    * @param {array} states States to transition to
    */
   showState: function(states) {
-
     var pathsToTransition = this._determineTransitionPaths(states);
-
     for (let i = 0; i < pathsToTransition.length; i++) {
       var path = pathsToTransition[i];
-      var frameView = path.endsWith('.none') ? undefined : this.getViewForPath(path);
-      var frameName = null;
       var layerView = this.getViewForPath(path.replace(/\.[^\.]*$/, ""));
-
-      if (undefined !== frameView) {
-        frameName = frameView.data.attributes.name;
-      }
-
+      var frameName = path.substr(path.lastIndexOf(".") + 1);
       layerView.showFrame(frameName);
     }
   },
+  /**
+   * Will build the up the path to the frames
+   *
+   * @param {object} Represents the parent
+   * @param {string} A string that represents to path of the parent object
+   * @param {boolean} When true, only the path of active frames are returned
+   * @return {array} An array of strings to the frames
+   */
+  getPathForView: function(view) {
+    var paths = [];
+
+    if (view.outerEl._state) {
+      var state = view.outerEl._state;
+      var parentState = state.parent;
+
+      while (parentState) {
+        let found = false;
+        for (var childName in parentState.children) {
+          if (parentState.children[childName] === state) {
+            paths.push(childName);
+            state = parentState;
+            parentState = state.parent;
+            found = true;
+          }
+        }
+        if (!found)
+          parentState = undefined;
+      }
+    }
+
+    return paths.reverse().join('.');
+  },
+
   /**
    * Will return the paths where needs to be transitioned to based on specific states
    *
@@ -310,21 +329,46 @@ var State = Kern.Model.extend({
 
     for (let i = 0; i < length; i++) {
       for (let x = 0; x < currentStructure.length; x++) {
-
         var tempStructure = currentStructure[x].replace(new RegExp(this._escapeRegex(states[i]) + '$'), '');
         if ('' === tempStructure || (currentStructure[x] !== tempStructure && tempStructure.endsWith('.'))) {
-          pathsToTransition.push(currentStructure[x]);
-        } else if (states[i].endsWith('.none') || states[i] === 'none') {
-          if (states[i].replace(/\.[^\.]*$/, '') === '') {
-            pathsToTransition.push(currentStructure[x].replace(/\.[^\.]*$/, '.none'));
-          } else if (currentStructure[x].replace(/\.[^\.]*$/, '.none').endsWith(states[i])) {
-            pathsToTransition.push(currentStructure[x].replace(/\.[^\.]*$/, '.none'));
+          if (-1 === pathsToTransition.indexOf(currentStructure[x])) {
+            pathsToTransition.push(currentStructure[x]);
+          }
+        } else if (this._pathHasSpecialFrameName(states[i])) {
+          var tempState = states[i].substr(0, states[i].lastIndexOf("."));
+          var tempStructureNoFrame = currentStructure[i].substr(0, currentStructure[i].lastIndexOf("."));
+          tempStructure = tempStructureNoFrame.replace(new RegExp(this._escapeRegex(tempState) + '$'), '');
+          if ('' === tempStructure || (currentStructure[x] !== tempStructure && tempStructure.endsWith('.'))) {
+            var specialFrameName = states[i].substr(states[i].lastIndexOf(".") + 1);
+            if (-1 === pathsToTransition.indexOf(tempStructureNoFrame + '.' + specialFrameName)) {
+              pathsToTransition.push(tempStructureNoFrame + '.' + specialFrameName);
+            }
           }
         }
       }
     }
 
     return pathsToTransition;
+  },
+
+  /**
+   * Will check if a path has special frame name
+   *
+   * @param {string} path
+   * @return {boolean}
+   */
+  _pathHasSpecialFrameName: function(path) {
+    var hasSpecialFrameName = false;
+    for (var specialFrame in defaults.specialFrames) {
+      if (defaults.specialFrames.hasOwnProperty(specialFrame)) {
+        if (path.endsWith(defaults.specialFrames[specialFrame])) {
+          hasSpecialFrameName = true;
+          break;
+        }
+      }
+    }
+
+    return hasSpecialFrameName;
   },
 
   /**
@@ -356,7 +400,7 @@ var State = Kern.Model.extend({
     }
 
     if (parent.view && parent.view.data.attributes.type === 'layer' && !hasActiveChildren) {
-      paths.push(rootpath + 'none');
+      paths.push(rootpath + defaults.specialFrames.none);
     }
 
     return paths;

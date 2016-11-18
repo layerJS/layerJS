@@ -26,5 +26,14 @@ module.exports = {
     // t: 'slideOverDown',
     // r: 'slideOverLeft',
     // l: 'slideOverRight'
+  },
+  specialFrames: {
+    none : '!none',
+    left: '!left',
+    right :'!right',
+    top : '!top',
+    bottom : '!bottom',
+    next  :'!next',
+    previous : '!prev'
   }
 };

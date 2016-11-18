@@ -5,6 +5,7 @@ var Kern = require('../../kern/kern.js');
 var defaults = require('../defaults.js');
 var StaticRouter = require('./staticrouter.js');
 var state = require('../state.js');
+var domhelpers = require('../domhelpers.js');
 
 var Router = Kern.EventManager.extend({
   constructor: function(rootEl, options) {
@@ -57,6 +58,34 @@ var Router = Kern.EventManager.extend({
     // register link listener
     $.addDelegtedListener(this.rootElement, 'click', 'a', function(event) {
       var href = this.href;
+
+      if (-1 !== href.indexOf('#')) {
+        // will chech for a local hash with special frame name.
+        var hash = href.substring(href.indexOf('#') + 1);
+        var states = hash.split(';');
+        var layerView;
+
+        for (let index = 0; index < states.length; index++) {
+          for (var specialFrame in defaults.specialFrames) {
+            // local hash has been found
+            if (states[index] === defaults.specialFrames[specialFrame]) {
+              //find parent layer view
+              if (!layerView) {
+                layerView = domhelpers.findParentViewOfType(this, 'layer');
+              }
+
+              if (layerView) {
+                // get path for layer view and append special frame name
+                states[index] = state.getPathForView(layerView) + '.' + defaults.specialFrames[specialFrame];
+              }
+            }
+          }
+        }
+
+        // re-assemble url
+        href = href.substring(0, href.indexOf('#') + 1) + states.join(';');
+      }
+
       event.preventDefault();
       event.stopPropagation();
 

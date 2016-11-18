@@ -173,6 +173,27 @@ var DomHelpers = {
     } else {
       element.setAttribute('data-lj-' + name, value);
     }
+  },
+  /**
+   * Will try to find a parent view of a specific type
+   *
+   * @param {HTMLElement} element
+   * @param {string} type - the view type to look
+   * @returns {Object} a view
+   */
+  findParentViewOfType: function(element, type) {
+    var parent = element.parentElement;
+    var found = false;
+
+    while (parent && !found) {
+      if (parent._ljView && parent._ljView.data.attributes.type ===  type) {
+        found = true;
+      } else {
+        parent = parent.parentElement;
+      }
+    }
+
+    return found ? parent._ljView : undefined;
   }
 };
 DomHelpers.detectBrowser();

@@ -189,9 +189,12 @@ var LayerView = GroupView.extend({
     var that = this;
     var frame = null;
 
-    if (null !== framename) {
-      frame = this.getChildViewByName(framename);
-      if (!frame) throw "transformTo: " + framename + " does not exist in layer";
+
+    frame = this._getFrame(framename);
+    if (!frame && null !== frame) throw "transformTo: " + framename + " does not exist in layer";
+
+    if (null !== frame) {
+      framename = frame.data.attributes.name;
     }
 
     that.trigger('beforeTransition', framename);
@@ -246,9 +249,15 @@ var LayerView = GroupView.extend({
         // FIXME: add more default values like timing
     }, transition || {});
     // lookup frame by framename
-    var frame = null === framename ? null : this.getChildViewByName(framename);
+    var frame = this._getFrame(framename, transition);
+
     if (!frame && null !== frame) throw "transformTo: " + framename + " does not exist in layer";
     var that = this;
+
+    if (frame && null !== frame) {
+      framename = frame.data.attributes.name;
+    }
+
     that.trigger('beforeTransition', framename);
 
     this.inTransform = true;
@@ -292,6 +301,122 @@ var LayerView = GroupView.extend({
 
       return layoutPromise;
     });
+  },
+  /**
+   * Will get a frame based on the framename. Special names will be resolved.
+   *
+   * @param {string} [framename] - frame name
+   * @param {Object} [transition] - (optional) transition object
+   * @returns {Object} a frame
+   */
+  _getFrame: function(frameName, transition) {
+    if (frameName === defaults.specialFrames.left || frameName === defaults.specialFrames.right || frameName === defaults.specialFrames.top || frameName === defaults.specialFrames.bottom) {
+
+      if (null !== this.currentFrame) {
+        var neighbors = this.currentFrame.data.attributes.neighbors;
+        transition = transition || {};
+
+        if (neighbors && neighbors.l && frameName === defaults.specialFrames.left) {
+          frameName = neighbors.l;
+        } else if (neighbors && neighbors.r && frameName === defaults.specialFrames.right) {
+          frameName = neighbors.r;
+        } else if (neighbors && neighbors.t && frameName === defaults.specialFrames.top) {
+          frameName = neighbors.t;
+        } else if (neighbors && neighbors.b && frameName === defaults.specialFrames.bottom) {
+          frameName = neighbors.b;
+        } else if (transition.type === defaults.neighbors2transition.r && frameName === defaults.specialFrames.left && ((neighbors && !neighbors.l) || !neighbors)) {
+          frameName = defaults.specialFrames.next;
+        } else if (transition.type === defaults.neighbors2transition.l && frameName === defaults.specialFrames.right && ((neighbors && !neighbors.r) || !neighbors)) {
+          frameName = defaults.specialFrames.previous;
+        } else if (transition.type === defaults.neighbors2transition.b && frameName === defaults.specialFrames.bottom && ((neighbors && !neighbors.u) || !neighbors)) {
+          frameName = defaults.specialFrames.previous;
+        } else if (transition.type === defaults.neighbors2transition.u && frameName === defaults.specialFrames.top && ((neighbors && !neighbors.b) || !neighbors)) {
+          frameName = defaults.specialFrames.next;
+        } else if (!neighbors) {
+          frameName = defaults.specialFrames.next;
+        }
+      } else if (null === this.currentFrame) {
+        if (frameName !== defaults.specialFrames.previous) {
+          frameName = defaults.specialFrames.next;
+        } else if (frameName !== defaults.specialFrames.next) {
+          frameName = defaults.specialFrames.previous;
+        }
+      }
+    }
+
+    if (frameName === defaults.specialFrames.next) {
+      frameName = this._getNextFrameName();
+    } else if (frameName === defaults.specialFrames.previous) {
+      frameName = this._getPreviousFrameName();
+    }
+
+    return frameName === defaults.specialFrames.none ? null : this.getChildViewByName(frameName);
+  },
+  /**
+   * Will get the next framename based on the html order
+   *
+   * @returns {string} a framename
+   */
+  _getNextFrameName: function() {
+    var frameName;
+    var childViews = [];
+
+    for( var childName in this._childNames){
+      if(this._childNames.hasOwnProperty(childName)){
+        childViews.push(childName);
+      }
+    }
+
+    if (null === this.currentFrame && childViews.length > 0) {
+      frameName = childViews[0];
+    } else if (null !== this.currentFrame && childViews.length > 0) {
+      let index = 0;
+      for (; index < childViews.length; index++) {
+        if (this.currentFrame.data.attributes.name === childViews[index]) {
+          break;
+        }
+      }
+      if (index + 1 < childViews.length) {
+        frameName = childViews[index + 1];
+      } else {
+        frameName = childViews[0];
+      }
+    }
+
+    return frameName;
+  },
+  /**
+   * Will get the previous framename based on the html order
+   *
+   * @returns {string} a framename
+   */
+  _getPreviousFrameName: function() {
+    var frameName;
+    var childViews = [];
+
+    for( var childName in this._childNames){
+      if(this._childNames.hasOwnProperty(childName)){
+        childViews.push(childName);
+      }
+    }
+
+    if (null === this.currentFrame && childViews.length > 0) {
+      frameName = childViews[0];
+    } else if (null !== this.currentFrame && childViews.length > 0) {
+      let index = childViews.length - 1;
+      for (; index >= 0; index--) {
+        if (this.currentFrame.data.attributes.name === childViews[index]) {
+          break;
+        }
+      }
+      if (index === 0) {
+        frameName = childViews[childViews.length - 1];
+      } else if (index > 0) {
+        frameName = childViews[index - 1];
+      }
+    }
+
+    return frameName;
   },
   getCurrentTransform: function() {
     return this.currentTransform;
@@ -358,6 +483,14 @@ var LayerView = GroupView.extend({
       }
     };
     sizeObserver.register(this.getChildViews(), callBack);
+  },
+  /**
+   * Get a framename
+   *
+   * @returns {string}
+   */
+  getFrameName: function(frameName) {
+    return frameName;
   }
 }, {
   /*

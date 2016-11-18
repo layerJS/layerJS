@@ -155,4 +155,186 @@ describe("LayerView", function() {
     var layerView = new LayerView(new LayerView.Model(LayerView.defaultProperties));
     expect(state.registerView).toHaveBeenCalledWith(layerView);
   });
+
+  describe('can transition to special frame name', function() {
+
+    function check(html, specialFrameName, expectedFrameName, done) {
+      utilities.setHtml(html);
+
+      var stageView1 = new StageView(null, {
+        el: document.getElementById('stage1')
+      });
+
+      var layerView1 = document.getElementById('layer1')._ljView;
+
+      layerView1.transitionTo(specialFrameName);
+      setTimeout(function() {
+        if (null === expectedFrameName) {
+          expect(layerView1.currentFrame).toBe(null);
+        } else {
+          expect(layerView1.currentFrame.data.attributes.name).toBe(expectedFrameName);
+        }
+        done();
+      }, 100);
+    }
+
+    it('!none', function(done) {
+      check("<div data-lj-type='stage' id='stage1'>" +
+        "<div data-lj-type='layer' id='layer1' data-lj-default-frame='frame1'>" +
+        "<div data-lj-type='frame' id='frame1' data-lj-name='frame1'></div>" +
+        "</div>" +
+        "</div>", '!none', null, done);
+    });
+
+    it('!next', function(done) {
+      check("<div data-lj-type='stage' id='stage1'>" +
+        "<div data-lj-type='layer' id='layer1' data-lj-default-frame='frame1'>" +
+        "<div data-lj-type='frame' id='frame3' data-lj-name='frame3'></div>" +
+        "<div data-lj-type='frame' id='frame1' data-lj-name='frame1'></div>" +
+        "<div data-lj-type='frame' id='frame2' data-lj-name='frame2'></div>" +
+        "</div>" +
+        "</div>", '!next', 'frame2', done);
+    });
+
+    it('!prev', function(done) {
+      check("<div data-lj-type='stage' id='stage1'>" +
+        "<div data-lj-type='layer' id='layer1' data-lj-default-frame='frame2'>" +
+        "<div data-lj-type='frame' id='frame1' data-lj-name='frame1'></div>" +
+        "<div data-lj-type='frame' id='frame2' data-lj-name='frame2'></div>" +
+        "<div data-lj-type='frame' id='frame3' data-lj-name='frame3'></div>" +
+        "</div>" +
+        "</div>", '!prev', 'frame1', done);
+    });
+
+    it('!left', function(done) {
+      check("<div data-lj-type='stage' id='stage1'>" +
+        "<div data-lj-type='layer' id='layer1' data-lj-default-frame='frame1'>" +
+        "<div data-lj-type='frame' id='frame1' data-lj-name='frame1' data-lj-neighbors.l='frame2'></div>" +
+        "<div data-lj-type='frame' id='frame3' data-lj-name='frame3'></div>" +
+        "<div data-lj-type='frame' id='frame2' data-lj-name='frame2'></div>" +
+        "</div>" +
+        "</div>", '!left', 'frame2', done);
+    });
+
+    it('!right', function(done) {
+      check("<div data-lj-type='stage' id='stage1'>" +
+        "<div data-lj-type='layer' id='layer1' data-lj-default-frame='frame1'>" +
+        "<div data-lj-type='frame' id='frame1' data-lj-name='frame1' data-lj-neighbors.r='frame2'></div>" +
+        "<div data-lj-type='frame' id='frame3' data-lj-name='frame3'></div>" +
+        "<div data-lj-type='frame' id='frame2' data-lj-name='frame2'></div>" +
+        "</div>" +
+        "</div>", '!right', 'frame2', done);
+    });
+
+    it('!top', function(done) {
+      check("<div data-lj-type='stage' id='stage1'>" +
+        "<div data-lj-type='layer' id='layer1' data-lj-default-frame='frame1'>" +
+        "<div data-lj-type='frame' id='frame3' data-lj-name='frame3'></div>" +
+        "<div data-lj-type='frame' id='frame1' data-lj-name='frame1' data-lj-neighbors.t='frame2'></div>" +
+        "<div data-lj-type='frame' id='frame2' data-lj-name='frame2'></div>" +
+        "</div>" +
+        "</div>", '!top', 'frame2', done);
+    });
+
+    it('!bottom', function(done) {
+      check("<div data-lj-type='stage' id='stage1'>" +
+        "<div data-lj-type='layer' id='layer1' data-lj-default-frame='frame1'>" +
+        "<div data-lj-type='frame' id='frame1' data-lj-name='frame1' data-lj-neighbors.b='frame2'></div>" +
+        "<div data-lj-type='frame' id='frame3' data-lj-name='frame3'></div>" +
+        "<div data-lj-type='frame' id='frame2' data-lj-name='frame2'></div>" +
+        "</div>" +
+        "</div>", '!bottom', 'frame2', done);
+    });
+  });
+
+  describe('can show to special frame name', function() {
+
+    function check(html, specialFrameName, expectedFrameName, done) {
+      utilities.setHtml(html);
+
+      var stageView1 = new StageView(null, {
+        el: document.getElementById('stage1')
+      });
+
+      var layerView1 = document.getElementById('layer1')._ljView;
+
+      layerView1.showFrame(specialFrameName);
+      setTimeout(function() {
+        if (null === expectedFrameName) {
+          expect(layerView1.currentFrame).toBe(null);
+        } else {
+          expect(layerView1.currentFrame.data.attributes.name).toBe(expectedFrameName);
+        }
+        done();
+      }, 100);
+    }
+
+    it('!none', function(done) {
+      check("<div data-lj-type='stage' id='stage1'>" +
+        "<div data-lj-type='layer' id='layer1' data-lj-default-frame='frame1'>" +
+        "<div data-lj-type='frame' id='frame1' data-lj-name='frame1'></div>" +
+        "</div>" +
+        "</div>", '!none', null, done);
+    });
+
+    it('!next', function(done) {
+      check("<div data-lj-type='stage' id='stage1'>" +
+        "<div data-lj-type='layer' id='layer1' data-lj-default-frame='frame1'>" +
+        "<div data-lj-type='frame' id='frame3' data-lj-name='frame3'></div>" +
+        "<div data-lj-type='frame' id='frame1' data-lj-name='frame1'></div>" +
+        "<div data-lj-type='frame' id='frame2' data-lj-name='frame2'></div>" +
+        "</div>" +
+        "</div>", '!next', 'frame2', done);
+    });
+
+    it('!prev', function(done) {
+      check("<div data-lj-type='stage' id='stage1'>" +
+        "<div data-lj-type='layer' id='layer1' data-lj-default-frame='frame2'>" +
+        "<div data-lj-type='frame' id='frame1' data-lj-name='frame1'></div>" +
+        "<div data-lj-type='frame' id='frame2' data-lj-name='frame2'></div>" +
+        "<div data-lj-type='frame' id='frame3' data-lj-name='frame3'></div>" +
+        "</div>" +
+        "</div>", '!prev', 'frame1', done);
+    });
+
+    it('!left', function(done) {
+      check("<div data-lj-type='stage' id='stage1'>" +
+        "<div data-lj-type='layer' id='layer1' data-lj-default-frame='frame1'>" +
+        "<div data-lj-type='frame' id='frame1' data-lj-name='frame1' data-lj-neighbors.l='frame2'></div>" +
+        "<div data-lj-type='frame' id='frame3' data-lj-name='frame3'></div>" +
+        "<div data-lj-type='frame' id='frame2' data-lj-name='frame2'></div>" +
+        "</div>" +
+        "</div>", '!left', 'frame2', done);
+    });
+
+    it('!right', function(done) {
+      check("<div data-lj-type='stage' id='stage1'>" +
+        "<div data-lj-type='layer' id='layer1' data-lj-default-frame='frame1'>" +
+        "<div data-lj-type='frame' id='frame1' data-lj-name='frame1' data-lj-neighbors.r='frame2'></div>" +
+        "<div data-lj-type='frame' id='frame3' data-lj-name='frame3'></div>" +
+        "<div data-lj-type='frame' id='frame2' data-lj-name='frame2'></div>" +
+        "</div>" +
+        "</div>", '!right', 'frame2', done);
+    });
+
+    it('!top', function(done) {
+      check("<div data-lj-type='stage' id='stage1'>" +
+        "<div data-lj-type='layer' id='layer1' data-lj-default-frame='frame1'>" +
+        "<div data-lj-type='frame' id='frame3' data-lj-name='frame3'></div>" +
+        "<div data-lj-type='frame' id='frame1' data-lj-name='frame1' data-lj-neighbors.t='frame2'></div>" +
+        "<div data-lj-type='frame' id='frame2' data-lj-name='frame2'></div>" +
+        "</div>" +
+        "</div>", '!top', 'frame2', done);
+    });
+
+    it('!bottom', function(done) {
+      check("<div data-lj-type='stage' id='stage1'>" +
+        "<div data-lj-type='layer' id='layer1' data-lj-default-frame='frame1'>" +
+        "<div data-lj-type='frame' id='frame1' data-lj-name='frame1' data-lj-neighbors.b='frame2'></div>" +
+        "<div data-lj-type='frame' id='frame3' data-lj-name='frame3'></div>" +
+        "<div data-lj-type='frame' id='frame2' data-lj-name='frame2'></div>" +
+        "</div>" +
+        "</div>", '!bottom', 'frame2', done);
+    });
+  });
 })
