@@ -609,19 +609,22 @@ describe('Model', function() {
     for (var i = 0; i < 10000; i++) {
       m.set('a', i);
     }
-    timerSet.end().logToConsole();
+    timerSet = timerSet.end();
 
     var timerSetBy = perfs.start("setBy with different sender");
     for (var i = 0; i < 10000; i++) {
       m.set({}, 'b', i);
     }
-    timerSetBy.end().logToConsole();
+    timerSetBy = timerSetBy.end();
 
     var timerSetBySameSender = perfs.start("setBy with same sender");
     for (var i = 0; i < 10000; i++) {
       m.set(that, 'c', i);
     }
-    timerSetBySameSender.end().logToConsole();
+    timerSetBySameSender = timerSetBySameSender.end();
+
+    expect(timerSet.stats().averageMs).toBeGreaterThan(timerSetBy.stats().averageMs);
+    expect(timerSetBy.stats().averageMs).toBeGreaterThan(timerSetBySameSender.stats().averageMs);
   });
 });
 

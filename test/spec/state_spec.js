@@ -842,11 +842,13 @@ describe('state', function() {
       var newWay = perfs.start("newWay");
 
       state.buildTree2();
-      newWay.end().logToConsole();
+      newWay.end();
 
 
       var oldWay = perfs.start("oldWay");
       state.buildTree();
-      oldWay.end().logToConsole();
+      oldWay.end();
+
+      expect(newWay.stats().averageMs).toBeLessThan(oldWay.stats().averageMs);
     });
 });

@@ -17,7 +17,7 @@ describe('performance tests', function() {
       //  var args = Array.prototype.slice(params,1);
       args = params.slice(1);
     }
-    timerSlice.end().logToConsole();
+    timerSlice.end();
 
     var timerLoop = perfs.start("loop");
     for (var i = 0; i < iterations; i++) {
@@ -28,8 +28,9 @@ describe('performance tests', function() {
         args[j] = arguments[j + 1];
       }
     }
-    timerLoop.end().logToConsole();
+    timerLoop.end();
 
+    expect(timerSlice.stats().averageMs).toBeGreaterThan(timerLoop.stats().averageMs);
 
   });
 

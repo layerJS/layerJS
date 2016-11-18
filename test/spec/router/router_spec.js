@@ -152,7 +152,6 @@ describe('router', function() {
   });
 
   it('will parse an url for transition options', function() {
-    console.log();
     var url = window.location.origin + '/index.html?id=1&t=100s&p=left&cat=p';
 
     var result = layerJS.router._parseUrl(url);
@@ -287,7 +286,6 @@ describe('router', function() {
     layerJS.router.addRouter(dummyRouter);
 
     layerJS.router._navigate(url, true);
-    console.log(layerJS.router.routers[0].routes);
     expect(layerJS.router.routers[0].routes.hasOwnProperty('/#')).toBeTruthy();
     expect(layerJS.router.routers[0].routes['/#']).toEqual(['stage1.layer1.frame1']);
   });
