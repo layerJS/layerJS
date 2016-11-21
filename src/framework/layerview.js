@@ -73,7 +73,7 @@ var LayerView = GroupView.extend({
     });
     // set current frame from data object or take first child
     if (this.data.attributes.defaultFrame) {
-      if (this.data.attributes.defaultFrame === 'none') {
+      if (this.data.attributes.defaultFrame === '!none') {
         this.currentFrame = null;
       } else {
         this.currentFrame = this.getChildViewByName(this.data.attributes.defaultFrame);
@@ -88,6 +88,8 @@ var LayerView = GroupView.extend({
     // set the initial frame if possible
     if (this.currentFrame) {
       this.showFrame(this.currentFrame.data.attributes.name);
+    } else {
+      this.showFrame("!none");
     }
     // listen to scroll events
     this.on('scroll', function() { // jshint ignore:line
@@ -193,6 +195,9 @@ var LayerView = GroupView.extend({
     }
   },
   gestureListener: function(gesture) {
+    if (this.currentFrame === null) { //this actually shoudn't happen as null frames don't have a DOM element that could recieve a gesture. However it happens when the gesture still continues from before the transition. Still we can't do anything here as we can't define neighbors for null frames (maybe later)
+      return;
+    }
     var layerTransform = this._transformer.scrollGestureListener(gesture);
 
     if (gesture.first) {
@@ -242,7 +247,7 @@ var LayerView = GroupView.extend({
     var frame = null;
 
 
-    frame = this._getFrame(framename);
+    frame = framename ? this._getFrame(framename) : null;
     if (!frame && null !== frame) throw "transformTo: " + framename + " does not exist in layer";
 
     if (null !== frame) {
@@ -301,7 +306,7 @@ var LayerView = GroupView.extend({
         // FIXME: add more default values like timing
     }, transition || {});
     // lookup frame by framename
-    var frame = this._getFrame(framename, transition);
+    var frame = framename ? this._getFrame(framename, transition) : null;
 
     if (!frame && null !== frame) throw "transformTo: " + framename + " does not exist in layer";
     var that = this;
@@ -413,8 +418,8 @@ var LayerView = GroupView.extend({
     var frameName;
     var childViews = [];
 
-    for( var childName in this._childNames){
-      if(this._childNames.hasOwnProperty(childName)){
+    for (var childName in this._childNames) {
+      if (this._childNames.hasOwnProperty(childName)) {
         childViews.push(childName);
       }
     }
@@ -446,8 +451,8 @@ var LayerView = GroupView.extend({
     var frameName;
     var childViews = [];
 
-    for( var childName in this._childNames){
-      if(this._childNames.hasOwnProperty(childName)){
+    for (var childName in this._childNames) {
+      if (this._childNames.hasOwnProperty(childName)) {
         childViews.push(childName);
       }
     }

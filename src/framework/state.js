@@ -336,7 +336,7 @@ var State = Kern.Model.extend({
           }
         } else if (this._pathHasSpecialFrameName(states[i])) {
           var tempState = states[i].substr(0, states[i].lastIndexOf("."));
-          var tempStructureNoFrame = currentStructure[i].substr(0, currentStructure[i].lastIndexOf("."));
+          var tempStructureNoFrame = currentStructure[x].substr(0, currentStructure[x].lastIndexOf("."));
           tempStructure = tempStructureNoFrame.replace(new RegExp(this._escapeRegex(tempState) + '$'), '');
           if ('' === tempStructure || (currentStructure[x] !== tempStructure && tempStructure.endsWith('.'))) {
             var specialFrameName = states[i].substr(states[i].lastIndexOf(".") + 1);
