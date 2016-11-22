@@ -1,11 +1,11 @@
 'use strict';
 
-var Kern = require('../kern/Kern.js');
 var NodeData = require('./nodedata.js');
 var defaults = require('./defaults.js');
 var repository = require('./repository.js');
 var pluginManager = require('./pluginmanager.js');
 var observerFactory = require('./observer/observerfactory.js');
+var BaseView = require('./baseview.js');
 /**
  * Defines the view of a node and provides all basic properties and
  * rendering fuctions that are needed for a visible element.
@@ -13,9 +13,9 @@ var observerFactory = require('./observer/observerfactory.js');
  * @param {NodeData} dataModel the Tailbone Model of the View's data
  * @param {Object} options {data: json for creating a new data object; el: (optional) HTMLelement already exisitng; outerEl: (optional) link wrapper existing; root: true if that is the root object}
  */
-var NodeView = Kern.EventManager.extend({
+var NodeView = BaseView.extend({
   constructor: function(dataModel, options) {
-    Kern.EventManager.call(this);
+    BaseView.call(this);
     options = options || {};
 
     this._setDocument(options);
