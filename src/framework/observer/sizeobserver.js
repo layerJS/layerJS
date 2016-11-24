@@ -19,8 +19,8 @@ var SizeObserver = Kern.Base.extend({
     var length = views.length;
     for (var i = 0; i < length; i++) {
       var view = views[i];
-      if (!this.views.hasOwnProperty(view.data.attributes.id) || this.views[view.data.attributes.id].callBack !== callBack) { // only register if view does not exist already in list
-        this.views[view.data.attributes.id] = {
+      if (!this.views.hasOwnProperty(view.id()) || this.views[view.id()].callBack !== callBack) { // only register if view does not exist already in list
+        this.views[view.id()] = {
           view: view,
           callBack: callBack,
           size_inner: {
@@ -43,7 +43,7 @@ var SizeObserver = Kern.Base.extend({
   unRegister: function(views) {
     var length = views.length;
     for (var i = 0; i < length; i++) {
-      delete this.views[views[i].data.attributes.id];
+      delete this.views[views[i].id()];
     }
   },
   /**
