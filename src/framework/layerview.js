@@ -48,8 +48,8 @@ var LayerView = GroupView.extend({
       noRender: true
     }));
 
-    this.switchLayout(this.data.attributes.layoutType, false);
-    this.switchScrolling(this.data.attributes.nativeScroll, false);
+    this.switchLayout(this.layoutType(), false);
+    this.switchScrolling(this.nativeScroll(), false);
 
     // get upper layer where unuseable gestures should be sent to.
     this.parentLayer = this.getParentOfType('layer');
@@ -72,11 +72,11 @@ var LayerView = GroupView.extend({
       // FIXME trigger adaption to new stage
     });
     // set current frame from data object or take first child
-    if (this.data.attributes.defaultFrame) {
-      if (this.data.attributes.defaultFrame === '!none') {
+    if (this.defaultFrame()) {
+      if (this.defaultFrame() === '!none') {
         this.currentFrame = null;
       } else {
-        this.currentFrame = this.getChildViewByName(this.data.attributes.defaultFrame);
+        this.currentFrame = this.getChildViewByName(this.defaultFrame());
       }
     } else {
       this.currentFrame = this.data.attributes.children[0] && this.getChildView(this.data.attributes.children[0]);
@@ -87,7 +87,7 @@ var LayerView = GroupView.extend({
     }
     // set the initial frame if possible
     if (this.currentFrame) {
-      this.showFrame(this.currentFrame.data.attributes.name);
+      this.showFrame(this.currentFrame.name());
     } else {
       this.showFrame("!none");
     }
@@ -174,7 +174,7 @@ var LayerView = GroupView.extend({
       this._transformer = this._layout.getScrollTransformer() || new ScrollTransformer(this);
 
       if (this.currentFrame) {
-        this.showFrame(this.currentFrame.data.attributes.name, this.currentFrame.getScrollData());
+        this.showFrame(this.currentFrame.name(), this.currentFrame.getScrollData());
       }
       this._observer.element = this.innerEl;
       this.enableObserver();
@@ -191,7 +191,7 @@ var LayerView = GroupView.extend({
     this._transformer = this._layout.getScrollTransformer() || new ScrollTransformer(this);
 
     if (this.currentFrame) {
-      this.showFrame(this.currentFrame.data.attributes.name);
+      this.showFrame(this.currentFrame.name());
     }
   },
   gestureListener: function(gesture) {
@@ -212,12 +212,12 @@ var LayerView = GroupView.extend({
     } else {
       if (this.inTransition()) gesture.preventDefault = true; // we need to differentiate here later as we may have to check up stream handlers
       // gesture.cancelled = true;
-      var cattr = this.currentFrame.data.attributes;
+      var neighbors = this.currentFrame.neighbors();
       if (gesture.direction) {
-        if (cattr.neighbors && cattr.neighbors[defaults.directions2neighbors[gesture.direction]]) {
+        if (neighbors && neighbors[defaults.directions2neighbors[gesture.direction]]) {
           gesture.preventDefault = true;
           if (!this.inTransition() && (gesture.last || (gesture.wheel && gesture.enoughDistance()))) {
-            this.transitionTo(cattr.neighbors[defaults.directions2neighbors[gesture.direction]], {
+            this.transitionTo(neighbors[defaults.directions2neighbors[gesture.direction]], {
               type: defaults.neighbors2transition[defaults.directions2neighbors[gesture.direction]]
             });
           }
@@ -251,7 +251,7 @@ var LayerView = GroupView.extend({
     if (!frame && null !== frame) throw "transformTo: " + framename + " does not exist in layer";
 
     if (null !== frame) {
-      framename = frame.data.attributes.name;
+      framename = frame.name();
     }
 
     that.trigger('beforeTransition', framename);
@@ -312,7 +312,7 @@ var LayerView = GroupView.extend({
     var that = this;
 
     if (frame && null !== frame) {
-      framename = frame.data.attributes.name;
+      framename = frame.name();
     }
 
     that.trigger('beforeTransition', framename);
@@ -370,7 +370,7 @@ var LayerView = GroupView.extend({
     if (frameName === defaults.specialFrames.left || frameName === defaults.specialFrames.right || frameName === defaults.specialFrames.top || frameName === defaults.specialFrames.bottom) {
 
       if (null !== this.currentFrame) {
-        var neighbors = this.currentFrame.data.attributes.neighbors;
+        var neighbors = this.currentFrame.neighbors();
         transition = transition || {};
 
         if (neighbors && neighbors.l && frameName === defaults.specialFrames.left) {
@@ -429,7 +429,7 @@ var LayerView = GroupView.extend({
     } else if (null !== this.currentFrame && childViews.length > 0) {
       let index = 0;
       for (; index < childViews.length; index++) {
-        if (this.currentFrame.data.attributes.name === childViews[index]) {
+        if (this.currentFrame.name() === childViews[index]) {
           break;
         }
       }
@@ -462,7 +462,7 @@ var LayerView = GroupView.extend({
     } else if (null !== this.currentFrame && childViews.length > 0) {
       let index = childViews.length - 1;
       for (; index >= 0; index--) {
-        if (this.currentFrame.data.attributes.name === childViews[index]) {
+        if (this.currentFrame.name() === childViews[index]) {
           break;
         }
       }
@@ -518,7 +518,7 @@ var LayerView = GroupView.extend({
         childView.transformData = null;
       }
     }
-    var frameName = this.currentFrame === null ? null : this.currentFrame.data.attributes.name;
+    var frameName = this.currentFrame === null ? null : this.currentFrame.name();
     this.showFrame(frameName, scrollData);
   },
   /**

@@ -24,7 +24,7 @@ var State = Kern.Model.extend({
   _getNextChildIndexByType: function(parent, type) {
     var index = -1;
     for (var name in parent.children) {
-      if (parent.children[name].view && parent.children[name].view.data.attributes.type === type) {
+      if (parent.children[name].view && parent.children[name].view.type() === type) {
         ++index;
       }
     }
@@ -48,27 +48,27 @@ var State = Kern.Model.extend({
 
       if (undefined === childView) {
         this._buildTree(parent, child.children);
-      } else if (-1 !== this.viewTypes.indexOf(childView.data.attributes.type)) {
-        var type = childView.data.attributes.type;
+      } else if (-1 !== this.viewTypes.indexOf(childView.type())) {
+        var type = childView.type();
 
-        var name = (childView.data.attributes.name || child.id || type + '[' + this._getNextChildIndexByType(parent, type) + ']');
+        var name = (childView.name() || child.id || type + '[' + this._getNextChildIndexByType(parent, type) + ']');
         parent.children[name] = {
           view: childView,
           children: {}
         };
 
-        if (childView.data.attributes.type === 'layer') {
+        if (childView.type() === 'layer') {
           childView.on('transitionStarted', this._transitionToEvent(parent.children[name]));
         }
 
-        if (parent.view && parent.view.data.attributes.type === 'layer' && parent.children[name].view.data.attributes.type === 'frame') {
+        if (parent.view && parent.view.type() === 'layer' && parent.children[name].view.type() === 'frame') {
           parent.children[name].active = parent.view.currentFrame === parent.children[name].view;
         }
         this._buildTree(parent.children[name], childView.innerEl.children);
       }
     }
 
-    if (parent.view && parent.view.data.attributes.type === 'layer' && parent.view.currentFrame === null) {
+    if (parent.view && parent.view.type() === 'layer' && parent.view.currentFrame === null) {
       parent[0].active = true;
     }
 
@@ -99,14 +99,14 @@ var State = Kern.Model.extend({
 
     if (undefined !== addedNodes && addedNodes.length > 0) {
       for (let i = 0; i < addedNodes.length; i++) {
-        if (addedNodes[i]._ljView && -1 !== this.viewTypes.indexOf(addedNodes[i]._ljView.data.attributes.type)) {
+        if (addedNodes[i]._ljView && -1 !== this.viewTypes.indexOf(addedNodes[i]._ljView.type())) {
           this.buildParent(addedNodes[i], view.document);
         }
       }
     }
     if (undefined !== removedNodes && removedNodes.length > 0) {
       for (var i = 0; i < removedNodes.length; i++) {
-        if (removedNodes[i]._ljView && -1 !== this.viewTypes.indexOf(removedNodes[i]._ljView.data.attributes.type)) {
+        if (removedNodes[i]._ljView && -1 !== this.viewTypes.indexOf(removedNodes[i]._ljView.type())) {
           for (var childName in viewState.children) {
             if (viewState.children.hasOwnProperty(childName)) {
               if (viewState.children[childName].view === removedNodes[i]._ljView) {
@@ -137,9 +137,9 @@ var State = Kern.Model.extend({
         var view = parentNode._ljView;
 
         // ignore everything except frames, layers and stages; ignoring means to pass the parent state as current state
-        if (view && -1 !== (this.viewTypes.indexOf(view.data.attributes.type))) {
-          var type = view.data.attributes.type;
-          var name = (view.data.attributes.name || parentNode.id || type + '[' + this._getNextChildIndexByType(currentState, type) + ']');
+        if (view && -1 !== (this.viewTypes.indexOf(view.type()))) {
+          var type = view.type();
+          var name = (view.name() || parentNode.id || type + '[' + this._getNextChildIndexByType(currentState, type) + ']');
           // layerJS object already added
           if (!currentState.children.hasOwnProperty(name)) {
             // create the actual current state datastructure as a child of the parent's state structure
@@ -148,13 +148,13 @@ var State = Kern.Model.extend({
               children: {},
               parent: currentState
             };
-            if (view.data.attributes.type === 'frame') {
+            if (view.type() === 'frame') {
               currentState.children[name].active = false;
               // check if the current frame is the active frame
               if (currentState.view && currentState.view.currentFrame) {
-                currentState.children[name].active = currentState.view.currentFrame.data.attributes.name === view.data.attributes.name;
+                currentState.children[name].active = currentState.view.currentFrame.name() === view.name();
               }
-            } else if (view.data.attributes.type === 'layer') {
+            } else if (view.type() === 'layer') {
               // listen to state changes; state changes when transitions happen in layers
               view.on('transitionStarted', this._transitionToEvent(currentState.children[name]));
             }
@@ -213,7 +213,7 @@ var State = Kern.Model.extend({
    */
   registerView: function(view) {
 
-    if (view.data.attributes.type === 'frame') {
+    if (view.type() === 'frame') {
       var frameViews = this._getRegisteredFrameViews(view.document);
       frameViews.push(view);
     }
@@ -385,21 +385,21 @@ var State = Kern.Model.extend({
     for (var element in parent.children) {
       if (parent.children.hasOwnProperty(element) && parent.children[element].hasOwnProperty('view')) {
         var path = rootpath;
-        if (parent.children[element].view.data.attributes.type === 'frame' && (parent.children[element].active || !active)) {
+        if (parent.children[element].view.type() === 'frame' && (parent.children[element].active || !active)) {
           if (parent.children[element].active) {
             hasActiveChildren = true;
           }
           path = rootpath + element;
           paths.push(path);
           paths = paths.concat(this._getPath(parent.children[element], path + '.', active));
-        } else if (parent.children[element].view.data.attributes.type !== 'frame') {
+        } else if (parent.children[element].view.type() !== 'frame') {
           path += element;
           paths = paths.concat(this._getPath(parent.children[element], path + '.', active));
         }
       }
     }
 
-    if (parent.view && parent.view.data.attributes.type === 'layer' && !hasActiveChildren) {
+    if (parent.view && parent.view.type() === 'layer' && !hasActiveChildren) {
       paths.push(rootpath + defaults.specialFrames.none);
     }
 
@@ -416,7 +416,7 @@ var State = Kern.Model.extend({
       for (var name in layerState.children) {
         // set new active frame; set all other frames to inactive
         if (layerState.children.hasOwnProperty(name) && layerState.children[name].hasOwnProperty('active')) {
-          layerState.children[name].active = layerState.children[name].view.data.attributes.name === frameName;
+          layerState.children[name].active = layerState.children[name].view.name() === frameName;
         }
       }
     };

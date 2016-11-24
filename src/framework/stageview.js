@@ -32,7 +32,7 @@ var StageView = GroupView.extend({
     state.registerView(this);
   },
   _renderChildPosition: function(childView) {
-    if (childView.data.attributes.nodeType === 1) {
+    if (childView.nodeType() === 1) {
       childView.disableObserver();
       childView.outerEl.style.left = "0px";
       childView.outerEl.style.top = "0px";

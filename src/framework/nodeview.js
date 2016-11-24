@@ -29,34 +29,21 @@ var NodeView = BaseView.extend({
     if (options.el) {
       this.parse(options.el);
     }
-    // copy version from parent
-    // FIXME: how can we get a different version in a child? Needed maybe for editor.
-    // FIXME(cont): can't test for this.data.attributes.version as this will be 'default'
-    if (options.parent && options.parent.data.attributes.version) {
-      this.data.set("version", options.parent.data.attributes.version);
-    }
-    if (this.data.attributes.id === undefined) {
-      this.data.set("id", repository.getId()); // if we don't have an data object we must create an id.
-    }
-    this.data.fire();
-    // register data object with repository
-    if (this.data.attributes.version && !repository.hasVersion(this.data.attributes.version)) {
-      repository.createVersion(this.data.attributes.version);
-    }
-    if (!repository.contains(this.data.attributes.id, this.data.attributes.version)) {
-      repository.add(this.data, this.data.attributes.version);
-    }
+
+
+    this.disableObserver();
+
     // parent if defined
     this.parent = options.parent;
     // DOM element, take either the one provide by a sub constructor, provided in options, or create new
     this.innerEl = this.innerEl || options.el;
     if (undefined === this.innerEl) {
-      if (this.data.attributes.nodeType === 1 || this.data.attributes.tag) {
-        this.innerEl = this.document.createElement(this.data.attributes.tag);
-      } else if (this.data.attributes.nodeType === 3) {
+      if (this.nodeType() === 1 || this.tag()) {
+        this.innerEl = this.document.createElement(this.tag());
+      } else if (this.nodeType() === 3) {
         // text node
         this.innerEl = this.document.createTextNode('');
-      } else if (this.data.attributes.nodeType === 8) {
+      } else if (this.nodeType() === 8) {
         // comment node
         this.innerEl = this.document.createComment('');
       }
@@ -67,7 +54,25 @@ var NodeView = BaseView.extend({
     // possible wrapper element
     this.outerEl = this.outerEl || options.el || this.innerEl;
     this.outerEl._ljView = this;
-    this.disableObserver();
+
+    // copy version from parent
+    // FIXME: how can we get a different version in a child? Needed maybe for editor.
+    // FIXME(cont): can't test for this.data.attributes.version as this will be 'default'
+    if (options.parent && options.parent.version()) {
+      this.setVersion(options.parent.version());
+    }
+
+    if (this.data.attributes.id === undefined) {
+      this.data.set("id", this.id()); // if we don't have an data object we must create an id.
+    }
+    this.data.fire();
+    // register data object with repository
+    if (this.version() && !repository.hasVersion(this.version())) {
+      repository.createVersion(this.version());
+    }
+    if (!repository.contains(this.id(), this.version())) {
+      repository.add(this.data, this.version());
+    }
 
     var that = this;
     // The change event must change the properties of the HTMLElement el.
@@ -120,7 +125,7 @@ var NodeView = BaseView.extend({
   render: function(options) {
     options = options || {};
     this.disableObserver();
-
+/*
     var diff = this.isRendered ? this.data.changedAttributes || {} : this.data.attributes;
 
     if ('id' in diff) {
@@ -130,7 +135,7 @@ var NodeView = BaseView.extend({
     if ('content' in diff && this.data.attributes.nodeType !== 1) {
       this.outerEl.data = this.data.attributes.content || '';
     }
-
+*/
     this.isRendered = true;
 
     this.enableObserver();
@@ -142,8 +147,8 @@ var NodeView = BaseView.extend({
    * @returns {ObjView} the View requested
    */
   getParentOfType: function(type) {
-    if (this.parent && this.parent.data) {
-      if (this.parent.data.attributes.type && this.parent.data.attributes.type === type) return this.parent;
+    if (this.parent) {
+      if (this.parent.type() === type) return this.parent;
       return this.parent.getParentOfType(type); // search recursively
     } else {
       // we need to to this dom based as there may be non-layerjs elements in the hierarchy
@@ -153,7 +158,7 @@ var NodeView = BaseView.extend({
         if (!el.parentNode) return undefined; // no parent element return undefined
         el = el.parentNode;
       }
-      if (el._ljView.data.attributes.type === type) return el._ljView; // found one; is it the right type?
+      if (el._ljView.type() === type) return el._ljView; // found one; is it the right type?
       return el._ljView.getParentOfType(type); // search recursively
     }
   },

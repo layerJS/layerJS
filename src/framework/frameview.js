@@ -24,7 +24,7 @@ var FrameView = GroupView.extend({
     if (!options.noRender && (options.forceRender || !options.el))
       this.render();
 
-    if (this.data.attributes.type === 'frame') {
+    if (this.type() === 'frame') {
       state.registerView(this);
     }
   },
@@ -91,7 +91,7 @@ var FrameView = GroupView.extend({
     // indicate whether scrolling in x or y directions is active
     d.isScrollX = false;
     d.isScrollY = false;
-    switch (this.data.attributes.fitTo) {
+    switch (this.fitTo()) {
       case 'width':
         d.scale = stageWidth / d.frameWidth;
         d.isScrollY = true;
@@ -128,26 +128,26 @@ var FrameView = GroupView.extend({
         }
         break;
       case 'elastic-width':
-        if (stageWidth < d.frameWidth && stageWidth > d.frameWidth - this.data.attributes.elasticLeft - this.data.attributes.elasticRight) {
+        if (stageWidth < d.frameWidth && stageWidth > d.frameWidth - this.elasticLeft() - this.elasticRight()) {
           d.scale = 1;
-          d.shiftX = this.data.attributes.elasticLeft * (d.frameWidth - stageWidth) / (this.data.attributes.elasticLeft + this.data.attributes.elasticRight);
+          d.shiftX = this.elasticLeft() * (d.frameWidth - stageWidth) / (this.elasticLeft() + this.elasticRight());
         } else if (stageWidth > d.frameWidth) {
           d.scale = stageWidth / d.frameWidth;
         } else {
-          d.scale = stageWidth / (d.frameWidth - this.data.attributes.elasticLeft - this.data.attributes.elasticRight);
-          d.shiftX = this.data.attributes.elasticLeft;
+          d.scale = stageWidth / (d.frameWidth - this.elasticLeft() - this.elasticRight());
+          d.shiftX = this.elasticLeft();
         }
         d.isScrollY = true;
         break;
       case 'elastic-height':
-        if (stageHeight < d.frameHeight && stageHeight > d.frameHeight - this.data.attributes.elasticTop - this.data.attributes.elasticBottom) {
+        if (stageHeight < d.frameHeight && stageHeight > d.frameHeight - this.elasticTop() - this.elasticBottom()) {
           d.scale = 1;
-          d.shiftY = this.data.attributes.elasticTop * (d.frameHeight - stageHeight) / (this.data.attributes.elasticTop + this.data.attributes.elasticBottom);
+          d.shiftY = this.elasticTop() * (d.frameHeight - stageHeight) / (this.elasticTop() + this.elasticBottom());
         } else if (stageHeight > d.frameHeight) {
           d.scale = stageHeight / d.frameHeight;
         } else {
-          d.scale = stageHeight / (d.frameHeight - this.data.attributes.elasticTop - this.data.attributes.elasticBottom);
-          d.shiftY = this.data.attributes.elasticTop;
+          d.scale = stageHeight / (d.frameHeight - this.elasticTop() - this.elasticBottom());
+          d.shiftY = this.elasticTop();
         }
         d.isScrollY = true;
         break;
@@ -167,7 +167,7 @@ var FrameView = GroupView.extend({
         this.innerEl.style.height = d.frameHeight = stageHeight;
         break;
       default:
-        throw "unkown fitTo type '" + this.attributes.fitTo + "'";
+        throw "unkown fitTo type '" + this.fitTo() + "'";
     }
     // calculate maximum scroll positions (depend on frame and stage dimensions)
     // WARN: allow negative maxScroll for now
@@ -175,7 +175,7 @@ var FrameView = GroupView.extend({
     if (d.isScrollX) d.maxScrollX = d.frameWidth - stageWidth / d.scale;
     // define initial positioning
     // take startPosition from transition or from frame
-    d.startPosition = transitionStartPosition || this.data.attributes.startPosition;
+    d.startPosition = transitionStartPosition || this.startPosition();
     switch (d.startPosition) {
       case 'top':
         if (d.isScrollY) d.scrollY = 0;
@@ -241,7 +241,7 @@ var FrameView = GroupView.extend({
       d.isScrollY = false;
     }
     // disable scrolling if configured in frame
-    if (this.data.attributes.noScrolling) {
+    if (this.noScrolling()) {
       d.shiftX += d.scrollX;
       d.shiftY += d.scrollY;
       d.scrollX = 0;

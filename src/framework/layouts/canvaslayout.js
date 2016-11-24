@@ -151,18 +151,15 @@ var CanvasLayout = LayerLayout.extend({
    * @returns {void}
    */
   renderFramePosition: function(frame, transform) {
-    var attr = frame.data.attributes,
-      diff = frame.data.changedAttributes || frame.data.attributes,
-      el = frame.outerEl;
     var css = {};
     // just do width & height for now; FIXME
-    if ('width' in diff && attr.width !== undefined) {
-      css.width = attr.width;
-    }
-    if ('height' in diff && attr.height !== undefined) {
-      css.height = attr.height;
-    }
-    if ('x' in diff || 'y' in diff || 'rotation' in diff) {
+    //if ('width' in diff && attr.width !== undefined) {
+      css.width = frame.width();
+    //}
+    //if ('height' in diff && attr.height !== undefined) {
+      css.height = frame.height();
+    //}
+    //if ('x' in diff || 'y' in diff || 'rotation' in diff) {
       // calculate frameTransform of frame and store it in this._frameTransforms
       delete this._frameTransforms[attr.id]; // this will be recalculated in _applyTransform
       if (this._reverseTransform && transform) {
@@ -172,7 +169,7 @@ var CanvasLayout = LayerLayout.extend({
         // just apply width and height, everything else the first showFrame() should do
         Kern._extend(el.style, css);
       }
-    }
+    //}
   },
   /**
    * apply transform by combining the frame transform with the reverse transform and the added scroll transform
@@ -188,7 +185,7 @@ var CanvasLayout = LayerLayout.extend({
     // console.log('canvaslayout: applystyles', frame.data.attributes.name, styles.transition);
     // we need to add the frame transform (x,y,rot,scale) the reverse transform (that moves the current frame into the stage) and the transform representing the current scroll/displacement
     frame.applyStyles(styles || {}, {
-      transform: addedTransform + " " + reverseTransform + " " + (this._frameTransforms[attr.id] || (this._frameTransforms[attr.id] = "translate3d(" + (attr.x || 0) + "px," + (attr.y || 0) + "px,0px) rotate(" + (attr.rotation || 0) + "deg) scale(" + attr.scaleX + "," + attr.scaleY + ")"))
+      transform: addedTransform + " " + reverseTransform + " " + (this._frameTransforms[frame.id()] || (this._frameTransforms[frame.id()] = "translate3d(" + (frame.x() || 0) + "px," + (frame.y() || 0) + "px,0px) rotate(" + (frame.rotation() || 0) + "deg) scale(" + attr.scaleX + "," + attr.scaleY + ")"))
     });
   },
 });

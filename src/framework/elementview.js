@@ -46,7 +46,7 @@ var ElementView = NodeView.extend({
    * @returns {void}
    */
   _fixedDimensions: function() {
-    var getDimension = function(value) {
+  /*  var getDimension = function(value) {
       var match;
       if (value && typeof value === 'string' && (match = value.match(/(.*)(?:px)?$/))) return parseInt(match[1]);
       if (value && typeof value === 'number') return value;
@@ -55,14 +55,14 @@ var ElementView = NodeView.extend({
     if (!(this.fixedWidth = getDimension(this.data.attributes.width))) delete this.fixedWidth;
     if (!(this.fixedWHeight = getDimension(this.data.attributes.height))) delete this.fixedHeight;
     if (!(this.fixedX = getDimension(this.data.attributes.x))) delete this.fixedX;
-    if (!(this.fixedY = getDimension(this.data.attributes.y))) delete this.fixedY;
+    if (!(this.fixedY = getDimension(this.data.attributes.y))) delete this.fixedY;*/
   },
 
   render: function(options) {
     options = options || {};
     this.disableObserver();
 
-    var attr = this.data.attributes,
+    /*var attr = this.data.attributes,
       diff = (this.isRendererd ? this.data.changedAttributes : this.data.attributes),
       outerEl = this.outerEl;
     if ('id' in diff) {
@@ -140,7 +140,7 @@ var ElementView = NodeView.extend({
           styleElement.innerHTML = cssContent.replace(re, '');
         }
       }
-    }
+    }*/
 
     this.isRendered = true;
 
@@ -171,34 +171,34 @@ var ElementView = NodeView.extend({
    *
    * @returns {number} width
    */
-  width: function() {
+  /*width: function() {
     return this.outerEl.offsetWidth || this.fixedWidth;
-  },
+  },*/
   /**
    * returns the height of the object. Note, this is the actual height which may be different then in the data object.
    * Use waitForDimensions() to ensure that this value is correct
    *
    * @returns {number} height
    */
-  height: function() {
+/*  height: function() {
     return this.outerEl.offsetHeight || this.fixedHeight;
-  },
+  },*/
   /**
    * returns the x position of the element
    *
    * @returns {number} x
    */
-  x: function() {
+  /*x: function() {
     return this.outerEl.offsetLeft || this.fixedX;
-  },
+  },*/
   /**
    * returns the x position of the element
    *
    * @returns {number} x
    */
-  y: function() {
+  /*y: function() {
     return this.outerEl.offsetTop || this.fixedY;
-  },
+  },*/
   /**
    * make sure element has reliable dimensions, either by being rendered or by having fixed dimensions
    *
@@ -206,8 +206,8 @@ var ElementView = NodeView.extend({
    */
   waitForDimensions: function() {
     var p = new Kern.Promise();
-    var w = this.outerEl.offsetWidth || this.fixedWidth;
-    var h = this.outerEl.offsetHeight || this.fixedHeight;
+    var w = this.width();
+    var h = this.height();
     var that = this;
     if (w || h) {
       p.resolve({
@@ -216,8 +216,8 @@ var ElementView = NodeView.extend({
       });
     } else {
       setTimeout(function f() {
-        var w = that.outerEl.offsetWidth || this.fixedWidth;
-        var h = that.outerEl.offsetHeight || this.fixedHeight;
+        var w = this.width();
+        var h = this.height();
         if (w || h) {
           p.resolve({
             width: w || 0,

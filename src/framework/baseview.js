@@ -18,6 +18,14 @@ var baseView = Kern.EventManager.extend({
     if (value && typeof value === 'number') return value;
     return undefined;
   },
+  setAttributeLJ: function(name, data) {
+    name = 'lj-' + name;
+    if (this.outerEl.getAttribute('data-' + name)) {
+      this.outerEl.setAttribute('data-' + name, data);
+    } else {
+      this.outerEl.setAttribute(name, data);
+    }
+  },
   getAttributeLJ: function(name) {
     name = 'lj-' + name;
 
@@ -53,6 +61,9 @@ var baseView = Kern.EventManager.extend({
       version = this._version;
     }
     return version;
+  },
+  setVersion: function(version) {
+    this.setAttributeLJ('version', version);
   },
   width: function() {
     var width = this.outerEl.offsetWidth;
@@ -127,11 +138,11 @@ var baseView = Kern.EventManager.extend({
     return scaleX ? this.eval(scaleX) : 1;
   },
   scaleY: function() {
-      var scaleY = this.getAttributeLJ('scale-y');
+    var scaleY = this.getAttributeLJ('scale-y');
 
-      return scaleY ? this.eval(scaleY) : 1;
-    },
-    /*frame */
+    return scaleY ? this.eval(scaleY) : 1;
+  },
+  /*frame */
   fitTo: function() {
     return this.getAttributeLJ('fit-to') || 'width';
   },
@@ -154,14 +165,24 @@ var baseView = Kern.EventManager.extend({
     var noScrolling = this.getAttributeLJ('no-scrolling');
     return noScrolling ? this.eval(noScrolling) : false;
   },
-  rotation: function(){
+  rotation: function() {
     return this.getAttributeLJ('rotation');
   },
+  neighbors: function() {
+    var neighbors = {
+      l: this.getAttributeLJ('neighbors.l'),
+      r: this.getAttributeLJ('neighbors.r'),
+      t: this.getAttributeLJ('neighbors.t'),
+      b: this.getAttributeLJ('neighbors.b')
+    };
+
+    return neighbors;
+  },
   /*layer*/
-  layoutType: function(){
+  layoutType: function() {
     return this.getAttributeLJ('layout-type') || 'slide';
   },
-  defaultFrame: function(){
+  defaultFrame: function() {
     return this.getAttributeLJ('default-frame');
   },
   nativeScroll: function() {

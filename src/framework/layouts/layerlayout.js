@@ -27,17 +27,17 @@ var LayerLayout = Kern.EventManager.extend({
    * @returns {void}
    */
   renderFramePosition: function(frame) {
-    var attr = frame.data.attributes,
+  /*  var attr = frame.data.attributes,
       diff = frame.data.changedAttributes || frame.data.attributes,
-      el = frame.outerEl;
+      el = frame.outerEl;*/
     var css = {};
     // just do width & height for now; FIXME
-    if ('width' in diff && attr.width !== undefined) {
-      css.width = attr.width;
-    }
-    if ('height' in diff && attr.height !== undefined) {
-      css.height = attr.height;
-    }
+  //  if ('width' in diff && attr.width !== undefined) {
+      css.width = frame.width();
+  //  }
+  //  if ('height' in diff && attr.height !== undefined) {
+      css.height = frame.height();
+  //  }
     Kern._extend(el.style, css);
   },
   /**

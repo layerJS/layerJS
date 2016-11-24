@@ -90,7 +90,7 @@ var GroupView = ElementView.extend({
       // jshint ignore:start
       k++;
       var elem;
-      while (!(empty = !(k < that.innerEl.childNodes.length)) && (elem = that.innerEl.childNodes[k]) && (elem.nodeType != 1 || !(nodeId = (elem._ljView && elem._ljView.data.attributes.id) || $.getAttributeLJ(elem, 'id')))) {
+      while (!(empty = !(k < that.innerEl.childNodes.length)) && (elem = that.innerEl.childNodes[k]) && (elem.nodeType != 1 || !(nodeId = (elem._ljView && elem._ljView.id()) || $.getAttributeLJ(elem, 'id')))) {
         k++;
       }
       // jshint ignore:end
@@ -115,7 +115,7 @@ var GroupView = ElementView.extend({
               }
               // create view object if it does not exist yet (even if the HTML element exist)
               if (!this.innerEl.childNodes[k_saved]._ljView) {
-                vo = pluginManager.createView(repository.get(childId, this.data.attributes.version), {
+                vo = pluginManager.createView(repository.get(childId, this.version()), {
                   el: this.innerEl.childNodes[k_saved],
                   parent: this
                 });
@@ -125,12 +125,12 @@ var GroupView = ElementView.extend({
 
               // check if we have registered another view under the same id
               if (this._childViews[childId]) {
-                if (this._childViews[childId] !== vo) throw "duplicate child id " + childId + " in group " + this.data.attributes.id + ".";
+                if (this._childViews[childId] !== vo) throw "duplicate child id " + childId + " in group " + this.id() + ".";
               } else {
                 // create _childViews which indicates which view we have for each id. This is also used for checking whether we registered a change callback already.
                 this._childViews[childId] = vo;
                 vo.data.on('change', this._myChildListenerCallback); // attach child change listener
-                if (vo.data.attributes.name) this._childNames[vo.data.attributes.name] = vo;
+                if (vo.name()) this._childNames[vo.name()] = vo;
               }
               // Note: if the HTML was present, we don't render positions
               _k_reset(k_saved);
@@ -142,7 +142,7 @@ var GroupView = ElementView.extend({
         }
         // no fitting element found -> create new view and element
         // we may already have a view supplied in _childViews if it was moved here via attachView()
-        var newView = this._childViews[childId] || pluginManager.createView(repository.get(childId, this.data.attributes.version), {
+        var newView = this._childViews[childId] || pluginManager.createView(repository.get(childId, this.version()), {
           parent: this
         });
         // new HMTL element: append or place at current position
@@ -154,7 +154,7 @@ var GroupView = ElementView.extend({
         // create _childViews for new view (may already exist with same info)
         this._childViews[childId] = newView;
         // set name
-        if (newView.data.attributes.name) this._childNames[newView.data.attributes.name] = newView;
+        if (newView.name()) this._childNames[newView.name()] = newView;
         newView.data.on('change', this._myChildListenerCallback); // attach child change listener
         //this._renderChildPosition(newView);
       }
@@ -170,8 +170,8 @@ var GroupView = ElementView.extend({
           continue;
         }
         vo.data.off('change', this._myChildListenerCallback); // remove child change listener
-        delete this._childNames[vo.data.attributes.name];
-        delete this._childViews[vo.data.attributes.id];
+        delete this._childNames[vo.name()];
+        delete this._childViews[vo.id()];
         this.innerEl.removeChild(this.innerEl.childNodes[k]); // remove child from dom
         _k_nextChild(); // next wl object
       }
@@ -202,13 +202,13 @@ var GroupView = ElementView.extend({
     for (i = 0; i < cn.length; i++) {
       var elem = cn[i];
 
-      nodeId = (elem._ljView && elem._ljView.data.attributes.id) || elem.getAttribute && $.getAttributeLJ(elem, 'id');
+      nodeId = (elem._ljView && elem._ljView.id()) || elem.getAttribute && $.getAttributeLJ(elem, 'id');
       try {
-        data = nodeId && repository.get(nodeId, this.data.attributes.version);
+        data = nodeId && repository.get(nodeId, this.version());
       } catch (e) {
         data = undefined;
       }
-      nodeType = (elem._ljView && elem._ljView.data.attributes.type) || elem.getAttribute && $.getAttributeLJ(elem, 'type');
+      nodeType = (elem._ljView && elem._ljView.type()) || elem.getAttribute && $.getAttributeLJ(elem, 'type');
       if (nodeId && (data || nodeType)) {
         // search for nodeId in data.chi ldren
         var k_saved = k;
@@ -236,14 +236,14 @@ var GroupView = ElementView.extend({
             parent: this,
             parseFull: options.parseFull
           });
-          vo.data.attributes.id = nodeId; // overwrite new id generated by above call with nodeid given in HMTL
-          vo.data.attributes.version = this.data.attributes.version; // take version from parent (this)
-          if (!repository.contains(vo.data.attributes.id, vo.data.attributes.version)) {
-            repository.add(vo.data, this.data.attributes.version); // add new (implicitly created) data object to repository
+          vo.data.attributes.id = vo.id(); // overwrite new id generated by above call with nodeid given in HMTL
+          //vo.data.attributes.version = this.data.attributes.version; // take version from parent (this)
+          if (!repository.contains(vo.data.attributes.id, vo.version())) {
+            repository.add(vo.data, this.version()); // add new (implicitly created) data object to repository
           }
         }
         this._childViews[nodeId] = vo; // update _childViews
-        if (vo.data.attributes.name) this._childNames[vo.data.attributes.name] = vo;
+        if (vo.name()) this._childNames[vo.name()] = vo;
         vo.data.on('change', this._myChildListenerCallback); // attach child change listener
         parseManager.parseElement(vo.outerEl);
         k++; // next in data.children
@@ -255,14 +255,14 @@ var GroupView = ElementView.extend({
           parent: this,
           parseFull: options.parseFull
         });
-        nodeId = vo.data.attributes.id; // id has been generated automatically
-        vo.data.attributes.version = this.data.attributes.version; // take version from parent (this)
+        vo.data.attributes.id = nodeId = vo.id(); // id has been generated automatically
+        //vo.data.attributes.version = this.data.attributes.version; // take version from parent (this)
         childIds.splice(k, 0, nodeId); // insert new nodeid in data.children
-        if (!repository.contains(vo.data.attributes.id, vo.data.attributes.version)) {
-          repository.add(vo.data, this.data.attributes.version); // add new (implicitly created) data object to repository
+        if (!repository.contains(vo.id(), vo.version())) {
+          repository.add(vo.data, this.version()); // add new (implicitly created) data object to repository
         }
         this._childViews[nodeId] = vo; // update _childViews
-        if (vo.data.attributes.name) this._childNames[vo.data.attributes.name] = vo;
+        if (vo.name()) this._childNames[vo.name()] = vo;
         vo.data.on('change', this._myChildListenerCallback); // attach child change listener
         parseManager.parseElement(vo.outerEl);
         k++; // next in data.children
@@ -274,14 +274,14 @@ var GroupView = ElementView.extend({
           parent: this,
           parseFull: options.parseFull
         });
-        nodeId = vo.data.attributes.id; // id has been generated automatically
-        vo.data.attributes.version = this.data.attributes.version; // take version from parent (this)
+        nodeId = vo.data.attributes.id = vo.id(); // id has been generated automatically
+        //vo.data.attributes.version = this.data.attributes.version; // take version from parent (this)
         childIds.splice(k, 0, nodeId); // insert new nodeid in data.children
-        if (!repository.contains(vo.data.attributes.id, vo.data.attributes.version)) {
-          repository.add(vo.data, this.data.attributes.version); // add new (implicitly created) data object to repository
+        if (!repository.contains(vo.id(), vo.version())) {
+          repository.add(vo.data, this.version()); // add new (implicitly created) data object to repository
         }
         this._childViews[nodeId] = vo; // update _childViews
-        if (vo.data.attributes.name) this._childNames[vo.data.attributes.name] = vo;
+        if (vo.name()) this._childNames[vo.name()] = vo;
         vo.data.on('change', this._myChildListenerCallback); // attach child change listener
         parseManager.parseElement(vo.outerEl);
         k++; // next in data.children
@@ -300,7 +300,7 @@ var GroupView = ElementView.extend({
    * @returns {ElementView} the view object
    */
   getChildView: function(childId) {
-    if (!this._childViews.hasOwnProperty(childId)) throw "unknown child " + childId + " in group " + this.data.attributes.id;
+    if (!this._childViews.hasOwnProperty(childId)) throw "unknown child " + childId + " in group " + this.id();
     return this._childViews[childId];
   },
   /**
@@ -310,7 +310,7 @@ var GroupView = ElementView.extend({
    * @returns {ElementView} the view object
    */
   getChildViewByName: function(name) {
-    if (!this._childNames.hasOwnProperty(name)) throw "unknown child with name " + name + " in group " + this.data.attributes.id;
+    if (!this._childNames.hasOwnProperty(name)) throw "unknown child with name " + name + " in group " + this.id();
     return this._childNames[name];
   },
   /**
@@ -340,7 +340,7 @@ var GroupView = ElementView.extend({
    * @returns {Type} Description
    */
   attachView: function(newView) {
-    var childId = newView.data.attributes.id;
+    var childId = newView.id();
 
     if (!this._childViews[childId]) {
       this._childViews[childId] = newView;
@@ -357,7 +357,7 @@ var GroupView = ElementView.extend({
    */
   detachView: function(view) {
     this.data.silence();
-    var idx = this.data.update('children').indexOf(view.data.attributes.id);
+    var idx = this.data.update('children').indexOf(view.id());
     this.data.update('children').splice(idx, 1);
     this.data.fire();
     view.setParent(undefined);
@@ -379,36 +379,42 @@ var GroupView = ElementView.extend({
       diff = childView.data.changedAttributes || childView.data.attributes;
 
     var css = {};
-    if ('x' in diff && attr.x !== undefined) {
-      css.left = attr.x + 'px';
+
+    console.log('attr.x=' + attr.x);
+    console.log('this.x()=' + this.x());
+    console.log('attr.x=' + attr.y);
+    console.log('this.x()=' + this.y());
+
+    if ('x' in diff && this.x() !== undefined) {
+      css.left = this.x() + 'px';
     }
 
-    if ('y' in diff && attr.y !== undefined) {
-      css.top = attr.y + 'px';
+    if ('y' in diff && this.y() !== undefined) {
+      css.top = this.y() + 'px';
     }
 
     if ('x' in diff || 'y' in diff) {
-      css.position = (attr.x !== undefined || attr.y !== undefined ? "absolute" : "static");
+      css.position = (this.x() !== undefined || this.y() !== undefined ? "absolute" : "static");
     }
 
     if ('scaleX' in diff || 'scaleY' in diff || 'rotation' in diff) {
-      css.transform = "scale(" + attr.scaleX + "," + attr.scaleY + ")" + (attr.rotation ? " rotate(" + Math.round(attr.rotation) + "deg)" : "");
+      css.transform = "scale(" + this.scaleX() + "," + this.scaleY() + ")" + (this.rotation() ? " rotate(" + Math.round(this.rotation()) + "deg)" : "");
     }
 
-    if ('zIndex' in diff && attr.zIndex !== undefined) {
-      css.zIndex = attr.zIndex;
+    if ('zIndex' in diff && this.zIndex() !== undefined) {
+      css.zIndex = this.zIndex();
     }
 
     if ('hidden' in diff) {
-      css.display = attr.hidden ? 'none' : 'initial';
+      css.display = this.hidden() ? 'none' : 'initial';
     }
 
-    if ('width' in diff && attr.width !== undefined) {
-      css.width = attr.width;
+    if ('width' in diff && this.width() !== undefined) {
+      css.width = this.width();
     }
 
-    if ('height' in diff && attr.height !== undefined) {
-      css.height = attr.height;
+    if ('height' in diff && this.height() !== undefined) {
+      css.height = this.height();
     }
 
     if (childView.applyStyles) {
