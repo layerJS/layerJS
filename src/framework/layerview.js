@@ -9,6 +9,7 @@ var gestureManager = require('./gestures/gesturemanager.js');
 var defaults = require('./defaults.js');
 var state = require('./state.js');
 var sizeObserver = require('./observer/sizeobserver.js');
+var BaseView = require('./baseview.js');
 
 /**
  * A View which can have child views
@@ -17,21 +18,16 @@ var sizeObserver = require('./observer/sizeobserver.js');
  * @extends GroupView
  */
 
-var LayerView = GroupView.extend({
+var LayerView = BaseView.extend({
   constructor: function(dataModel, options) {
     options = options || {};
-    this._setDocument(options);
+    options.childType = 'frame';
+    BaseView.call(this, options);
+
     var that = this;
     this._inTransition = false; // indicates that transition is still being animated
     this.transitionID = 1; // counts up every call of transitionTo();
-
-    var tag = 'div';
-
-    if (dataModel) {
-      tag = dataModel.attributes.tag;
-    }
-    this.outerEl = options.el || this.document.createElement(tag);
-
+    this.currentFrame = null;
 
     var hasScroller = this.outerEl.children.length === 1 && $.getAttributeLJ(this.outerEl.children[0], 'helper') === 'scroller';
     this.innerEl = hasScroller ? this.outerEl.children[0] : this.outerEl;
@@ -43,16 +39,11 @@ var LayerView = GroupView.extend({
       }
     };
 
-    // call super constructor
-    GroupView.call(this, dataModel, Kern._extend({}, options, {
-      noRender: true
-    }));
-
     this.switchLayout(this.layoutType(), false);
     this.switchScrolling(this.nativeScroll(), false);
 
     // get upper layer where unuseable gestures should be sent to.
-    this.parentLayer = this.getParentOfType('layer');
+    this.parentLayer = this._getParentOfType('layer');
     // register for gestures
     gestureManager.register(this.outerEl, this.gestureListener.bind(this), {
       dragging: true
@@ -71,26 +62,20 @@ var LayerView = GroupView.extend({
       sizeObserver.register([that.stage], that.onResizeCallBack);
       // FIXME trigger adaption to new stage
     });
-    // set current frame from data object or take first child
+
     if (this.defaultFrame()) {
-      if (this.defaultFrame() === '!none') {
-        this.currentFrame = null;
-      } else {
-        this.currentFrame = this.getChildViewByName(this.defaultFrame());
-      }
+      this.currentFrame = this._getFrame(this.defaultFrame());
     } else {
-      this.currentFrame = this.data.attributes.children[0] && this.getChildView(this.data.attributes.children[0]);
+      this.currentFrame = this._getFrame(defaults.specialFrames.next);
     }
 
-    if (!options.noRender && (options.forceRender || !options.el)) {
-      this.render();
-    }
     // set the initial frame if possible
-    if (this.currentFrame) {
-      this.showFrame(this.currentFrame.name());
+    if (!this.currentFrame || null === this.currentFrame) {
+      this.showFrame(defaults.specialFrames.none);
     } else {
-      this.showFrame("!none");
+      this.showFrame(this.currentFrame.name());
     }
+
     // listen to scroll events
     this.on('scroll', function() { // jshint ignore:line
       //that._layout.updateTransitions(); // FIXME: notify layout about scroll and that prepared transitions may be outdated
@@ -153,7 +138,7 @@ var LayerView = GroupView.extend({
     if (this.nativeScroll !== nativeScrolling) {
       this.nativeScroll = nativeScrolling;
 
-      this.disableObserver();
+      //this.disableObserver();
       var hasScroller = this.outerEl.children.length === 1 && $.getAttributeLJ(this.outerEl.children[0], 'helper') === 'scroller';
 
       if (nativeScrolling) {
@@ -176,8 +161,8 @@ var LayerView = GroupView.extend({
       if (this.currentFrame) {
         this.showFrame(this.currentFrame.name(), this.currentFrame.getScrollData());
       }
-      this._observer.element = this.innerEl;
-      this.enableObserver();
+      //this._observer.element = this.innerEl;
+      //this.enableObserver();
     }
   },
   /**
@@ -407,7 +392,7 @@ var LayerView = GroupView.extend({
       frameName = this._getPreviousFrameName();
     }
 
-    return frameName === defaults.specialFrames.none ? null : this.getChildViewByName(frameName);
+    return frameName === defaults.specialFrames.none ? null : this._getChildOfName(frameName);
   },
   /**
    * Will get the next framename based on the html order
@@ -416,13 +401,7 @@ var LayerView = GroupView.extend({
    */
   _getNextFrameName: function() {
     var frameName;
-    var childViews = [];
-
-    for (var childName in this._childNames) {
-      if (this._childNames.hasOwnProperty(childName)) {
-        childViews.push(childName);
-      }
-    }
+    var childViews = this._getChildViews();
 
     if (null === this.currentFrame && childViews.length > 0) {
       frameName = childViews[0];
@@ -449,13 +428,7 @@ var LayerView = GroupView.extend({
    */
   _getPreviousFrameName: function() {
     var frameName;
-    var childViews = [];
-
-    for (var childName in this._childNames) {
-      if (this._childNames.hasOwnProperty(childName)) {
-        childViews.push(childName);
-      }
-    }
+    var childViews = this._getChildViews();
 
     if (null === this.currentFrame && childViews.length > 0) {
       frameName = childViews[0];
@@ -508,32 +481,33 @@ var LayerView = GroupView.extend({
    * Method will be invoked when a resize event is detected.
    */
   onResize: function() {
-    var childViews = this.getChildViews();
-    var length = childViews.length;
-    var scrollData = this.currentFrame !== null ? this.currentFrame.getScrollData() : undefined;
+      var childViews = this._getChildViews();
+      var length = childViews.length;
+      var scrollData = this.currentFrame !== null ? this.currentFrame.getScrollData() : undefined;
 
-    for (var i = 0; i < length; i++) {
-      var childView = childViews[i];
-      if (childView.hasOwnProperty('transformData')) {
-        childView.transformData = null;
+      for (var i = 0; i < length; i++) {
+        var childView = childViews[i];
+        if (childView.hasOwnProperty('transformData')) {
+          childView.transformData = null;
+        }
       }
+      var frameName = this.currentFrame === null ? null : this.currentFrame.name();
+      this.showFrame(frameName, scrollData);
     }
-    var frameName = this.currentFrame === null ? null : this.currentFrame.name();
-    this.showFrame(frameName, scrollData);
-  },
-  /**
-   * analyse list of childNodes (HTMLElements) in this group and create view- (and possibly data-) objects for them.
-   *
-   * @returns {void}
-   */
-  _parseChildren: function(options) {
-    // unregister childviews
-    // sizeObserver.unregister(this.getChildViews()); we don't need to unregister since they will only be added if new
+    /*,
+    /**
+     * analyse list of childNodes (HTMLElements) in this group and create view- (and possibly data-) objects for them.
+     *
+     * @returns {void}
+     */
+    /*_parseChildren: function(options) {
+      // unregister childviews
+      // sizeObserver.unregister(this.getChildViews()); we don't need to unregister since they will only be added if new
 
-    GroupView.prototype._parseChildren.call(this, options);
+      GroupView.prototype._parseChildren.call(this, options);
 
-    sizeObserver.register(this.getChildViews(), this.onResizeCallBack);
-  }
+      sizeObserver.register(this.getChildViews(), this.onResizeCallBack);
+    }*/
 }, {
   /*
   Model: LayerData*/

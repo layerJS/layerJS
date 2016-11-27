@@ -5,6 +5,7 @@ var Kern = require('../kern/Kern.js');
 var defaults = require('./defaults.js');
 var $ = require('./domhelpers.js');
 var state = require('./state.js');
+var BaseView = require('./baseview.js');
 
 
 /**
@@ -13,42 +14,36 @@ var state = require('./state.js');
  * @param {object}        options
  * @extends GroupView
  */
-var StageView = GroupView.extend({
+var StageView = BaseView.extend({
   constructor: function(dataModel, options) {
-    var that = this;
     options = options || {};
-    GroupView.call(this, dataModel, Kern._extend({}, options, {
-      noRender: true
-    }));
+    options.childType = 'layer';
+    BaseView.call(this, options);
 
-    if (!options.noRender && (options.forceRender || !options.el)) {
-      this.render();
-    }
-
+    var that = this;
     window.addEventListener('resize', function() {
       that.onResize();
     }, false);
 
-    state.registerView(this);
   },
   _renderChildPosition: function(childView) {
     if (childView.nodeType() === 1) {
-      childView.disableObserver();
+      //  childView.disableObserver();
       childView.outerEl.style.left = "0px";
       childView.outerEl.style.top = "0px";
-      childView.enableObserver();
+      //childView.enableObserver();
     }
   },
   /**
    * Method will be invoked when a resize event is detected.
    */
   onResize: function() {
-    var childViews = this.getChildViews();
-    var length = childViews.length;
-    for (var i = 0; i < length; i++) {
-      var childView = childViews[i];
-      childView.onResize();
-    }
+    //var childViews = this.getChildViews();
+    //var length = childViews.length;
+    //for (var i = 0; i < length; i++) {
+    //  var childView = childViews[i];
+    //childView.onResize();
+    //}
   }
 }, {
   defaultProperties: Kern._extend({}, GroupView.defaultProperties, {

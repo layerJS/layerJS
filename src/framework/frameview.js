@@ -6,6 +6,7 @@ var Kern = require('../kern/Kern.js');
 var defaults = require('./defaults.js');
 var state = require('./state.js');
 var $ = require('./domhelpers.js');
+var BaseView = require('./baseview.js');
 
 /**
  * A View which can have child views
@@ -13,20 +14,11 @@ var $ = require('./domhelpers.js');
  * @param {object}        options
  * @extends GroupView
  */
-var FrameView = GroupView.extend({
+var FrameView = BaseView.extend({
   constructor: function(dataModel, options) {
-    options = options || {};
+    BaseView.call(this, options);
+
     this.transformData = undefined;
-    GroupView.call(this, dataModel, Kern._extend({}, options, {
-      noRender: true
-    }));
-
-    if (!options.noRender && (options.forceRender || !options.el))
-      this.render();
-
-    if (this.type() === 'frame') {
-      state.registerView(this);
-    }
   },
   /**
    * get the transformData of the frame that describes how to fit the frame into the stage

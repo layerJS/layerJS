@@ -168,10 +168,11 @@ var DomHelpers = {
    * @param {string} value - the attribute value
    */
   setAttributeLJ: function(element, name, value) {
-    if (element.hasAttribute('lj-' + name)) {
-      element.setAttribute('lj-' + name, value);
+    name = 'lj-' + name;
+    if (element.getAttribute('data-' + name)) {
+      element.setAttribute('data-' + name, value);
     } else {
-      element.setAttribute('data-lj-' + name, value);
+      element.setAttribute(name, value);
     }
   },
   /**

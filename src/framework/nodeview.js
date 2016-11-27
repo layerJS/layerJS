@@ -15,10 +15,9 @@ var BaseView = require('./baseview.js');
  */
 var NodeView = BaseView.extend({
   constructor: function(dataModel, options) {
-    BaseView.call(this);
+    BaseView.call(this, options);
     options = options || {};
 
-    this._setDocument(options);
     // dataobject must exist
     this.data = this.data || dataModel || options.el && new NodeData(this.constructor);
 
@@ -33,34 +32,6 @@ var NodeView = BaseView.extend({
 
     this.disableObserver();
 
-    // parent if defined
-    this.parent = options.parent;
-    // DOM element, take either the one provide by a sub constructor, provided in options, or create new
-    this.innerEl = this.innerEl || options.el;
-    if (undefined === this.innerEl) {
-      if (this.nodeType() === 1 || this.tag()) {
-        this.innerEl = this.document.createElement(this.tag());
-      } else if (this.nodeType() === 3) {
-        // text node
-        this.innerEl = this.document.createTextNode('');
-      } else if (this.nodeType() === 8) {
-        // comment node
-        this.innerEl = this.document.createComment('');
-      }
-    }
-    // backlink from DOM to object
-    if (this.innerEl._ljView) throw "trying to initialialize view on element that already has a view";
-    this.innerEl._ljView = this;
-    // possible wrapper element
-    this.outerEl = this.outerEl || options.el || this.innerEl;
-    this.outerEl._ljView = this;
-
-    // copy version from parent
-    // FIXME: how can we get a different version in a child? Needed maybe for editor.
-    // FIXME(cont): can't test for this.data.attributes.version as this will be 'default'
-    if (options.parent && options.parent.version()) {
-      this.setVersion(options.parent.version());
-    }
 
     if (this.data.attributes.id === undefined) {
       this.data.set("id", this.id()); // if we don't have an data object we must create an id.
@@ -239,23 +210,6 @@ var NodeView = BaseView.extend({
   _domElementChanged: function(result) {
     if (result.characterData) {
       this.parse(this.outerEl);
-    }
-  },
-  /**
-   * Will determin which docment object should be associated with this view
-   * @param {result} an object that contains what has been changed on the DOM element
-   * @return {void}
-   */
-  _setDocument: function(options){
-    this.document = document;
-
-    if (options){
-      if (options.document){
-        this.document = options.document;
-      }
-      else if(options.el){
-        this.document = options.el.ownerDocument;
-      }
     }
   }
 }, {

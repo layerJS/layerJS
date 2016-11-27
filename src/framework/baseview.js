@@ -2,15 +2,57 @@
 var Kern = require('../kern/Kern.js');
 var repository = require('./repository.js');
 var defaults = require('./defaults.js');
+var state = require('./state.js');
+var $ = require('./domhelpers.js');
+var pluginManager = require('./pluginmanager.js');
 
 var baseView = Kern.EventManager.extend({
 
   constructor: function(options) {
     options = options || {};
     this.eval = eval;
-
+    this.childType = options.childType;
     Kern.EventManager.call(this);
+    this._setDocument(options);
+
     this.outerEl = this.innerEl = undefined;
+    // parent if defined
+    this.parent = options.parent;
+    this.innerEl = options.el;
+    // backlink from DOM to object
+    if (this.innerEl._ljView) throw "trying to initialialize view on element that already has a view";
+    this.innerEl._ljView = this;
+    // possible wrapper element
+    this.outerEl = this.outerEl || options.el || this.innerEl;
+    this.outerEl._ljView = this;
+
+    state.registerView(this);
+    if (!this.parent && this.outerEl._state && this.outerEl._state.view) {
+      this.parent = this.outerEl._state.parent.view;
+    }
+
+    this._parseChildren();
+
+    // copy version from parent
+    // FIXME: how can we get a different version in a child? Needed maybe for editor.
+    // FIXME(cont): can't test for this.data.attributes.version as this will be 'default'
+    /*if (options.parent && options.parent.version()) {
+      this.setVersion(options.parent.version());
+    }*/
+  },
+  _parseChildren: function() {
+    if (this.childType) {
+      for (var i = 0; i < this.innerEl.children.length; i++) {
+        var child = this.innerEl.children[i];
+        if (!child._ljView && $.getAttributeLJ(child, 'type') === this.childType) {
+          pluginManager.createView(this.childType, {
+            el: child,
+            parent: this,
+            document: this.document
+          });
+        }
+      }
+    }
   },
   _parseDimension: function(value) {
     var match;
@@ -18,18 +60,91 @@ var baseView = Kern.EventManager.extend({
     if (value && typeof value === 'number') return value;
     return undefined;
   },
-  setAttributeLJ: function(name, data) {
-    name = 'lj-' + name;
-    if (this.outerEl.getAttribute('data-' + name)) {
-      this.outerEl.setAttribute('data-' + name, data);
-    } else {
-      this.outerEl.setAttribute(name, data);
+  _getChildrenByChildName: function() {
+    let result = {};
+    let state = this.outerEl._state;
+
+    if (state && this.childType) {
+      for (var childName in state.children) {
+        if (state.children.hasOwnProperty(childName) && state.children[childName].view.type() === this.childType) {
+          result[childName] = state.children[childName].view;
+        }
+      }
+    }
+
+    return result;
+  },
+  _getChildOfName: function(name) {
+    var children = this._getChildrenByChildName();
+
+    return children.hasOwnProperty(name) ? children[name] : undefined;
+  },
+  _getChildViews: function() {
+    var children = this._getChildrenByChildName();
+    var result = [];
+
+    for (var childName in children) {
+      if (children.hasOwnProperty(childName)) {
+        result.push(children[childName]);
+      }
+    }
+
+    return result;
+
+  },
+
+  _getParentOfType: function(type) {
+    let parentView;
+    let state = this.outerEl._state;
+
+    if (state) {
+      let parent = state.parent;
+      while (parent && parent.view.type() !== type) {
+        parent = parent.parent.view ? parent.parent : undefined;
+      }
+
+      parentView = parent ? parent.view : undefined;
+    }
+    return parentView;
+  },
+  /**
+   * Will determin which docment object should be associated with this view
+   * @param {result} an object that contains what has been changed on the DOM element
+   * @return {void}
+   */
+  _setDocument: function(options) {
+    this.document = document;
+
+    if (options) {
+      if (options.document) {
+        this.document = options.document;
+      } else if (options.el) {
+        this.document = options.el.ownerDocument;
+      }
     }
   },
+  /**
+   * apply CSS styles to this view
+   *
+   * @param {Object} arguments - List of styles that should be applied
+   * @returns {Type} Description
+   */
+  applyStyles: function() {
+    var len = arguments.length;
+    for (var j = 0; j < len; j++) {
+      var props = Object.keys(arguments[j]); // this does not run through the prototype chain; also does not return special
+      for (var i = 0; i < props.length; i++) {
+        if ($.cssPrefix[props[i]]) this.outerEl.style[$.cssPrefix[props[i]]] = arguments[j][props[i]];
+        // do standard property as well as newer browsers may not accept their own prefixes  (e.g. IE & edge)
+        this.outerEl.style[props[i]] = arguments[j][props[i]];
+      }
+    }
+  },
+  setAttributeLJ: function(name, data) {
+    $.setAttributeLJ(this.outerEl, name, data);
+  },
   getAttributeLJ: function(name) {
-    name = 'lj-' + name;
-
-    return this.outerEl.getAttribute(name) || this.outerEl.getAttribute('data-' + name);
+    return $.getAttributeLJ(this.outerEl, name);
   },
   id: function() {
     var id = this.getAttributeLJ('id');

@@ -26,7 +26,7 @@
 
     "postinstall": "webdriver-manager update --standalone && webdriver-manager update --ie",
 
-    "prebuild": "npm run clean && npm run test",
+    "prebuild": "npm run clean",
     "build": "npm run build:scripts -s",
     "build:scripts": "mkdirp build && browserify -e src/layerjs.js -o build/layerjs.js && npm run package",
     "build:compressed": "mkdirp build && browserify -e src/layerjs.js | uglifyjs -c -m -o build/layerjs.js && npm run package",
