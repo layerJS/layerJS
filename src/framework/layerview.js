@@ -26,8 +26,6 @@ var LayerView = BaseView.extend({
     BaseView.call(this, options);
 
     this.outerEl = options.el;
-  //  var hasScroller = this.outerEl.children.length === 1 && $.getAttributeLJ(this.outerEl.children[0], 'helper') === 'scroller';
-  //  this.innerEl = hasScroller ? this.outerEl.children[0] : this.outerEl;
 
     this._inTransition = false; // indicates that transition is still being animated
     this.transitionID = 1; // counts up every call of transitionTo();
@@ -37,7 +35,7 @@ var LayerView = BaseView.extend({
     this.switchScrolling(this.nativeScroll());
 
     // get upper layer where unuseable gestures should be sent to.
-    this.parentLayer = this._getParentOfType('layer');
+    this.parentLayer = this.getParentOfType('layer');
     // register for gestures
     gestureManager.register(this.outerEl, this.gestureListener.bind(this), {
       dragging: true
@@ -401,7 +399,7 @@ var LayerView = BaseView.extend({
       frameName = this._getPreviousFrameName();
     }
 
-    return frameName === defaults.specialFrames.none ? null : this._getChildOfName(frameName);
+    return frameName === defaults.specialFrames.none ? null : this.getChildViewByName(frameName);
   },
   /**
    * Will get the next framename based on the html order
@@ -410,7 +408,7 @@ var LayerView = BaseView.extend({
    */
   _getNextFrameName: function() {
     var frameName;
-    var childViews = this._getChildViews();
+    var childViews = this.getChildViews();
 
     if (null === this.currentFrame && childViews.length > 0) {
       frameName = childViews[0].name();
@@ -437,7 +435,7 @@ var LayerView = BaseView.extend({
    */
   _getPreviousFrameName: function() {
     var frameName;
-    var childViews = this._getChildViews();
+    var childViews = this.getChildViews();
 
     if (null === this.currentFrame && childViews.length > 0) {
       frameName = childViews[0].name();
@@ -490,7 +488,7 @@ var LayerView = BaseView.extend({
    * Method will be invoked when a resize event is detected.
    */
   onResize: function() {
-      var childViews = this._getChildViews();
+      var childViews = this.getChildViews();
       var length = childViews.length;
       var scrollData = this.currentFrame !== null ? this.currentFrame.getScrollData() : undefined;
 

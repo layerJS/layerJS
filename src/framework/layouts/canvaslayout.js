@@ -26,7 +26,7 @@ var CanvasLayout = LayerLayout.extend({
   showFrame: function(frame, targetFrameTransformData, transform) {
     /*jshint unused: false*/
     transform = transform || "";
-    var frames = this.layer._getChildViews();
+    var frames = this.layer.getChildViews();
     var framesLength = frames.length;
     var childFrame;
 
@@ -64,7 +64,7 @@ var CanvasLayout = LayerLayout.extend({
     var finished = new Kern.Promise();
     var that = this;
 
-    var frames = this.layer._getChildViews();
+    var frames = this.layer.getChildViews();
     var framesLength = frames.length;
     var childFrame;
 
@@ -131,7 +131,7 @@ var CanvasLayout = LayerLayout.extend({
    * @param {string} transform - the scrolling transform
    */
   setLayerTransform: function(transform) {
-    var frames = this.layer._getChildViews();
+    var frames = this.layer.getChildViews();
     var framesLength = frames.length;
     var childFrame;
     // console.log('canvaslayout: setLayerTransform');

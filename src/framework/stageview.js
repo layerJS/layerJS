@@ -6,8 +6,6 @@ var defaults = require('./defaults.js');
 var $ = require('./domhelpers.js');
 var state = require('./state.js');
 var BaseView = require('./baseview.js');
-
-
 /**
  * A View which can have child views
  * @param {StageData} dataModel
@@ -37,12 +35,12 @@ var StageView = BaseView.extend({
    * Method will be invoked when a resize event is detected.
    */
   onResize: function() {
-    //var childViews = this.getChildViews();
-    //var length = childViews.length;
-    //for (var i = 0; i < length; i++) {
-    //  var childView = childViews[i];
-    //childView.onResize();
-    //}
+    var childViews = this.getChildViews();
+    var length = childViews.length;
+    for (var i = 0; i < length; i++) {
+      var childView = childViews[i];
+      childView.onResizeCallBack();
+    }
   }
 }, {
   defaultProperties: Kern._extend({}, GroupView.defaultProperties, {

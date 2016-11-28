@@ -1,6 +1,5 @@
 'use strict';
 var Kern = require('../kern/Kern.js');
-var repository = require('./repository.js');
 var defaults = require('./defaults.js');
 var state = require('./state.js');
 var $ = require('./domhelpers.js');
@@ -40,7 +39,7 @@ var baseView = Kern.EventManager.extend({
       this.setVersion(options.parent.version());
     }*/
   },
-  eval: function(arg){
+  eval: function(arg) {
     var evalFn = eval;
 
     return evalFn(arg);
@@ -67,7 +66,7 @@ var baseView = Kern.EventManager.extend({
     if (value && typeof value === 'number') return value;
     return undefined;
   },
-  _getChildrenByChildName: function() {
+  _getChildViewsByChildName: function() {
     let result = {};
     let state = this.outerEl._state;
 
@@ -81,13 +80,13 @@ var baseView = Kern.EventManager.extend({
 
     return result;
   },
-  _getChildOfName: function(name) {
-    var children = this._getChildrenByChildName();
+  getChildViewByName: function(name) {
+    var children = this._getChildViewsByChildName();
 
     return children.hasOwnProperty(name) ? children[name] : undefined;
   },
-  _getChildViews: function() {
-    var children = this._getChildrenByChildName();
+  getChildViews: function() {
+    var children = this._getChildViewsByChildName();
     var result = [];
 
     for (var childName in children) {
@@ -99,8 +98,7 @@ var baseView = Kern.EventManager.extend({
     return result;
 
   },
-
-  _getParentOfType: function(type) {
+  getParentOfType: function(type) {
     let parentView;
     let state = this.outerEl._state;
 
@@ -130,8 +128,7 @@ var baseView = Kern.EventManager.extend({
       }
     }
   },
-  renderChildPosition: function(childView){    
-  },
+  renderChildPosition: function(childView) {},
   /**
    * apply CSS styles to this view
    *
@@ -159,14 +156,26 @@ var baseView = Kern.EventManager.extend({
     return this.outerEl.getAttribute(name);
   },
   id: function() {
-    var id = this.getAttributeLJ('id');
 
-    if (!id) {
-      this._id = this._id || repository.getId();
-      id = this._id;
+    if (!this._id) {
+      this._id = this.getAttributeLJ('id');
+
+      if (!this._id) {
+        if (!this.outerEl._state) {
+          throw 'element should be associated with an lj-id or a state in order to use id()';
+        }
+        var parentChildren = this.outerEl._state.parent.children;
+
+        for (var childName in parentChildren) {
+          if (parentChildren.hasOwnProperty(childName) && parentChildren[childName].view === this) {
+            this._id = childName;
+            break;
+          }
+        }
+      }
     }
 
-    return id;
+    return this._id;
   },
   elementId: function() {
     return this.outerEl.id;
