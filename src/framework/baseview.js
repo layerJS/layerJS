@@ -10,7 +10,6 @@ var baseView = Kern.EventManager.extend({
 
   constructor: function(options) {
     options = options || {};
-    this.eval = eval;
     this.childType = options.childType;
     Kern.EventManager.call(this);
     this._setDocument(options);
@@ -27,6 +26,7 @@ var baseView = Kern.EventManager.extend({
     this.outerEl._ljView = this;
 
     state.registerView(this);
+
     if (!this.parent && this.outerEl._state && this.outerEl._state.view) {
       this.parent = this.outerEl._state.parent.view;
     }
@@ -40,6 +40,11 @@ var baseView = Kern.EventManager.extend({
       this.setVersion(options.parent.version());
     }*/
   },
+  eval: function(arg){
+    var evalFn = eval;
+
+    return evalFn(arg);
+  },
   _parseChildren: function() {
     if (this.childType) {
       for (var i = 0; i < this.innerEl.children.length; i++) {
@@ -50,6 +55,8 @@ var baseView = Kern.EventManager.extend({
             parent: this,
             document: this.document
           });
+
+          this.renderChildPosition(child._ljView);
         }
       }
     }
@@ -122,6 +129,8 @@ var baseView = Kern.EventManager.extend({
         this.document = options.el.ownerDocument;
       }
     }
+  },
+  renderChildPosition: function(childView){    
   },
   /**
    * apply CSS styles to this view

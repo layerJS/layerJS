@@ -24,15 +24,8 @@ var StageView = BaseView.extend({
     window.addEventListener('resize', function() {
       that.onResize();
     }, false);
-
-    var children = this._getChildViews();
-
-    for (var i = 0; i < children.length; i++) {
-      this._renderChildPosition(children[i]);
-    }
-
   },
-  _renderChildPosition: function(childView) {
+  renderChildPosition: function(childView) {
     if (childView.nodeType() === 1) {
       //  childView.disableObserver();
       childView.outerEl.style.left = "0px";

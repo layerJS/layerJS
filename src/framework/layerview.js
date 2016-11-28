@@ -21,26 +21,20 @@ var BaseView = require('./baseview.js');
 var LayerView = BaseView.extend({
   constructor: function(dataModel, options) {
     options = options || {};
+
     options.childType = 'frame';
     BaseView.call(this, options);
 
-    var that = this;
+    this.outerEl = options.el;
+  //  var hasScroller = this.outerEl.children.length === 1 && $.getAttributeLJ(this.outerEl.children[0], 'helper') === 'scroller';
+  //  this.innerEl = hasScroller ? this.outerEl.children[0] : this.outerEl;
+
     this._inTransition = false; // indicates that transition is still being animated
     this.transitionID = 1; // counts up every call of transitionTo();
     this.currentFrame = null;
 
-    var hasScroller = this.outerEl.children.length === 1 && $.getAttributeLJ(this.outerEl.children[0], 'helper') === 'scroller';
-    this.innerEl = hasScroller ? this.outerEl.children[0] : this.outerEl;
-
-    this.onResizeCallBack = function() {
-      // when doing a transform, the callback should not be called
-      if (!that.inTransition()) {
-        that.onResize();
-      }
-    };
-
-    this.switchLayout(this.layoutType(), false);
-    this.switchScrolling(this.nativeScroll(), false);
+    this.switchLayout(this.layoutType());
+    this.switchScrolling(this.nativeScroll());
 
     // get upper layer where unuseable gestures should be sent to.
     this.parentLayer = this._getParentOfType('layer');
@@ -48,6 +42,15 @@ var LayerView = BaseView.extend({
     gestureManager.register(this.outerEl, this.gestureListener.bind(this), {
       dragging: true
     });
+
+    var that = this;
+
+    this.onResizeCallBack = function() {
+      // when doing a transform, the callback should not be called
+      if (!that.inTransition()) {
+        that.onResize();
+      }
+    };
 
     // this is my stage and add listener to keep it updated
     this.stage = this.parent;
@@ -73,11 +76,6 @@ var LayerView = BaseView.extend({
       that.gestureListener.apply(that,arguments);
     })
     */
-    var children = this._getChildViews();
-    for (var i = 0; i < children.length; i++) {
-      this.renderChildPosition(children[0]);
-    }
-
 
     if (this.defaultFrame()) {
       this.currentFrame = this._getFrame(this.defaultFrame());
@@ -93,6 +91,11 @@ var LayerView = BaseView.extend({
     }
   },
   renderChildPosition: function(childView) {
+    // function is called when children are getting parsed. At that point, the layout can still be undefined
+    if (!this._layout){
+      this.switchLayout(this.layoutType());
+    }
+
     this._layout.renderFramePosition(childView, this._currentTransform);
   },
   /**
