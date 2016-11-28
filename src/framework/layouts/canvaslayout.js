@@ -26,7 +26,7 @@ var CanvasLayout = LayerLayout.extend({
   showFrame: function(frame, targetFrameTransformData, transform) {
     /*jshint unused: false*/
     transform = transform || "";
-    var frames = this.layer.getChildViews();
+    var frames = this.layer._getChildViews();
     var framesLength = frames.length;
     var childFrame;
 
@@ -64,7 +64,7 @@ var CanvasLayout = LayerLayout.extend({
     var finished = new Kern.Promise();
     var that = this;
 
-    var frames = this.layer.getChildViews();
+    var frames = this.layer._getChildViews();
     var framesLength = frames.length;
     var childFrame;
 
@@ -122,7 +122,7 @@ var CanvasLayout = LayerLayout.extend({
     var targetFrameX = (parseInt(frame.x(), 10) || 0);
     var targetFrameY = (parseInt(frame.y(), 10) || 0);
 
-    var transform = "translate3d(" + parseInt(-targetFrameTransformData.shiftX, 10) + "px," + parseInt(-targetFrameTransformData.shiftY, 10) + "px,0px) scale(" + targetFrameTransformData.scale / (frame.data.attributes.scaleX || 1) + "," + targetFrameTransformData.scale / (frame.data.attributes.scaleY || 1) + ") rotate(" + (-frame.data.attributes.rotation || 0) + "deg) translate3d(" + (-targetFrameX) + "px," + (-targetFrameY) + "px,0px)";
+    var transform = "translate3d(" + parseInt(-targetFrameTransformData.shiftX, 10) + "px," + parseInt(-targetFrameTransformData.shiftY, 10) + "px,0px) scale(" + targetFrameTransformData.scale / (frame.scaleX() || 1) + "," + targetFrameTransformData.scale / (frame.scaleY() || 1) + ") rotate(" + (-frame.rotation() || 0) + "deg) translate3d(" + (-targetFrameX) + "px," + (-targetFrameY) + "px,0px)";
     return transform;
   },
   /**
@@ -131,7 +131,7 @@ var CanvasLayout = LayerLayout.extend({
    * @param {string} transform - the scrolling transform
    */
   setLayerTransform: function(transform) {
-    var frames = this.layer.getChildViews();
+    var frames = this.layer._getChildViews();
     var framesLength = frames.length;
     var childFrame;
     // console.log('canvaslayout: setLayerTransform');
@@ -161,13 +161,13 @@ var CanvasLayout = LayerLayout.extend({
     //}
     //if ('x' in diff || 'y' in diff || 'rotation' in diff) {
       // calculate frameTransform of frame and store it in this._frameTransforms
-      delete this._frameTransforms[attr.id]; // this will be recalculated in _applyTransform
+      delete this._frameTransforms[frame.id()]; // this will be recalculated in _applyTransform
       if (this._reverseTransform && transform) {
         // currentFrame is initialized -> we need to render the frame at new position
         this._applyTransform(frame, this._currentReverseTransform, this.layer.currentTransform, css);
       } {
         // just apply width and height, everything else the first showFrame() should do
-        Kern._extend(el.style, css);
+        Kern._extend(frame.outerEl.style, css);
       }
     //}
   },
@@ -181,11 +181,10 @@ var CanvasLayout = LayerLayout.extend({
    * @returns {void}
    */
   _applyTransform: function(frame, reverseTransform, addedTransform, styles) {
-    var attr = frame.data.attributes;
     // console.log('canvaslayout: applystyles', frame.data.attributes.name, styles.transition);
     // we need to add the frame transform (x,y,rot,scale) the reverse transform (that moves the current frame into the stage) and the transform representing the current scroll/displacement
     frame.applyStyles(styles || {}, {
-      transform: addedTransform + " " + reverseTransform + " " + (this._frameTransforms[frame.id()] || (this._frameTransforms[frame.id()] = "translate3d(" + (frame.x() || 0) + "px," + (frame.y() || 0) + "px,0px) rotate(" + (frame.rotation() || 0) + "deg) scale(" + attr.scaleX + "," + attr.scaleY + ")"))
+      transform: addedTransform + " " + reverseTransform + " " + (this._frameTransforms[frame.id()] || (this._frameTransforms[frame.id()] = "translate3d(" + (frame.x() || 0) + "px," + (frame.y() || 0) + "px,0px) rotate(" + (frame.rotation() || 0) + "deg) scale(" + frame.scaleX() + "," + frame.scaleY() + ")"))
     });
   },
 });

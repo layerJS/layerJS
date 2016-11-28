@@ -38,7 +38,7 @@ var LayerLayout = Kern.EventManager.extend({
   //  if ('height' in diff && attr.height !== undefined) {
       css.height = frame.height();
   //  }
-    Kern._extend(el.style, css);
+    Kern._extend(frame.outerEl.style, css);
   },
   /**
    * make sure frame is rendered (i.e. has display: block)

@@ -63,6 +63,22 @@ var LayerView = BaseView.extend({
       // FIXME trigger adaption to new stage
     });
 
+    // listen to scroll events
+    this.on('scroll', function() { // jshint ignore:line
+      //that._layout.updateTransitions(); // FIXME: notify layout about scroll and that prepared transitions may be outdated
+    });
+    /*
+    // register for gestures
+    gestureManager.register(this.layer.outerEl,function(){
+      that.gestureListener.apply(that,arguments);
+    })
+    */
+    var children = this._getChildViews();
+    for (var i = 0; i < children.length; i++) {
+      this.renderChildPosition(children[0]);
+    }
+
+
     if (this.defaultFrame()) {
       this.currentFrame = this._getFrame(this.defaultFrame());
     } else {
@@ -75,19 +91,9 @@ var LayerView = BaseView.extend({
     } else {
       this.showFrame(this.currentFrame.name());
     }
-
-    // listen to scroll events
-    this.on('scroll', function() { // jshint ignore:line
-      //that._layout.updateTransitions(); // FIXME: notify layout about scroll and that prepared transitions may be outdated
-    });
-    /*
-    // register for gestures
-    gestureManager.register(this.layer.outerEl,function(){
-      that.gestureListener.apply(that,arguments);
-    })
-    */
-
-    state.registerView(this);
+  },
+  renderChildPosition: function(childView) {
+    this._layout.renderFramePosition(childView, this._currentTransform);
   },
   /**
    * This method is called if a transition is started. It has a timeout function that will automatically remove
@@ -404,18 +410,18 @@ var LayerView = BaseView.extend({
     var childViews = this._getChildViews();
 
     if (null === this.currentFrame && childViews.length > 0) {
-      frameName = childViews[0];
+      frameName = childViews[0].name();
     } else if (null !== this.currentFrame && childViews.length > 0) {
       let index = 0;
       for (; index < childViews.length; index++) {
-        if (this.currentFrame.name() === childViews[index]) {
+        if (this.currentFrame.name() === childViews[index].name()) {
           break;
         }
       }
       if (index + 1 < childViews.length) {
-        frameName = childViews[index + 1];
+        frameName = childViews[index + 1].name();
       } else {
-        frameName = childViews[0];
+        frameName = childViews[0].name();
       }
     }
 
@@ -431,18 +437,18 @@ var LayerView = BaseView.extend({
     var childViews = this._getChildViews();
 
     if (null === this.currentFrame && childViews.length > 0) {
-      frameName = childViews[0];
+      frameName = childViews[0].name();
     } else if (null !== this.currentFrame && childViews.length > 0) {
       let index = childViews.length - 1;
       for (; index >= 0; index--) {
-        if (this.currentFrame.name() === childViews[index]) {
+        if (this.currentFrame.name() === childViews[index].name()) {
           break;
         }
       }
       if (index === 0) {
-        frameName = childViews[childViews.length - 1];
+        frameName = childViews[childViews.length - 1].name();
       } else if (index > 0) {
-        frameName = childViews[index - 1];
+        frameName = childViews[index - 1].name();
       }
     }
 
@@ -473,9 +479,9 @@ var LayerView = BaseView.extend({
    * @returns {Type} Description
    */
   _renderChildPosition: function(childView) {
-    childView.disableObserver();
+    //childView.disableObserver();
     this._layout.renderFramePosition(childView, this._currentTransform);
-    childView.enableObserver();
+    //childView.enableObserver();
   },
   /**
    * Method will be invoked when a resize event is detected.

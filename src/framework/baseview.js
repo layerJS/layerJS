@@ -146,6 +146,9 @@ var baseView = Kern.EventManager.extend({
   getAttributeLJ: function(name) {
     return $.getAttributeLJ(this.outerEl, name);
   },
+  getAttribute: function(name) {
+    return this.outerEl.getAttribute(name);
+  },
   id: function() {
     var id = this.getAttributeLJ('id');
 
@@ -233,7 +236,7 @@ var baseView = Kern.EventManager.extend({
   hidden: function() {
     return this.outerEl.style.display === 'none';
   },
-  zindex: function() {
+  zIndex: function() {
     return this.outerEl.style.zIndex;
   },
   tag: function() {
