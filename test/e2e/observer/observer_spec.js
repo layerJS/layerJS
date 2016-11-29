@@ -38,7 +38,7 @@ describe('observer', function() {
     });
   };
 
-  describe('elementView', function() {
+  xdescribe('elementView', function() {
 
     detectAttributeChanges('element', 'data-lj-x', 'x', '100');
 
@@ -57,7 +57,7 @@ describe('observer', function() {
     });
   });
 
-  describe('groupView', function() {
+  xdescribe('groupView', function() {
     detectAttributeChanges('group', 'data-lj-x', 'x', '100');
     detectChildrenChanges('group');
   });
