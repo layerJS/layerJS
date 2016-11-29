@@ -62,7 +62,7 @@ describe('resize', function() {
   it('frame will keeps its vertical scroll position on a resize', function() {
     browser.get('resize/resize.html').then(function() {
       utilities.resizeWindow(600, 400);
-      utilities.scrollDown('layer', 1).then(function() {
+      utilities.scrollDown('layer', 10).then(function() {
         utilities.resizeWindow(500, 400);
         utilities.getScroll('layer').then(function(layer_scroll) {
           expect(layer_scroll.scrollTop).not.toBe(0);
@@ -116,6 +116,7 @@ describe('resize', function() {
         'data-lj-fit-to': 'height',
         'data-lj-start-position': 'left'
       }).then(function() {
+        utilities.resizeWindow(400, 400); // temporary fix, when attributes change, frame should be redraw
         protractor.promise.all([
           utilities.getBoundingClientRect('stage'),
           utilities.getBoundingClientRect('layer'),
@@ -129,6 +130,7 @@ describe('resize', function() {
               utilities.getBoundingClientRect('layer'),
               utilities.getBoundingClientRect('frame'),
             ]).then(function(data) {
+              console.log(data);
               frameHasSameHeight(data[0], data[1], data[2]);
             });
           });

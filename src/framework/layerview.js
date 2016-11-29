@@ -141,10 +141,6 @@ var LayerView = BaseView.extend({
    * @returns {void}
    */
   switchScrolling: function(nativeScrolling) {
-
-    if (this.nativeScroll() !== nativeScrolling) {
-      this.setNativeScroll(nativeScrolling);
-
       //this.disableObserver();
       var hasScroller = this.outerEl.children.length === 1 && $.getAttributeLJ(this.outerEl.children[0], 'helper') === 'scroller';
 
@@ -164,13 +160,13 @@ var LayerView = BaseView.extend({
       }
 
       this._transformer = this._layout.getScrollTransformer() || new ScrollTransformer(this);
+      this.setNativeScroll(nativeScrolling);
 
       if (this.currentFrame) {
         this.showFrame(this.currentFrame.name(), this.currentFrame.getScrollData());
       }
       //this._observer.element = this.innerEl;
       //this.enableObserver();
-    }
   },
   /**
    * Will change the current layout with an other layout
