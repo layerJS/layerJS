@@ -15,7 +15,7 @@ var BaseView = require('./baseview.js');
  * @extends GroupView
  */
 var FrameView = BaseView.extend({
-  constructor: function(dataModel, options) {
+  constructor: function(options) {
     BaseView.call(this, options);
 
     this.transformData = undefined;
@@ -266,13 +266,9 @@ var FrameView = BaseView.extend({
     return (this.transformData = d);
   }
 }, {
-  defaultProperties: Kern._extend({}, GroupView.defaultProperties, {
-    nativeScroll: true,
-    fitTo: 'width',
-    startPosition: 'top',
-    noScrolling: false,
+  defaultProperties:{
     type: 'frame'
-  }),
+  },
   identify: function(element) {
     var type = $.getAttributeLJ(element, 'type');
     return null !== type && type.toLowerCase() === FrameView.defaultProperties.type;

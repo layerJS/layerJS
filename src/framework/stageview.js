@@ -13,7 +13,7 @@ var BaseView = require('./baseview.js');
  * @extends GroupView
  */
 var StageView = BaseView.extend({
-  constructor: function(dataModel, options) {
+  constructor: function(options) {
     options = options || {};
     options.childType = 'layer';
     BaseView.call(this, options);
@@ -43,13 +43,9 @@ var StageView = BaseView.extend({
     }
   }
 }, {
-  defaultProperties: Kern._extend({}, GroupView.defaultProperties, {
-    nativeScroll: true,
-    fitTo: 'width',
-    startPosition: 'top',
-    noScrolling: false,
+  defaultProperties: {
     type: 'stage'
-  }),
+  },
   identify: function(element) {
     var type = $.getAttributeLJ(element, 'type');
     return null !== type && type.toLowerCase() === StageView.defaultProperties.type;

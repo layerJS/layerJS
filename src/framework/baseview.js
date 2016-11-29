@@ -324,7 +324,10 @@ var baseView = Kern.EventManager.extend({
   nativeScroll: function() {
     var nativeScroll = this.getAttributeLJ('native-scroll');
     return nativeScroll ? this.eval(nativeScroll) : false;
-  }
+  },
+  setNativeScroll: function(nativeScroll) {
+    this.setAttributeLJ('native-scroll', nativeScroll);
+  },
 });
 
 module.exports = baseView;

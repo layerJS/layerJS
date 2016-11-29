@@ -19,7 +19,7 @@ var BaseView = require('./baseview.js');
  */
 
 var LayerView = BaseView.extend({
-  constructor: function(dataModel, options) {
+  constructor: function(options) {
     options = options || {};
 
     options.childType = 'frame';
@@ -142,8 +142,8 @@ var LayerView = BaseView.extend({
    */
   switchScrolling: function(nativeScrolling) {
 
-    if (this.nativeScroll !== nativeScrolling) {
-      this.nativeScroll = nativeScrolling;
+    if (this.nativeScroll() !== nativeScrolling) {
+      this.setNativeScroll(nativeScrolling);
 
       //this.disableObserver();
       var hasScroller = this.outerEl.children.length === 1 && $.getAttributeLJ(this.outerEl.children[0], 'helper') === 'scroller';
@@ -516,14 +516,9 @@ var LayerView = BaseView.extend({
       sizeObserver.register(this.getChildViews(), this.onResizeCallBack);
     }*/
 }, {
-  /*
-  Model: LayerData*/
-  defaultProperties: Kern._extend({}, GroupView.defaultProperties, {
-    type: 'layer',
-    layoutType: 'slide',
-    defaultFrame: undefined,
-    nativeScroll: true
-  }),
+  defaultProperties:{
+    type: 'layer'
+  },
   identify: function(element) {
     var type = $.getAttributeLJ(element, 'type');
     return null !== type && type.toLowerCase() === LayerView.defaultProperties.type;
