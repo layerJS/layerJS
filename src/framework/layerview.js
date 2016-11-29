@@ -21,11 +21,15 @@ var BaseView = require('./baseview.js');
 var LayerView = BaseView.extend({
   constructor: function(options) {
     options = options || {};
-
     options.childType = 'frame';
-    BaseView.call(this, options);
 
-    this.outerEl = options.el;
+    this.innerEl = this.outerEl = options.el;
+
+    if (this.outerEl.children.length === 1 && $.getAttributeLJ(this.outerEl.children[0], 'helper') === 'scroller') {
+      this.innerEl = this.outerEl.children[0];
+    }
+
+    BaseView.call(this, options);
 
     this._inTransition = false; // indicates that transition is still being animated
     this.transitionID = 1; // counts up every call of transitionTo();
@@ -90,7 +94,7 @@ var LayerView = BaseView.extend({
   },
   renderChildPosition: function(childView) {
     // function is called when children are getting parsed. At that point, the layout can still be undefined
-    if (!this._layout){
+    if (!this._layout) {
       this.switchLayout(this.layoutType());
     }
 
@@ -141,32 +145,32 @@ var LayerView = BaseView.extend({
    * @returns {void}
    */
   switchScrolling: function(nativeScrolling) {
-      //this.disableObserver();
-      var hasScroller = this.outerEl.children.length === 1 && $.getAttributeLJ(this.outerEl.children[0], 'helper') === 'scroller';
+    //this.disableObserver();
+    var hasScroller = this.outerEl.children.length === 1 && $.getAttributeLJ(this.outerEl.children[0], 'helper') === 'scroller';
 
-      if (nativeScrolling) {
-        this.innerEl = hasScroller ? this.outerEl.children[0] : $.wrapChildren(this.outerEl);
-        $.setAttributeLJ(this.innerEl, 'helper', 'scroller');
-        if (!this.innerEl._ljView) {
-          this.innerEl._ljView = this.outerEl._ljView;
-        }
-        this.outerEl.className += ' nativescroll';
-      } else {
-        if (hasScroller) {
-          $.unwrapChildren(this.outerEl);
-        }
-        this.innerEl = this.outerEl;
-        this.outerEl.className = this.outerEl.className.replace(' nativescroll', '');
+    if (nativeScrolling) {
+      this.innerEl = hasScroller ? this.outerEl.children[0] : $.wrapChildren(this.outerEl);
+      $.setAttributeLJ(this.innerEl, 'helper', 'scroller');
+      if (!this.innerEl._ljView) {
+        this.innerEl._ljView = this.outerEl._ljView;
       }
-
-      this._transformer = this._layout.getScrollTransformer() || new ScrollTransformer(this);
-      this.setNativeScroll(nativeScrolling);
-
-      if (this.currentFrame) {
-        this.showFrame(this.currentFrame.name(), this.currentFrame.getScrollData());
+      this.outerEl.className += ' nativescroll';
+    } else {
+      if (hasScroller) {
+        $.unwrapChildren(this.outerEl);
       }
-      //this._observer.element = this.innerEl;
-      //this.enableObserver();
+      this.innerEl = this.outerEl;
+      this.outerEl.className = this.outerEl.className.replace(' nativescroll', '');
+    }
+
+    this._transformer = this._layout.getScrollTransformer() || new ScrollTransformer(this);
+    this.setNativeScroll(nativeScrolling);
+
+    if (this.currentFrame) {
+      this.showFrame(this.currentFrame.name(), this.currentFrame.getScrollData());
+    }
+    //this._observer.element = this.innerEl;
+    //this.enableObserver();
   },
   /**
    * Will change the current layout with an other layout
@@ -512,7 +516,7 @@ var LayerView = BaseView.extend({
       sizeObserver.register(this.getChildViews(), this.onResizeCallBack);
     }*/
 }, {
-  defaultProperties:{
+  defaultProperties: {
     type: 'layer'
   },
   identify: function(element) {

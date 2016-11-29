@@ -14,10 +14,10 @@ describe('scrolling', function() {
           height: '650px'
         }).then(function() {
           utilities.resizeWindow(800, 599);
-          utilities.scrollDown('layer', 3).then(function() {
+          utilities.scrollDown('layer', 2).then(function() {
             protractor.promise.all([utilities.getBoundingClientRect('layer'),
               utilities.getBoundingClientRect('frame1'),
-              utilities.getScroll('layer')
+              utilities.getScroll('scroller')
             ]).then(function(data) {
               var layer_dimensions = data[0];
               var frame_dimensions = data[1];
@@ -350,7 +350,7 @@ describe('scrolling', function() {
                   var frame_dimensions = data[0];
                   var layer_scroll_after = data[1];
                   expect(frame_dimensions.top).toBe(layer_scroll_before.scrollTop * -1);
-                  expect(frame_dimensions.left).toBe((layer_scroll_before.scrollLeft - 17) * -1);
+                  expect(frame_dimensions.left).toBe((layer_scroll_before.scrollLeft -17) * -1);
                   expect(layer_scroll_after.scrollTop).toBe(0);
                   expect(layer_scroll_after.scrollLeft).toBe(0);
                 });
