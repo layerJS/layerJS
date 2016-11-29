@@ -130,7 +130,6 @@ describe('resize', function() {
               utilities.getBoundingClientRect('layer'),
               utilities.getBoundingClientRect('frame'),
             ]).then(function(data) {
-              console.log(data);
               frameHasSameHeight(data[0], data[1], data[2]);
             });
           });
