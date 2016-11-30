@@ -3,7 +3,7 @@ var ViewsNodeViewTests = require('./helpers/views/node/viewtests.js');
 var ViewsCommonIdentifyTests = require('./helpers/views/common/identifytests.js');
 var ViewsCommonParseTests = require('./helpers/views/common/parsetests.js');
 
-describe('NodeView', function() {
+xdescribe('NodeView', function() {
 
   ViewsCommonParseTests(function() {
     return {

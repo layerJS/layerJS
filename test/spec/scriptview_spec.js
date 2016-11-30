@@ -10,7 +10,7 @@ var GroupView_parseChildrenTests = require('./helpers/views/group/_parseChildren
 //var ElementViewTest = require('./helpers/views/element/viewtests.js');
 var ElementParseTests = require('./helpers/views/element/parsetests.js');
 
-describe("ScriptView", function() {
+xdescribe("ScriptView", function() {
 
   var layerJS, repository;
 

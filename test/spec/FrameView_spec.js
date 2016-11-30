@@ -1,5 +1,6 @@
 var FrameView = require('../../src/framework/frameview.js');
 var state = require('../../src/framework/state.js');
+var utilities = require("./helpers/utilities.js");
 
 var ViewsCommonParseTests = require('./helpers/views/common/parsetests.js');
 var ViewsGroupViewTests = require('./helpers/views/group/viewtests.js');
@@ -14,40 +15,47 @@ describe("FrameView", function() {
   ViewsCommonViewTests('simple_framedata.js', function() {
     return {
       ViewType: FrameView,
-      data: require('./datasets/simple_framedata.js')[0]
+      htmlElement: require('./htmlelements/simple_frame.js')
     }
   });
 
+  /*
+  Refactoring: this does the same thing as ViewsCommonViewTests
   ViewsNodeViewTests('simple_framedata.js', FrameView, require('./datasets/simple_framedata.js')[0]);
+*/
 
-  ViewsGroup_renderChildPositionTests('simple_framedata.js', function() {
-    return {
-      data: require('./datasets/simple_framedata.js'),
-      ViewType: FrameView,
-      parentId: 110529
-    };
-  });
+  /*
+   Refactoring: FrameView doesn't have any children anymore (for now)
+    ViewsGroup_renderChildPositionTests('simple_framedata.js', function() {
+      return {
+        data: require('./datasets/simple_framedata.js'),
+        ViewType: FrameView,
+        parentId: 110529
+      };
+    });
 
-  ViewsCommonParseTests(function() {
-    return {
-      ViewType: FrameView,
-      viewTypeName: 'FrameView',
-      type: 'frame'
-    };
-  });
+    Refactoring: No need for parsing anymore
+    ViewsCommonParseTests(function() {
+      return {
+        ViewType: FrameView,
+        viewTypeName: 'FrameView',
+        type: 'frame'
+      };
+    });
 
-  ViewsGroup_parseChildrenTests(function() {
-    return {
-      ViewType: FrameView,
-      HTML: "<div id='100' data-lj-id='100' data-lj-type='frame'>" +
-        "<div id='101' data-lj-id='101' data-lj-type='group'></div>" +
-        "<div id='102' data-lj-id='102' data-lj-type='group'></div>" +
-        "<div/>" +
-        "</div>",
-      expectedChildren: ['101', '102']
-    };
-  });
-
+   Refactoring: FrameView will not have children (for now)
+    ViewsGroup_parseChildrenTests(function() {
+      return {
+        ViewType: FrameView,
+        HTML: "<div id='100' data-lj-id='100' data-lj-type='frame'>" +
+          "<div id='101' data-lj-id='101' data-lj-type='group'></div>" +
+          "<div id='102' data-lj-id='102' data-lj-type='group'></div>" +
+          "<div/>" +
+          "</div>",
+        expectedChildren: ['101', '102']
+      };
+    });
+  */
   ViewsCommonIdentifyTests('div data-lj-type="frame"', FrameView, function() {
     var element = document.createElement('div');
     element.setAttribute('data-lj-type', 'frame');
@@ -60,7 +68,10 @@ describe("FrameView", function() {
   }, false);
 
   it('will register itself with the state', function() {
-    var frameView = new FrameView(new FrameView.Model(FrameView.defaultProperties));
+    var element = utilities.appendChildHTML(require('./htmlelements/simple_frame.js'));
+    var frameView = new FrameView({
+      el: element
+    });
     var found = false;
     var frameViews = state._getRegisteredFrameViews(document);
 
@@ -70,4 +81,5 @@ describe("FrameView", function() {
 
     expect(found).toBe(true);
   });
+
 })

@@ -8,7 +8,7 @@ var ViewsGroup_renderchildpositiontests = require('./helpers/views/group/_render
 var utilities = require('./helpers/utilities.js');
 var ViewsCommonIdentifyTests = require('./helpers/views/common/identifytests.js');
 
-describe("GroupView", function() {
+xdescribe("GroupView", function() {
 
   var repository;
   var ElementView;

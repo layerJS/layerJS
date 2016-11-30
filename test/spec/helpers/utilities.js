@@ -64,7 +64,7 @@ utilities.afterEach = function() {
   delete document._ljStateFrameView;
 }
 
-utilities.setHtml = function(html) {
+utilities._getTestContainer = function() {
   var container = document.getElementById("testContainer");
 
   if (!container) {
@@ -72,7 +72,26 @@ utilities.setHtml = function(html) {
     container.id = "testContainer";
     document.body.appendChild(container);
   }
+  return container;
+}
+
+utilities.setHtml = function(html) {
+  var container = this._getTestContainer();
   container.innerHTML = html;
+}
+
+utilities.appendChildHTML = function(childHTML) {
+  var container = this._getTestContainer();
+  var temporary = document.createElement("div");
+  temporary.innerHTML = childHTML;
+
+  return utilities.appendChild(temporary.children[0]);
+}
+
+utilities.appendChild = function(child) {
+  var container = this._getTestContainer();
+  container.appendChild(child);
+  return child;
 }
 
 module.exports = utilities;

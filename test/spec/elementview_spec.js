@@ -6,7 +6,7 @@
   var ViewsCommonIdentifyTests = require('./helpers/views/common/identifytests.js');
   var ViewsCommonViewTests = require('./helpers/views/common/viewtests.js')
 
-  describe('ElementView', function() {
+  xdescribe('ElementView', function() {
 
     ViewsCommonViewTests('simple_elementdata.js', function() {
       return {

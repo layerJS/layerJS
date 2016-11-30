@@ -1,7 +1,7 @@
 var utilities = require("../../utilities.js");
 
 var commonGroupViewTests = function(scenario, initFunction) {
-  describe('(groupview tests) ' + scenario, function() {
+  xdescribe('(groupview tests) ' + scenario, function() {
 
 
     var ViewType, data, repository, defaults;

@@ -1,17 +1,16 @@
-
 var utilities = require("../../utilities.js");
 
 module.exports = function(scenario, initFunction) {
 
   describe('(basis view tests) ' + scenario, function() {
 
-    var data, ViewType, defaultProperties,pluginManager;
+    var data, ViewType, defaultProperties, pluginManager, sourceElement;
 
     beforeEach(function() {
       pluginManager = require('../../../../../src/framework/pluginmanager.js');
       var init = initFunction();
       ViewType = init.ViewType;
-      data = new ViewType.Model(JSON.parse(JSON.stringify(init.data)));
+      sourceElement = utilities.appendChildHTML(init.htmlElement);
       defaultProperties = JSON.parse(JSON.stringify(ViewType.defaultProperties));
     });
 
@@ -20,28 +19,34 @@ module.exports = function(scenario, initFunction) {
     });
 
     it('can be created', function() {
-      var cv = new ViewType(data);
+      var cv = new ViewType({
+        el: sourceElement
+      });
       expect(cv).not.toBeUndefined();
     });
 
-    it('will add a new DOM element when no element is provided', function() {
+    xit('will add a new DOM element when no element is provided', function() {
       var view = new ViewType(data);
       expect(view.innerEl).not.toBeUndefined();
       expect(view.outerEl).not.toBeUndefined();
     });
 
-    it('the DOM element will have the same tag as defined in the data model', function() {
+    xit('the DOM element will have the same tag as defined in the data model', function() {
       var view = new ViewType(data);
       expect(view.innerEl.tagName.toUpperCase()).toBe(data.attributes.tag.toUpperCase());
       expect(view.outerEl.tagName.toUpperCase()).toBe(data.attributes.tag.toUpperCase());
     });
 
     it('will add a _ljView property to the DOM element', function() {
-      var view = new ViewType(data);
+      var view = new ViewType({
+        el: sourceElement
+      });
       var element = view.innerEl;
       expect(element._ljView === view).toBeTruthy();
+      expect(element === sourceElement).toBeTruthy();
     });
-    it('when initialized with the noRender option true, the view doesn\'t get rendered', function() {
+
+    xit('when initialized with the noRender option true, the view doesn\'t get rendered', function() {
       var view = new ViewType(data, {
         noRender: true
       });
@@ -50,7 +55,7 @@ module.exports = function(scenario, initFunction) {
       expect(view.outerEl.id).toBe('');
     });
 
-    it('can be initialized with an existing element, without re-rendering', function() {
+    xit('can be initialized with an existing element, without re-rendering', function() {
       var element = document.createElement('div');
       element.id = '1000';
 
@@ -62,7 +67,7 @@ module.exports = function(scenario, initFunction) {
     });
 
 
-    it('will not automatic render the DOM element with data from it\'s dataModel', function() {
+    xit('will not automatic render the DOM element with data from it\'s dataModel', function() {
       var view = new ViewType(data);
       var element = view.outerEl;
 
@@ -70,7 +75,7 @@ module.exports = function(scenario, initFunction) {
     });
 
 
-    it('can be initialized with an existing element, forcing re-rendering', function() {
+    xit('can be initialized with an existing element, forcing re-rendering', function() {
       var element = document.createElement('div');
       element.id = '1000';
       var view = new ViewType(data, {
@@ -90,12 +95,12 @@ module.exports = function(scenario, initFunction) {
       };
 
       var fun = function() {
-        var cv = new viewType(data, options);
+        var cv = new viewType(options);
       };
       expect(fun).toThrow()
     });
 
-    it('is styled in a separte stylesheet if a style is defined', function() {
+    xit('is styled in a separte stylesheet if a style is defined', function() {
       var view = new ViewType(data);
 
       var expected = expect(document.getElementById('wl-obj-css').innerHTML);
@@ -106,7 +111,7 @@ module.exports = function(scenario, initFunction) {
       }
     });
 
-    it('will add a data-lj-id attribute DOM element', function() {
+    xit('will add a data-lj-id attribute DOM element', function() {
       var view = new ViewType(data);
 
       var element = view.outerEl;
@@ -114,7 +119,7 @@ module.exports = function(scenario, initFunction) {
       expect(data_wl_id).toBe(data.attributes.id.toString());
     });
 
-    it('will add a data-lj-type attribute DOM element', function() {
+    xit('will add a data-lj-type attribute DOM element', function() {
       var view = new ViewType(data);
 
       var element = view.outerEl;
@@ -122,7 +127,7 @@ module.exports = function(scenario, initFunction) {
       expect(data_wl_type).toBe(data.attributes.type.toString());
     });
 
-    it('will add a default class to the DOM element', function() {
+    xit('will add a default class to the DOM element', function() {
       var view = new ViewType(data);
 
       var element = view.innerEl;
@@ -130,7 +135,7 @@ module.exports = function(scenario, initFunction) {
       expect(classAttribute).toContain('object-default object-' + data.attributes.type);
     });
 
-    it('will add classes that are defined in a data to the DOM element', function() {
+    xit('will add classes that are defined in a data to the DOM element', function() {
       var view = new ViewType(data);
 
       var element = view.innerEl;
@@ -138,7 +143,7 @@ module.exports = function(scenario, initFunction) {
       expect(classAttribute).toContain(data.attributes.classes);
     });
 
-    it('will add classes that are defined in a data to the DOM element', function() {
+    xit('will add classes that are defined in a data to the DOM element', function() {
       var view = new ViewType(data);
 
       var element = view.outerEl;
@@ -153,7 +158,7 @@ module.exports = function(scenario, initFunction) {
 
       expect(parent.children.length).toBe(1);
 
-      var view = new ViewType(data, {
+      var view = new ViewType({
         el: child
       });
       view.destroy();
@@ -162,7 +167,7 @@ module.exports = function(scenario, initFunction) {
       expect(child.parent).toBeUndefined();
     });
 
-    it('will set the href attribute of the anchor DOM element to the link_to attribute of the data model', function() {
+    xit('will set the href attribute of the anchor DOM element to the link_to attribute of the data model', function() {
       var view = new ViewType(data);
       var element = view.outerEl;
 
@@ -174,7 +179,7 @@ module.exports = function(scenario, initFunction) {
       }
     });
 
-    it('will set the target attribute of the anchor DOM element to the link_target attribute of the data model', function() {
+    xit('will set the target attribute of the anchor DOM element to the link_target attribute of the data model', function() {
       var view = new ViewType(data);
       var element = view.outerEl;
 
@@ -187,14 +192,16 @@ module.exports = function(scenario, initFunction) {
     });
 
     it('will listen for changes on its DOM element by default', function() {
-      var view = new ViewType(data);
+      var view = new ViewType({
+        el: sourceElement
+      });
       var element = view.outerEl;
 
       expect(view._observer).toBeDefined();
       expect(view._observer.isObserving()).toBe(true);
     });
 
-    it('will put the htmlAttributes from the dataObject into the DOM element as attributes', function() {
+    xit('will put the htmlAttributes from the dataObject into the DOM element as attributes', function() {
       data.attributes.htmlAttributes.id = 'id';
       data.attributes.htmlAttributes.custom = 'custom';
       data.attributes.htmlAttributes.someThing = 'someThing';
@@ -212,14 +219,24 @@ module.exports = function(scenario, initFunction) {
       expect(element.getAttribute('some-thing')).toBe(data.attributes.htmlAttributes.someThing);
     });
 
-    it('when the options parameter has no document, the global document will be taken', function(){
-      var view  = new ViewType(data);
+    it('when the options parameter has no document, the global document will be taken', function() {
+      var view = new ViewType({
+        el: sourceElement
+      });
       expect(view.document).toBe(document);
     });
 
-    it('can pas in a custom document in the options parameter', function(){
-      var view  = new ViewType(data, { document : document});
+    it('can pas in a custom document in the options parameter', function() {
+      var view = new ViewType({
+        el: sourceElement,
+        document: document
+      });
       expect(view.document).toBe(document);
+    });
+
+    it('will have a identify static property which can be used to identify is an element is of a specific View class', function() {
+      expect(ViewType.identify).toBeDefined();
+      expect(typeof ViewType.identify).toBe('function');
     });
   });
 };

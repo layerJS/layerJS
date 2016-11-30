@@ -314,11 +314,13 @@ var baseView = Kern.EventManager.extend({
   classes: function() {
     return this.getAttributeLJ('classes') || '';
   },
+  /*,
+  Refactoring: not needed anymore  
   children: function() {
     var children = this.getAttributeLJ('children');
 
     return children ? this.eval(children) : [];
-  },
+  },*/
   scaleX: function() {
     var scaleX = this.getAttributeLJ('scale-x');
 
@@ -379,6 +381,17 @@ var baseView = Kern.EventManager.extend({
   setNativeScroll: function(nativeScroll) {
     this.setAttributeLJ('native-scroll', nativeScroll);
   },
+  /**
+   * ##destroy
+   * This element was requested to be deleted completly; before the delete happens
+   * an event is triggerd on which this function id bound (in `initialialize`). It
+   * will remove the DOM elements connected to this element.
+   * @return {void}
+   */
+  destroy: function() {
+    this.disableObserver();
+    this.outerEl.parentNode.removeChild(this.outerEl);
+  }
 });
 
 module.exports = baseView;
