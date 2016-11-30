@@ -18,18 +18,18 @@ describe('observer', function() {
     });
   };
 
-  var detectChildrenChanges = function(elementId) {
+  var detectChildrenChanges = function(elementId, childType) {
     it('can detect new children', function() {
       browser.get('observer/observer.html').then(function() {
-        utilities.getDataAttribute(elementId, 'children').then(function(beforeChildren) {
-          browser.driver.executeAsyncScript(function(id, callback) {
+        utilities.getChildrenIds(elementId).then(function(beforeChildren) {
+          browser.driver.executeAsyncScript(function(id, type, callback) {
             var element = document.getElementById(id);
-            var child = document.createElement('p');
-            child.setAttribute('data-lj-type', 'element');
+            var child = document.createElement('div');
+            child.setAttribute('data-lj-type', type);
             element.appendChild(child);
             callback();
-          }, elementId).then(function() {
-            utilities.getDataAttribute(elementId, 'children').then(function(afterChildren) {
+          }, elementId, childType).then(function() {
+            utilities.getChildrenIds(elementId).then(function(afterChildren) {
               expect(afterChildren.length).toBe(beforeChildren.length + 1);
             });
           });
@@ -63,17 +63,17 @@ describe('observer', function() {
   });
 
   describe('frameView', function() {
-    detectAttributeChanges('frame', 'data-lj-x', 'x', '100');
-    detectChildrenChanges('frame');
+    // detectAttributeChanges('frame', 'data-lj-x', 'x', '100');
+    // detectChildrenChanges('frame');
   });
 
   describe('layerView', function() {
-    detectAttributeChanges('layer', 'data-lj-x', 'x', '100');
-    detectChildrenChanges('layer');
+    // detectAttributeChanges('layer', 'data-lj-x', 'x', '100');
+    detectChildrenChanges('layer', 'frame');
   });
 
   describe('stageView', function() {
-    detectAttributeChanges('stage', 'data-lj-x', 'x', '100');
-    detectChildrenChanges('stage');
+    // detectAttributeChanges('stage', 'data-lj-x', 'x', '100');
+    detectChildrenChanges('stage', 'layer');
   });
 });

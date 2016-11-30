@@ -4,6 +4,7 @@ var defaults = require('./defaults.js');
 var state = require('./state.js');
 var $ = require('./domhelpers.js');
 var pluginManager = require('./pluginmanager.js');
+var observerFactory = require('./observer/observerfactory.js');
 
 var baseView = Kern.EventManager.extend({
 
@@ -31,6 +32,8 @@ var baseView = Kern.EventManager.extend({
     }
 
     this._parseChildren();
+    this._createObserver();
+    this.enableObserver();
 
     // copy version from parent
     // FIXME: how can we get a different version in a child? Needed maybe for editor.
@@ -43,6 +46,48 @@ var baseView = Kern.EventManager.extend({
     var evalFn = eval;
 
     return evalFn(arg);
+  },
+  enableObserver: function() {
+    if (this._observer) {
+      this._observer.observe();
+    }
+  },
+  disableObserver: function() {
+    if (this._observer) {
+      this._observer.stop();
+    }
+  },
+  _createObserver: function() {
+    if (this.hasOwnProperty('_observer'))
+      return;
+
+    var that = this;
+    this._observer = observerFactory.getObserver(this.innerEl, {
+      attributes: true,
+      attributeFilter: ['id', 'name', 'data-lj-*','lj-*'],
+      childList: true,
+      callback: function(result) {
+        that._domElementChanged(result);
+      }
+    });
+  },
+  /**
+   * This function will parse the DOM element and add it to the data of the view.
+   * It will be use by the MutationObserver.
+   * @param {result} an object that contains what has been changed on the DOM element
+   * @return {void}
+   */
+  _domElementChanged: function(result) {
+    if (result.attributes.length > 0) {
+      //this.parse(this.outerEl);
+    }
+
+    if (result.removedNodes.length > 0 || result.addedNodes.length > 0) {
+      if (result.addedNodes.length > 0) {
+        this._parseChildren();
+      }
+      state.updateChildren(this, result.addedNodes, result.removedNodes);
+    }
   },
   _parseChildren: function() {
     if (this.childType) {
