@@ -212,7 +212,6 @@ var State = Kern.Model.extend({
    * @param {object} a layerJSView
    */
   registerView: function(view) {
-    console.log(view.type());
     if (view.type() === 'frame') {
       var frameViews = this._getRegisteredFrameViews(view.document);
       frameViews.push(view);
