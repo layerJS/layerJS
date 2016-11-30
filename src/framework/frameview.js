@@ -1,12 +1,8 @@
 'use strict';
-var Kern = require('../kern/Kern.js');
 var pluginManager = require('./pluginmanager.js');
-var GroupView = require('./groupview.js');
-var Kern = require('../kern/Kern.js');
-var defaults = require('./defaults.js');
-var state = require('./state.js');
 var $ = require('./domhelpers.js');
 var BaseView = require('./baseview.js');
+var defaults = require('./defaults.js');
 
 /**
  * A View which can have child views

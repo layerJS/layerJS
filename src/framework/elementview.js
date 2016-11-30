@@ -208,7 +208,7 @@ var ElementView = NodeView.extend({
     var p = new Kern.Promise();
     var w = this.width();
     var h = this.height();
-    var that = this;
+    //var that = this;
     if (w || h) {
       p.resolve({
         width: w || 0,

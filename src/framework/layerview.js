@@ -3,11 +3,9 @@ var $ = require('./domhelpers.js');
 var Kern = require('../kern/Kern.js');
 var pluginManager = require('./pluginmanager.js');
 var layoutManager = require('./layoutmanager.js');
-var GroupView = require('./groupview.js');
 var ScrollTransformer = require('./scrolltransformer.js');
 var gestureManager = require('./gestures/gesturemanager.js');
 var defaults = require('./defaults.js');
-var state = require('./state.js');
 var sizeObserver = require('./observer/sizeobserver.js');
 var BaseView = require('./baseview.js');
 

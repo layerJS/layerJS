@@ -78,9 +78,11 @@ var baseView = Kern.EventManager.extend({
    * @return {void}
    */
   _domElementChanged: function(result) {
+    /*
     if (result.attributes.length > 0) {
-      //this.parse(this.outerEl);
+      this.parse(this.outerEl);
     }
+    */
 
     if (result.removedNodes.length > 0 || result.addedNodes.length > 0) {
       if (result.addedNodes.length > 0) {
@@ -173,7 +175,11 @@ var baseView = Kern.EventManager.extend({
       }
     }
   },
-  renderChildPosition: function(childView) {},
+  /* jshint ignore:start */
+  renderChildPosition: function(childView) {
+
+  },
+  /* jshint ignore:end */
   /**
    * apply CSS styles to this view
    *
