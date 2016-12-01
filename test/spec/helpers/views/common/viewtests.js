@@ -1,4 +1,5 @@
 var utilities = require("../../utilities.js");
+var state = require('../../../../../src/framework/state.js');
 
 module.exports = function(scenario, initFunction) {
 
@@ -23,6 +24,12 @@ module.exports = function(scenario, initFunction) {
         el: sourceElement
       });
       expect(cv).not.toBeUndefined();
+    });
+
+    it('will register itself with the state', function() {
+      spyOn(state, 'registerView');
+      var view = new ViewType({el: sourceElement});
+      expect(state.registerView).toHaveBeenCalledWith(view);
     });
 
     xit('will add a new DOM element when no element is provided', function() {

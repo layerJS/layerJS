@@ -1,6 +1,6 @@
 module.exports = '<div lj-type="frame" '
                     + 'lj-id="110529" '
-                    + 'lj-name="menuopen" '
+                    + 'lj-name="simple_frame" '
                     + 'lj-x="-1857" '
                     + 'lj-y="-242" '
                     + 'lj-width="1280px" '
