@@ -1,4 +1,4 @@
-describe('TimeoutObserver', function() {
+describe('SizeObserver', function() {
 
   var sizeObserver = require('../../../src/framework/observer/sizeobserver.js');
   var FrameView = require('../../../src/framework/frameview.js');
@@ -10,42 +10,46 @@ describe('TimeoutObserver', function() {
 
 
   it('can register views to monitor', function() {
-    var frameView1 = new FrameView(new FrameView.Model(JSON.parse(JSON.stringify(FrameView.defaultProperties))));
+    var frameView1 = new FrameView({
+      el: utilities.appendChildHTML(require('../htmlElements/simple_frame_1.js'))
+    });
     var callBack = function() {};
 
     sizeObserver.register([frameView1], callBack);
 
-    expect(sizeObserver.views.hasOwnProperty(frameView1.data.attributes.id));
-    expect(sizeObserver.views[frameView1.data.attributes.id].view).toEqual(frameView1);
-    expect(sizeObserver.views[frameView1.data.attributes.id].callBack).toBe(callBack);
-    expect(sizeObserver.views[frameView1.data.attributes.id].size.hasOwnProperty("width")).toBeTruthy();
-    expect(sizeObserver.views[frameView1.data.attributes.id].size.hasOwnProperty("height")).toBeTruthy();
+    expect(sizeObserver.views.hasOwnProperty(frameView1.id()));
+    expect(sizeObserver.views[frameView1.id()].view).toEqual(frameView1);
+    expect(sizeObserver.views[frameView1.id()].callBack).toBe(callBack);
+    expect(sizeObserver.views[frameView1.id()].size.hasOwnProperty("width")).toBeTruthy();
+    expect(sizeObserver.views[frameView1.id()].size.hasOwnProperty("height")).toBeTruthy();
 
   });
 
   it('can unregister views to monitor', function() {
-    var frameView1 = new FrameView(new FrameView.Model(JSON.parse(JSON.stringify(FrameView.defaultProperties))));
-    var frameView2 = new FrameView(new FrameView.Model(JSON.parse(JSON.stringify(FrameView.defaultProperties))));
+    var frameView1 = new FrameView({
+      el: utilities.appendChildHTML(require('../htmlElements/simple_frame_1.js'))
+    });
+    var frameView2 = new FrameView({
+      el: utilities.appendChildHTML(require('../htmlElements/simple_frame_2.js'))
+    });
+
     var views = [frameView1, frameView2];
     var callBack = function() {};
 
     sizeObserver.register(views, callBack);
 
-    expect(sizeObserver.views.hasOwnProperty(frameView1.data.attributes.id)).toBeTruthy();
-    expect(sizeObserver.views.hasOwnProperty(frameView2.data.attributes.id)).toBeTruthy();
+    expect(sizeObserver.views.hasOwnProperty(frameView1.id())).toBeTruthy();
+    expect(sizeObserver.views.hasOwnProperty(frameView2.id())).toBeTruthy();
 
     sizeObserver.unRegister(views);
 
-    expect(sizeObserver.views.hasOwnProperty(frameView1.data.attributes.id)).toBeFalsy();
-    expect(sizeObserver.views.hasOwnProperty(frameView2.data.attributes.id)).toBeFalsy();
+    expect(sizeObserver.views.hasOwnProperty(frameView1.id())).toBeFalsy();
+    expect(sizeObserver.views.hasOwnProperty(frameView2.id())).toBeFalsy();
   });
 
   it('will execute the callback function when change in dimensions is detected', function(done) {
-    utilities.setHtml('<div id="frame"></div>');
-    var el = document.getElementById('frame');
-
-    var frameView = new FrameView(new FrameView.Model(JSON.parse(JSON.stringify(FrameView.defaultProperties))), {
-      el: el
+      var frameView = new FrameView({
+      el: utilities.appendChildHTML(require('../htmlElements/simple_frame_1.js'))
     });
     var detected = 0;
     var callBack = function() {
@@ -53,9 +57,9 @@ describe('TimeoutObserver', function() {
     };
     sizeObserver.register([frameView], callBack);
 
-    if (window.navigator.userAgent.match(/node.js/i)){ // fake content size change in jsdom
-      frameView.innerEl.scrollWidth=200;
-      frameView.innerEl.scrollHeight=200;
+    if (window.navigator.userAgent.match(/node.js/i)) { // fake content size change in jsdom
+      frameView.innerEl.scrollWidth = 200;
+      frameView.innerEl.scrollHeight = 200;
     }
     // spyOn(frameView.innerEl, "getBoundingClientRect").and.callFake(function() {
     //   return {
@@ -66,9 +70,9 @@ describe('TimeoutObserver', function() {
     setTimeout(function() {
       expect(detected).toBe(1);
 
-      if (window.navigator.userAgent.match(/node.js/i)){ // fake content size change in jsdom
-        frameView.innerEl.clientWidth=200;
-        frameView.innerEl.clientHeight=200;
+      if (window.navigator.userAgent.match(/node.js/i)) { // fake content size change in jsdom
+        frameView.innerEl.clientWidth = 200;
+        frameView.innerEl.clientHeight = 200;
       }
     }, 110);
     setTimeout(function() {

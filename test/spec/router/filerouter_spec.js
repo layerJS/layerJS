@@ -40,7 +40,7 @@ describe('Filerouter', function() {
   it('will load a frame from another page', function(done) {
     var scope = prepareSomePage();
 
-    new StageView(undefined, {
+    new StageView({
       el: document.getElementById('contentstage')
     });
 
@@ -53,7 +53,7 @@ describe('Filerouter', function() {
     promise.then(function(result) {
       expect(result.handled).toBeTruthy();
       expect(result.stop).toBeFalsy();
-      expect(layerView.currentFrame.data.attributes.name).toBe('frame2');
+      expect(layerView.currentFrame.name()).toBe('frame2');
       done();
     });
 
@@ -70,7 +70,7 @@ describe('Filerouter', function() {
         '</div>' +
         '</div>');
 
-    new StageView(undefined, {
+    new StageView({
       el: document.getElementById('contentstage')
     });
     var layerView = document.getElementById('contentlayer')._ljView;
@@ -80,14 +80,14 @@ describe('Filerouter', function() {
     scope.done();
 
     promise.then(function() {
-      expect(layerView.currentFrame.data.attributes.name).toBe('frame1');
+      expect(layerView.currentFrame.name()).toBe('frame1');
       done();
     });
   });
 
   it('will pass transition options to the layer when navigating to a frame', function(done) {
     var scope = prepareSomePage();
-    new StageView(undefined, {
+    new StageView({
       el: document.getElementById('contentstage')
     });
 
@@ -110,7 +110,7 @@ describe('Filerouter', function() {
   });
 
   it('will return false when an error occured', function(done) {
-    new StageView(undefined, {
+    new StageView({
       el: document.getElementById('contentstage')
     });
 

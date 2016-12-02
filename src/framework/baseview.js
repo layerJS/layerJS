@@ -210,15 +210,19 @@ var baseView = Kern.EventManager.extend({
       this._id = this.getAttributeLJ('id');
 
       if (!this._id) {
-        if (!this.outerEl._state) {
-          throw 'element should be associated with an lj-id or a state in order to use id()';
-        }
-        var parentChildren = this.outerEl._state.parent.children;
+        this._id = this.elementId();
 
-        for (var childName in parentChildren) {
-          if (parentChildren.hasOwnProperty(childName) && parentChildren[childName].view === this) {
-            this._id = childName;
-            break;
+        if (!this._id) {
+          if (!this.outerEl._state) {
+            throw 'element should be associated with an lj-id or a state in order to use id()';
+          }
+          var parentChildren = this.outerEl._state.parent.children;
+
+          for (var childName in parentChildren) {
+            if (parentChildren.hasOwnProperty(childName) && parentChildren[childName].view === this) {
+              this._id = childName;
+              break;
+            }
           }
         }
       }

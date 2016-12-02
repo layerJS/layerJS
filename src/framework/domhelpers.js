@@ -187,7 +187,7 @@ var DomHelpers = {
     var found = false;
 
     while (parent && !found) {
-      if (parent._ljView && parent._ljView.data.attributes.type === type) {
+      if (parent._ljView && parent._ljView.type() === type) {
         found = true;
       } else {
         parent = parent.parentElement;

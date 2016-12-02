@@ -1,4 +1,4 @@
-describe("NodeData", function() {
+xdescribe("NodeData", function() {
 
   var NodeData, ElementView;
 

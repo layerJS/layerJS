@@ -4,6 +4,7 @@ describe('router', function() {
   var utilities = require('../helpers/utilities.js');
   var StageView = require('../../../src/framework/stageview.js');
   var state = require('../../../src/framework/state.js');
+  var Kern = require('../../../src/kern/kern.js');
 
   beforeEach(function() {
     layerJS = require('../../../src/framework/layerjs.js');
@@ -279,7 +280,7 @@ describe('router', function() {
 
     window.history.pushState = function(param1, param2, url) {};
 
-    new StageView(null, {
+    new StageView({
       el: document.getElementById('stage1')
     });
 
@@ -327,7 +328,7 @@ describe('router', function() {
 
     window.history.pushState = function(param1, param2, url) {};
 
-    new StageView(null, {
+    new StageView({
       el: document.getElementById('stage1')
     });
 
@@ -375,7 +376,7 @@ describe('router', function() {
 
     window.history.pushState = function(param1, param2, url) {};
 
-    new StageView(null, {
+    new StageView({
       el: document.getElementById('stage1')
     });
 
@@ -407,7 +408,7 @@ describe('router', function() {
 
     utilities.setHtml(html);
 
-    new StageView(null, {
+    new StageView({
       el: document.getElementById('stage1')
     });
 

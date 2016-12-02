@@ -131,15 +131,21 @@ var State = Kern.Model.extend({
 
       // get the state of the parent layer,stage or frame node
       currentState = this.buildParent(parentNode.parentElement, ownerDocument);
-
       // layer helper divs are special; ignore them; ignoring means to pass the parent state as current state
       if (parentNode._ljView && !$.hasAttributeLJ(parentNode, 'helper')) {
         var view = parentNode._ljView;
-
         // ignore everything except frames, layers and stages; ignoring means to pass the parent state as current state
         if (view && -1 !== (this.viewTypes.indexOf(view.type()))) {
           var type = view.type();
-          var name = (view.name() || parentNode.id || type + '[' + this._getNextChildIndexByType(currentState, type) + ']');
+
+          var id;
+          try {
+            id = view.id();
+          } catch (e) {
+            id = undefined;
+          }
+
+          var name = (view.name() || id || type + '[' + this._getNextChildIndexByType(currentState, type) + ']');
           // layerJS object already added
           if (!currentState.children.hasOwnProperty(name)) {
             // create the actual current state datastructure as a child of the parent's state structure
@@ -220,6 +226,7 @@ var State = Kern.Model.extend({
     // only add to state structure if the frame is really shown (attached to DOM)
     if (view.document.body.contains(view.outerEl)) {
       this.buildParent(view.outerEl, view.document);
+      view.innerEl._state = view.outerEl._state;
     }
   },
   /**
@@ -260,7 +267,7 @@ var State = Kern.Model.extend({
    * @param {object} transition Transition properties
    */
   transitionTo: function(states, transition) {
-    var pathsToTransition = this._determineTransitionPaths(states);
+    var pathsToTransition = this._determineTransitionPaths(states);    
     for (let i = 0; i < pathsToTransition.length; i++) {
       var path = pathsToTransition[i];
       var layerView = this.getViewForPath(path.replace(/\.[^\.]*$/, ""));
