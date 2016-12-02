@@ -6,6 +6,7 @@ var ViewsGroupViewTests = require('./helpers/views/group/viewtests.js');
 
 var ViewsCommonParseTests = require('./helpers/views/common/parsetests.js');
 var ViewsCommon_renderChildPositionTests = require('./helpers/views/common/_renderchildpositiontests.js');
+var ViewsCommon_parseChildrenTests = require('./helpers/views/common/_parseChildrentests.js');
 var ViewsGroup_parseChildrenTests = require('./helpers/views/group/_parseChildrentests.js');
 
 var ViewsCommonIdentifyTests = require('./helpers/views/common/identifytests.js');
@@ -18,13 +19,13 @@ describe("LayerView", function() {
   ViewsCommonViewTests('simple_layerdata_nochildren.js', function() {
     return {
       ViewType: LayerView,
-      htmlElement: require('./htmlelements/layer_nochildren.js')
+      htmlElement: require('./htmlelements/layer_nochildren_1.js')
     }
   });
 
   ViewsCommon_renderChildPositionTests('simple_layerdata.js', function() {
     return {
-      htmlElement: require('./htmlelements/simple_layer.js'),
+      htmlElement: require('./htmlelements/simple_layer_1.js'),
       ViewType: LayerView
     };
   });
@@ -40,41 +41,6 @@ describe("LayerView", function() {
     return document.createElement('div');
   }, false);
 
-
-/*
-ViewsGroupViewTests('simple_layerdata.js', function() {
-  return {
-    data: require('./datasets/simple_layerdata.js'),
-    ViewType: LayerView,
-    parentId: 5
-  };
-});
-
-  ViewsGroupViewTests('test_data_set.js', function() {
-    return {
-      data: JSON.parse(JSON.stringify(require('./datasets/test_data_set.js'))),
-      ViewType: LayerView,
-      parentId: 5
-    };
-  });
-
-//Refactoring: Already tested
-  ViewsCommon_renderChildPositionTests('test_data_set.js', function() {
-    return {
-      data: require('./datasets/test_data_set.js'),
-      ViewType: LayerView,
-      parentId: 5
-    };
-  });
-
-//  Refactoring: no need to parse anymore
-  ViewsCommonParseTests(function() {
-    return {
-      ViewType: LayerView
-    }
-  });
-
-*/
   it('the Parse method will set nativeScroll to true if the DOM element has a data-lj-native-scroll attribute equals true', function() {
     var element = utilities.appendChildHTML('<div lj-native-scroll="true"><div lj-helper="scroller"></div></div>');
     var layerView = new LayerView({
@@ -92,22 +58,6 @@ ViewsGroupViewTests('simple_layerdata.js', function() {
     });
     expect(layerView.nativeScroll()).toBeFalsy();
   });
-/*
-  ViewsGroup_parseChildrenTests(function() {
-    return {
-      ViewType: LayerView,
-      viewTypeName: 'LayerView',
-      type: 'layer',
-      HTML: "<div id='100' data-lj-id='100' data-lj-type='layer'>" +
-        "<div id='101' data-lj-id='101' data-lj-type='frame'></div>" +
-        "<div id='102' data-lj-id='102' data-lj-type='frame'></div>" +
-        "<div/>" +
-        "</div>",
-      expectedChildren: ['101', '102']
-    };
-  });
-
-*/
 
   it('show frame will trigger events', function(done) {
     var html = "<div data-lj-type='stage' id='stage1'>" +
@@ -147,7 +97,13 @@ ViewsGroupViewTests('simple_layerdata.js', function() {
     }, 100);
   });
 
-
+  ViewsCommon_parseChildrenTests(function() {
+    return {
+      ViewType: LayerView,
+      htmlElement: require('./htmlelements/simple_layer_1.js'),
+      expectedChildren: ['simple_frame_1']
+    }
+  });
 
   describe('can transition to special frame name', function() {
 
@@ -330,4 +286,58 @@ ViewsGroupViewTests('simple_layerdata.js', function() {
         "</div>", '!bottom', 'frame2', done);
     });
   });
+
+  /*
+  ViewsGroupViewTests('simple_layerdata.js', function() {
+    return {
+      data: require('./datasets/simple_layerdata.js'),
+      ViewType: LayerView,
+      parentId: 5
+    };
+  });
+
+    ViewsGroupViewTests('test_data_set.js', function() {
+      return {
+        data: JSON.parse(JSON.stringify(require('./datasets/test_data_set.js'))),
+        ViewType: LayerView,
+        parentId: 5
+      };
+    });
+
+  //Refactoring: Already tested
+    ViewsCommon_renderChildPositionTests('test_data_set.js', function() {
+      return {
+        data: require('./datasets/test_data_set.js'),
+        ViewType: LayerView,
+        parentId: 5
+      };
+    });
+
+  //  Refactoring: no need to parse anymore
+    ViewsCommonParseTests(function() {
+      return {
+        ViewType: LayerView
+      }
+    });
+
+  */
+
+  /*
+   // Refactoring: tested in common _parsechildrentests.js
+    ViewsGroup_parseChildrenTests(function() {
+      return {
+        ViewType: LayerView,
+        viewTypeName: 'LayerView',
+        type: 'layer',
+        HTML: "<div id='100' data-lj-id='100' data-lj-type='layer'>" +
+          "<div id='101' data-lj-id='101' data-lj-type='frame'></div>" +
+          "<div id='102' data-lj-id='102' data-lj-type='frame'></div>" +
+          "<div/>" +
+          "</div>",
+        expectedChildren: ['101', '102']
+      };
+    });
+
+  */
+
 })

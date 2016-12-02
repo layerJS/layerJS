@@ -143,7 +143,7 @@ var LayerView = BaseView.extend({
    * @returns {void}
    */
   switchScrolling: function(nativeScrolling) {
-    //this.disableObserver();
+    this.disableObserver();
     var hasScroller = this.outerEl.children.length === 1 && $.getAttributeLJ(this.outerEl.children[0], 'helper') === 'scroller';
 
     if (nativeScrolling) {
@@ -151,6 +151,7 @@ var LayerView = BaseView.extend({
       $.setAttributeLJ(this.innerEl, 'helper', 'scroller');
       if (!this.innerEl._ljView) {
         this.innerEl._ljView = this.outerEl._ljView;
+        this.innerEl._state = this.outerEl._state;
       }
       this.outerEl.className += ' nativescroll';
     } else {
@@ -167,8 +168,8 @@ var LayerView = BaseView.extend({
     if (this.currentFrame) {
       this.showFrame(this.currentFrame.name(), this.currentFrame.getScrollData());
     }
-    //this._observer.element = this.innerEl;
-    //this.enableObserver();
+    this._observer.element = this.innerEl;
+    this.enableObserver();
   },
   /**
    * Will change the current layout with an other layout
@@ -478,9 +479,9 @@ var LayerView = BaseView.extend({
    * @returns {Type} Description
    */
   _renderChildPosition: function(childView) {
-    //childView.disableObserver();
+    childView.disableObserver();
     this._layout.renderFramePosition(childView, this._currentTransform);
-    //childView.enableObserver();
+    childView.enableObserver();
   },
   /**
    * Method will be invoked when a resize event is detected.

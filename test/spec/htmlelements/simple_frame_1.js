@@ -1,6 +1,6 @@
 module.exports = '<div lj-type="frame" '
-                    + 'lj-id="110529" '
-                    + 'lj-name="simple_frame" '
+                    + 'lj-id="simple_frame_1" '
+                    + 'lj-name="simple_frame_1" '
                     + 'lj-x="-1857" '
                     + 'lj-y="-242" '
                     + 'lj-width="1280px" '

@@ -64,7 +64,7 @@ var baseView = Kern.EventManager.extend({
     var that = this;
     this._observer = observerFactory.getObserver(this.innerEl, {
       attributes: true,
-      attributeFilter: ['id', 'name', 'data-lj-*','lj-*'],
+      attributeFilter: ['id', 'name', 'data-lj-*', 'lj-*'],
       childList: true,
       callback: function(result) {
         that._domElementChanged(result);
@@ -101,7 +101,6 @@ var baseView = Kern.EventManager.extend({
             parent: this,
             document: this.document
           });
-
           this.renderChildPosition(child._ljView);
         }
       }
@@ -116,7 +115,6 @@ var baseView = Kern.EventManager.extend({
   _getChildViewsByChildName: function() {
     let result = {};
     let state = this.outerEl._state;
-
     if (state && this.childType) {
       for (var childName in state.children) {
         if (state.children.hasOwnProperty(childName) && state.children[childName].view.type() === this.childType) {
@@ -151,7 +149,7 @@ var baseView = Kern.EventManager.extend({
 
     if (state) {
       let parent = state.parent;
-      while (parent && parent.view.type() !== type) {
+      while (parent && parent.view && parent.view.type() !== type) {
         parent = parent.parent.view ? parent.parent : undefined;
       }
 
@@ -315,7 +313,7 @@ var baseView = Kern.EventManager.extend({
     return this.getAttributeLJ('classes') || '';
   },
   /*,
-  Refactoring: not needed anymore  
+  Refactoring: not needed anymore
   children: function() {
     var children = this.getAttributeLJ('children');
 

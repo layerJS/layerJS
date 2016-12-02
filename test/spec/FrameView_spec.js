@@ -15,7 +15,7 @@ describe("FrameView", function() {
   ViewsCommonViewTests('simple_framedata.js', function() {
     return {
       ViewType: FrameView,
-      htmlElement: require('./htmlelements/simple_frame.js')
+      htmlElement: require('./htmlelements/simple_frame_1.js')
     }
   });
 
@@ -68,7 +68,7 @@ describe("FrameView", function() {
   }, false);
 
   it('will register itself with the state', function() {
-    var element = utilities.appendChildHTML(require('./htmlelements/simple_frame.js'));
+    var element = utilities.appendChildHTML(require('./htmlelements/simple_frame_1.js'));
     var frameView = new FrameView({
       el: element
     });
