@@ -101,7 +101,7 @@ var baseView = Kern.EventManager.extend({
             parent: this,
             document: this.document
           });
-          this.renderChildPosition(child._ljView);
+          this._renderChildPosition(child._ljView);
         }
       }
     }
@@ -174,7 +174,7 @@ var baseView = Kern.EventManager.extend({
     }
   },
   /* jshint ignore:start */
-  renderChildPosition: function(childView) {
+  _renderChildPosition: function(childView) {
 
   },
   /* jshint ignore:end */

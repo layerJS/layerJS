@@ -20,12 +20,12 @@ var StageView = BaseView.extend({
       that.onResize();
     }, false);
   },
-  renderChildPosition: function(childView) {
+  _renderChildPosition: function(childView) {
     if (childView.nodeType() === 1) {
-      //  childView.disableObserver();
+      childView.disableObserver();
       childView.outerEl.style.left = "0px";
       childView.outerEl.style.top = "0px";
-      //childView.enableObserver();
+      childView.enableObserver();
     }
   },
   /**

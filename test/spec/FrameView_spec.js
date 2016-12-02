@@ -12,7 +12,7 @@ var ViewsCommonViewTests = require('./helpers/views/common/viewtests.js')
 
 describe("FrameView", function() {
 
-  ViewsCommonViewTests('simple_framedata.js', function() {
+  ViewsCommonViewTests('simple_frame_1.js', function() {
     return {
       ViewType: FrameView,
       htmlElement: require('./htmlelements/simple_frame_1.js')

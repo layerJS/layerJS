@@ -16,14 +16,14 @@ describe("LayerView", function() {
 
   var utilities = require('./helpers/utilities.js');
 
-  ViewsCommonViewTests('simple_layerdata_nochildren.js', function() {
+  ViewsCommonViewTests('layer_nochildren_1.js', function() {
     return {
       ViewType: LayerView,
       htmlElement: require('./htmlelements/layer_nochildren_1.js')
     }
   });
 
-  ViewsCommon_renderChildPositionTests('simple_layerdata.js', function() {
+  ViewsCommon_renderChildPositionTests('simple_layer_1.js', function() {
     return {
       htmlElement: require('./htmlelements/simple_layer_1.js'),
       ViewType: LayerView

@@ -479,6 +479,10 @@ var LayerView = BaseView.extend({
    * @returns {Type} Description
    */
   _renderChildPosition: function(childView) {
+    if ( !this._layout){
+      this.switchLayout(this.layoutType());
+    }
+
     childView.disableObserver();
     this._layout.renderFramePosition(childView, this._currentTransform);
     childView.enableObserver();
