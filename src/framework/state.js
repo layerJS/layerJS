@@ -8,9 +8,9 @@ var defaults = require('./defaults.js');
 /**
  *  class that will contain the state off all the stages, layers, frames
  *
- * @extends Kern.Model
+ * @extends Kern.Base
  */
-var State = Kern.Model.extend({
+var State = Kern.Base.extend({
   constructor: function() {
     this.viewTypes = ['stage', 'layer', 'frame'];
   },
@@ -267,7 +267,7 @@ var State = Kern.Model.extend({
    * @param {object} transition Transition properties
    */
   transitionTo: function(states, transition) {
-    var pathsToTransition = this._determineTransitionPaths(states);    
+    var pathsToTransition = this._determineTransitionPaths(states);
     for (let i = 0; i < pathsToTransition.length; i++) {
       var path = pathsToTransition[i];
       var layerView = this.getViewForPath(path.replace(/\.[^\.]*$/, ""));

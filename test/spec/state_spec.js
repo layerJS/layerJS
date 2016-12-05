@@ -326,7 +326,7 @@ describe('state', function() {
     setTimeout(function() {
       expect(state.exportState()).toEqual(['stage1.layer1.frame2']);
       done();
-    }, 500);
+    }, 600);
   });
 
   it('can detect a direct show frame', function(done) {
