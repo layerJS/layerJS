@@ -11,9 +11,11 @@ describe('state', function() {
       "<div data-lj-type='stage' id='stage1'>" +
       "<div data-lj-type='layer' id='layer1' data-lj-default-frame='frame1'>" +
       "<div data-lj-type='frame' id='frame1' data-lj-name='frame1'>" +
+      "<div data-lj-type='stage' id='stage2'>" +
       "<div data-lj-type='layer' id='layer2' data-lj-default-frame='frame2'>" +
       "<div data-lj-type='frame' id='frame2' data-lj-name='frame2'></div>" +
       "<div data-lj-type='frame' id='frame2' data-lj-name='frame3'></div>" +
+      "</div>" +
       "</div>" +
       "</div>" +
       "<div data-lj-type='frame' id='frame4' data-lj-name='frame4'></div>" +
@@ -162,12 +164,14 @@ describe('state', function() {
   });
 
 
-  xit('can build a tree with nested lj elements', function() {
+  it('can build a tree with nested lj elements', function() {
     var html = "<div data-lj-type='stage' id='stage1'>" +
       "<div data-lj-type='layer' id='layer1' data-lj-default-frame='frame1'>" +
       "<div data-lj-type='frame' id='frame1' data-lj-name='frame1'>" +
+      "<div data-lj-type='stage' id='stage2'>" +
       "<div data-lj-type='layer' id='layer2' data-lj-default-frame='frame2'>" +
       "<div data-lj-type='frame' id='frame2' data-lj-name='frame2'></div>"
+    "</div>" +
     "</div>" +
     "</div>" +
     "</div>";
@@ -176,8 +180,9 @@ describe('state', function() {
     layerJS.parseManager.parseDocument();
 
     var stageView1 = document.getElementById('stage1')._ljView;
-
     var stageView1Id = 'stage1';
+    var stageView2 = document.getElementById('stage2')._ljView;
+    var stageView2Id = 'stage2';
     var layerView1 = document.getElementById('layer1')._ljView;
     var layerView2 = document.getElementById('layer2')._ljView;
     var layerView1Id = 'layer1';
@@ -197,9 +202,9 @@ describe('state', function() {
     expect(tree.children[stageView1Id].children[layerView1Id].children[frameView1Id]).toBeDefined();
     expect(tree.children[stageView1Id].children[layerView1Id].children[frameView1Id].view).toBe(frameView1);
     expect(tree.children[stageView1Id].children[layerView1Id].children[frameView1Id].active).toBeTruthy();
-    expect(tree.children[stageView1Id].children[layerView1Id].children[frameView1Id].children[layerView2Id].children[frameView2Id]).toBeDefined();
-    expect(tree.children[stageView1Id].children[layerView1Id].children[frameView1Id].children[layerView2Id].children[frameView2Id].view).toBe(frameView2);
-    expect(tree.children[stageView1Id].children[layerView1Id].children[frameView1Id].children[layerView2Id].children[frameView2Id].active).toBeTruthy();
+    expect(tree.children[stageView1Id].children[layerView1Id].children[frameView1Id].children[stageView2Id].children[layerView2Id].children[frameView2Id]).toBeDefined();
+    expect(tree.children[stageView1Id].children[layerView1Id].children[frameView1Id].children[stageView2Id].children[layerView2Id].children[frameView2Id].view).toBe(frameView2);
+    expect(tree.children[stageView1Id].children[layerView1Id].children[frameView1Id].children[stageView2Id].children[layerView2Id].children[frameView2Id].active).toBeTruthy();
   });
 
   it('will use the lj-name as identifier if the attribute is on the element', function() {
@@ -264,7 +269,7 @@ describe('state', function() {
     expect(tree.children['stage1'].children['layer[1]'].view).toBe(layerView2);
   });
 
-  xit('can export the state as an array of strings with only active frames', function() {
+  it('can export the state as an array of strings with only active frames', function() {
     setHtmlForExport();
 
     var stageView1 = document.getElementById('stage1')._ljView;
@@ -272,10 +277,10 @@ describe('state', function() {
     var activePaths = state.exportState();
     expect(activePaths.length).toBe(2);
     expect(activePaths[0]).toBe('stage1.layer1.frame1');
-    expect(activePaths[1]).toBe('stage1.layer1.frame1.layer2.frame2');
+    expect(activePaths[1]).toBe('stage1.layer1.frame1.stage2.layer2.frame2');
   });
 
-  xit('can export the structure as an array of strings', function() {
+  it('can export the structure as an array of strings', function() {
     setHtmlForExport();
 
     var stageView1 = document.getElementById('stage1')._ljView;
@@ -283,19 +288,19 @@ describe('state', function() {
     var structure = state.exportStructure();
     expect(structure.length).toBe(4);
     expect(structure[0]).toBe('stage1.layer1.frame1');
-    expect(structure[1]).toBe('stage1.layer1.frame1.layer2.frame2');
-    expect(structure[2]).toBe('stage1.layer1.frame1.layer2.frame3');
+    expect(structure[1]).toBe('stage1.layer1.frame1.stage2.layer2.frame2');
+    expect(structure[2]).toBe('stage1.layer1.frame1.stage2.layer2.frame3');
     expect(structure[3]).toBe('stage1.layer1.frame4');
   });
 
-  xit('can get a path to a view', function() {
+  it('can get a path to a view', function() {
     setHtmlForExport();
 
     var stageView1 = document.getElementById('stage1')._ljView;
 
     var frameView = document.getElementById('frame2')._ljView;
     var path = state.getPathForView(frameView);
-    expect(path).toBe('stage1.layer1.frame1.layer2.frame2');
+    expect(path).toBe('stage1.layer1.frame1.stage2.layer2.frame2');
   });
 
   it('can detect a new frame transition', function(done) {
@@ -691,7 +696,7 @@ describe('state', function() {
 
   });
 
-  xit('state is getting updated when views are added to a frame', function(done) {
+  it('state is getting updated when views are added to a frame', function(done) {
     var html = "<div data-lj-type='stage' id='stage1'>" +
       "<div data-lj-type='layer' id='layer1' data-lj-default-frame='frame1'>" +
       "<div data-lj-type='frame' id='frame1' data-lj-name='frame1'>"
@@ -706,14 +711,15 @@ describe('state', function() {
     });
     var frameView = document.getElementById('frame1')._ljView;
 
-    var newlayer = document.createElement('div');
-    newlayer.setAttribute('data-lj-type', 'layer');
-    newlayer.setAttribute('data-lj-name', 'newLayer');
-    frameView.innerEl.appendChild(newlayer);
+    var newStage = document.createElement('div');
+    newStage.setAttribute('data-lj-type', 'stage');
+    newStage.setAttribute('data-lj-name', 'newStage');
+    newStage.innerHTML = "<div data-lj-type='layer' data-lj-name='newLayer'></div>";
+    frameView.innerEl.appendChild(newStage);
 
     setTimeout(function() {
       var exportedState = state.exportStructure();
-      expect(exportedState).toEqual(['stage1.layer1.frame1', 'stage1.layer1.frame1.newLayer.!none']);
+      expect(exportedState).toEqual(['stage1.layer1.frame1', 'stage1.layer1.frame1.newStage.newLayer.!none']);
       done();
     }, 500)
   });
@@ -722,17 +728,20 @@ describe('state', function() {
     var html = "<div data-lj-type='stage' id='stage1'>" +
       "<div data-lj-type='layer' id='layer1' data-lj-default-frame='frame1'>" +
       "<div data-lj-type='frame' id='frame1' data-lj-name='frame1'>" +
+      "<div data-lj-type='stage' id='stage2'>" +
       "<div data-lj-type='layer' id='layer2'>" +
+      "<div data-lj-type='frame' id='frame2'>" +
+      "</div>" +
+      "</div>" +
       "</div>" +
       "</div>" +
       "</div>" +
       "</div>";
 
     utilities.setHtml(html);
+    layerJS.parseManager.parseDocument(document);
 
-    var stageView = new StageView({
-      el: document.getElementById('stage1')
-    });
+    var stageView = document.getElementById('stage1')._ljView;
     var frameView = document.getElementById('frame1')._ljView;
 
     frameView.innerEl.removeChild(frameView.innerEl.children[0]);
@@ -744,7 +753,7 @@ describe('state', function() {
     }, 500);
   });
 
-  xit('state is getting updated when a frameView (not linked to the dom) is added to the dom', function(done) {
+  it('state is getting updated when a frameView (not linked to the dom) is added to the dom', function(done) {
     var html = "<div data-lj-type='stage' id='stage1'>" +
       "<div data-lj-type='layer' id='layer1' data-lj-default-frame='frame1'>" +
       "<div data-lj-type='frame' id='frame1' data-lj-name='frame1'>" +

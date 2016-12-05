@@ -4,6 +4,7 @@ var defaults = require('./defaults.js');
 var state = require('./state.js');
 var $ = require('./domhelpers.js');
 var pluginManager = require('./pluginmanager.js');
+var parseManager = require('./parsemanager.js');
 var observerFactory = require('./observer/observerfactory.js');
 
 var baseView = Kern.EventManager.extend({
@@ -86,15 +87,19 @@ var baseView = Kern.EventManager.extend({
 
     if (result.removedNodes.length > 0 || result.addedNodes.length > 0) {
       if (result.addedNodes.length > 0) {
-        this._parseChildren();
+        this._parseChildren({
+          addedNodes: result.addedNodes
+        });
       }
       state.updateChildren(this, result.addedNodes, result.removedNodes);
     }
   },
-  _parseChildren: function() {
+  _parseChildren: function(options) {
+    options = options || {};
+
     if (this.childType) {
-      for (var i = 0; i < this.innerEl.children.length; i++) {
-        var child = this.innerEl.children[i];
+      for (let i = 0; i < this.innerEl.children.length; i++) {
+        let child = this.innerEl.children[i];
         if (!child._ljView && $.getAttributeLJ(child, 'type') === this.childType) {
           pluginManager.createView(this.childType, {
             el: child,
@@ -102,6 +107,16 @@ var baseView = Kern.EventManager.extend({
             document: this.document
           });
           this._renderChildPosition(child._ljView);
+        }
+      }
+    }
+
+    if (options.addedNodes && options.addedNodes.length > 0) {
+      let length = options.addedNodes.length;
+      for (let i = 0; i < length; i++) {
+        // check if added nodes don't alredy have a view defined.
+        if (!options.addedNodes[i]._ljView) {
+          parseManager.parseElement(options.addedNodes[i].parentNode);
         }
       }
     }
