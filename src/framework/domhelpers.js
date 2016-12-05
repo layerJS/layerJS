@@ -1,4 +1,5 @@
 'use strict';
+var uniqueHash = {};
 var DomHelpers = {
   /**
    * wrap all children of element into a wrapper element
@@ -210,6 +211,21 @@ var DomHelpers = {
         return match[1] * 60 * 60 * 1000;
     }
     return 0;
+  },
+  parseDimension: function(value) {
+    var match;
+    if (value && typeof value === 'string' && (match = value.match(/(.*)(?:px)?$/))) return parseInt(match[1]);
+    if (value && typeof value === 'number') return value;
+    return undefined;
+  },
+  uniqueID: function(prefix) {
+    prefix = prefix || -1;
+    uniqueHash[prefix] = uniqueHash[prefix] || -1;
+    if (prefix !== -1) {
+      return prefix + "[" + (++uniqueHash[prefix]) + "]";
+    } else {
+      return ++uniqueHash[prefix];
+    }
   }
 };
 DomHelpers.detectBrowser();

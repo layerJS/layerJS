@@ -37,7 +37,7 @@ var LayerView = BaseView.extend({
     this.switchScrolling(this.nativeScroll());
 
     // get upper layer where unuseable gestures should be sent to.
-    this.parentLayer = this.getParentOfType('layer');
+    // this.parentLayer = this.getParentOfType('layer');
     // register for gestures
     gestureManager.register(this.outerEl, this.gestureListener.bind(this), {
       dragging: true
@@ -412,7 +412,7 @@ var LayerView = BaseView.extend({
     if (null === this.currentFrame && childViews.length > 0) {
       frameName = childViews[0].name();
     } else if (null !== this.currentFrame && childViews.length > 0) {
-      let index = 0;
+      var index = 0;
       for (; index < childViews.length; index++) {
         if (this.currentFrame.name() === childViews[index].name()) {
           break;
@@ -439,7 +439,7 @@ var LayerView = BaseView.extend({
     if (null === this.currentFrame && childViews.length > 0) {
       frameName = childViews[0].name();
     } else if (null !== this.currentFrame && childViews.length > 0) {
-      let index = childViews.length - 1;
+      var index = childViews.length - 1;
       for (; index >= 0; index--) {
         if (this.currentFrame.name() === childViews[index].name()) {
           break;

@@ -48,9 +48,9 @@ var FileRouter = Kern.EventManager.extend({
             continue;
           }
 
-          let parentView;
-          let parentPath = loadedFrames[x];
-          let pathToImport;
+          var parentView;
+          var parentPath = loadedFrames[x];
+          var pathToImport;
 
           while (undefined === parentView && parentPath.indexOf('.') > 0 && !alreadyImported.hasOwnProperty(parentPath)) {
             pathToImport = parentPath;

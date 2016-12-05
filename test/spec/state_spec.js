@@ -265,8 +265,8 @@ describe('state', function() {
     expect(tree.children['stage1'].view).toBe(stageView1);
     expect(tree.children['stage1'].children['layer1']).toBeDefined();
     expect(tree.children['stage1'].children['layer1'].view).toBe(layerView1);
-    expect(tree.children['stage1'].children['layer[1]']).toBeDefined();
-    expect(tree.children['stage1'].children['layer[1]'].view).toBe(layerView2);
+    expect(tree.children['stage1'].children['layer[0]']).toBeDefined();
+    expect(tree.children['stage1'].children['layer[0]'].view).toBe(layerView2);
   });
 
   it('can export the state as an array of strings with only active frames', function() {

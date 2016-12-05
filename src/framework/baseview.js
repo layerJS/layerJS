@@ -1,6 +1,5 @@
 'use strict';
 var Kern = require('../kern/Kern.js');
-var defaults = require('./defaults.js');
 var state = require('./state.js');
 var $ = require('./domhelpers.js');
 var pluginManager = require('./pluginmanager.js');
@@ -11,6 +10,7 @@ var baseView = Kern.EventManager.extend({
 
   constructor: function(options) {
     options = options || {};
+    this._cache = {}; // this will cache some properties. The cache can be deleted an the method will need to rebuild the data. Therefore don't query the _cache directly, but use the accessor functions.
     this.childType = options.childType;
     Kern.EventManager.call(this);
     this._setDocument(options);
@@ -26,13 +26,14 @@ var baseView = Kern.EventManager.extend({
     this.outerEl = this.outerEl || options.el || this.innerEl;
     this.outerEl._ljView = this;
 
+    this._parseChildren();
+
     state.registerView(this);
 
     if (!this.parent && this.outerEl._state && this.outerEl._state.view) {
       this.parent = this.outerEl._state.parent.view;
     }
 
-    this._parseChildren();
     this._createObserver();
     this.enableObserver();
 
@@ -97,9 +98,12 @@ var baseView = Kern.EventManager.extend({
   _parseChildren: function(options) {
     options = options || {};
 
+    this._cache.children = [];
+    this._cache.childNames = {};
+    this._cache.childIDs = {};
     if (this.childType) {
-      for (let i = 0; i < this.innerEl.children.length; i++) {
-        let child = this.innerEl.children[i];
+      for (var i = 0; i < this.innerEl.children.length; i++) {
+        var child = this.innerEl.children[i];
         if (!child._ljView && $.getAttributeLJ(child, 'type') === this.childType) {
           pluginManager.createView(this.childType, {
             el: child,
@@ -108,72 +112,35 @@ var baseView = Kern.EventManager.extend({
           });
           this._renderChildPosition(child._ljView);
         }
+        if (child._ljView && child._ljView.type() === this.childType) {
+          var cv = child._ljView;
+          this._cache.children.push(cv);
+          this._cache.childNames[cv.name()] = cv;
+          this._cache.childIDs[cv.id()] = cv;
+        }
       }
     }
-
     if (options.addedNodes && options.addedNodes.length > 0) {
-      let length = options.addedNodes.length;
-      for (let i = 0; i < length; i++) {
+      var length = options.addedNodes.length;
+      for (var i = 0; i < length; i++) {
         // check if added nodes don't alredy have a view defined.
         if (!options.addedNodes[i]._ljView) {
           parseManager.parseElement(options.addedNodes[i].parentNode);
         }
       }
     }
-  },
-  _parseDimension: function(value) {
-    var match;
-    if (value && typeof value === 'string' && (match = value.match(/(.*)(?:px)?$/))) return parseInt(match[1]);
-    if (value && typeof value === 'number') return value;
-    return undefined;
-  },
-  _getChildViewsByChildName: function() {
-    let result = {};
-    let state = this.outerEl._state;
-    if (state && this.childType) {
-      for (var childName in state.children) {
-        if (state.children.hasOwnProperty(childName) && state.children[childName].view.type() === this.childType) {
-          result[childName] = state.children[childName].view;
-        }
-      }
-    }
 
-    return result;
   },
   getChildViewByName: function(name) {
-    var children = this._getChildViewsByChildName();
-
-    return children.hasOwnProperty(name) ? children[name] : undefined;
+    if (!this._cache.childNames) this._parseChildren();
+    return this._cache.childNames[name];
   },
   getChildViews: function() {
-    var children = this._getChildViewsByChildName();
-    var result = [];
-
-    for (var childName in children) {
-      if (children.hasOwnProperty(childName)) {
-        result.push(children[childName]);
-      }
-    }
-
-    return result;
-
-  },
-  getParentOfType: function(type) {
-    let parentView;
-    let state = this.outerEl._state;
-
-    if (state) {
-      let parent = state.parent;
-      while (parent && parent.view && parent.view.type() !== type) {
-        parent = parent.parent.view ? parent.parent : undefined;
-      }
-
-      parentView = parent ? parent.view : undefined;
-    }
-    return parentView;
+    if (!this._cache.children) this._parseChildren();
+    return this._cache.children;
   },
   /**
-   * Will determin which docment object should be associated with this view
+   * Will determin which document object should be associated with this view
    * @param {result} an object that contains what has been changed on the DOM element
    * @return {void}
    */
@@ -220,54 +187,19 @@ var baseView = Kern.EventManager.extend({
     return this.outerEl.getAttribute(name);
   },
   id: function() {
-
     if (!this._id) {
-      this._id = this.getAttributeLJ('id');
-
-      if (!this._id) {
-        this._id = this.elementId();
-
-        if (!this._id) {
-          if (!this.outerEl._state) {
-            throw 'element should be associated with an lj-id or a state in order to use id()';
-          }
-          var parentChildren = this.outerEl._state.parent.children;
-
-          for (var childName in parentChildren) {
-            if (parentChildren.hasOwnProperty(childName) && parentChildren[childName].view === this) {
-              this._id = childName;
-              break;
-            }
-          }
-        }
-      }
+      this._id = this.getAttributeLJ('id') || this.outerEl.id || $.uniqueID(this.type());
     }
-
     return this._id;
   },
-  elementId: function() {
-    return this.outerEl.id;
-  },
   name: function() {
-    return this.getAttributeLJ('name');
+    return this.getAttributeLJ('name') || this.outerEl.id || this.id();
   },
   type: function() {
     return this.getAttributeLJ('type');
   },
   nodeType: function() {
     return this.outerEl && this.outerEl.nodeType;
-  },
-  version: function() {
-    var version = this.getAttributeLJ('version');
-
-    if (!version) {
-      this._version = this._version || defaults.version;
-      version = this._version;
-    }
-    return version;
-  },
-  setVersion: function(version) {
-    this.setAttributeLJ('version', version);
   },
   width: function() {
     var width = this.outerEl.offsetWidth;
@@ -283,7 +215,7 @@ var baseView = Kern.EventManager.extend({
       width = this.getAttribute('width');
     }
 
-    return this._parseDimension(width);
+    return $.parseDimension(width);
   },
   height: function() {
     var height = this.outerEl.offsetHeight;
@@ -299,7 +231,7 @@ var baseView = Kern.EventManager.extend({
       height = this.getAttribute('height');
     }
 
-    return this._parseDimension(height);
+    return $.parseDimension(height);
   },
   x: function() {
     var x = this.getAttributeLJ('x');
@@ -308,7 +240,7 @@ var baseView = Kern.EventManager.extend({
       x = this.outerEl.style.left;
     }
 
-    return this.outerEl.offsetLeft || this._parseDimension(x);
+    return this.outerEl.offsetLeft || $.parseDimension(x);
   },
   y: function() {
     var y = this.getAttributeLJ('y');
@@ -317,7 +249,7 @@ var baseView = Kern.EventManager.extend({
       y = this.outerEl.style.top;
     }
 
-    return this.outerEl.offsetTop || this._parseDimension(y);
+    return this.outerEl.offsetTop || $.parseDimension(y);
   },
   hidden: function() {
     return this.outerEl.style.display === 'none';

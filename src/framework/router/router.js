@@ -65,7 +65,7 @@ var Router = Kern.EventManager.extend({
         var states = hash.split(';');
         var layerView;
 
-        for (let index = 0; index < states.length; index++) {
+        for (var index = 0; index < states.length; index++) {
           for (var specialFrame in defaults.specialFrames) {
             // local hash has been found
             if (states[index] === defaults.specialFrames[specialFrame]) {

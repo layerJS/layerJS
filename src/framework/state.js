@@ -92,20 +92,21 @@ var State = Kern.Base.extend({
   updateChildren: function(view, addedNodes, removedNodes) {
 
     var viewState = view.outerEl._state;
+    var i;
 
     if (undefined === viewState) {
       return;
     }
 
     if (undefined !== addedNodes && addedNodes.length > 0) {
-      for (let i = 0; i < addedNodes.length; i++) {
+      for (i = 0; i < addedNodes.length; i++) {
         if (addedNodes[i]._ljView && -1 !== this.viewTypes.indexOf(addedNodes[i]._ljView.type())) {
           this.buildParent(addedNodes[i], view.document);
         }
       }
     }
     if (undefined !== removedNodes && removedNodes.length > 0) {
-      for (var i = 0; i < removedNodes.length; i++) {
+      for (i = 0; i < removedNodes.length; i++) {
         if (removedNodes[i]._ljView && -1 !== this.viewTypes.indexOf(removedNodes[i]._ljView.type())) {
           for (var childName in viewState.children) {
             if (viewState.children.hasOwnProperty(childName)) {
@@ -268,7 +269,7 @@ var State = Kern.Base.extend({
    */
   transitionTo: function(states, transition) {
     var pathsToTransition = this._determineTransitionPaths(states);
-    for (let i = 0; i < pathsToTransition.length; i++) {
+    for (var i = 0; i < pathsToTransition.length; i++) {
       var path = pathsToTransition[i];
       var layerView = this.getViewForPath(path.replace(/\.[^\.]*$/, ""));
       var frameName = path.substr(path.lastIndexOf(".") + 1);
@@ -282,7 +283,7 @@ var State = Kern.Base.extend({
    */
   showState: function(states) {
     var pathsToTransition = this._determineTransitionPaths(states);
-    for (let i = 0; i < pathsToTransition.length; i++) {
+    for (var i = 0; i < pathsToTransition.length; i++) {
       var path = pathsToTransition[i];
       var layerView = this.getViewForPath(path.replace(/\.[^\.]*$/, ""));
       var frameName = path.substr(path.lastIndexOf(".") + 1);
@@ -305,7 +306,7 @@ var State = Kern.Base.extend({
       var parentState = state.parent;
 
       while (parentState) {
-        let found = false;
+        var found = false;
         for (var childName in parentState.children) {
           if (parentState.children[childName] === state) {
             paths.push(childName);
@@ -333,8 +334,8 @@ var State = Kern.Base.extend({
     var currentStructure = this.exportStructure();
     var pathsToTransition = [];
 
-    for (let i = 0; i < length; i++) {
-      for (let x = 0; x < currentStructure.length; x++) {
+    for (var i = 0; i < length; i++) {
+      for (var x = 0; x < currentStructure.length; x++) {
         var tempStructure = currentStructure[x].replace(new RegExp(this._escapeRegex(states[i]) + '$'), '');
         if ('' === tempStructure || (currentStructure[x] !== tempStructure && tempStructure.endsWith('.'))) {
           if (-1 === pathsToTransition.indexOf(currentStructure[x])) {
