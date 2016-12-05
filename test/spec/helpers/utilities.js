@@ -52,7 +52,6 @@ utilities.beforeEach = function() {
 }
 
 utilities.afterEach = function() {
-  layerJS.repository.clear();
   layerJS.state.tree = {};
   layerJS.router.clearRouters();
   layerJS.router.previousUrl = undefined;

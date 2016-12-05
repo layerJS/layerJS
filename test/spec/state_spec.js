@@ -4,9 +4,7 @@ describe('state', function() {
   var utilities = require('./helpers/utilities.js');
   var StageView = require('../../src/framework/stageview.js');
   var FrameView = require('../../src/framework/frameview.js');
-  var GroupView = require('../../src/framework/groupview.js');
   var state = require('../../src/framework/state.js');
-
 
   function setHtmlForExport() {
     var html =
@@ -764,7 +762,7 @@ describe('state', function() {
     newFrame.setAttribute('data-lj-name', 'frame2');
     newFrame.setAttribute('data-lj-type', 'frame');
 
-    var frameView = new FrameView( {
+    var frameView = new FrameView({
       el: newFrame
     });
 

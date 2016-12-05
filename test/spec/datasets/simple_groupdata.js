@@ -1,1 +1,0 @@
-var dataset =[{"type":"group","width":"1280px","height":"396px","x":0,"y":10,"style":"background-color: rgba(240,240,240,0.8);","classes":"someClass","layer":25,"rotation":360,"zIndex":5,"children":[],"disallow":{},"id":"110530","scaleX":1,"scaleY":1,"content":"","tag":"div","version":"default","htmlAttributes":[]}];module.exports = dataset;

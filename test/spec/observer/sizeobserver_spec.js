@@ -78,6 +78,6 @@ describe('SizeObserver', function() {
     setTimeout(function() {
       expect(detected).toBe(2);
       done();
-    }, 210);
+    }, 250);
   });
 });

@@ -38,30 +38,6 @@ describe('observer', function() {
     });
   };
 
-  xdescribe('elementView', function() {
-
-    detectAttributeChanges('element', 'data-lj-x', 'x', '100');
-
-    it('can\'t detect new children', function() {
-      browser.get('observer/observer.html').then(function() {
-        browser.driver.executeAsyncScript(function(id, callback) {
-          var element = document.getElementById(id);
-          element.appendChild(document.createElement('p'));
-          callback();
-        }, 'element').then(function() {
-          utilities.getDataAttribute('element', 'children').then(function(dataAttribute) {
-            expect(dataAttribute).toBe(null);
-          });
-        });
-      });
-    });
-  });
-
-  xdescribe('groupView', function() {
-    detectAttributeChanges('group', 'data-lj-x', 'x', '100');
-    detectChildrenChanges('group');
-  });
-
   describe('frameView', function() {
     // detectAttributeChanges('frame', 'data-lj-x', 'x', '100');
     // detectChildrenChanges('frame');

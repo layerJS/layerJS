@@ -26,7 +26,6 @@ describe('ParseMananger', function() {
     expect(stageView2.getChildViews().length).toBe(0);
   });
 
-
   it('will parse stages from a specific dom element', function() {
     utilities.setHtml("<div id='container'><div data-lj-id='1' id='stage1' data-lj-type='stage'></div><div data-lj-id='2' id='stage2' data-lj-type='stage'></div></div>");
 
@@ -46,47 +45,4 @@ describe('ParseMananger', function() {
     expect(stageView2.getChildViews().length).toBe(0);
   });
 
-
-
-  xit('will fill add stageData to the repository from DOM elements', function() {
-    utilities.setHtml("<div data-lj-id='1' data-lj-type='stage'></div><div data-lj-id='2' data-lj-type='stage'>");
-
-    var repository = layerJS.repository;
-    var parseManager = layerJS.parseManager;
-
-    parseManager.parseDocument();
-
-    var stage = repository.get(1, defaults.version);
-    expect(stage).toBeDefined();
-    expect(stage.attributes.id).toBe('1');
-    expect(stage.attributes.type).toBe('stage');
-    expect(stage.attributes.children.length).toBe(0);
-
-    stage = repository.get(2, defaults.version);
-    expect(stage).toBeDefined();
-    expect(stage.attributes.id).toBe('2');
-    expect(stage.attributes.type).toBe('stage');
-    expect(stage.attributes.children.length).toBe(0);
-  });
-
-  xit('will add stageData to the repository from a specific dom element', function() {
-    utilities.setHtml("<div id='container' ><div data-lj-id='1' data-lj-type='stage'></div><div data-lj-id='2' data-lj-type='stage'></div>");
-
-    var repository = layerJS.repository;
-    var parseManager = layerJS.parseManager;
-
-    parseManager.parseElement(document.getElementById('container'));
-
-    var stage = repository.get(1, defaults.version);
-    expect(stage).toBeDefined();
-    expect(stage.attributes.id).toBe('1');
-    expect(stage.attributes.type).toBe('stage');
-    expect(stage.attributes.children.length).toBe(0);
-
-    stage = repository.get(2, defaults.version);
-    expect(stage).toBeDefined();
-    expect(stage.attributes.id).toBe('2');
-    expect(stage.attributes.type).toBe('stage');
-    expect(stage.attributes.children.length).toBe(0);
-  });
 });

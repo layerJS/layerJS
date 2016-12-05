@@ -123,8 +123,8 @@ describe('TimeoutObserver', function() {
         setTimeout(function(){
           expect(ok).toBe(true);
           done();
-        },55);
-      }, 55);
+        },60);
+      }, 60);
     });
 
 

@@ -41,19 +41,6 @@ var PluginManager = Kern.EventManager.extend({
     throw "no constructor found for objects of type '" + model + "'";
   },
   /**
-   * create a data model based on a json object (and it's type property)
-   *
-   * @param {Object} data - JSON data of data model
-   * @param {Object} options - options passed to the model constructor
-   * @returns {ObjData} the new data model
-   */
-  createModel: function(data, options) {
-    if (data.type && this.map.hasOwnProperty(data.type)) {
-      return new(this.map[data.type].model)(data, options);
-    }
-    throw "no constructor found for ObjData of type '" + data.type + "'";
-  },
-  /**
    * register a view class for a ObjData type
    *
    * @param {string} type - the name of the type

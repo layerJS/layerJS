@@ -71,13 +71,15 @@ describe('resize', function() {
     });
   });
 
+  // refactoring: add test that will detect a change in the fit-to attribute.
+
   it('frame will keeps its horizontal scroll position on a resize', function() {
     browser.get('resize/resize.html').then(function() {
       utilities.setAttributes('frame', {
         'data-lj-fit-to': 'height',
         'data-lj-start-position': 'left'
       }).then(function() {
-        utilities.resizeWindow(400, 600);
+        utilities.resizeWindow(400, 600); // refactor: should be removed
         utilities.scrollRight('layer', 1).then(function() {
           utilities.resizeWindow(400, 500);
           utilities.getScroll('layer').then(function(layer_scroll) {
