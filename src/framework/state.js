@@ -15,23 +15,6 @@ var State = Kern.Base.extend({
     this.viewTypes = ['stage', 'layer', 'frame'];
   },
   /**
-   * Will return the next index of a layerjs object within it's parent
-   *
-   * @param {object} Represents the parent
-   * @param {string} A layerjs type
-   * @returns {integer} The index next index for that type
-   */
-  _getNextChildIndexByType: function(parent, type) {
-    var index = -1;
-    for (var name in parent.children) {
-      if (parent.children[name].view && parent.children[name].view.type() === type) {
-        ++index;
-      }
-    }
-
-    return index + 1;
-  },
-  /**
    * Will add layerjs objects to it's parent structure state
    *
    * @param {object} Represents the parent
@@ -49,9 +32,7 @@ var State = Kern.Base.extend({
       if (undefined === childView) {
         this._buildTree(parent, child.children);
       } else if (-1 !== this.viewTypes.indexOf(childView.type())) {
-        var type = childView.type();
-
-        var name = (childView.name() || child.id || type + '[' + this._getNextChildIndexByType(parent, type) + ']');
+        var name = childView.name();
         parent.children[name] = {
           view: childView,
           children: {}
@@ -137,16 +118,7 @@ var State = Kern.Base.extend({
         var view = parentNode._ljView;
         // ignore everything except frames, layers and stages; ignoring means to pass the parent state as current state
         if (view && -1 !== (this.viewTypes.indexOf(view.type()))) {
-          var type = view.type();
-
-          var id;
-          try {
-            id = view.id();
-          } catch (e) {
-            id = undefined;
-          }
-
-          var name = (view.name() || id || type + '[' + this._getNextChildIndexByType(currentState, type) + ']');
+          var name = view.name();
           // layerJS object already added
           if (!currentState.children.hasOwnProperty(name)) {
             // create the actual current state datastructure as a child of the parent's state structure
