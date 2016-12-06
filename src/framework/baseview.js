@@ -122,10 +122,10 @@ var baseView = Kern.EventManager.extend({
     }
     if (options.addedNodes && options.addedNodes.length > 0) {
       var length = options.addedNodes.length;
-      for (var i = 0; i < length; i++) {
-        // check if added nodes don't alredy have a view defined.
-        if (!options.addedNodes[i]._ljView) {
-          parseManager.parseElement(options.addedNodes[i].parentNode);
+      for (var x = 0; x < length; x++) {
+        // check if added nodes don't already have a view defined.
+        if (!options.addedNodes[x]._ljView) {
+          parseManager.parseElement(options.addedNodes[x].parentNode);
         }
       }
     }
