@@ -23,6 +23,7 @@ module.exports = function(scenario, initFunction) {
       var cv = new ViewType({
         el: sourceElement
       });
+
       expect(cv).not.toBeUndefined();
     });
 
@@ -39,7 +40,7 @@ module.exports = function(scenario, initFunction) {
       var element = view.innerEl;
       expect(element._ljView === view).toBeTruthy();
       expect(element === sourceElement).toBeTruthy();
-    });  
+    });
 
     it('cannot add view to existing element if that is already connected to another view', function() {
       var element = document.createElement('div');
@@ -76,9 +77,7 @@ module.exports = function(scenario, initFunction) {
         el: sourceElement
       });
       var element = view.outerEl;
-
-      expect(view._observer).toBeDefined();
-      expect(view._observer.isObserving()).toBe(true);
+      expect(view.isObserving()).toBe(true);
     });
 
     it('when the options parameter has no document, the global document will be taken', function() {

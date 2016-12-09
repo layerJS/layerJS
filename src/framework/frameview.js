@@ -16,6 +16,12 @@ var FrameView = BaseView.extend({
 
     this.transformData = undefined;
   },
+  startObserving: function() {
+    BaseView.prototype.observe.call(this, this.innerEl, {
+      attributes: true,
+      children: true
+    });
+  },
   /**
    * get the transformData of the frame that describes how to fit the frame into the stage
    *
@@ -262,7 +268,7 @@ var FrameView = BaseView.extend({
     return (this.transformData = d);
   }
 }, {
-  defaultProperties:{
+  defaultProperties: {
     type: 'frame'
   },
   identify: function(element) {

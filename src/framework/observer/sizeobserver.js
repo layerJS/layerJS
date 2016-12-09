@@ -2,81 +2,77 @@
 var Kern = require('../../kern/kern.js');
 
 var SizeObserver = Kern.Base.extend({
-  constructor: function(options) {
-    options = options || {};
-    this.options = options;
-    this.views = {};
-    this.checkSize();
+  constructor: function(element, options) {
+    this.element = element;
+    this.options = options || {};
+    this.dimensions = undefined;
   },
   /**
-   * Register all views to monitor for dimensions changes
+   * Register the dimensions
    *
-   * @param {array} views - An array of layerjs object to monitor
-   * @param {function} callBack - function to execute when a change in dimensions is detected
-   * @returns {string} the found ViewType
    */
-  register: function(views, callBack) {
-    var length = views.length;
-    for (var i = 0; i < length; i++) {
-      var view = views[i];
-      if (!this.views.hasOwnProperty(view.id()) || this.views[view.id()].callBack !== callBack) { // only register if view does not exist already in list
-        this.views[view.id()] = {
-          view: view,
-          callBack: callBack,
-          size_inner: {
-            width: view.innerEl.scrollWidth,
-            height: view.innerEl.scrollHeight
-          },
-          size: {
-            width: view.innerEl.clientWidth,
-            height: view.innerEl.clientHeight
-          }
-        };
-      }
+  observe: function() {
+    if (!this.isObserving()) {
+      this.dimensions = {
+        size_inner: {
+          width: this.element.scrollWidth,
+          height: this.element.scrollHeight
+        },
+        size: {
+          width: this.element.clientWidth,
+          height: this.element.clientHeight
+        }
+      };
+
+      this.checkSize();
     }
   },
   /**
-   * Unregister of views to monitor for dimensions changes
+   * Stop observing the size
    *
-   * @param {array} views - An array of layerjs object to unregister
    */
-  unRegister: function(views) {
-    var length = views.length;
-    for (var i = 0; i < length; i++) {
-      delete this.views[views[i].id()];
+  stop: function() {
+    if (this.isObserving()) {
+      clearTimeout(this.myTimeout);
+      this.myTimeout = undefined;
     }
+  },
+  /**
+   * Checks if the observer is observing
+   *
+   * @returns {bool} returns true if observer is observing
+   */
+  isObserving: function() {
+    return this.myTimeout !== undefined;
   },
   /**
    * Will check if dimensions are changed for specified views
    *
    */
   checkSize: function() {
-    for (var viewId in this.views) {
-      if (this.views.hasOwnProperty(viewId)) {
-        var el = this.views[viewId].view.innerEl;
-        var iwidth = el.scrollWidth;
-        var iheight = el.scrollHeight;
-        var width = el.clientWidth;
-        var height = el.clientHeight;
-        if (width !== this.views[viewId].size.width || height !== this.views[viewId].size.height || iwidth !== this.views[viewId].size_inner.width || iheight !== this.views[viewId].size_inner.height) {
-          this.views[viewId].size = {
-            width: width,
-            height: height
-          };
-          this.views[viewId].size_inner = {
-            width: iwidth,
-            height: iheight
-          };
-          this.views[viewId].callBack();
-        }
-      }
+
+    var el = this.element;
+    var iwidth = el.scrollWidth;
+    var iheight = el.scrollHeight;
+    var width = el.clientWidth;
+    var height = el.clientHeight;
+    if (width !== this.dimensions.size.width || height !== this.dimensions.size.height || iwidth !== this.dimensions.size_inner.width || iheight !== this.dimensions.size_inner.height) {
+      this.dimensions.size = {
+        width: width,
+        height: height
+      };
+      this.dimensions.size_inner = {
+        width: iwidth,
+        height: iheight
+      };
+      this.options.callback();
     }
 
     var that = this;
-    setTimeout(function() {
+    this.myTimeout = setTimeout(function() {
       that.checkSize();
     }, this.options.timeout || 100);
   }
 });
 
-module.exports = new SizeObserver();
+module.exports = SizeObserver;

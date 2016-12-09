@@ -4,6 +4,7 @@ var Kern = require('../kern/Kern.js');
 var layerJS = require('./layerjs.js');
 var $ = require('./domhelpers.js');
 var defaults = require('./defaults.js');
+var DOMObserver = require('./observer/domobserver.js');
 
 /**
  *  class that will contain the state off all the stages, layers, frames
@@ -137,6 +138,8 @@ var State = Kern.Base.extend({
               // listen to state changes; state changes when transitions happen in layers
               view.on('transitionStarted', this._transitionToEvent(currentState.children[name]));
             }
+
+            view.on(DOMObserver.childrenChangedEvent, this._childrenChangedEvent(view));
           }
 
           // currentState did contain the parent's state; assing actual current state
@@ -398,6 +401,18 @@ var State = Kern.Base.extend({
           layerState.children[name].active = layerState.children[name].view.name() === frameName;
         }
       }
+    };
+  },
+  /**
+   * Will return the handler for a childrenChanged event
+   *
+   * @param {object}  a view
+   * @returns {function} function that will be called when childrenChanged event is invoked
+   */
+  _childrenChangedEvent: function(view) {
+    var that = this;
+    return function(result) {
+      that.updateChildren(view, result.addedNodes, result.removedNodes);
     };
   },
   /**

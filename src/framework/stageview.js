@@ -14,18 +14,36 @@ var StageView = BaseView.extend({
     options = options || {};
     options.childType = 'layer';
     BaseView.call(this, options);
-
+  },
+  registerEventHandlers: function() {
     var that = this;
+
+    BaseView.prototype.registerEventHandlers.call(this);
+
     window.addEventListener('resize', function() {
       that.onResize();
     }, false);
+
+    this.on(BaseView.sizeChangedEvent, function() {
+      var childViews = that.getChildViews();
+      for (var i = 0; i < childViews.length; i++) {
+        childViews[i].onResizeCallBack();
+      }
+    });
+  },
+  startObserving: function() {
+    BaseView.prototype.observe.call(this, this.innerEl, {
+      attributes: true,
+      children: true,
+      size: true
+    });
   },
   _renderChildPosition: function(childView) {
     if (childView.nodeType() === 1) {
-      childView.disableObserver();
+      childView.unobserve();
       childView.outerEl.style.left = "0px";
       childView.outerEl.style.top = "0px";
-      childView.enableObserver();
+      childView.startObserving();
     }
   },
   /**

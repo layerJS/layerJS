@@ -6,7 +6,6 @@ var layoutManager = require('./layoutmanager.js');
 var ScrollTransformer = require('./scrolltransformer.js');
 var gestureManager = require('./gestures/gesturemanager.js');
 var defaults = require('./defaults.js');
-var sizeObserver = require('./observer/sizeobserver.js');
 var BaseView = require('./baseview.js');
 
 /**
@@ -55,17 +54,17 @@ var LayerView = BaseView.extend({
     // this is my stage and add listener to keep it updated
     this.stage = this.parent;
 
-    if (this.stage) {
+/*    if (this.stage) {
       sizeObserver.register([this.stage], this.onResizeCallBack);
     }
-
-    this.on('parent', function() {
+*/
+  /*  this.on('parent', function() {
       sizeObserver.unregister([that.stage]);
       that.stage = that.parent;
       sizeObserver.register([that.stage], that.onResizeCallBack);
       // FIXME trigger adaption to new stage
     });
-
+*/
     // listen to scroll events
     this.on('scroll', function() { // jshint ignore:line
       //that._layout.updateTransitions(); // FIXME: notify layout about scroll and that prepared transitions may be outdated
@@ -89,6 +88,12 @@ var LayerView = BaseView.extend({
     } else {
       this.showFrame(this.currentFrame.name());
     }
+  },
+  startObserving: function() {
+    BaseView.prototype.observe.call(this, this.innerEl, {
+      attributes: true,
+      children: true
+    });
   },
   renderChildPosition: function(childView) {
     // function is called when children are getting parsed. At that point, the layout can still be undefined
@@ -143,7 +148,7 @@ var LayerView = BaseView.extend({
    * @returns {void}
    */
   switchScrolling: function(nativeScrolling) {
-    this.disableObserver();
+    this.unobserve();
     var hasScroller = this.outerEl.children.length === 1 && $.getAttributeLJ(this.outerEl.children[0], 'helper') === 'scroller';
 
     if (nativeScrolling) {
@@ -168,8 +173,8 @@ var LayerView = BaseView.extend({
     if (this.currentFrame) {
       this.showFrame(this.currentFrame.name(), this.currentFrame.getScrollData());
     }
-    this._observer.element = this.innerEl;
-    this.enableObserver();
+
+    this.startObserving();
   },
   /**
    * Will change the current layout with an other layout
@@ -479,13 +484,13 @@ var LayerView = BaseView.extend({
    * @returns {Type} Description
    */
   _renderChildPosition: function(childView) {
-    if ( !this._layout){
+    if (!this._layout) {
       this.switchLayout(this.layoutType());
     }
 
-    childView.disableObserver();
+    childView.unobserve();
     this._layout.renderFramePosition(childView, this._currentTransform);
-    childView.enableObserver();
+    childView.startObserving();
   },
   /**
    * Method will be invoked when a resize event is detected.

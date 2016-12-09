@@ -1,21 +1,20 @@
 'use strict';
-var Kern = require('../kern/Kern.js');
 var state = require('./state.js');
 var $ = require('./domhelpers.js');
 var pluginManager = require('./pluginmanager.js');
 var parseManager = require('./parsemanager.js');
-var observerFactory = require('./observer/observerfactory.js');
+var DOMObserver = require('./observer/domobserver.js');
 
-var baseView = Kern.EventManager.extend({
+var BaseView = DOMObserver.extend({
 
   constructor: function(options) {
     options = options || {};
+    DOMObserver.call(this);
+
     this._cache = {}; // this will cache some properties. The cache can be deleted an the method will need to rebuild the data. Therefore don't query the _cache directly, but use the accessor functions.
     this.childType = options.childType;
-    Kern.EventManager.call(this);
     this._setDocument(options);
 
-    //this.outerEl = this.innerEl = undefined;
     // parent if defined
     this.parent = options.parent;
     this.innerEl = this.innerEl || options.el;
@@ -26,74 +25,34 @@ var baseView = Kern.EventManager.extend({
     this.outerEl = this.outerEl || options.el || this.innerEl;
     this.outerEl._ljView = this;
 
-    this._parseChildren();
-
     state.registerView(this);
 
     if (!this.parent && this.outerEl._state && this.outerEl._state.view) {
       this.parent = this.outerEl._state.parent.view;
     }
 
-    this._createObserver();
-    this.enableObserver();
+    this._parseChildren();
+    this.registerEventHandlers();
+    this.startObserving();
+  },
+  /* jshint ignore:start */
+  startObserving: function(){
 
-    // copy version from parent
-    // FIXME: how can we get a different version in a child? Needed maybe for editor.
-    // FIXME(cont): can't test for this.data.attributes.version as this will be 'default'
-    /*if (options.parent && options.parent.version()) {
-      this.setVersion(options.parent.version());
-    }*/
   },
-  eval: function(arg) {
-    var evalFn = eval;
-
-    return evalFn(arg);
-  },
-  enableObserver: function() {
-    if (this._observer) {
-      this._observer.observe();
-    }
-  },
-  disableObserver: function() {
-    if (this._observer) {
-      this._observer.stop();
-    }
-  },
-  _createObserver: function() {
-    if (this.hasOwnProperty('_observer'))
-      return;
-
-    var that = this;
-    this._observer = observerFactory.getObserver(this.innerEl, {
-      attributes: true,
-      attributeFilter: ['id', 'name', 'data-lj-*', 'lj-*'],
-      childList: true,
-      callback: function(result) {
-        that._domElementChanged(result);
-      }
-    });
-  },
-  /**
-   * This function will parse the DOM element and add it to the data of the view.
-   * It will be use by the MutationObserver.
-   * @param {result} an object that contains what has been changed on the DOM element
-   * @return {void}
-   */
-  _domElementChanged: function(result) {
-    /*
-    if (result.attributes.length > 0) {
-      this.parse(this.outerEl);
-    }
-    */
-
-    if (result.removedNodes.length > 0 || result.addedNodes.length > 0) {
+  /* jshint ignore:end */
+  registerEventHandlers: function() {
+    this.on(DOMObserver.childrenChangedEvent, function(result) {
       if (result.addedNodes.length > 0) {
         this._parseChildren({
           addedNodes: result.addedNodes
         });
       }
-      state.updateChildren(this, result.addedNodes, result.removedNodes);
-    }
+    });
+  },
+  eval: function(arg) {
+    var evalFn = eval;
+
+    return evalFn(arg);
   },
   _parseChildren: function(options) {
     options = options || {};
@@ -338,9 +297,9 @@ var baseView = Kern.EventManager.extend({
    * @return {void}
    */
   destroy: function() {
-    this.disableObserver();
+    this.unobserve();
     this.outerEl.parentNode.removeChild(this.outerEl);
   }
 });
 
-module.exports = baseView;
+module.exports = BaseView;
