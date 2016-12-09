@@ -6,13 +6,18 @@ var SizeObserver = Kern.Base.extend({
     this.element = element;
     this.options = options || {};
     this.dimensions = undefined;
+    this.counter = 0;
   },
   /**
    * Register the dimensions
    *
    */
   observe: function() {
-    if (!this.isObserving()) {
+    if (this.counter !== 0) {
+      this.counter--;
+    }
+
+    if (this.counter === 0 && !this.isObserving()) {
       this.dimensions = {
         size_inner: {
           width: this.element.scrollWidth,
@@ -32,6 +37,8 @@ var SizeObserver = Kern.Base.extend({
    *
    */
   stop: function() {
+    this.counter++;
+
     if (this.isObserving()) {
       clearTimeout(this.myTimeout);
       this.myTimeout = undefined;
