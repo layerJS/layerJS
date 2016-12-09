@@ -1,12 +1,10 @@
 'use strict';
-var Kern = require('../../kern/kern.js');
+var Observer = require('./observer.js');
 
-var SizeObserver = Kern.Base.extend({
+var SizeObserver = Observer.extend({
   constructor: function(element, options) {
-    this.element = element;
-    this.options = options || {};
+    Observer.call(this, element, options);
     this.dimensions = undefined;
-    this.counter = 0;
   },
   /**
    * Register the dimensions
@@ -17,7 +15,7 @@ var SizeObserver = Kern.Base.extend({
       this.counter--;
     }
 
-    if (this.counter === 0 && !this.isObserving()) {
+    if (this.counter === 0) {
       this.dimensions = {
         size_inner: {
           width: this.element.scrollWidth,
@@ -39,18 +37,10 @@ var SizeObserver = Kern.Base.extend({
   stop: function() {
     this.counter++;
 
-    if (this.isObserving()) {
+    if (this.counter === 1) {
       clearTimeout(this.myTimeout);
       this.myTimeout = undefined;
     }
-  },
-  /**
-   * Checks if the observer is observing
-   *
-   * @returns {bool} returns true if observer is observing
-   */
-  isObserving: function() {
-    return this.myTimeout !== undefined;
   },
   /**
    * Will check if dimensions are changed for specified views
@@ -72,7 +62,8 @@ var SizeObserver = Kern.Base.extend({
         width: iwidth,
         height: iheight
       };
-      this.options.callback();
+      this._invokeCallBack();
+
     }
 
     var that = this;

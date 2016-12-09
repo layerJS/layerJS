@@ -1,9 +1,9 @@
 'use strict';
-var Observer = require('./observer.js');
+var ElementObserver = require('./elementobserver.js');
 
-var TimeoutObserver = Observer.extend({
+var TimeoutObserver = ElementObserver.extend({
   constructor: function(element, options) {
-    Observer.call(this, element, options);
+    ElementObserver.call(this, element, options);
 
     this.attributes = {};
     this.childNodes = [];

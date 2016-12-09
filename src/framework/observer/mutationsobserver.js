@@ -1,9 +1,9 @@
 'use strict';
-var Observer = require('./observer.js');
+var ElementObserver = require('./ElementObserver.js');
 
-var something = Observer.extend({
+var MutationsObserver = ElementObserver.extend({
   constructor: function(element, options) {
-    Observer.call(this, element, options);
+    ElementObserver.call(this, element, options);
 
     var that = this;
     var elementWindow = element.ownerDocument.defaultView || element.ownerDocument.parentWindow;
@@ -66,4 +66,4 @@ var something = Observer.extend({
   }
 });
 
-module.exports = something;
+module.exports = MutationsObserver;
