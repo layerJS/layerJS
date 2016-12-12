@@ -4,7 +4,6 @@ var Kern = require('../kern/Kern.js');
 var layerJS = require('./layerjs.js');
 var $ = require('./domhelpers.js');
 var defaults = require('./defaults.js');
-var DOMObserver = require('./observer/domobserver.js');
 
 /**
  *  class that will contain the state off all the stages, layers, frames
@@ -139,7 +138,7 @@ var State = Kern.Base.extend({
               view.on('transitionStarted', this._transitionToEvent(currentState.children[name]));
             }
 
-            view.on(DOMObserver.childrenChangedEvent, this._childrenChangedEvent(view));
+            view.on('childrenChanged', this._childrenChangedEvent(view));
           }
 
           // currentState did contain the parent's state; assing actual current state

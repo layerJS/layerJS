@@ -4,16 +4,16 @@ var Kern = require('../../kern/Kern.js');
 var observerFactory = require('./observerfactory.js');
 
 var DOMObserver = Kern.EventManager.extend({
-    constructor: function() {
-      Kern.EventManager.call(this);
+  constructor: function() {
+    Kern.EventManager.call(this);
   },
   _domElementChanged: function(result) {
     if (result.attributes.length > 0) {
-      this.trigger(DOMObserver.attributesChangedEvent, result.attributes);
+      this.trigger('attributesChanged', result.attributes);
     }
 
     if (result.removedNodes.length > 0 || result.addedNodes.length > 0) {
-      this.trigger(DOMObserver.childrenChangedEvent, {
+      this.trigger('childrenChanged', {
         addedNodes: result.addedNodes,
         removedNodes: result.removedNodes
       });
@@ -40,7 +40,7 @@ var DOMObserver = Kern.EventManager.extend({
       this._sizeObserver = observerFactory.getSizeObserver(domElement, {
         timeout: options.timeout,
         callback: function() {
-          that.trigger(DOMObserver.sizeChangedEvent);
+          that.trigger('sizeChanged');
         }
       });
 
@@ -60,10 +60,6 @@ var DOMObserver = Kern.EventManager.extend({
   isObserving: function() {
     return (undefined !== this._observer && this._observer.isObserving()) || (undefined !== this._sizeObserver && this._sizeObserver.isObserving());
   }
-}, {
-  childrenChangedEvent: 'childrenChanged',
-  attributesChangedEvent: 'attributesChanged',
-  sizeChangedEvent: 'sizeChanged'
 });
 
 module.exports = DOMObserver;

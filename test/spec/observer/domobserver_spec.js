@@ -20,7 +20,7 @@ describe('DOMObserver', function() {
       element.clientWidth = 200;
       element.clientHeight = 200;
 
-      domObserver.on(DOMObserver.sizeChangedEvent, function() {
+      domObserver.on('sizeChanged', function() {
         expect(true).toBeTruthy();
         done();
       });
@@ -40,7 +40,7 @@ describe('DOMObserver', function() {
 
       element.appendChild(document.createElement('div'));
 
-      domObserver.on(DOMObserver.childrenChangedEvent, function(result) {
+      domObserver.on('childrenChanged', function(result) {
         expect(true).toBeTruthy();
         done();
       });
@@ -59,7 +59,7 @@ describe('DOMObserver', function() {
 
       element.setAttribute('lj-id', 'test');
 
-      domObserver.on(DOMObserver.attributesChangedEvent, function(result) {
+      domObserver.on('attributesChanged', function(result) {
         expect(result).toEqual(['lj-id'])
         done();
       });
@@ -75,7 +75,7 @@ describe('DOMObserver', function() {
 
       element.setAttribute('lj-id', 'test2');
 
-      domObserver.on(DOMObserver.attributesChangedEvent, function(result) {
+      domObserver.on('attributesChanged', function(result) {
         expect(result).toEqual(['lj-id'])
         done();
       });
@@ -91,7 +91,7 @@ describe('DOMObserver', function() {
 
       element.removeAttribute('lj-id');
 
-      domObserver.on(DOMObserver.attributesChangedEvent, function(result) {
+      domObserver.on('attributesChanged', function(result) {
         expect(result).toEqual(['lj-id'])
         done();
       });

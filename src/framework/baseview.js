@@ -41,18 +41,13 @@ var BaseView = DOMObserver.extend({
   },
   /* jshint ignore:end */
   registerEventHandlers: function() {
-    this.on(DOMObserver.childrenChangedEvent, function(result) {
+    this.on('childrenChanged', function(result) {
       if (result.addedNodes.length > 0) {
         this._parseChildren({
           addedNodes: result.addedNodes
         });
       }
     });
-  },
-  eval: function(arg) {
-    var evalFn = eval;
-
-    return evalFn(arg);
   },
   _parseChildren: function(options) {
     options = options || {};
@@ -222,22 +217,15 @@ var BaseView = DOMObserver.extend({
   classes: function() {
     return this.getAttributeLJ('classes') || '';
   },
-  /*,
-  Refactoring: not needed anymore
-  children: function() {
-    var children = this.getAttributeLJ('children');
-
-    return children ? this.eval(children) : [];
-  },*/
   scaleX: function() {
     var scaleX = this.getAttributeLJ('scale-x');
 
-    return scaleX ? this.eval(scaleX) : 1;
+    return scaleX ? parseFloat(scaleX) : 1;
   },
   scaleY: function() {
     var scaleY = this.getAttributeLJ('scale-y');
 
-    return scaleY ? this.eval(scaleY) : 1;
+    return scaleY ? parseFloat(scaleY) : 1;
   },
   /*frame */
   fitTo: function() {
@@ -260,7 +248,7 @@ var BaseView = DOMObserver.extend({
   },
   noScrolling: function() {
     var noScrolling = this.getAttributeLJ('no-scrolling');
-    return noScrolling ? this.eval(noScrolling) : false;
+    return noScrolling ? noScrolling === 'true'  : false;
   },
   rotation: function() {
     return this.getAttributeLJ('rotation');
@@ -284,7 +272,7 @@ var BaseView = DOMObserver.extend({
   },
   nativeScroll: function() {
     var nativeScroll = this.getAttributeLJ('native-scroll');
-    return nativeScroll ? this.eval(nativeScroll) : false;
+    return nativeScroll ? nativeScroll === 'true' : false;
   },
   setNativeScroll: function(nativeScroll) {
     this.setAttributeLJ('native-scroll', nativeScroll);

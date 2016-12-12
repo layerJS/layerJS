@@ -30,7 +30,7 @@ var ElementObserver = Observer.extend({
       result.attributes = attributes;
     }
 
-    if (this.options.callback && ((result.attributes && result.attributes.length > 0) || (result.addedNodes && result.addedNodes.length > 0) || (result.removeNodes && result.removedNodes.length > 0) || result.characterData)) {
+    if (this.options.callback && ((result.attributes && result.attributes.length > 0) || (result.addedNodes && result.addedNodes.length > 0) || (result.removedNodes && result.removedNodes.length > 0) || result.characterData)) {    
       this.options.callback(result);
     }
   }

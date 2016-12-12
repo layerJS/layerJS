@@ -24,7 +24,7 @@ var StageView = BaseView.extend({
       that.onResize();
     }, false);
 
-    this.on(BaseView.sizeChangedEvent, function() {
+    this.on('sizeChanged', function() {
       var childViews = that.getChildViews();
       for (var i = 0; i < childViews.length; i++) {
         childViews[i].onResizeCallBack();
