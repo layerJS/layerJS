@@ -42,9 +42,10 @@ var BaseView = DOMObserver.extend({
   /* jshint ignore:end */
   registerEventHandlers: function() {
     this.on('childrenChanged', function(result) {
-      if (result.addedNodes.length > 0) {
+      if ((result.addedNodes && result.addedNodes.length > 0) || ( result.removedNodes && result.removedNodes.length > 0)) {
         this._parseChildren({
-          addedNodes: result.addedNodes
+          addedNodes: result.addedNodes,
+          removedNodes : result.removedNodes
         });
       }
     });

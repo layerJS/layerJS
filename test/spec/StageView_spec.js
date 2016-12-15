@@ -62,20 +62,22 @@ describe("StageView", function() {
       });
 
 
-      it('when a node is removed updateChildren should be called from the state', function(done) {
+      it('when a node is removed the _parseChildren and updateChildren should be called from the state', function(done) {
         var stageView = new StageView({
           el: utilities.appendChildHTML(require('./htmlelements/simple_stage_1.js'))
         });
 
         spyOn(state, 'updateChildren');
+        spyOn(stageView, '_parseChildren');
 
         stageView.on('childrenChanged', function(options){
           expect(options.removedNodes.length).toBe(1);
           expect(state.updateChildren).toHaveBeenCalled();
+          expect(stageView._parseChildren).toHaveBeenCalled();
           done();
         });
 
-          stageView.innerEl.innerHTML = '';
+        stageView.innerEl.innerHTML = '';
       });
     });
 

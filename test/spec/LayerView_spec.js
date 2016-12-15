@@ -303,16 +303,18 @@ describe("LayerView", function() {
       });
 
 
-      it('when a node is removed updateChildren should be called from the state', function(done) {
+      it('when a node is removed the _parseChildren and updateChildren should be called from the state', function(done) {
         var layerView = new LayerView({
           el: utilities.appendChildHTML(require('./htmlelements/simple_frame_1.js'))
         });
 
         spyOn(state, 'updateChildren');
+        spyOn(layerView, '_parseChildren');
 
         layerView.on('childrenChanged', function(options){
           expect(options.removedNodes.length).toBe(1);
           expect(state.updateChildren).toHaveBeenCalled();
+          expect(layerView._parseChildren).toHaveBeenCalled();
           done();
         });
 
