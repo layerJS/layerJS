@@ -12,15 +12,39 @@ var defaults = require('./defaults.js');
  */
 var FrameView = BaseView.extend({
   constructor: function(options) {
-    BaseView.call(this, options);
-
+    this.renderRequiredAttributes = ['lj-fit-to', 'lj-elastic-left', 'lj-elastic-right', 'lj-elastic-top', 'lj-elastic-bottom', 'lj-width', 'lj-height', 'lj-x', 'lj-y', 'lj-scale-x', 'lj-scale-y', 'lj-rotation'];
     this.transformData = undefined;
+
+    BaseView.call(this, options);  
   },
   startObserving: function() {
     BaseView.prototype.observe.call(this, this.innerEl, {
       attributes: true,
-      children: true
+      attributeFilter: ['name', 'lj-name'].concat(this.renderRequiredAttributes),
+      children: true,
+      size: true
     });
+  },
+  registerEventHandlers: function() {
+    var that = this;
+
+    BaseView.prototype.registerEventHandlers.call(this);
+
+    this.on('sizeChanged', function() {
+      that.transformData = undefined;
+      that.trigger('renderRequired', this.name());
+    });
+
+    this.on('attributesChanged', this.attributesChanged);
+  },
+  attributesChanged: function(attributes) {
+    for (var i = 0; i < this.renderRequiredAttributes.length; i++) {
+      if (attributes.indexOf(this.renderRequiredAttributes[i]) !== -1 || attributes.indexOf('data-' + this.renderRequiredAttributes[i]) !== -1) {
+        this.transformData = undefined;
+        this.trigger('renderRequired', this.name());
+        break;
+      }
+    }
   },
   /**
    * get the transformData of the frame that describes how to fit the frame into the stage

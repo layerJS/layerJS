@@ -18,18 +18,15 @@ var StageView = BaseView.extend({
   registerEventHandlers: function() {
     var that = this;
 
+    var onResize = function() {
+      that.trigger('renderRequired');
+    };
+
     BaseView.prototype.registerEventHandlers.call(this);
 
-    window.addEventListener('resize', function() {
-      that.onResize();
-    }, false);
+    window.addEventListener('resize', onResize, false);
 
-    this.on('sizeChanged', function() {
-      var childViews = that.getChildViews();
-      for (var i = 0; i < childViews.length; i++) {
-        childViews[i].onResizeCallBack();
-      }
-    });
+    this.on('sizeChanged', onResize);
   },
   startObserving: function() {
     BaseView.prototype.observe.call(this, this.innerEl, {
@@ -46,17 +43,6 @@ var StageView = BaseView.extend({
       childView.startObserving();
     }
   },
-  /**
-   * Method will be invoked when a resize event is detected.
-   */
-  onResize: function() {
-    var childViews = this.getChildViews();
-    var length = childViews.length;
-    for (var i = 0; i < length; i++) {
-      var childView = childViews[i];
-      childView.onResizeCallBack();
-    }
-  }
 }, {
   defaultProperties: {
     type: 'stage'

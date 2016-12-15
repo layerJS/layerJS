@@ -1,5 +1,6 @@
 var StageView = require('../../src/framework/stageview.js');
 var state = require('../../src/framework/state.js');
+var utilities = require("./helpers/utilities.js");
 
 var ViewsCommon_renderChildPositionTests = require('./helpers/views/common/_renderchildpositiontests.js');
 var ViewsCommon_parseChildrenTests = require('./helpers/views/common/_parseChildrentests.js');
@@ -41,52 +42,78 @@ describe("StageView", function() {
     }
   });
 
+  describe('event', function() {
 
-  /*
+    describe('childrenChanged', function() {
+      it('when a node is added the _parseChildren should be called', function(done) {
+        var stageView = new StageView({
+          el: utilities.appendChildHTML(require('./htmlelements/stage_nochildren_1.js'))
+        });
 
-  // Refacotring: already tested in commonviewtests
-  it('will register itself with the state', function() {
-    spyOn(state, 'registerView');
-    var stageView = new StageView(new StageView.Model(StageView.defaultProperties));
-    expect(state.registerView).toHaveBeenCalledWith(stageView);
+        spyOn(stageView, '_parseChildren');
+
+        stageView.on('childrenChanged', function(options){
+          expect(options.addedNodes.length).toBe(1);
+          expect(stageView._parseChildren).toHaveBeenCalled();
+          done();
+        });
+
+        stageView.innerEl.innerHTML = require('./htmlelements/simple_layer_1.js');
+      });
+
+
+      it('when a node is removed updateChildren should be called from the state', function(done) {
+        var stageView = new StageView({
+          el: utilities.appendChildHTML(require('./htmlelements/simple_stage_1.js'))
+        });
+
+        spyOn(state, 'updateChildren');
+
+        stageView.on('childrenChanged', function(options){
+          expect(options.removedNodes.length).toBe(1);
+          expect(state.updateChildren).toHaveBeenCalled();
+          done();
+        });
+
+          stageView.innerEl.innerHTML = '';
+      });
+    });
+
+    describe('sizeChanged', function() {
+      it('will trigger a renderRequired event', function(done) {
+        var element = utilities.appendChildHTML(require('./htmlelements/simple_stage_1.js'));
+        var stageView = new StageView({
+          el: element
+        });
+
+        stageView.on('renderRequired', function() {
+          expect(true).toBe(true);
+          done();
+        });
+
+        stageView.trigger('sizeChanged');
+      });
+    });
+
+    describe('renderRequired', function(){
+      it('will call the showFrame method of it\'s layer', function(done){
+        var stageView = new StageView({
+          el : utilities.appendChildHTML(require('./htmlelements/simple_stage_1.js'))
+        });
+
+        var layerView = stageView.getChildViews()[0];
+
+        spyOn(layerView, 'showFrame');
+
+        stageView.on('renderRequired', function(){
+          expect(layerView.showFrame).toHaveBeenCalled();
+          done();
+        });
+
+        stageView.trigger('renderRequired');
+      });
+
+    });
+
   });
-
-    ViewsGroupViewTests('simple_stagedata.js', function() {
-      return {
-        data: require('./datasets/simple_stagedata.js'),
-        ViewType: StageView,
-        parentId: 110540
-      };
-    });
-
-    ViewsGroupViewTests('test_data_set.js', function() {
-      return {
-        data:require('./datasets/test_data_set.js'),
-        ViewType: StageView,
-        parentId: 1
-      };
-    });
-
-   //Refactoring: no need to parse anymore
-    ViewsCommonParseTests(function() {
-      return {
-        ViewType: StageView
-      };
-    });
-
-
-    ViewsGroup_parseChildrenTests(function() {
-      return {
-        ViewType: StageView,
-        HTML: "<div id='100' data-lj-id='100' data-lj-type='stage'>" +
-          "<div id='101' data-lj-id='101' data-lj-type='layer'></div>" +
-          "<div id='102' data-lj-id='102' data-lj-type='layer'></div>" +
-          "<div/>" +
-          "</div>",
-        expectedChildren: ['101', '102']
-      };
-    });
-
-
-  */
 })

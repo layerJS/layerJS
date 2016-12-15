@@ -54,11 +54,11 @@ var LayerView = BaseView.extend({
     // this is my stage and add listener to keep it updated
     this.stage = this.parent;
 
-/*    if (this.stage) {
-      sizeObserver.register([this.stage], this.onResizeCallBack);
-    }
-*/
-  /*  this.on('parent', function() {
+    /*    if (this.stage) {
+          sizeObserver.register([this.stage], this.onResizeCallBack);
+        }
+    */
+    /*  this.on('parent', function() {
       sizeObserver.unregister([that.stage]);
       that.stage = that.parent;
       sizeObserver.register([that.stage], that.onResizeCallBack);
@@ -92,8 +92,33 @@ var LayerView = BaseView.extend({
   startObserving: function() {
     BaseView.prototype.observe.call(this, this.innerEl, {
       attributes: true,
+      attributeFilter: ['data-lj-native-scroll', 'data-lj-no-scrolling', 'lj-layout-type', 'lj-native-scroll', 'lj-no-scrolling', 'lj-layout-type'],
       children: true
     });
+  },
+  registerEventHandlers: function() {
+    var that = this;
+    BaseView.prototype.registerEventHandlers.call(this);
+
+    this.on('attributesChanged', this.attributesChanged);
+
+    if (this.parent) {
+      this.parent.on('renderRequired', function() {
+        if (!that.inTransition()) {
+          that.onResize();
+        }
+      });
+    }
+  },
+  attributesChanged: function(attributes) {
+    if (attributes.indexOf('lj-native-scroll') !== -1 || attributes.indexOf('data-lj-native-scroll') !== -1) {
+      this.switchScrolling(this.nativeScroll());
+    }
+
+    if (attributes.indexOf('lj-layout-type') !== -1 || attributes.indexOf('data-lj-layout-type') !== -1) {
+      this.switchLayout(this.layoutType());
+    }
+
   },
   renderChildPosition: function(childView) {
     // function is called when children are getting parsed. At that point, the layout can still be undefined
@@ -496,33 +521,46 @@ var LayerView = BaseView.extend({
    * Method will be invoked when a resize event is detected.
    */
   onResize: function() {
-      var childViews = this.getChildViews();
-      var length = childViews.length;
-      var scrollData = this.currentFrame !== null ? this.currentFrame.getScrollData() : undefined;
+    var childViews = this.getChildViews();
+    var length = childViews.length;
+    var scrollData = this.currentFrame !== null ? this.currentFrame.getScrollData() : undefined;
 
-      for (var i = 0; i < length; i++) {
-        var childView = childViews[i];
-        if (childView.hasOwnProperty('transformData')) {
-          childView.transformData = null;
+    for (var i = 0; i < length; i++) {
+      var childView = childViews[i];
+      if (childView.hasOwnProperty('transformData')) {
+        childView.transformData = null;
+      }
+    }
+    var frameName = this.currentFrame === null ? null : this.currentFrame.name();
+    this.showFrame(frameName, scrollData);
+  },
+  _parseChildren: function(options) {
+
+    BaseView.prototype._parseChildren.call(this, options);
+
+    var childrenViews = this._cache.children;
+
+    if (options && options.addedNodes && options.addedNodes.length > 0) {
+      childrenViews = [];
+      for (var i = 0; i < options.addedNodes.length; i++) {
+        if (options.addedNodes[i]._ljView) {
+          childrenViews.push(options.addedNodes[i]._ljView);
         }
       }
-      var frameName = this.currentFrame === null ? null : this.currentFrame.name();
-      this.showFrame(frameName, scrollData);
     }
-    /*,
-    /**
-     * analyse list of childNodes (HTMLElements) in this group and create view- (and possibly data-) objects for them.
-     *
-     * @returns {void}
-     */
-    /*_parseChildren: function(options) {
-      // unregister childviews
-      // sizeObserver.unregister(this.getChildViews()); we don't need to unregister since they will only be added if new
 
-      GroupView.prototype._parseChildren.call(this, options);
+    var that = this;
+    var renderRequiredEventHandler = function(name) {
+      that.renderChildPosition(that._cache.childNames[name]);
+      if (that.currentFrame && null !== that.currentFrame && that.currentFrame.name() === name) {
+        that.showFrame(name, that.currentFrame.getScrollData());
+      }
+    };
 
-      sizeObserver.register(this.getChildViews(), this.onResizeCallBack);
-    }*/
+    for (var y = 0; y < childrenViews.length; y++) {
+      childrenViews[y].on('renderRequired', renderRequiredEventHandler);
+    }
+  }
 }, {
   defaultProperties: {
     type: 'layer'

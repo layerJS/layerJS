@@ -282,4 +282,78 @@ describe("LayerView", function() {
         "</div>", '!bottom', 'frame2', done);
     });
   });
-})
+
+  describe('event', function() {
+
+    describe('childrenChanged', function() {
+      it('when a node is added the _parseChildren should be called', function(done) {
+        var layerView = new LayerView({
+          el: utilities.appendChildHTML(require('./htmlelements/layer_nochildren_1.js'))
+        });
+
+        spyOn(layerView, '_parseChildren');
+
+        layerView.on('childrenChanged', function(options){
+          expect(options.addedNodes.length).toBe(1);
+          expect(layerView._parseChildren).toHaveBeenCalled();
+          done();
+        });
+
+        layerView.innerEl.innerHTML = require('./htmlelements/simple_frame_1.js');
+      });
+
+
+      it('when a node is removed updateChildren should be called from the state', function(done) {
+        var layerView = new LayerView({
+          el: utilities.appendChildHTML(require('./htmlelements/simple_frame_1.js'))
+        });
+
+        spyOn(state, 'updateChildren');
+
+        layerView.on('childrenChanged', function(options){
+          expect(options.removedNodes.length).toBe(1);
+          expect(state.updateChildren).toHaveBeenCalled();
+          done();
+        });
+
+          layerView.innerEl.innerHTML = '';
+      });
+    });
+
+    describe('attributesChanged', function() {
+
+      it('when native-scroll is changed the switchScrolling method should be called', function(done) {
+        var layerView = new LayerView({
+          el: utilities.appendChildHTML(require('./htmlelements/simple_layer_1.js'))
+        });
+
+        spyOn(layerView, 'switchScrolling');
+
+        layerView.outerEl.setAttribute('lj-native-scroll', 'true');
+
+        setTimeout(function() {
+          expect(layerView.switchScrolling).toHaveBeenCalled();
+          done();
+        }, 100);
+      });
+    });
+
+    it('when layout-type is changed the switchLayout method should be called', function(done) {
+      var layerView = new LayerView({
+        el: utilities.appendChildHTML(require('./htmlelements/simple_layer_1.js'))
+      });
+
+      spyOn(layerView, 'switchLayout');
+
+      layerView.outerEl.setAttribute('lj-layout-type', 'canvas');
+
+      setTimeout(function() {
+        expect(layerView.switchLayout).toHaveBeenCalled();
+        done();
+      }, 100);
+    });
+  });
+
+
+
+});
