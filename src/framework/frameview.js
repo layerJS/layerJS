@@ -15,7 +15,7 @@ var FrameView = BaseView.extend({
     this.renderRequiredAttributes = ['lj-fit-to', 'lj-elastic-left', 'lj-elastic-right', 'lj-elastic-top', 'lj-elastic-bottom', 'lj-width', 'lj-height', 'lj-x', 'lj-y', 'lj-scale-x', 'lj-scale-y', 'lj-rotation'];
     this.transformData = undefined;
 
-    BaseView.call(this, options);  
+    BaseView.call(this, options);
   },
   startObserving: function() {
     BaseView.prototype.observe.call(this, this.innerEl, {
@@ -39,7 +39,8 @@ var FrameView = BaseView.extend({
   },
   attributesChanged: function(attributes) {
     for (var i = 0; i < this.renderRequiredAttributes.length; i++) {
-      if (attributes.indexOf(this.renderRequiredAttributes[i]) !== -1 || attributes.indexOf('data-' + this.renderRequiredAttributes[i]) !== -1) {
+      var attributeNames = Object.getOwnPropertyNames(attributes);
+      if (attributeNames.indexOf(this.renderRequiredAttributes[i]) !== -1 || attributeNames.indexOf('data-' + this.renderRequiredAttributes[i]) !== -1) {
         this.transformData = undefined;
         this.trigger('renderRequired', this.name());
         break;

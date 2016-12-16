@@ -47,6 +47,10 @@ var MutationsObserver = ElementObserver.extend({
     }
 
     if (this.counter === 0) {
+      if (this.element.nodeType === 1 && this.options.attributes) {
+        this._initalizeAttributes();
+      }
+
       this.mutationObserver.observe(this.element, {
         attributes: this.options.attributes || false,
         childList: this.options.childList || false,
@@ -58,7 +62,7 @@ var MutationsObserver = ElementObserver.extend({
    * Stops the observer
    */
   stop: function() {
-    if (this.counter === 0){
+    if (this.counter === 0) {
       this.mutationObserver.disconnect();
     }
 

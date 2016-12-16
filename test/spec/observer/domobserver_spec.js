@@ -60,7 +60,11 @@ describe('DOMObserver', function() {
       element.setAttribute('lj-id', 'test');
 
       domObserver.on('attributesChanged', function(result) {
-        expect(result).toEqual(['lj-id'])
+        expect(result['lj-id']).toBeDefined();
+        expect(result['lj-id']).toEqual({
+          oldValue: undefined,
+          newValue: 'test'
+        });
         done();
       });
     });
@@ -76,7 +80,11 @@ describe('DOMObserver', function() {
       element.setAttribute('lj-id', 'test2');
 
       domObserver.on('attributesChanged', function(result) {
-        expect(result).toEqual(['lj-id'])
+        expect(result['lj-id']).toBeDefined();
+        expect(result['lj-id']).toEqual({
+          oldValue: 'test',
+          newValue: 'test2'
+        });
         done();
       });
     });
@@ -92,7 +100,11 @@ describe('DOMObserver', function() {
       element.removeAttribute('lj-id');
 
       domObserver.on('attributesChanged', function(result) {
-        expect(result).toEqual(['lj-id'])
+        expect(result['lj-id']).toBeDefined();
+        expect(result['lj-id']).toEqual({
+          oldValue: 'test',
+          newValue: undefined
+        });
         done();
       });
     });

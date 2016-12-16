@@ -4,8 +4,6 @@ var ElementObserver = require('./elementobserver.js');
 var TimeoutObserver = ElementObserver.extend({
   constructor: function(element, options) {
     ElementObserver.call(this, element, options);
-
-    this.attributes = {};
     this.childNodes = [];
     this.characterData = undefined;
     this.myTimeout = undefined;
@@ -16,7 +14,7 @@ var TimeoutObserver = ElementObserver.extend({
    */
   elementModified: function() {
     var result = {
-      attributes: [],
+      attributes: {},
       addedNodes: [],
       removedNodes: [],
       characterData: false
@@ -34,11 +32,19 @@ var TimeoutObserver = ElementObserver.extend({
         var attribute = this.element.attributes[index];
         // attribute isn't mapped
         if (!this.attributes.hasOwnProperty(attribute.name)) {
+          result.attributes[attribute.name] = {
+            oldValue: undefined,
+            newValue: attribute.value
+          };
           this.attributes[attribute.name] = attribute.value;
-          result.attributes.push(attribute.name);
+
         } else if (this.attributes[attribute.name] !== attribute.value) {
           // attribute is mapped but value has changed
-          result.attributes.push(attribute.name);
+          result.attributes[attribute.name] = {
+            oldValue: this.attributes[attribute.name],
+            newValue: attribute.value
+          };
+          this.attributes[attribute.name] = attribute.value;
         }
         found[attribute.name] = true;
       }
@@ -46,8 +52,11 @@ var TimeoutObserver = ElementObserver.extend({
       // detect deleted attributes
       for (attributeName in found) {
         if (found.hasOwnProperty(attributeName) && !found[attributeName]) {
+          result.attributes[attributeName] = {
+            oldValue: this.attributes[attributeName],
+            newValue: undefined
+          };
           delete this.attributes[attributeName];
-          result.attributes.push(attributeName);
         }
       }
     }
@@ -93,23 +102,21 @@ var TimeoutObserver = ElementObserver.extend({
     }
 
     if (this.counter === 0) {
-      this.attributes = {};
+
+      if (this.element.nodeType === 1 && this.options.attributes) {
+        this._initalizeAttributes();
+      }
+
+      if (this.element.nodeType === 3) {
+        this.characterData = this.element.data;
+      }
+
       this.childNodes = [];
       this.myTimeout = undefined;
 
-      if (this.element.nodeType === 1) {
-        var length = this.element.attributes.length;
-        for (var index = 0; index < length; index++) {
-          var attribute = this.element.attributes[index];
-          this.attributes[attribute.name] = attribute.value;
-        }
-
-        length = this.element.childNodes.length;
-        for (var i = 0; i < length; i++) {
-          this.childNodes.push(this.element.childNodes[i]);
-        }
-      } else if (this.element.nodeType === 3) {
-        this.characterData = this.element.data;
+      var length = this.element.childNodes.length;
+      for (var i = 0; i < length; i++) {
+        this.childNodes.push(this.element.childNodes[i]);
       }
 
       var that = this;

@@ -111,11 +111,12 @@ var LayerView = BaseView.extend({
     }
   },
   attributesChanged: function(attributes) {
-    if (attributes.indexOf('lj-native-scroll') !== -1 || attributes.indexOf('data-lj-native-scroll') !== -1) {
+
+    if (attributes['lj-native-scroll'] || attributes['data-lj-native-scroll'] !== -1) {
       this.switchScrolling(this.nativeScroll());
     }
 
-    if (attributes.indexOf('lj-layout-type') !== -1 || attributes.indexOf('data-lj-layout-type') !== -1) {
+    if (attributes['lj-layout-type'] !== -1 || attributes['data-lj-layout-type'] !== -1) {
       this.switchLayout(this.layoutType());
     }
 

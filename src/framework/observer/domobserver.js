@@ -8,7 +8,7 @@ var DOMObserver = Kern.EventManager.extend({
     Kern.EventManager.call(this);
   },
   _domElementChanged: function(result) {
-    if (result.attributes.length > 0) {
+    if (Object.getOwnPropertyNames(result.attributes).length > 0) {
       this.trigger('attributesChanged', result.attributes);
     }
 
