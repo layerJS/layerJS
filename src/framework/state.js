@@ -139,6 +139,7 @@ var State = Kern.Base.extend({
             }
 
             view.on('childrenChanged', this._childrenChangedEvent(view));
+            view.on('attributesChanged', this._attributesChangedEvent(view));
           }
 
           // currentState did contain the parent's state; assing actual current state
@@ -412,6 +413,22 @@ var State = Kern.Base.extend({
     var that = this;
     return function(result) {
       that.updateChildren(view, result.addedNodes, result.removedNodes);
+    };
+  },
+  /**
+   * Will return the handler for an attributesChanged event
+   *
+   * @param {object}  a view
+   * @returns {function} function that will be called when an attributesChanged event is invoked
+   */
+  _attributesChangedEvent: function(view) {
+    return function(attributes) {
+      if (attributes['lj-name'] || attributes['data-lj-name'] || attributes.id) {
+        var state = view.outerEl._state;
+        var parent = state.parent;
+        parent.children[view.name()] = state;
+        delete parent.children[(attributes['lj-name'] && attributes['lj-name'].oldValue) || (attributes['data-lj-name'] && attributes['data-lj-name'].oldValue) || (attributes.id && attributes.id.oldValue)];
+      }
     };
   },
   /**

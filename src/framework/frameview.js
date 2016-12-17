@@ -20,7 +20,7 @@ var FrameView = BaseView.extend({
   startObserving: function() {
     BaseView.prototype.observe.call(this, this.innerEl, {
       attributes: true,
-      attributeFilter: ['name', 'lj-name'].concat(this.renderRequiredAttributes),
+      attributeFilter: ['name', 'lj-name', 'id'].concat(this.renderRequiredAttributes),
       children: true,
       size: true
     });

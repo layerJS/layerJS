@@ -824,6 +824,29 @@ describe('state', function() {
     }, 500);
   });
 
+  it('will react on a name change', function(done) {
+
+    var view = new FrameView({
+      el: utilities.appendChildHTML(require('./htmlelements/simple_frame_1.js'))
+    });
+
+
+    var oldName = view.name();
+
+    expect(view.outerEl._state.parent.children[oldName]).toBeDefined();
+    expect(view.outerEl._state.parent.children['newName']).not.toBeDefined();
+
+    view.outerEl.setAttribute('lj-name', 'newName');
+
+    setTimeout(function() {
+      expect(view.name()).toBe('newName');
+      expect(view.outerEl._state.parent.children[oldName]).not.toBeDefined();
+      expect(view.outerEl._state.parent.children['newName']).toBeDefined();
+      done();
+    }, 60);
+
+  });
+
   it('performance test', function() {
 
     //   setHtmlForExport();
