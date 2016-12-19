@@ -24,14 +24,22 @@ var MutationsObserver = ElementObserver.extend({
     for (var i = 0; i < mutations.length; i++) {
       var mutation = mutations[i];
       if (this.options.attributes && mutation.type === 'attributes') {
-        result.attributes.push(mutation.attributeName);
+        result.attributes[mutation.attributeName] = {
+          oldValue: this.attributes[mutation.attributeName],
+          newValue: this.element.getAttribute(mutation.attributeName)
+        };
+        this.attributes[mutation.attributeName] = result.attributes[mutation.attributeName].newValue;
       }
       if (this.options.childList && mutation.type === 'childList') {
         if (mutation.addedNodes && mutation.addedNodes.length > 0) {
-          result.addedNodes = result.addedNodes.concat(mutation.addedNodes);
+          for (var i = 0; i < mutation.addedNodes.length; i++) {
+            result.addedNodes.push(mutation.addedNodes[i]);
+          }
         }
         if (mutation.removeNodes && mutation.removeNodes.length > 0) {
-          result.removedNodes = result.newNodes.concat(mutation.removeNodes);
+          for (var y = 0; i < mutation.removeNodes.length; y++) {
+            result.removedNodes.push(mutation.removeNodes[y]);
+          }
         }
       }
     }
