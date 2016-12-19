@@ -31,8 +31,10 @@ var FrameView = BaseView.extend({
     BaseView.prototype.registerEventHandlers.call(this);
 
     this.on('sizeChanged', function() {
-      that.transformData = undefined;
-      that.trigger('renderRequired', this.name());
+      if (this.parent && !this.parent.inTransition()) {
+        that.transformData = undefined;
+        that.trigger('renderRequired', this.name());
+      }
     });
 
     this.on('attributesChanged', this.attributesChanged);

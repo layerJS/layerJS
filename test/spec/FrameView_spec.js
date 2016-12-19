@@ -45,10 +45,9 @@ describe("FrameView", function() {
 
     describe('sizeChanged', function() {
       it('will remove cached transformData and will trigger a renderRequired event', function(done) {
-        var element = utilities.appendChildHTML(require('./htmlelements/simple_frame_1.js'));
-        var frameView = new FrameView({
-          el: element
-        });
+        var element = utilities.appendChildHTML(require('./htmlelements/simple_layer_1.js'));
+        var layerView = new LayerView({el : element});
+        var frameView = layerView.getChildViews()[0];
 
         frameView.transformData = {};
 
