@@ -28,6 +28,7 @@ var LayerView = BaseView.extend({
 
     BaseView.call(this, options);
 
+    this._inPreparation = false; // indicates that the transition is in preparation
     this._inTransition = false; // indicates that transition is still being animated
     this.transitionID = 1; // counts up every call of transitionTo();
     this.currentFrame = null;
@@ -156,6 +157,28 @@ var LayerView = BaseView.extend({
     return this._inTransition;
   },
   /**
+   * This method is called if the preparation is started or ended.  It has a timeout function that will automatically remove
+   * the _inPreparation flag
+   *
+   * @returns {boolean} inPreparation or not
+   */
+  inPreparation: function(_inPreparation, duration) {
+    if (_inPreparation !== undefined) {
+      this._inPreparation = _inPreparation;
+
+      if (_inPreparation) {
+        var that = this;
+        var tID = this.transitionID;
+        setTimeout(function() {
+          if (tID === that.transitionID) {
+            that._inPreparation = false;
+          }
+        }, duration);
+      }
+    }
+    return this._inPreparation;
+  },
+  /**
    * returns the number of milliseconds left on the current transition or false if no transition is currently on going
    *
    * @returns {number/boolean} duration left in ms or false
@@ -279,13 +302,15 @@ var LayerView = BaseView.extend({
     that.trigger('beforeTransition', framename);
 
     // this.inTransition(true, 0);
-
+    this.inPreparation(true);
     this._layout.loadFrame(frame).then(function() {
       var tfd = that.currentFrameTransformData = null === frame ? that.noFrameTransformdata(scrollData.startPosition) : frame.getTransformData(that.stage, scrollData.startPosition);
       that.currentTransform = that._transformer.getScrollTransform(tfd, scrollData.scrollX || (tfd.isScrollX && tfd.scrollX) || 0, scrollData.scrollY || (tfd.isScrollY && tfd.scrollY) || 0);
       that.currentFrame = frame;
+
       that.trigger('transitionStarted', framename);
       that._layout.showFrame(frame, tfd, that.currentTransform);
+      that.inPreparation(false);
       that.inTransition(false); // we stop all transitions if we do a showframe
       that.currentFrame = frame;
       that.trigger('transitionFinished', framename);
@@ -338,9 +363,10 @@ var LayerView = BaseView.extend({
     }
 
     that.trigger('beforeTransition', framename);
-
     transition.transitionID = ++this.transitionID; // inc transition ID and save new ID into transition record
+    this.inPreparation(true, $.timeToMS(transition.duration));
     this.inTransition(true, $.timeToMS(transition.duration));
+
     // make sure frame is there such that we can calculate dimensions and transform data
     return this._layout.loadFrame(frame).then(function() {
       // calculate the layer transform for the target frame. Note: this will automatically consider native scrolling
@@ -353,12 +379,16 @@ var LayerView = BaseView.extend({
         // don't do a transition, just execute Promise
         var p = new Kern.Promise();
         p.resolve();
-        that.inTransition(false);
+        that.inPreparation(false);
         that.trigger('transitionStarted', framename);
         that.trigger('transitionFinished', framename);
+        that.inTransition(false);
         return p;
       }
+
+
       var layoutPromise = that._layout.transitionTo(frame, transition, targetFrameTransformData, targetTransform).then(function() {
+        that.inPreparation(false);
         // is this still the active transition?
         if (transition.transitionID === that.transitionID) {
           // this will now calculate the currect layer transform and set up scroll positions in native scroll
@@ -515,7 +545,7 @@ var LayerView = BaseView.extend({
     }
 
     childView.unobserve();
-    this._layout.renderFramePosition(childView, this._currentTransform);
+    this._layout.renderFramePosition(childView, this.currentTransform);
     childView.startObserving();
   },
   /**
@@ -552,9 +582,9 @@ var LayerView = BaseView.extend({
 
     var that = this;
     var renderRequiredEventHandler = function(name) {
-      that.renderChildPosition(that._cache.childNames[name]);
       if (that.currentFrame && null !== that.currentFrame && that.currentFrame.name() === name) {
-        that.showFrame(name, that.currentFrame.getScrollData());
+        that._renderChildPosition(that._cache.childNames[name]);
+        that.showFrame(name);
       }
     };
 
