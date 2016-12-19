@@ -31,6 +31,7 @@ var CanvasLayout = LayerLayout.extend({
     var childFrame;
 
     if (null !== frame) {
+      delete this._currentRotation; // as we don't animate we don't have to care about the current rotation
       this._reverseTransform = this._calculateReverseTransform(frame, targetFrameTransformData);
       // now apply all transforms to all frames
       for (var i = 0; i < framesLength; i++) {
@@ -122,7 +123,19 @@ var CanvasLayout = LayerLayout.extend({
     var targetFrameX = (parseInt(frame.x(), 10) || 0);
     var targetFrameY = (parseInt(frame.y(), 10) || 0);
 
-    var transform = "translate3d(" + parseInt(-targetFrameTransformData.shiftX, 10) + "px," + parseInt(-targetFrameTransformData.shiftY, 10) + "px,0px) scale(" + targetFrameTransformData.scale / (frame.scaleX() || 1) + "," + targetFrameTransformData.scale / (frame.scaleY() || 1) + ") rotate(" + (-frame.rotation() || 0) + "deg) translate3d(" + (-targetFrameX) + "px," + (-targetFrameY) + "px,0px)";
+    // this block will make sure that the difference between the current rotation of the canvas and the new rotation is <=180° (so the animation will not rotate the long way)
+    var rotation = frame.rotation() || 0;
+    if (this._currentRotation) {
+      if (rotation > this._currentRotation + 180) {
+        rotation -= 360 * (1 + Math.floor((rotation - this._currentRotation) / 360));
+      }
+      if (rotation < this._currentRotation - 180) {
+        rotation += 360 * (1 + Math.floor((this._currentRotation - rotation) / 360));
+      }
+    }
+    this._currentRotation = rotation;
+
+    var transform = "translate3d(" + parseInt(-targetFrameTransformData.shiftX, 10) + "px," + parseInt(-targetFrameTransformData.shiftY, 10) + "px,0px) scale(" + targetFrameTransformData.scale / (frame.scaleX() || 1) + "," + targetFrameTransformData.scale / (frame.scaleY() || 1) + ") rotate(" + (-rotation || 0) + "deg) translate3d(" + (-targetFrameX) + "px," + (-targetFrameY) + "px,0px)";
     return transform;
   },
   /**
