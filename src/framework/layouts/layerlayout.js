@@ -33,10 +33,10 @@ var LayerLayout = Kern.EventManager.extend({
     var css = {};
     // just do width & height for now; FIXME
   //  if ('width' in diff && attr.width !== undefined) {
-      css.width = frame.width();
+      css.width = frame.width(true);
   //  }
   //  if ('height' in diff && attr.height !== undefined) {
-      css.height = frame.height();
+      css.height = frame.height(true);
   //  }
     Kern._extend(frame.outerEl.style, css);
   },

@@ -167,10 +167,10 @@ var CanvasLayout = LayerLayout.extend({
     var css = {};
     // just do width & height for now; FIXME
     //if ('width' in diff && attr.width !== undefined) {
-      css.width = frame.width();
+      css.width = frame.width(true);
     //}
     //if ('height' in diff && attr.height !== undefined) {
-      css.height = frame.height();
+      css.height = frame.height(true);
     //}
     //if ('x' in diff || 'y' in diff || 'rotation' in diff) {
       // calculate frameTransform of frame and store it in this._frameTransforms

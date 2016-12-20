@@ -36,16 +36,16 @@ var BaseView = DOMObserver.extend({
     this.startObserving();
   },
   /* jshint ignore:start */
-  startObserving: function(){
+  startObserving: function() {
 
   },
   /* jshint ignore:end */
   registerEventHandlers: function() {
     this.on('childrenChanged', function(result) {
-      if ((result.addedNodes && result.addedNodes.length > 0) || ( result.removedNodes && result.removedNodes.length > 0)) {
+      if ((result.addedNodes && result.addedNodes.length > 0) || (result.removedNodes && result.removedNodes.length > 0)) {
         this._parseChildren({
           addedNodes: result.addedNodes,
-          removedNodes : result.removedNodes
+          removedNodes: result.removedNodes
         });
       }
     });
@@ -156,34 +156,46 @@ var BaseView = DOMObserver.extend({
   nodeType: function() {
     return this.outerEl && this.outerEl.nodeType;
   },
-  width: function() {
-    var width = this.outerEl.offsetWidth;
+  width: function(attributeValue) {
+    var width;
 
-    if (!width && this.outerEl.style.width !== undefined)
-      width = this.outerEl.style.width;
+    if (attributeValue !== true) {
+      width = this.outerEl.offsetWidth;
 
-    if (!width) {
+      if (!width && this.outerEl.style.width !== undefined)
+        width = this.outerEl.style.width;
+
+      if (!width) {
+        width = this.getAttributeLJ('width');
+      }
+
+      if (!width) {
+        width = this.getAttribute('width');
+      }
+    } else {
       width = this.getAttributeLJ('width');
-    }
-
-    if (!width) {
-      width = this.getAttribute('width');
     }
 
     return $.parseDimension(width);
   },
-  height: function() {
-    var height = this.outerEl.offsetHeight;
+  height: function(attributeValue) {
+    var height;
 
-    if (!height && this.outerEl.style.height !== undefined)
-      height = this.outerEl.style.height;
+    if (attributeValue !== true) {
+      height = this.outerEl.offsetHeight;
 
-    if (!height) {
+      if (!height && this.outerEl.style.height !== undefined)
+        height = this.outerEl.style.height;
+
+      if (!height) {
+        height = this.getAttributeLJ('height');
+      }
+
+      if (!height) {
+        height = this.getAttribute('height');
+      }
+    } else {
       height = this.getAttributeLJ('height');
-    }
-
-    if (!height) {
-      height = this.getAttribute('height');
     }
 
     return $.parseDimension(height);
@@ -249,7 +261,7 @@ var BaseView = DOMObserver.extend({
   },
   noScrolling: function() {
     var noScrolling = this.getAttributeLJ('no-scrolling');
-    return noScrolling ? noScrolling === 'true'  : false;
+    return noScrolling ? noScrolling === 'true' : false;
   },
   rotation: function() {
     return this.getAttributeLJ('rotation');
