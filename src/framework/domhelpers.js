@@ -220,7 +220,9 @@ var DomHelpers = {
   },
   uniqueID: function(prefix) {
     prefix = prefix || -1;
-    uniqueHash[prefix] = uniqueHash[prefix] || -1;
+    if (uniqueHash[prefix] === undefined) {
+      uniqueHash[prefix] = -1;
+    }
     if (prefix !== -1) {
       return prefix + "[" + (++uniqueHash[prefix]) + "]";
     } else {
