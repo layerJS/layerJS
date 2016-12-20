@@ -1,6 +1,7 @@
 'use strict';
-var uniqueHash = {};
 var DomHelpers = {
+
+  uniqueHash: {},
   /**
    * wrap all children of element into a wrapper element
    *
@@ -220,13 +221,13 @@ var DomHelpers = {
   },
   uniqueID: function(prefix) {
     prefix = prefix || -1;
-    if (uniqueHash[prefix] === undefined) {
-      uniqueHash[prefix] = -1;
+    if (this.uniqueHash[prefix] === undefined) {
+      this.uniqueHash[prefix] = -1;
     }
     if (prefix !== -1) {
-      return prefix + "[" + (++uniqueHash[prefix]) + "]";
+      return prefix + "[" + (++this.uniqueHash[prefix]) + "]";
     } else {
-      return ++uniqueHash[prefix];
+      return ++this.uniqueHash[prefix];
     }
   }
 };

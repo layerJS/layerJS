@@ -32,12 +32,12 @@ var MutationsObserver = ElementObserver.extend({
       }
       if (this.options.childList && mutation.type === 'childList') {
         if (mutation.addedNodes && mutation.addedNodes.length > 0) {
-          for (var i = 0; i < mutation.addedNodes.length; i++) {
-            result.addedNodes.push(mutation.addedNodes[i]);
+          for (var x = 0; x < mutation.addedNodes.length; x++) {
+            result.addedNodes.push(mutation.addedNodes[x]);
           }
         }
         if (mutation.removeNodes && mutation.removeNodes.length > 0) {
-          for (var y = 0; i < mutation.removeNodes.length; y++) {
+          for (var y = 0; y < mutation.removeNodes.length; y++) {
             result.removedNodes.push(mutation.removeNodes[y]);
           }
         }

@@ -12,7 +12,6 @@ utilities._beforeAll = function() {
 
   var head = document.head || document.getElementsByTagName('head')[0];
   var style = document.getElementById("wl-obj-css");
-
   if (!style) {
     style = document.createElement("style");
     style.id = "wl-obj-css";
@@ -59,6 +58,8 @@ utilities.afterEach = function() {
   var sizeObserver = require("../../../src/framework/observer/sizeobserver.js");
   sizeObserver.views = {};
 
+  var domHelper = require("../../../src/framework/domhelpers.js");
+  domHelper.uniqueHash = {};
   delete document._ljStateTree;
   delete document._ljStateFrameView;
 }

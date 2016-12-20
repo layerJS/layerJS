@@ -157,13 +157,13 @@ describe("FrameView", function() {
           el : utilities.appendChildHTML(require('./htmlelements/simple_layer_1.js'))
         });
 
-        spyOn(layerView, 'renderChildPosition');
+        spyOn(layerView, '_renderChildPosition');
         spyOn(layerView, 'showFrame');
 
         var frameView = layerView.innerEl.children[0]._ljView;
 
         frameView.on('renderRequired', function(){
-          expect(layerView.renderChildPosition).toHaveBeenCalled();
+          expect(layerView._renderChildPosition).toHaveBeenCalled();
           expect(layerView.showFrame).toHaveBeenCalled();
 
           done();
