@@ -37,9 +37,11 @@ module.exports = function(scenario, initFunction) {
       var view = new ViewType({
         el: sourceElement
       });
-      var element = view.innerEl;
-      expect(element._ljView === view).toBeTruthy();
-      expect(element === sourceElement).toBeTruthy();
+      var innerElement = view.innerEl;
+      expect(innerElement._ljView === view).toBeTruthy();
+      var outerElement = view.outerEl;
+      expect(outerElement._ljView === view).toBeTruthy();
+      expect(outerElement === sourceElement).toBeTruthy();
     });
 
     it('cannot add view to existing element if that is already connected to another view', function() {

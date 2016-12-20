@@ -273,7 +273,7 @@ var BaseView = DOMObserver.extend({
   },
   nativeScroll: function() {
     var nativeScroll = this.getAttributeLJ('native-scroll');
-    return nativeScroll ? nativeScroll === 'true' : false;
+    return nativeScroll ? nativeScroll === 'true' : true;
   },
   setNativeScroll: function(nativeScroll) {
     this.setAttributeLJ('native-scroll', nativeScroll);
