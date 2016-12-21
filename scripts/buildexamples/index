@@ -1,0 +1,1 @@
+"for i in `find ./examples | grep layerjs.js` ; do rm $i;done;for i in `find ./examples | grep layerjs.css` ; do rm $i;done;for i in `ls -d ./examples/*/` ;do echo $i;cp ./dist/layerjs.js $i;cp ./dist/css/layerjs.css $i;done",
