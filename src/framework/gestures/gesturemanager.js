@@ -62,10 +62,12 @@ var GestureManager = Kern.EventManager.extend({
       }
     }
 
-    element.addEventListener('mousedown', tap);
-    element.addEventListener('mouseup', release);
-    if (options.dragging) {
-      element.addEventListener('mousemove', drag);
+    if (options.mouseDragging) {
+      element.addEventListener('mousedown', tap);
+      element.addEventListener('mouseup', release);
+      if (options.dragging) {
+        element.addEventListener('mousemove', drag);
+      }
     }
   },
   /**

@@ -40,7 +40,8 @@ var LayerView = BaseView.extend({
     // this.parentLayer = this.getParentOfType('layer');
     // register for gestures
     gestureManager.register(this.outerEl, this.gestureListener.bind(this), {
-      dragging: true
+      dragging: true,
+      mouseDragging : false
     });
 
     var that = this;
