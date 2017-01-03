@@ -94,6 +94,7 @@ var Router = Kern.EventManager.extend({
         that._navigate(href, true).then(function(result) {
           if (!result) {
             // if the url can not be resolve, re-dispatch event but add custom property to ignore in layerjs
+            var new_event = new event.constructor(event.type, event);
             new_event.nonlayerJS = true;
             event.target.dispatchEvent(new_event);
           }
