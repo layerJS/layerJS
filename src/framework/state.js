@@ -250,6 +250,8 @@ var State = Kern.Base.extend({
       var frameName = path.substr(path.lastIndexOf(".") + 1);
       layerView.transitionTo(frameName, transition);
     }
+
+    return pathsToTransition.length > 0;
   },
   /**
    * Will show the state without a transition

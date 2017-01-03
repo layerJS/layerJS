@@ -22,10 +22,10 @@ var HashRouter = Kern.EventManager.extend({
     } else {
       var hash = splitted[1];
       var states = hash.split(';');
-      state.transitionTo(states, transition);
+      var result = state.transitionTo(states, transition);
       promise.resolve({
-        stop: true,
-        handled: true
+        stop: result,
+        handled: result
       });
     }
 

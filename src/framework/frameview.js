@@ -32,7 +32,6 @@ var FrameView = BaseView.extend({
 
     this.on('sizeChanged', function() {
       if (that.parent && !that.parent.inPreparation()) {
-        that.transformData = undefined;
         that.trigger('renderRequired', that.name());
       }
     });

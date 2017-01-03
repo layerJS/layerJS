@@ -287,8 +287,8 @@ describe('router', function() {
     layerJS.router.addRouter(dummyRouter);
 
     layerJS.router._navigate(url, true);
-    expect(layerJS.router.routers[0].routes.hasOwnProperty('/#')).toBeTruthy();
-    expect(layerJS.router.routers[0].routes['/#']).toEqual(['stage1.layer1.frame1']);
+    expect(layerJS.router.routers[0].routes.hasOwnProperty('/')).toBeTruthy();
+    expect(layerJS.router.routers[0].routes['/']).toEqual(['stage1.layer1.frame1']);
   });
 
   it('will stop iterating routers when a router return stop == true', function() {

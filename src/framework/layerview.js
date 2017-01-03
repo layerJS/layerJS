@@ -560,7 +560,7 @@ var LayerView = BaseView.extend({
     for (var i = 0; i < length; i++) {
       var childView = childViews[i];
       if (childView.hasOwnProperty('transformData')) {
-        childView.transformData = null;
+        childView.transformData = undefined;
       }
     }
     var frameName = this.currentFrame === null ? null : this.currentFrame.name();
@@ -585,7 +585,7 @@ var LayerView = BaseView.extend({
     var renderRequiredEventHandler = function(name) {
       if (that.currentFrame && null !== that.currentFrame && that.currentFrame.name() === name) {
         that._renderChildPosition(that._cache.childNames[name]);
-        that.showFrame(name);
+        that.onResize();
       }
     };
 
