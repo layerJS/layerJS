@@ -59,7 +59,7 @@ utilities.afterEach = function() {
   sizeObserver.views = {};
 
   var domHelper = require("../../../src/framework/domhelpers.js");
-  domHelper.uniqueHash = {};
+  delete document._ljUniqueHash;
   delete document._ljStateTree;
   delete document._ljStateFrameView;
 }

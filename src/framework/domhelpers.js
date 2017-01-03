@@ -1,7 +1,5 @@
 'use strict';
 var DomHelpers = {
-
-  uniqueHash: {},
   /**
    * wrap all children of element into a wrapper element
    *
@@ -219,15 +217,27 @@ var DomHelpers = {
     if (value && typeof value === 'number') return value;
     return undefined;
   },
-  uniqueID: function(prefix) {
+  /**
+   * Will generate a unique id for a specific prefix (layerJS type)
+   *
+   * @param {string} prefix - a prefix (layerJS type)
+   * @param {Object} doc - the document to generate a unique id from
+   * @returns {string} a unique id
+   */
+  uniqueID: function(prefix, doc) {
+    doc = doc || document;
+    if (doc._ljUniqueHash === undefined) {
+      doc._ljUniqueHash = {};
+    }
+    var uniqueHash = doc._ljUniqueHash;
     prefix = prefix || -1;
-    if (this.uniqueHash[prefix] === undefined) {
-      this.uniqueHash[prefix] = -1;
+    if (uniqueHash[prefix] === undefined) {
+      uniqueHash[prefix] = -1;
     }
     if (prefix !== -1) {
-      return prefix + "[" + (++this.uniqueHash[prefix]) + "]";
+      return prefix + "[" + (++uniqueHash[prefix]) + "]";
     } else {
-      return ++this.uniqueHash[prefix];
+      return ++uniqueHash[prefix];
     }
   }
 };

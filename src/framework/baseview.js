@@ -143,7 +143,7 @@ var BaseView = DOMObserver.extend({
   },
   id: function() {
     if (!this._id) {
-      this._id = this.getAttributeLJ('id') || this.outerEl.id || $.uniqueID(this.type());
+      this._id = this.getAttributeLJ('id') || this.outerEl.id || $.uniqueID(this.type(), this.document);
     }
     return this._id;
   },
