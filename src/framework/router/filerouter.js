@@ -25,16 +25,15 @@ var FileRouter = Kern.EventManager.extend({
       }
     }
 
-    /* TODO: check if this is needed
     var splitted = href.split('#');
-    if (canHandle && window.location.href.indexOf(splitted[0]) !== -1) {
-      // same file
+    if (canHandle && window.location.href.indexOf(splitted[0]) !== -1 && splitted.length > 1) {
+      // same file and with a hash
       canHandle = false;
       promise.resolve({
         handled: false,
         stop: false
       });
-    }*/
+    }
 
     if (canHandle) {
       this._loadHTML(href).then(function(doc) {
