@@ -24,6 +24,8 @@ var FileRouter = Kern.EventManager.extend({
         });
       }
     }
+
+    /* TODO: check if this is needed
     var splitted = href.split('#');
     if (canHandle && window.location.href.indexOf(splitted[0]) !== -1) {
       // same file
@@ -32,7 +34,7 @@ var FileRouter = Kern.EventManager.extend({
         handled: false,
         stop: false
       });
-    }
+    }*/
 
     if (canHandle) {
       this._loadHTML(href).then(function(doc) {
