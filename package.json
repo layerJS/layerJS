@@ -51,6 +51,6 @@
 
     "deployCDN": "scp ./dist/layerjs-$npm_package_version.js ./dist/css/layerjs-$npm_package_version.css www-data@layerjs.org:cdn/layerjs.org/libs/layerjs/",
 
-    "coverage" : "istanbul cover --include-all-sources jasmine JASMINE_CONFIG_PATH=./test/spec/support/jasmine.json"
+    "coverage" : "istanbul cover --include-all-sources node_modules/jasmine/bin/jasmine.js JASMINE_CONFIG_PATH=./test/spec/support/jasmine.json"
   }
 }
