@@ -24,9 +24,10 @@ var FileRouter = Kern.EventManager.extend({
         });
       }
     }
+
     var splitted = href.split('#');
-    if (canHandle && window.location.href.indexOf(splitted[0]) !== -1) {
-      // same file
+    if (canHandle && window.location.href.indexOf(splitted[0]) !== -1 && splitted.length > 1) {
+      // same file and with a hash
       canHandle = false;
       promise.resolve({
         handled: false,
