@@ -384,7 +384,7 @@ var LayerView = BaseView.extend({
         that.trigger('transitionStarted', framename);
 
         if (that.currentTransform !== targetTransform) {
-          that.currentTransform = targetTransform;
+          that.currentTransform = that._transformer.getScrollTransform(targetFrameTransformData, transition.scrollX || 0, transition.scrollY || 0, false);
           that._layout.setLayerTransform(that.currentTransform);
         }
 
