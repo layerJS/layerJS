@@ -175,6 +175,35 @@ describe('scrolling', function() {
       });
     });
 
+    it('when a transition is done to the same frame, the frame will be scrolled up', function() {
+      browser.get('scrolling/native_scrolling.html').then(function() {
+        utilities.setStyle('stage', {
+          width: '650px',
+          height: '650px'
+        }).then(function() {
+          utilities.resizeWindow(800, 599);
+          utilities.scrollDown('layer', 2).then(function() {
+            protractor.promise.all([utilities.getBoundingClientRect('layer'),
+              utilities.getBoundingClientRect('frame1'),
+              utilities.getScroll('scroller')
+            ]).then(function(data) {
+              var layer_dimensions = data[0];
+              var frame_dimensions = data[1];
+              var layer_scroll = data[2];
+
+              expect(layer_scroll.scrollTop).toBe(frame_dimensions.height - layer_dimensions.height);
+
+              utilities.transitionTo('layer', 'frame1', {}).then(function() {
+                utilities.getScroll('scroller').then(function(layer_scroll) {
+                  expect(layer_scroll.scrollTop).toBe(0);
+                  expect(layer_scroll.scrollLeft).toBe(0);
+                });
+              });
+            })
+          });
+        });
+      });
+    });
   });
 
 
@@ -324,6 +353,36 @@ describe('scrolling', function() {
         });
       });
     });
+
+    it('when a transition is done to the same frame, the frame will be scrolled up', function() {
+      browser.get('scrolling/native_scrolling.html').then(function() {
+        utilities.setStyle('stage', {
+          width: '650px',
+          height: '650px'
+        }).then(function() {
+          utilities.resizeWindow(800, 599);
+          utilities.scrollDown('layer', 2).then(function() {
+            protractor.promise.all([utilities.getBoundingClientRect('layer'),
+              utilities.getBoundingClientRect('frame1'),
+              utilities.getScroll('scroller')
+            ]).then(function(data) {
+              var layer_dimensions = data[0];
+              var frame_dimensions = data[1];
+              var layer_scroll = data[2];
+
+              expect(layer_scroll.scrollTop).toBe(frame_dimensions.height - layer_dimensions.height);
+
+              utilities.transitionTo('layer', 'frame1', {}).then(function() {
+                utilities.getScroll('scroller').then(function(layer_scroll) {
+                  expect(layer_scroll.scrollTop).toBe(0);
+                  expect(layer_scroll.scrollLeft).toBe(0);
+                });
+              });
+            })
+          });
+        });
+      });
+    });
   });
 
   describe('can switch scrolling', function() {
@@ -350,7 +409,7 @@ describe('scrolling', function() {
                   var frame_dimensions = data[0];
                   var layer_scroll_after = data[1];
                   expect(frame_dimensions.top).toBe(layer_scroll_before.scrollTop * -1);
-                  expect(frame_dimensions.left).toBe((layer_scroll_before.scrollLeft -17) * -1);
+                  expect(frame_dimensions.left).toBe((layer_scroll_before.scrollLeft - 17) * -1);
                   expect(layer_scroll_after.scrollTop).toBe(0);
                   expect(layer_scroll_after.scrollLeft).toBe(0);
                 });

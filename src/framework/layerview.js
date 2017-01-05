@@ -41,7 +41,7 @@ var LayerView = BaseView.extend({
     // register for gestures
     gestureManager.register(this.outerEl, this.gestureListener.bind(this), {
       dragging: true,
-      mouseDragging : false
+      mouseDragging: false
     });
 
     var that = this;
@@ -376,14 +376,21 @@ var LayerView = BaseView.extend({
       var targetFrameTransformData = null === frame ? that.noFrameTransformdata(transition.startPosition) : frame.getTransformData(that.stage, transition.startPosition);
       var targetTransform = that._transformer.getScrollTransform(targetFrameTransformData, transition.scrollX || 0, transition.scrollY || 0, true);
       // check if transition goes to exactly the same position
-      if (that.currentFrame === frame && that.currentTransform === targetTransform && that.currentFrameTransformData === targetFrameTransformData) {
+      if (that.currentFrame === frame && that.currentFrameTransformData === targetFrameTransformData) {
         // don't do a transition, just execute Promise
         var p = new Kern.Promise();
         p.resolve();
         that.inPreparation(false);
         that.trigger('transitionStarted', framename);
+
+        if (that.currentTransform !== targetTransform) {
+          that.currentTransform = targetTransform;
+          that._layout.setLayerTransform(that.currentTransform);
+        }
+
         that.trigger('transitionFinished', framename);
         that.inTransition(false);
+
         return p;
       }
 
