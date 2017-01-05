@@ -20,7 +20,8 @@
     "xmlhttprequest": "latest",
     "nock": "latest",
     "scripty" : "latest",
-    "uglifyjs" : "latest"
+    "uglifyjs" : "latest",
+    "istanbul" : "latest"
   },
   "scripts": {
     "clean": "rimraf build/* dist/*",
@@ -48,6 +49,8 @@
 
     "buildSpecs": "scripty",
 
-    "deployCDN": "scp ./dist/layerjs-$npm_package_version.js ./dist/css/layerjs-$npm_package_version.css www-data@layerjs.org:cdn/layerjs.org/libs/layerjs/"
+    "deployCDN": "scp ./dist/layerjs-$npm_package_version.js ./dist/css/layerjs-$npm_package_version.css www-data@layerjs.org:cdn/layerjs.org/libs/layerjs/",
+
+    "coverage" : "istanbul cover --include-all-sources jasmine JASMINE_CONFIG_PATH=./test/spec/support/jasmine.json"
   }
 }
