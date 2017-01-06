@@ -30,7 +30,7 @@ In layerJS you will define stages, layers in frame simply by adding HTML-attribu
     </div>
 </div>
 ```
-The following example HMTL document will create a slider that can be controlled by two links at the bottom:
+The following example HTML document will create a slider that can be controlled by two links at the bottom:
 ```
 <html>
 <head>
