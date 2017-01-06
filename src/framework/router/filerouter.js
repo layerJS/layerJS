@@ -3,6 +3,7 @@ var Kern = require('../../kern/Kern.js');
 var parseManager = require("../parsemanager.js");
 var state = require("../state.js");
 var $ = require('../domhelpers.js');
+var defaults = require('../defaults.js');
 
 var FileRouter = Kern.EventManager.extend({
   /**
@@ -44,8 +45,8 @@ var FileRouter = Kern.EventManager.extend({
 
         for (var x = 0; x < loadedFrames.length; x++) {
           var orginalView = state.getViewForPath(loadedFrames[x], document);
-          if (undefined !== orginalView) {
-            // already imported
+          if (undefined !== orginalView || loadedFrames[x].endsWith('.' + defaults.specialFrames.none)) {
+            // already imported or null frame
             continue;
           }
 

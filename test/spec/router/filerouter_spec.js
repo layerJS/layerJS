@@ -59,6 +59,33 @@ describe('Filerouter', function() {
 
   });
 
+  it('will load a null frame from another page', function(done) {
+    var scope =  nock('http://localhost')
+      .get('/somePage.html')
+      .reply(200, '<div data-lj-type="stage" id="contentstage">' +
+        '<div data-lj-type="layer" id="contentlayer" data-lj-default-frame="!none">' +
+        '</div>' +
+        '</div>');
+
+    new StageView({
+      el: document.getElementById('contentstage')
+    });
+
+    var layerView = document.getElementById('contentlayer')._ljView;
+
+    var fileRouter = new FileRouter();
+    var promise = fileRouter.handle('http://localhost/somePage.html');
+    scope.done();
+
+    promise.then(function(result) {
+      expect(result.handled).toBeTruthy();
+      expect(result.stop).toBeFalsy();
+      expect(layerView.currentFrame).toBe(null);
+      done();
+    });
+
+  });
+
   it('when no matching path is found, the current frame stays', function(done) {
     var scope = nock('http://localhost')
       .get('/somePage.html')
