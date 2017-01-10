@@ -64,6 +64,7 @@ var FileRouter = Kern.EventManager.extend({
           if (undefined !== parentView && !alreadyImported.hasOwnProperty[parentPath]) {
             // parent found and not yet imported, add it's child (pathToImport) to it
             var stateToImport = state.getStateForPath(pathToImport, doc);
+            stateToImport.view.outerEl.style.opacity = 0;
             parentView.innerEl.insertAdjacentHTML('beforeend', stateToImport.view.outerEl.outerHTML);
             toParseChildren[parentPath] = true;
             alreadyImported[pathToImport] = true;
