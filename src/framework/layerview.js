@@ -144,15 +144,20 @@ var LayerView = BaseView.extend({
       this._inTransitionTimestamp = Date.now();
       var tID = this.transitionID;
       this._inTransitionDuration = duration;
+      this._intransitionID = tID;
       this._inTransition = true;
       setTimeout(function() {
         if (tID === that.transitionID) {
           delete that._inTransitionTimestamp;
           delete that._inTransitionDuration;
+          delete that._intransitionID;
           that._inTransition = false;
         }
       }, duration);
-    } else if (_inTransition === false) {
+    } else if (_inTransition === false && this.transitionID === this._intransitionID) {
+      delete this._inTransitionTimestamp;
+      delete this._inTransitionDuration;
+      delete this._intransitionID;
       this._inTransition = false;
     }
     return this._inTransition;
@@ -590,7 +595,7 @@ var LayerView = BaseView.extend({
 
     var that = this;
     var renderRequiredEventHandler = function(name) {
-      if (that.currentFrame && null !== that.currentFrame && that.currentFrame.name() === name) {
+      if (!that.inTransition() && that.currentFrame && null !== that.currentFrame && that.currentFrame.name() === name) {
         that._renderChildPosition(that._cache.childNames[name]);
         that.onResize();
       }
