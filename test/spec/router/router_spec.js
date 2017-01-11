@@ -386,7 +386,7 @@ describe('router', function() {
     expect(handled).toBe(true);
   });
 
-  it('layerJS.init() will call the navigate function', function() {
+  xit('layerJS.init() will call the navigate function', function() {
     var promise = new Kern.Promise();
     promise.resolve(true);
     spyOn(layerJS.router, '_navigate').and.returnValue(promise);
