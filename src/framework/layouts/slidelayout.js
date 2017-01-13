@@ -183,7 +183,7 @@ var SlideLayout = LayerLayout.extend({
   setLayerTransform: function(transform) {
     this._applyTransform(this.layer.currentFrame, this._currentFrameTransform, transform, this.layer.inTransition() ? {
       transition: this.layer.getRemainingTransitionTime() + 'ms'
-    } : {});
+    } : { transition : ''});
   },
   /**
    * apply transform by combining the frames base transform with the added scroll transform
@@ -196,7 +196,7 @@ var SlideLayout = LayerLayout.extend({
    */
   _applyTransform: function(frame, frameTransform, addedTransform, styles) {
     if (frame) {
-      var css = Kern._extend({}, frameTransform);
+      var css = Kern._extend({}, frameTransform || {});
       css.transform = addedTransform + " " + (css.transform || "");
       frame.applyStyles(styles || {}, css);
     }
