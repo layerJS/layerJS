@@ -311,7 +311,11 @@ var LayerView = BaseView.extend({
     this.inPreparation(true);
     this._layout.loadFrame(frame).then(function() {
       var tfd = that.currentFrameTransformData = null === frame ? that.noFrameTransformdata(scrollData.startPosition) : frame.getTransformData(that.stage, scrollData.startPosition);
-      that.currentTransform = that._transformer.getScrollTransform(tfd, scrollData.scrollX || (tfd.isScrollX && tfd.scrollX) || 0, scrollData.scrollY || (tfd.isScrollY && tfd.scrollY) || 0);
+      that.currentTransform = that._transformer.scrollTo(tfd, {
+        scrollX: scrollData.scrollX || (tfd.isScrollX && tfd.scrollX) || 0,
+        scrollY: scrollData.scrollY || (tfd.isScrollY && tfd.scrollY) || 0,
+        duration: '0s'
+      });
       that.currentFrame = frame;
 
       that.trigger('transitionStarted', framename);
@@ -356,7 +360,7 @@ var LayerView = BaseView.extend({
     transition = Kern._extend({
       type: 'default',
       duration: '1s'
-        // FIXME: add more default values like timing
+      // FIXME: add more default values like timing
     }, transition || {});
     // lookup frame by framename
     var frame = framename ? this._getFrame(framename, transition) : null;
@@ -379,18 +383,19 @@ var LayerView = BaseView.extend({
       // getScrollIntermediateTransform will not change the current native scroll position but will calculate
       // a compensatory transform for the target scroll position.
       var targetFrameTransformData = null === frame ? that.noFrameTransformdata(transition.startPosition) : frame.getTransformData(that.stage, transition.startPosition);
-      var targetTransform = that._transformer.getScrollTransform(targetFrameTransformData, transition.scrollX || 0, transition.scrollY || 0, true);
+      var targetTransform = that._transformer.getScrollTransform(targetFrameTransformData, transition.scrollX || 0, transition.scrollY || 0);
       // check if transition goes to exactly the same position
       if (that.currentFrame === frame && that.currentFrameTransformData === targetFrameTransformData) {
         // don't do a transition, just execute Promise
         var p = new Kern.Promise();
         p.resolve();
+
         that.inPreparation(false);
         that.trigger('transitionStarted', framename);
 
         if (that.currentTransform !== targetTransform) {
-          that.currentTransform = that._transformer.getScrollTransform(targetFrameTransformData, transition.scrollX || 0, transition.scrollY || 0, false);
-          that._layout.setLayerTransform(that.currentTransform);
+          that.currentTransform = that._transformer.scrollTo(targetFrameTransformData, transition);
+          //that._layout.setLayerTransform(that.currentTransform);
         }
 
         that.trigger('transitionFinished', framename);
@@ -405,7 +410,11 @@ var LayerView = BaseView.extend({
         // is this still the active transition?
         if (transition.transitionID === that.transitionID) {
           // this will now calculate the currect layer transform and set up scroll positions in native scroll
-          that.currentTransform = that._transformer.getScrollTransform(targetFrameTransformData, transition.scrollX || 0, transition.scrollY || 0, false);
+          that.currentTransform = that._transformer.scrollTo(targetFrameTransformData, {
+            scrollX: transition.scrollX || 0,
+            scrollY: transition.scrollY || 0,
+            duration: '0s'
+          });
           // apply new transform (will be 0,0 in case of native scrolling)
           that._layout.setLayerTransform(that.currentTransform);
           that.inTransition(false);

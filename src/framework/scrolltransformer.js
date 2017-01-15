@@ -110,7 +110,7 @@ var ScrollTransformer = Kern.EventManager.extend({
                                      here, the (possibly wrong/old native scroll position is taken into account)
    * @returns {Type} Description
    */
-  getScrollTransform: function(tfd, scrollX, scrollY, intermediate) {
+  getScrollTransform: function(tfd, scrollX, scrollY) {
     // update frameTransformData
     tfd.scrollX = scrollX || tfd.scrollX;
     tfd.scrollY = scrollY || tfd.scrollY;
@@ -128,29 +128,10 @@ var ScrollTransformer = Kern.EventManager.extend({
       tfd.scrollY = 0;
     }
     if (this.layer.nativeScroll()) {
-      if (intermediate) {
-        // in nativescroll, the scroll position is not applied via transform, but we need to compensate for a displacement due to the different scrollTop/Left values in the current frame and the target frame. This displacement is set to 0 after correcting the scrollTop/Left in the transitionEnd listener in transitionTo()
-        var shiftX = this.layer.outerEl.scrollLeft - (tfd.scrollX * tfd.scale || 0);
-        var shiftY = this.layer.outerEl.scrollTop - (tfd.scrollY * tfd.scale || 0);
-        return this.scrollTransform(shiftX, shiftY);
-      } else {
-        // set inner size to set up native scrolling
-        // FIXME: we shouldn't set the dimension in that we don't scroll
-        if (tfd.isScrollY) {
-          this.layer.innerEl.style.height = tfd.height + "px";
-        } else {
-          this.layer.innerEl.style.height = "100%";
-        }
-        if (tfd.isScrollX) {
-          this.layer.innerEl.style.width = tfd.width + "px";
-        } else {
-          this.layer.innerEl.style.width = "100%";
-        }
-
-        this._nativeScrollTo(tfd.scrollY * tfd.scale, tfd.scrollX * tfd.scale, this.layer.getRemainingTransitionTime());
-
-        return this.scrollTransform(0, 0); // no transforms as scrolling is achieved by native scrolling
-      }
+      // in nativescroll, the scroll position is not applied via transform, but we need to compensate for a displacement due to the different scrollTop/Left values in the current frame and the target frame. This displacement is set to 0 after correcting the scrollTop/Left in the transitionEnd listener in transitionTo()
+      var shiftX = this.layer.outerEl.scrollLeft - (tfd.scrollX * tfd.scale || 0);
+      var shiftY = this.layer.outerEl.scrollTop - (tfd.scrollY * tfd.scale || 0);
+      return this.scrollTransform(shiftX, shiftY);
     } else {
       // in transformscroll we add a transform representing the scroll position.
       return this.scrollTransform(-tfd.scrollX * tfd.scale, -tfd.scrollY * tfd.scale);
@@ -185,7 +166,7 @@ var ScrollTransformer = Kern.EventManager.extend({
    *
    * @param {Object} tfd - the transformdata of the frame for which the scrolling should be calculated / set
    * @param {Object} transition - contains information about a transition
-   * @returns {Promise} returns a promise
+   * @returns {string} returns a transform
    */
   scrollTo: function(tfd, transition) {
     var promise;
@@ -207,9 +188,22 @@ var ScrollTransformer = Kern.EventManager.extend({
     }
 
     if (this.layer.nativeScroll()) {
+      // set inner size to set up native scrolling
+      // FIXME: we shouldn't set the dimension in that we don't scroll
+      if (tfd.isScrollY) {
+        this.layer.innerEl.style.height = tfd.height + "px";
+      } else {
+        this.layer.innerEl.style.height = "100%";
+      }
+      if (tfd.isScrollX) {
+        this.layer.innerEl.style.width = tfd.width + "px";
+      } else {
+        this.layer.innerEl.style.width = "100%";
+      }
+
       promise = this._nativeScrollTo(tfd.scrollY * tfd.scale, tfd.scrollX * tfd.scale, $.timeToMS(transition.duration));
     } else {
-      promise = this._nonNativeScrollTo(tfd.scrollY * tfd.scale, tfd.scrollX * tfd.scale);
+      promise = this._nonNativeScrollTo(-tfd.scrollY * tfd.scale, -tfd.scrollX * tfd.scale);
     }
 
     return promise;
@@ -219,42 +213,42 @@ var ScrollTransformer = Kern.EventManager.extend({
    *
    * @param {Number} scrollLeft - the scroll in x direction
    * @param {Number} scrollTop - the scroll in y direction
-   * @returns {Promise} returns a promise
+   * @returns {String} returns a transform
    */
   _nonNativeScrollTo: function(scrollTop, scrollLeft) {
-    var promise = new Kern.Promise();
+    //var promise = new Kern.Promise();
 
     var scrollTransform = this.scrollTransform(scrollLeft, scrollTop);
 
     this.layer._layout.setLayerTransform(scrollTransform);
 
-    setTimeout(function(){
+    /*setTimeout(function() {
       promise.resolve(scrollTransform);
-    }, this.layer.getRemainingTransitionTime());
+    }, duration);*/
 
 
-    return promise;
+    return scrollTransform;
   },
   /**
    * Will scroll to a specific location
    *
    * @param {Number} scrollLeft - the scroll in x direction
    * @param {Number} scrollTop - the scroll in y direction
-   * @returns {Promise} returns a promise
+   * @returns {String} returns a transform
    */
   _nativeScrollTo: function(scrollTop, scrollLeft, duration) {
-    var promise = new Kern.Promise();
+    //var promise = new Kern.Promise();
     var element = this.layer.outerEl;
     duration = Math.round(duration);
     if (duration < 0) {
-      promise.reject('invalid duration ' + duration);
-      return promise;
+      //promise.reject('invalid duration ' + duration);
+      return null;
     }
     if (duration === 0) {
       element.scrollTop = scrollTop;
       element.scrollLeft = scrollLeft;
-      promise.resolve(this.scrollTransform(0, 0));
-      return promise;
+      //promise.resolve(this.scrollTransform(0, 0));
+      return this.scrollTransform(0, 0);
     }
 
     var start_time = Date.now();
@@ -284,8 +278,8 @@ var ScrollTransformer = Kern.EventManager.extend({
 
     var scroll_frame = function() {
       if (element.scrollTop !== previous_top || element.scrollLeft !== previous_left) {
-        promise.reject('interrupted');
-        return promise;
+        //promise.reject('interrupted');
+        return null;
       }
 
       // set the scrollTop for this frame
@@ -298,8 +292,8 @@ var ScrollTransformer = Kern.EventManager.extend({
 
       // check if we're done!
       if (now >= end_time) {
-        promise.resolve(this.scrollTransform(0, 0));
-        return promise;
+        //promise.resolve(this.scrollTransform(0, 0));
+        return;
       }
 
       // If we were supposed to scroll but didn't, then we
@@ -308,8 +302,8 @@ var ScrollTransformer = Kern.EventManager.extend({
       if (element.scrollTop === previous_top &&
         element.scrollTop !== frameTop && element.scrollLeft === previous_left &&
         element.scrollLeft !== frameLeft) {
-        promise.resolve();
-        return;
+        //promise.resolve();
+        return null;
       }
       previous_top = element.scrollTop;
       previous_left = element.scrollLeft;
@@ -320,7 +314,7 @@ var ScrollTransformer = Kern.EventManager.extend({
 
     setTimeout(scroll_frame, 0);
 
-    return promise;
+    return this.scrollTransform(0, 0);
   }
 });
 
