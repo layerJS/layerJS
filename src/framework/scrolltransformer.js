@@ -111,8 +111,8 @@ var ScrollTransformer = Kern.EventManager.extend({
    */
   getScrollTransform: function(tfd, scrollX, scrollY, intermediate) {
     // update frameTransformData
-    tfd.scrollX = scrollX || tfd.scrollX;
-    tfd.scrollY = scrollY || tfd.scrollY;
+    tfd.scrollX = scrollX !== undefined ? scrollX : tfd.scrollX;
+    tfd.scrollY = scrollY !== undefined ? scrollY : tfd.scrollY;
     // limit scrolling to [0,maxScroll]
     if (tfd.scrollX > tfd.maxScrollX) {
       tfd.scrollX = tfd.maxScrollX;

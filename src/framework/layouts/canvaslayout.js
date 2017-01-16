@@ -142,19 +142,28 @@ var CanvasLayout = LayerLayout.extend({
    * apply new scrolling transform to layer
    *
    * @param {string} transform - the scrolling transform
+   * @param {Object} cssTransiton - css object containing the transition info (currently only single time -> transition: 2s)
    */
-  setLayerTransform: function(transform) {
+  setLayerTransform: function(transform, cssTransition) {
     var frames = this.layer.getChildViews();
     var framesLength = frames.length;
     var childFrame;
+    var p = new Kern.Promise();
+    if (cssTransition.transition) { // FIXME is this sufficient? should we rather pipe duration here, but what about other transtion properties like easing
+      this.layer.currentFrame.outerEl.addEventListener("transitionend", function f(e) { // FIXME needs webkitTransitionEnd etc
+        e.target.removeEventListener(e.type, f); // remove event listener for transitionEnd.
+        p.resolve();
+      });
+    } else {
+      p.resolve();
+    }
     // console.log('canvaslayout: setLayerTransform');
     // now apply all transforms to all frames
     for (var i = 0; i < framesLength; i++) {
       childFrame = frames[i];
-      this._applyTransform(childFrame, this._reverseTransform, transform, this.layer.inTransition() ? {
-        transition: this.layer.getRemainingTransitionTime() + 'ms'
-      } : {});
+      this._applyTransform(childFrame, this._reverseTransform, transform, cssTransition);
     }
+    return p;
   },
   /**
    * this functions puts a frame at its default position. It's called by layer's render() renderChildPosition()

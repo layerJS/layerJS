@@ -31,6 +31,7 @@ var LayerView = BaseView.extend({
     this._inPreparation = false; // indicates that the transition is in preparation
     this._inTransition = false; // indicates that transition is still being animated
     this.transitionID = 1; // counts up every call of transitionTo();
+    this.scrollID = 1; // counts up every solitary scrollTo call (if duration>0);
     this.currentFrame = null;
 
     this.switchLayout(this.layoutType());
@@ -232,6 +233,59 @@ var LayerView = BaseView.extend({
     this.startObserving();
   },
   /**
+   * returns the current scrollX and scrollY
+   *
+   * @returns {Object} {scrollX: scrollX scrollY: scrollY}
+   */
+  getCurrentScroll: function() {
+    return {
+      scrollX: this.currentFrameTransformData.scrollX,
+      scrollY: this.currentFrameTransformData.scrollY
+    };
+  },
+  /**
+   * scrolls to a specified x,y position or a predefined postions using startPosition
+   *
+   * @param {Number} scrollX - optional: the new scroll x position
+   * @param {Number} scrollY - optional: the new scroll y position
+   * @param {object} transition - optional: includes duration: and optional scrollX, scrollY or startPosition
+   * @returns {Promise} a promise that resolves when transition is finished
+   */
+  scrollTo: function(scrollX, scrollY, transition) {
+    if (this.currentFrame === null) return;
+    transition = transition || {};
+    if (transition.startPosition) { // need to recalculate transform data if startPosition has changed
+      this.currentFrameTransformData = this.currentFrame.getTransformData(this.stage, transition.startPosition);
+    }
+    var tfd = this.currentFrameTransformData;
+    if (typeof scrollX === 'object') {
+      transition = scrollX;
+      scrollX = 0;
+    }
+    scrollX = (scrollX !== undefined ? scrollX : (transition.scrollX !== undefined ? transition.scrollX : tfd.scrollX || 0));
+    scrollY = (scrollY !== undefined ? scrollY : (transition.scrollY !== undefined ? transition.scrollY : tfd.scrollY || 0));
+    this.currentTransform = this._transformer.getScrollTransform(tfd, scrollX, scrollY, true);
+    var d = transition && transition.duration && $.timeToMS(transition.duration);
+    var myScrollID;
+    if (d) { // we have a transition time (duration)
+      this.inTransition(true, d);
+      myScrollID = ++this.scrollID;
+      var that = this;
+      return this.setLayerTransform(this.currentTransform, {
+        transition: d + "ms"
+      }).then(function() {
+        if (that.scrollID !== myScrollID) return; // there was another scrollTo in between so don't finish.
+        that.currentTransform = that._transformer.getScrollTransform(tfd, scrollX, scrollY, false);
+        // apply new transform (will be 0,0 in case of native scrolling)
+        that.inTransition(false);
+        that.setLayerTransform(that.currentTransform);
+
+      });
+    } else {
+      return this.setLayerTransform(this.currentTransform);
+    }
+  },
+  /**
    * Will change the current layout with an other layout
    *
    * @param {string} layoutType - the name of the layout type
@@ -244,6 +298,24 @@ var LayerView = BaseView.extend({
     if (this.currentFrame) {
       this.showFrame(this.currentFrame.name());
     }
+  },
+  /**
+   * set the scroll transform for the layer using the layouts setLayerTransform method. will check for the correct transition times if a transition is currently ongoing. CAVEAT: currently only support a plain transition property with only a time value e.g. setLayerTransform("translate(...)", {transition: "2s"})
+   *
+   * @param {string} transform - the transform for the scrolling
+   * @param {Object} css - set the transitions property here
+   * @returns {Promise} fullfilled after trnaisiton ends
+   */
+  setLayerTransform: function(transform, cssTransition) {
+    var d = 0;
+    if (cssTransition && cssTransition.transition) {
+      d = $.timeToMS(cssTransition.transition); // FIXME there could be other values in transition and the duration may be set through transition-duration
+    }
+    d = this.inTransition() ? Math.max(this.getRemainingTransitionTime(), d) : d; // duration should be at least as long as currently ongoing transition;
+    d = d ? d + "ms" : ''; // make ms time or empty string
+    return this._layout.setLayerTransform(transform, {
+      transition: d
+    });
   },
   gestureListener: function(gesture) {
     if (this.currentFrame === null) { //this actually shoudn't happen as null frames don't have a DOM element that could recieve a gesture. However it happens when the gesture still continues from before the transition. Still we can't do anything here as we can't define neighbors for null frames (maybe later)
@@ -258,7 +330,7 @@ var LayerView = BaseView.extend({
       // native scrolling possible
       return;
     } else if (layerTransform) {
-      this._layout.setLayerTransform(this.currentTransform = layerTransform);
+      this.setLayerTransform(this.currentTransform = layerTransform);
       gesture.preventDefault = true;
     } else {
       if (this.inTransition()) gesture.preventDefault = true; // we need to differentiate here later as we may have to check up stream handlers
@@ -356,7 +428,7 @@ var LayerView = BaseView.extend({
     transition = Kern._extend({
       type: 'default',
       duration: '1s'
-        // FIXME: add more default values like timing
+      // FIXME: add more default values like timing
     }, transition || {});
     // lookup frame by framename
     var frame = framename ? this._getFrame(framename, transition) : null;
@@ -387,15 +459,16 @@ var LayerView = BaseView.extend({
         p.resolve();
         that.inPreparation(false);
         that.trigger('transitionStarted', framename);
-
-        if (that.currentTransform !== targetTransform) {
-          that.currentTransform = that._transformer.getScrollTransform(targetFrameTransformData, transition.scrollX || 0, transition.scrollY || 0, false);
-          that._layout.setLayerTransform(that.currentTransform);
+        var currentScroll = that.getCurrentScroll();
+        if (targetFrameTransformData.scrollX !== currentScroll.scrollX || targetFrameTransformData.scrollY !== currentScroll.scrollY) {
+          return that.scrollTo(targetFrameTransformData.scrollX, targetFrameTransformData.scrollY, transition).then(function() {
+            that.trigger('transitionFinished', framename);
+            that.inTransition(false);
+          });
+        } else {
+          that.trigger('transitionFinished', framename);
+          that.inTransition(false);
         }
-
-        that.trigger('transitionFinished', framename);
-        that.inTransition(false);
-
         return p;
       }
 
@@ -407,8 +480,8 @@ var LayerView = BaseView.extend({
           // this will now calculate the currect layer transform and set up scroll positions in native scroll
           that.currentTransform = that._transformer.getScrollTransform(targetFrameTransformData, transition.scrollX || 0, transition.scrollY || 0, false);
           // apply new transform (will be 0,0 in case of native scrolling)
-          that._layout.setLayerTransform(that.currentTransform);
           that.inTransition(false);
+          that.setLayerTransform(that.currentTransform);
           $.postAnimationFrame(function() {
             that.trigger('transitionFinished', framename);
           });

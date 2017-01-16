@@ -179,11 +179,21 @@ var SlideLayout = LayerLayout.extend({
    * apply new scrolling transform to layer
    *
    * @param {string} transform - the scrolling transform
+   * @param {Object} cssTransiton - css object containing the transition info (currently only single time -> transition: 2s)
    */
-  setLayerTransform: function(transform) {
-    this._applyTransform(this.layer.currentFrame, this._currentFrameTransform, transform, this.layer.inTransition() ? {
-      transition: this.layer.getRemainingTransitionTime() + 'ms'
-    } : {});
+  setLayerTransform: function(transform, cssTransition) {
+    cssTransition = cssTransition || {};
+    var p = new Kern.Promise();
+    if (cssTransition.transition) { // FIXME is this sufficient? should we rather pipe duration here, but what about other transtion properties like easing
+      this.layer.currentFrame.outerEl.addEventListener("transitionend", function f(e) { // FIXME needs webkitTransitionEnd etc
+        e.target.removeEventListener(e.type, f); // remove event listener for transitionEnd.
+        p.resolve();
+      });
+    } else {
+      p.resolve();
+    }
+    this._applyTransform(this.layer.currentFrame, this._currentFrameTransform, transform, cssTransition);
+    return p;
   },
   /**
    * apply transform by combining the frames base transform with the added scroll transform
