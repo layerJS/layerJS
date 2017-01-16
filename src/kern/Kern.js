@@ -297,7 +297,7 @@
           callback.apply(context, args2);
         };
       }
-    });   
+    });
 
     /**
      * A simple Promise implementation
@@ -370,6 +370,7 @@
               that.nextPromise.resolve(result);
             }
           } catch (e) {
+            console.log("in Promise handler:", e.stack);
             this.nextPromise.reject(e);
           }
         } else if (this.state === false) {
