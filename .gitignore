@@ -1,5 +1,6 @@
 *.orig
 *.rej
+coverage
 node_modules
 dist
 /build
