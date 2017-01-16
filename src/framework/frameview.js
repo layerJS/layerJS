@@ -70,8 +70,7 @@ var FrameView = BaseView.extend({
     return d;
   },
   /**
-   * Returns the scroll data for this frame
-   *
+   * Returns the scroll data for this frame in form of a transition record with only the values for scroll positions and startPosition set.   *
    * @returns {object} contains the the startPosition, scrollX and scrollY
    */
   getScrollData: function() {
