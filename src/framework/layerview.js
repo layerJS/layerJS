@@ -450,6 +450,7 @@ var LayerView = BaseView.extend({
       // calculate the layer transform for the target frame. Note: this will automatically consider native scrolling
       // getScrollIntermediateTransform will not change the current native scroll position but will calculate
       // a compensatory transform for the target scroll position.
+      var currentScroll = that.getCurrentScroll(); // get current scroll position before recalculating it for this frame
       var targetFrameTransformData = null === frame ? that.noFrameTransformdata(transition.startPosition) : frame.getTransformData(that.stage, transition.startPosition);
       var targetTransform = that._transformer.getScrollTransform(targetFrameTransformData, transition.scrollX || 0, transition.scrollY || 0, true);
       // check if transition goes to exactly the same position
@@ -459,7 +460,6 @@ var LayerView = BaseView.extend({
         p.resolve();
         that.inPreparation(false);
         that.trigger('transitionStarted', framename);
-        var currentScroll = that.getCurrentScroll();
         if (targetFrameTransformData.scrollX !== currentScroll.scrollX || targetFrameTransformData.scrollY !== currentScroll.scrollY) {
           return that.scrollTo(targetFrameTransformData.scrollX, targetFrameTransformData.scrollY, transition).then(function() {
             that.trigger('transitionFinished', framename);
