@@ -204,6 +204,255 @@ describe('scrolling', function() {
         });
       });
     });
+
+    describe('a transition can pass in a startPosition', function() {
+      it('bottom', function() {
+        browser.get('scrolling/native_scrolling.html').then(function() {
+          protractor.promise.all([utilities.setStyle('frame2', {
+            width: '500px',
+            height: '800px'
+          }), utilities.setStyle('stage', {
+            width: '500px',
+            height: '500px'
+          })]).then(function() {
+            utilities.setAttributes('frame2', {
+              'data-lj-fit-to': 'width'
+            }).then(function() {
+              utilities.resizeWindow(800, 599);
+              protractor.promise.all([utilities.getBoundingClientRect('frame1'),
+                utilities.getScroll('layer')
+              ]).then(function(data) {
+                var frame1_dimensions_before = data[0];
+                var layer_scroll_before = data[1];
+                utilities.transitionTo('layer', 'frame2', {
+                  startPosition: 'bottom'
+                }, 1).then(function() {
+                  utilities.getBoundingClientRect('frame2').then(function(frame2_dimensions_before) {
+                    utilities.wait(3000);
+                    protractor.promise.all([
+                      utilities.getBoundingClientRect('layer'),
+                      utilities.getBoundingClientRect('frame2'),
+                      utilities.getScroll('layer'),
+                      utilities.getBoundingClientRect('scroller'),
+                      utilities.getBoundingClientRect('frame1'),
+                    ]).then(function(data) {
+                      var layer_dimensions = data[0];
+                      var frame2_dimensions_after = data[1];
+                      var layer_scroll_after = data[2];
+                      var scroller_dimensions = data[3];
+                      var frame1_dimensions_after = data[4];
+
+                      //test if new frame1 top matches the old frame1 top.(otherwise the animation would appear diagonal)
+                      //expect(frame1_dimensions_before.top).toBe(frame1_dimensions_after.top);
+                      // top of frame2 should be the same before and after (otherwise the animation would appear diagonal)
+                      expect(frame2_dimensions_before.top).toBe(frame2_dimensions_after.top);
+                      // top of frame1 + before scrolltop should be 0
+                      expect(frame1_dimensions_before.top).toBe(layer_scroll_before.scrollTop * -1);
+                      // top of frame2 + new scrolltop should be 0
+                      expect(frame2_dimensions_after.top).toBe(layer_scroll_after.scrollTop * -1);
+                      // if frame1 was scrolled down:
+                      expect(layer_scroll_before.scrollTop).toBe(frame1_dimensions_before.height - layer_dimensions.height);
+                      // if frame1 was scrolled up:
+                      expect(layer_scroll_before.scrollTop).toBe(0);
+                      // check if the new scrollTop is correct
+                      expect(layer_scroll_after.scrollTop).toBe(frame2_dimensions_after.height - layer_dimensions.height);
+                      expect(scroller_dimensions.height).toBe(frame2_dimensions_after.height);
+                    });
+                  });
+                });
+              });
+            });
+          });
+        });
+      });
+
+      it('right', function() {
+        browser.get('scrolling/native_scrolling.html').then(function() {
+          protractor.promise.all([utilities.setStyle('frame2', {
+            width: '800px',
+            height: '500px'
+          }), utilities.setStyle('stage', {
+            width: '500px',
+            height: '500px'
+          })]).then(function() {
+            utilities.setAttributes('frame2', {
+              'data-lj-fit-to': 'height'
+            }).then(function() {
+              utilities.setAttributes('frame1', {
+                'data-lj-start-position': 'left',
+                'data-lj-fit-to': 'height'
+              }).then(function() {
+                utilities.resizeWindow(800, 599);
+                protractor.promise.all([utilities.getBoundingClientRect('frame1'),
+                  utilities.getScroll('layer')
+                ]).then(function(data) {
+                  var frame1_dimensions_before = data[0];
+                  var layer_scroll_before = data[1];
+                  utilities.transitionTo('layer', 'frame2', {
+                    startPosition: 'right'
+                  }, 1).then(function() {
+                    utilities.getBoundingClientRect('frame2').then(function(frame2_dimensions_before) {
+                      utilities.wait(3000);
+                      protractor.promise.all([
+                        utilities.getBoundingClientRect('layer'),
+                        utilities.getBoundingClientRect('frame2'),
+                        utilities.getScroll('layer'),
+                        utilities.getBoundingClientRect('scroller'),
+                        utilities.getBoundingClientRect('frame1'),
+                      ]).then(function(data) {
+                        var layer_dimensions = data[0];
+                        var frame2_dimensions_after = data[1];
+                        var layer_scroll_after = data[2];
+                        var scroller_dimensions = data[3];
+                        var frame1_dimensions_after = data[4];
+                        //test if new frame1 top matches the old frame1 left.(otherwise the animation would appear diagonal)
+                        //expect(frame1_dimensions_before.left).toBe(frame1_dimensions_after.left);
+                        // top of frame1 + before scrollLeft should be 0
+                        expect(frame1_dimensions_before.left).toBe(layer_scroll_before.scrollLeft * -1);
+                        // top of frame2 + new scrollLeft should be 0
+                        expect(frame2_dimensions_after.left).toBe(layer_scroll_after.scrollLeft * -1);
+                        // if frame1 was scrolled down:
+                        expect(layer_scroll_before.scrollLeft).toBe(frame1_dimensions_before.width - layer_dimensions.width);
+                        // if frame1 was scrolled up:
+                        expect(layer_scroll_before.scrollLeft).toBe(0);
+                        // check if the new scrollLeft is correct
+                        expect(layer_scroll_after.scrollLeft).toBe(frame2_dimensions_after.width - layer_dimensions.width);
+                        expect(scroller_dimensions.width).toBe(frame2_dimensions_after.width);
+                      });
+                    });
+                  });
+                });
+              });
+            });
+          });
+        });
+      });
+
+    });
+
+    describe('a transition can pass in a scroll position', function() {
+      it('scrollY', function() {
+        browser.get('scrolling/native_scrolling.html').then(function() {
+          protractor.promise.all([utilities.setStyle('frame2', {
+            width: '500px',
+            height: '800px'
+          }), utilities.setStyle('stage', {
+            width: '500px',
+            height: '500px'
+          })]).then(function() {
+            utilities.setAttributes('frame2', {
+              'data-lj-fit-to': 'width'
+            }).then(function() {
+              utilities.resizeWindow(800, 599);
+              protractor.promise.all([utilities.getBoundingClientRect('frame1'),
+                utilities.getScroll('layer')
+              ]).then(function(data) {
+                var frame1_dimensions_before = data[0];
+                var layer_scroll_before = data[1];
+                utilities.transitionTo('layer', 'frame2', {
+                  scrollY: 250
+                }, 1).then(function() {
+                  utilities.getBoundingClientRect('frame2').then(function(frame2_dimensions_before) {
+                    utilities.wait(3000);
+                    protractor.promise.all([
+                      utilities.getBoundingClientRect('layer'),
+                      utilities.getBoundingClientRect('frame2'),
+                      utilities.getScroll('layer'),
+                      utilities.getBoundingClientRect('scroller'),
+                      utilities.getBoundingClientRect('frame1'),
+                    ]).then(function(data) {
+                      var layer_dimensions = data[0];
+                      var frame2_dimensions_after = data[1];
+                      var layer_scroll_after = data[2];
+                      var scroller_dimensions = data[3];
+                      var frame1_dimensions_after = data[4];
+
+                      //test if new frame1 top matches the old frame1 top.(otherwise the animation would appear diagonal)
+                      //expect(frame1_dimensions_before.top).toBe(frame1_dimensions_after.top);
+                      // top of frame2 should be the same before and after (otherwise the animation would appear diagonal)
+                      expect(frame2_dimensions_before.top).toBe(frame2_dimensions_after.top);
+                      // top of frame1 + before scrolltop should be 0
+                      expect(frame1_dimensions_before.top).toBe(layer_scroll_before.scrollTop * -1);
+                      // top of frame2 + new scrolltop should be 0
+                      expect(frame2_dimensions_after.top).toBe(250 * -1);
+                      // if frame1 was scrolled down:
+                      expect(layer_scroll_before.scrollTop).toBe(frame1_dimensions_before.height - layer_dimensions.height);
+                      // if frame1 was scrolled up:
+                      expect(layer_scroll_before.scrollTop).toBe(0);
+                      // check if the new scrollTop is correct
+                      expect(layer_scroll_after.scrollTop).toBe(250);
+                      expect(scroller_dimensions.height).toBe(frame2_dimensions_after.height);
+                    });
+                  });
+                });
+              });
+            });
+          });
+        });
+      });
+
+      it('scrollX', function() {
+        browser.get('scrolling/native_scrolling.html').then(function() {
+          protractor.promise.all([utilities.setStyle('frame2', {
+            width: '800px',
+            height: '500px'
+          }), utilities.setStyle('stage', {
+            width: '500px',
+            height: '500px'
+          })]).then(function() {
+            utilities.setAttributes('frame2', {
+              'data-lj-fit-to': 'height'
+            }).then(function() {
+              utilities.setAttributes('frame1', {
+                'data-lj-start-position': 'left',
+                'data-lj-fit-to': 'height'
+              }).then(function() {
+                utilities.resizeWindow(800, 599);
+                protractor.promise.all([utilities.getBoundingClientRect('frame1'),
+                  utilities.getScroll('layer')
+                ]).then(function(data) {
+                  var frame1_dimensions_before = data[0];
+                  var layer_scroll_before = data[1];
+                  utilities.transitionTo('layer', 'frame2', {
+                    scrollX: '250'
+                  }, 1).then(function() {
+                    utilities.getBoundingClientRect('frame2').then(function(frame2_dimensions_before) {
+                      utilities.wait(3000);
+                      protractor.promise.all([
+                        utilities.getBoundingClientRect('layer'),
+                        utilities.getBoundingClientRect('frame2'),
+                        utilities.getScroll('layer'),
+                        utilities.getBoundingClientRect('scroller'),
+                        utilities.getBoundingClientRect('frame1'),
+                      ]).then(function(data) {
+                        var layer_dimensions = data[0];
+                        var frame2_dimensions_after = data[1];
+                        var layer_scroll_after = data[2];
+                        var scroller_dimensions = data[3];
+                        var frame1_dimensions_after = data[4];
+                        //test if new frame1 top matches the old frame1 left.(otherwise the animation would appear diagonal)
+                        //expect(frame1_dimensions_before.left).toBe(frame1_dimensions_after.left);
+                        // top of frame1 + before scrollLeft should be 0
+                        expect(frame1_dimensions_before.left).toBe(layer_scroll_before.scrollLeft * -1);
+                        // top of frame2 + new scrollLeft should be 0
+                        expect(frame2_dimensions_after.left).toBe(layer_scroll_after.scrollLeft * -1);
+                        // if frame1 was scrolled down:
+                        expect(layer_scroll_before.scrollLeft).toBe(frame1_dimensions_before.width - layer_dimensions.width);
+                        // if frame1 was scrolled up:
+                        expect(layer_scroll_before.scrollLeft).toBe(0);
+                        // check if the new scrollLeft is correct
+                        expect(layer_scroll_after.scrollLeft).toBe(250);
+                        expect(scroller_dimensions.width).toBe(frame2_dimensions_after.width);
+                      });
+                    });
+                  });
+                });
+              });
+            });
+          });
+        });
+      });
+    });
   });
 
 
@@ -355,27 +604,30 @@ describe('scrolling', function() {
     });
 
     it('when a transition is done to the same frame, the frame will be scrolled up', function() {
-      browser.get('scrolling/native_scrolling.html').then(function() {
-        utilities.setStyle('stage', {
-          width: '650px',
-          height: '650px'
-        }).then(function() {
+      browser.get('scrolling/non_native_scrolling.html').then(function() {
+        protractor.promise.all([
+          utilities.setStyle('stage', {
+            width: '400px',
+            height: '30px'
+          }),
+          utilities.setStyle('frame1', {
+            width: '400px',
+            height: '40px'
+          })
+        ]).then(function() {
           utilities.resizeWindow(800, 599);
-          utilities.scrollDown('layer', 2).then(function() {
-            protractor.promise.all([utilities.getBoundingClientRect('layer'),
+          utilities.scrollDown('layer', 4).then(function() {
+            protractor.promise.all([utilities.getBoundingClientRect('stage'),
               utilities.getBoundingClientRect('frame1'),
-              utilities.getScroll('scroller')
+              utilities.getScroll('layer')
             ]).then(function(data) {
               var layer_dimensions = data[0];
               var frame_dimensions = data[1];
-              var layer_scroll = data[2];
 
-              expect(layer_scroll.scrollTop).toBe(frame_dimensions.height - layer_dimensions.height);
-
+              expect(frame_dimensions.top).not.toBe(0);
               utilities.transitionTo('layer', 'frame1', {}).then(function() {
-                utilities.getScroll('scroller').then(function(layer_scroll) {
-                  expect(layer_scroll.scrollTop).toBe(0);
-                  expect(layer_scroll.scrollLeft).toBe(0);
+                utilities.getBoundingClientRect('frame1').then(function(frame_dimensions_after) {
+                  expect(frame_dimensions_after.top).toBe(0);
                 });
               });
             })
@@ -383,7 +635,189 @@ describe('scrolling', function() {
         });
       });
     });
+
+    describe('a transition can pass in a startPosition', function() {
+      it('bottom', function() {
+        browser.get('scrolling/non_native_scrolling.html').then(function() {
+          protractor.promise.all([utilities.setStyle('frame2', {
+            width: '500px',
+            height: '800px'
+          }), utilities.setStyle('stage', {
+            width: '500px',
+            height: '500px'
+          })]).then(function() {
+            utilities.setAttributes('frame2', {
+              'data-lj-fit-to': 'width'
+            }).then(function() {
+              utilities.resizeWindow(800, 599);
+              utilities.getBoundingClientRect('frame1').then(function(frame1_dimensions_before) {
+                utilities.transitionTo('layer', 'frame2', {
+                  startPosition: 'bottom'
+                }, 1).then(function() {
+                  utilities.getBoundingClientRect('frame2').then(function(frame2_dimensions_before) {
+                    utilities.wait(3000);
+                    protractor.promise.all([
+                      utilities.getBoundingClientRect('stage'),
+                      utilities.getBoundingClientRect('frame1'),
+                      utilities.getBoundingClientRect('frame2'),
+                    ]).then(function(data) {
+                      var stage_dimensions = data[0];
+                      var frame1_dimensions_after = data[1];
+                      var frame2_dimensions_after = data[2];
+
+                      expect(frame1_dimensions_before.top).toBe(frame1_dimensions_after.top);
+                      expect(frame1_dimensions_after.left).toBe(stage_dimensions.width * -1);
+
+                      expect(frame2_dimensions_before.top).toBe(frame2_dimensions_after.top);
+                      expect(frame2_dimensions_after.top).toBe(stage_dimensions.height - frame2_dimensions_after.height);
+                      // because the animation was already in progress, subtract 50
+                      expect(frame2_dimensions_before.left).toBeWithinRange(frame1_dimensions_before.left + stage_dimensions.width - 50, frame1_dimensions_before.left + stage_dimensions.width);
+                    });
+                  });
+                });
+              });
+            });
+          });
+        });
+      });
+
+      it('right', function() {
+        browser.get('scrolling/non_native_scrolling.html').then(function() {
+          protractor.promise.all([utilities.setStyle('frame2', {
+            width: '800px',
+            height: '500px'
+          }), utilities.setStyle('stage', {
+            width: '500px',
+            height: '500px'
+          })]).then(function() {
+            utilities.setAttributes('frame2', {
+              'data-lj-fit-to': 'height'
+            }).then(function() {
+              utilities.resizeWindow(800, 599);
+              utilities.getBoundingClientRect('frame1').then(function(frame1_dimensions_before) {
+                utilities.transitionTo('layer', 'frame2', {
+                  startPosition: 'right'
+                }, 1).then(function() {
+                  utilities.getBoundingClientRect('frame2').then(function(frame2_dimensions_before) {
+                    utilities.wait(3000);
+                    protractor.promise.all([
+                      utilities.getBoundingClientRect('stage'),
+                      utilities.getBoundingClientRect('frame1'),
+                      utilities.getBoundingClientRect('frame2'),
+                    ]).then(function(data) {
+                      var stage_dimensions = data[0];
+                      var frame1_dimensions_after = data[1];
+                      var frame2_dimensions_after = data[2];
+
+                      expect(frame1_dimensions_before.top).toBe(frame1_dimensions_after.top);
+                      expect(frame1_dimensions_after.left).toBe(frame2_dimensions_after.width * -1);
+                      expect(frame2_dimensions_before.top).toBe(frame2_dimensions_after.top);
+                      // because the animation was already in progress, subtract 50
+                      expect(frame2_dimensions_before.left).toBeWithinRange(frame1_dimensions_before.left + stage_dimensions.width - 50, frame1_dimensions_before.left + stage_dimensions.width);
+                      expect(frame2_dimensions_after.left).toBe(stage_dimensions.width - frame2_dimensions_after.width);
+                    });
+                  });
+                });
+              });
+            });
+          });
+        });
+      });
+    });
+
+    describe('a transition can pass in a scroll position', function() {
+      it('scrollY', function() {
+        var scrollY = 250;
+        browser.get('scrolling/non_native_scrolling.html').then(function() {
+          protractor.promise.all([utilities.setStyle('frame2', {
+            width: '500px',
+            height: '800px'
+          }), utilities.setStyle('stage', {
+            width: '500px',
+            height: '500px'
+          })]).then(function() {
+            utilities.setAttributes('frame2', {
+              'data-lj-fit-to': 'width'
+            }).then(function() {
+              utilities.resizeWindow(800, 599);
+              utilities.getBoundingClientRect('frame1').then(function(frame1_dimensions_before) {
+                utilities.transitionTo('layer', 'frame2', {
+                  scrollY: scrollY
+                }, 1).then(function() {
+                  utilities.getBoundingClientRect('frame2').then(function(frame2_dimensions_before) {
+                    utilities.wait(3000);
+                    protractor.promise.all([
+                      utilities.getBoundingClientRect('stage'),
+                      utilities.getBoundingClientRect('frame1'),
+                      utilities.getBoundingClientRect('frame2'),
+                    ]).then(function(data) {
+                      var stage_dimensions = data[0];
+                      var frame1_dimensions_after = data[1];
+                      var frame2_dimensions_after = data[2];
+
+                      expect(frame1_dimensions_before.top).toBe(frame1_dimensions_after.top);
+                      expect(frame1_dimensions_after.left).toBe(stage_dimensions.width * -1);
+
+                      expect(frame2_dimensions_before.top).toBe(frame2_dimensions_after.top);
+                      expect(frame2_dimensions_after.top).toBe(scrollY * -1);
+                      // because the animation was already in progress, subtract 50
+                      expect(frame2_dimensions_before.left).toBeWithinRange(frame1_dimensions_before.left + stage_dimensions.width - 50, frame1_dimensions_before.left + stage_dimensions.width);
+                    });
+                  });
+                });
+              });
+            });
+          });
+        });
+      });
+
+      it('scrollX', function() {
+        var scrollX = 200;
+        browser.get('scrolling/non_native_scrolling.html').then(function() {
+          protractor.promise.all([utilities.setStyle('frame2', {
+            width: '800px',
+            height: '500px'
+          }), utilities.setStyle('stage', {
+            width: '500px',
+            height: '500px'
+          })]).then(function() {
+            utilities.setAttributes('frame2', {
+              'data-lj-fit-to': 'height'
+            }).then(function() {
+              utilities.resizeWindow(800, 599);
+              utilities.getBoundingClientRect('frame1').then(function(frame1_dimensions_before) {
+                utilities.transitionTo('layer', 'frame2', {
+                  scrollX: scrollX
+                }, 1).then(function() {
+                  utilities.getBoundingClientRect('frame2').then(function(frame2_dimensions_before) {
+                    utilities.wait(3000);
+                    protractor.promise.all([
+                      utilities.getBoundingClientRect('stage'),
+                      utilities.getBoundingClientRect('frame1'),
+                      utilities.getBoundingClientRect('frame2'),
+                    ]).then(function(data) {
+                      var stage_dimensions = data[0];
+                      var frame1_dimensions_after = data[1];
+                      var frame2_dimensions_after = data[2];
+
+                      expect(frame1_dimensions_before.top).toBe(frame1_dimensions_after.top);
+                      expect(frame1_dimensions_after.left).toBe(stage_dimensions.width * -1 - scrollX);
+                      expect(frame2_dimensions_before.top).toBe(frame2_dimensions_after.top);
+                      // because the animation was already in progress, subtract 50
+                      expect(frame2_dimensions_before.left).toBeWithinRange(frame1_dimensions_before.left + stage_dimensions.width - 50, frame1_dimensions_before.left + stage_dimensions.width);
+                      expect(frame2_dimensions_after.left).toBe(scrollX * -1);
+                    });
+                  });
+                });
+              });
+            });
+          });
+        });
+      });
+    });
   });
+
+  //});
 
   describe('can switch scrolling', function() {
     it('from native scrolling to non-native scrolling', function() {

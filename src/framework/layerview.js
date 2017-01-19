@@ -478,7 +478,7 @@ var LayerView = BaseView.extend({
         // is this still the active transition?
         if (transition.transitionID === that.transitionID) {
           // this will now calculate the currect layer transform and set up scroll positions in native scroll
-          that.currentTransform = that._transformer.getScrollTransform(targetFrameTransformData, transition.scrollX || targetFrameTransformData.scrollX, transition.scrollY || targetFrameTransformData.scrollY, false);
+          that.currentTransform = that._transformer.getScrollTransform(targetFrameTransformData, transition.scrollX || targetFrameTransformData.initialScrollX, transition.scrollY || targetFrameTransformData.initialScrollY, false);
           // apply new transform (will be 0,0 in case of native scrolling)
           that.inTransition(false);
           that.setLayerTransform(that.currentTransform);
