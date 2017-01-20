@@ -8,8 +8,6 @@ layerJS introduces the Stage-Frame concept. Frames are defined HTML fragments of
 
 layerJS supports directional touch and touchpad gestures to trigger transitions.  Use your fingers to pull down menus or swipe through a list of sub pages. Transitions can also be triggered through plain HTML links or through the API.
 
-Check out the [Wiki](https://github.com/layerJS/layerJS/wiki) for more details and examples. 
-
 ## Quickstart ##
 
 layerJS can be included into your site from our CDN. Simply include the following tags into the head of your HTML document.
@@ -32,6 +30,7 @@ In layerJS you will define stages, layers in frame simply by adding HTML-attribu
 ```
 Find examples and live demos on our project website [layerjs.org](https://layerjs.org). 
 
+Check out the [Wiki](https://github.com/layerJS/layerJS/wiki) for more details. 
 
 ## Issues, bug reports and feature requests ##
 
