@@ -11,6 +11,15 @@ utilities.transitionTo = function(layerId, frameName, transition, waitTime) {
   }, layerId, frameName, transition, waitTime);
 };
 
+utilities.scrollTo = function(layerId, scrollX, scrollY, transition, waitTime) {
+  waitTime = waitTime || 3000;
+
+  return browser.driver.executeAsyncScript(function(layerId, scrollX, scrollY, transition, waitTime, callBack) {
+    layerJS.select('#' + layerId).scrollTo(scrollX, scrollY, transition);
+    window.setTimeout(callBack, waitTime);
+  }, layerId, scrollX, scrollY, transition, waitTime);
+};
+
 utilities.getBoundingClientRect = function(elementId) {
   return browser.driver.executeAsyncScript(function(elementId, callBack) {
     var el = window.document.getElementById(elementId);

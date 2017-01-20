@@ -453,6 +453,52 @@ describe('scrolling', function() {
         });
       });
     });
+
+    describe('can use scrollTo method to go to a specific scroll location', function() {
+
+      it('using a scroll x', function() {
+        browser.get('scrolling/native_scrolling.html').then(function() {
+          protractor.promise.all([utilities.setStyle('stage', {
+            width: '500px',
+            height: '500px'
+          }), utilities.setStyle('frame1', { width:'1000px', height:'800px'}),
+        utilities.setAttributes('frame1', {  'data-lj-start-position': 'top',
+          'data-lj-fit-to': 'height'})]).then(function() {
+            utilities.resizeWindow(599, 599);
+            utilities.scrollTo('layer', 25, 0, { duration: '2ms'}).then(function() {
+              utilities.getScroll('layer').then(function(layer_scroll) {
+                // scroll is not 25, it is multiplied by the scale
+                expect(layer_scroll.scrollTop).toBe(0);
+                expect(layer_scroll.scrollLeft).toBe(15);
+              })
+            });
+          });
+        });
+
+      });
+
+      it('using a scroll y', function() {
+        browser.get('scrolling/native_scrolling.html').then(function() {
+          protractor.promise.all([utilities.setStyle('stage', {
+            width: '500px',
+            height: '500px'
+          }), utilities.setStyle('frame1', { width:'800px', height:'1000px'}),
+        utilities.setAttributes('frame1', {  'data-lj-start-position': 'top',
+          'data-lj-fit-to': 'width'})]).then(function() {
+            utilities.resizeWindow(599, 599);
+            utilities.scrollTo('layer', 0, 25, { duration: '2ms'}).then(function() {
+              utilities.getScroll('layer').then(function(layer_scroll) {
+                  // scroll is not 25, it is multiplied by the scale
+                expect(layer_scroll.scrollTop).toBe(15);
+                expect(layer_scroll.scrollLeft).toBe(0);
+              })
+            });
+          });
+        });
+
+      });
+
+    });
   });
 
 
