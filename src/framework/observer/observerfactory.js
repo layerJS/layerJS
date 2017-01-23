@@ -4,6 +4,9 @@ var MutationsObserver = require('./mutationsobserver.js');
 var TimeoutObserver = require('./timeoutobserver.js');
 var SizeObserver = require('./sizeobserver.js');
 
+/**
+ * A factory class to get an observer
+ */
 var ObserverFactory = Kern.Base.extend({
   constructor: function() {},
   /**

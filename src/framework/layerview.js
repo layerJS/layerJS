@@ -92,6 +92,9 @@ var LayerView = BaseView.extend({
       this.showFrame(this.currentFrame.name());
     }
   },
+  /**
+   * Specifies what will need to be observed on the DOM element. (Attributes, Children and size)
+   */
   startObserving: function() {
     BaseView.prototype.observe.call(this, this.innerEl, {
       attributes: true,
@@ -99,6 +102,10 @@ var LayerView = BaseView.extend({
       children: true
     });
   },
+  /**
+   * Will add eventhandlers to specific events. It will handle a 'childrenChanged', 'sizeChanged' and
+   * 'attributesChanged' event. It will also handle it's parent 'renderRequired' event.
+   */
   registerEventHandlers: function() {
     var that = this;
     BaseView.prototype.registerEventHandlers.call(this);
@@ -113,6 +120,10 @@ var LayerView = BaseView.extend({
       });
     }
   },
+  /**
+   * Will be invoked the an 'attributesChanged' event is triggered.
+   * @param {Object} attributes - a hash object the contains the changed attributes
+   */
   attributesChanged: function(attributes) {
 
     if (attributes['lj-native-scroll'] || attributes['data-lj-native-scroll'] !== -1) {
@@ -124,6 +135,10 @@ var LayerView = BaseView.extend({
     }
 
   },
+  /**
+   * Will place a child view at the correct position.
+   * @param {Object} childView - the childView
+   */
   renderChildPosition: function(childView) {
     // function is called when children are getting parsed. At that point, the layout can still be undefined
     if (!this._layout) {
@@ -651,6 +666,10 @@ var LayerView = BaseView.extend({
     var frameName = this.currentFrame === null ? null : this.currentFrame.name();
     this.showFrame(frameName, scrollData);
   },
+  /**
+   * Will parse the current DOM Element it's children.
+   * @param {object} options - optional: includes addedNodes
+   */
   _parseChildren: function(options) {
 
     BaseView.prototype._parseChildren.call(this, options);

@@ -223,7 +223,8 @@ var DomHelpers = {
     return undefined;
   },
   /**
-   * Will generate a unique id for a specific prefix (layerJS type)
+   * Will generate a unique id for a specific prefix (layerJS type). The id is scoped
+   * to the current document.
    *
    * @param {string} prefix - a prefix (layerJS type)
    * @param {Object} doc - the document to generate a unique id from

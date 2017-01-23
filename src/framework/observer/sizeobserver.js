@@ -1,6 +1,9 @@
 'use strict';
 var Observer = require('./observer.js');
 
+/**
+ * Class for observing the size of a DOM Element
+ */
 var SizeObserver = Observer.extend({
   constructor: function(element, options) {
     Observer.call(this, element, options);

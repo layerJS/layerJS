@@ -1,6 +1,11 @@
 'use strict';
 var ElementObserver = require('./elementobserver.js');
 
+/**
+ * Will observer the attributes and children of a DOM Element. This class
+ * will not use the MutationObserver but will use a timeout to periodically
+ * check the DOM ELement for modifications.
+ */
 var TimeoutObserver = ElementObserver.extend({
   constructor: function(element, options) {
     ElementObserver.call(this, element, options);

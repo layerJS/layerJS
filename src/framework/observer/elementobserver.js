@@ -1,6 +1,9 @@
 'use strict';
 var Observer = require('./observer.js');
 
+/**
+ * Base class for observing a DOM Element
+ */
 var ElementObserver = Observer.extend({
   constructor: function(element, options) {
     this.attributes = {};
@@ -32,7 +35,7 @@ var ElementObserver = Observer.extend({
 
       for (var attributeName in result.attributes) {
 
-        if ( result.attributes.hasOwnProperty(attributeName)) {
+        if (result.attributes.hasOwnProperty(attributeName)) {
           var attribute = attributeName.toUpperCase();
 
           for (var x = 0; x < this.options.attributeFilter.length; x++) {

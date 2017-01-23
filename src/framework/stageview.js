@@ -15,6 +15,10 @@ var StageView = BaseView.extend({
     options.childType = 'layer';
     BaseView.call(this, options);
   },
+  /**
+   * Will add eventhandlers to specific events. It will handle a 'childrenChanged', 'sizeChanged' and
+   * 'attributesChanged' event. It will also handle it's parent 'renderRequired' event.
+   */
   registerEventHandlers: function() {
     var that = this;
 
@@ -28,6 +32,9 @@ var StageView = BaseView.extend({
 
     this.on('sizeChanged', onResize);
   },
+  /**
+   * Specifies what will need to be observed on the DOM element. (Attributes, Children and size)
+   */
   startObserving: function() {
     BaseView.prototype.observe.call(this, this.innerEl, {
       attributes: true,
@@ -35,6 +42,9 @@ var StageView = BaseView.extend({
       size: true
     });
   },
+  /** Will place a child view at the correct position.
+   * @param {Object} childView - the childView
+   */
   _renderChildPosition: function(childView) {
     if (childView.nodeType() === 1) {
       childView.unobserve();

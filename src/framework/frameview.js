@@ -17,6 +17,9 @@ var FrameView = BaseView.extend({
 
     BaseView.call(this, options);
   },
+  /**
+   * Specifies what will need to be observed on the DOM element. (Attributes, Children and size)
+   */
   startObserving: function() {
     BaseView.prototype.observe.call(this, this.innerEl, {
       attributes: true,
@@ -25,6 +28,10 @@ var FrameView = BaseView.extend({
       size: true
     });
   },
+  /**
+   * Will add eventhandlers to specific events. It will handle a 'childrenChanged', 'sizeChanged' and
+   * 'attributesChanged' event.
+   */
   registerEventHandlers: function() {
     var that = this;
 
@@ -38,6 +45,10 @@ var FrameView = BaseView.extend({
 
     this.on('attributesChanged', this.attributesChanged);
   },
+  /**
+   * Will be invoked the an 'attributesChanged' event is triggered. Will trigger a 'renderRequired' when needed.
+   * @param {Object} attributes - a hash object the contains the changed attributes
+   */
   attributesChanged: function(attributes) {
     for (var i = 0; i < this.renderRequiredAttributes.length; i++) {
       var attributeNames = Object.getOwnPropertyNames(attributes);

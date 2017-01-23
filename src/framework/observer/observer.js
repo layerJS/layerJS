@@ -1,6 +1,9 @@
 'use strict';
 var Kern = require('../../kern/kern.js');
 
+/**
+ * Base class for an Observer
+ */
 var Observer = Kern.Base.extend({
   constructor: function(element, options) {
     options = options || {};
@@ -32,7 +35,7 @@ var Observer = Kern.Base.extend({
    * Will invoke the callBack
    */
   _invokeCallBack: function() {
-    if (this.options && this.options.callback) {      
+    if (this.options && this.options.callback) {
       this.options.callback();
     }
   }
