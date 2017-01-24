@@ -7,6 +7,7 @@ describe('Filerouter', function() {
     FileRouter = require('../../../src/framework/router/filerouter.js');
     utilities = require('../helpers/utilities.js');
     StageView = require('../../../src/framework/stageview.js');
+    state = require('../../../src/framework/state.js');
 
     utilities.setHtml('<div data-lj-type="stage" id="contentstage">' +
       '<div data-lj-type="layer" id="contentlayer" data-lj-default-frame="frame1">' +
@@ -60,7 +61,7 @@ describe('Filerouter', function() {
   });
 
   it('will load a null frame from another page', function(done) {
-    var scope =  nock('http://localhost')
+    var scope = nock('http://localhost')
       .get('/somePage.html')
       .reply(200, '<div data-lj-type="stage" id="contentstage">' +
         '<div data-lj-type="layer" id="contentlayer" data-lj-default-frame="!none">' +
@@ -122,7 +123,7 @@ describe('Filerouter', function() {
     spyOn(layerView, 'transitionTo');
 
     var transitionOptions = {
-      duration: '10s',
+      duration: '2s',
       type: 'left'
     };
 
@@ -151,4 +152,63 @@ describe('Filerouter', function() {
     });
   });
 
+  it('will keep the state of a loaded page in it\'s cache', function(done) {
+    var scope = prepareSomePage();
+
+    new StageView({
+      el: document.getElementById('contentstage')
+    });
+
+    var layerView = document.getElementById('contentlayer')._ljView;
+    var transitionOptions = {
+      duration: '0s',
+      type: 'left'
+    };
+
+    var fileRouter = new FileRouter();
+    var promise = fileRouter.handle('http://localhost/somePage.html', transitionOptions);
+    scope.done();
+
+    promise.then(function(result) {
+      expect(fileRouter._cache['http://localhost/somePage.html']).toBeDefined();
+      expect(fileRouter._cache['http://localhost/somePage.html']).toEqual(state.exportState());
+      done();
+    });
+  });
+
+  it('will load the cached state of an already requested page', function(done) {
+
+    utilities.setHtml('<div data-lj-type="stage" id="contentstage">' +
+      '<div data-lj-type="layer" id="contentlayer" data-lj-default-frame="frame1" data-lj-layout-type="canvas">' +
+      '<div data-lj-type="frame" data-lj-name="frame1" data-lj-fit-to="responsive">' +
+      'this is frame 1.' +
+      '</div>' +
+      '<div data-lj-type="frame" data-lj-name="frame2" data-lj-fit-to="responsive">' +
+      'this is frame 2.' +
+      '</div>' +
+      '</div>' +
+      '</div>');
+
+    new StageView({
+      el: document.getElementById('contentstage')
+    });
+
+    var transitionOptions = {
+      duration: '50ms',
+      type: 'left'
+    };
+
+    var layerView = document.getElementById('contentlayer')._ljView;
+
+    var fileRouter = new FileRouter();
+    fileRouter._cache['http://localhost/somePage.html'] = ['contentstage.contentlayer.frame2'];
+    var promise = fileRouter.handle('http://localhost/somePage.html', transitionOptions);
+
+    promise.then(function(result) {
+      expect(result.handled).toBeTruthy();
+      expect(result.stop).toBeFalsy();
+      expect(layerView.currentFrame.name()).toBe('frame2');
+      done();
+    });
+  });
 });

@@ -6,13 +6,16 @@ var $ = require('../domhelpers.js');
 var defaults = require('../defaults.js');
 
 var FileRouter = Kern.EventManager.extend({
+  constructor: function() {
+    this._cache = {};
+  },
   /**
    * Will do the actual navigation to the url
    * @param {string} an url
    * @return {boolean} True if the router handled the url
    */
   handle: function(href, transition) {
-
+    var that = this;
     var promise = new Kern.Promise();
     var canHandle = true;
 
@@ -33,6 +36,15 @@ var FileRouter = Kern.EventManager.extend({
       promise.resolve({
         handled: false,
         stop: false
+      });
+    }
+
+    if (canHandle && this._cache.hasOwnProperty(splitted[0])) {
+      var framesToTransitionTo = this._cache[splitted[0]];
+      state.transitionTo(framesToTransitionTo, transition);
+      promise.resolve({
+        stop: false,
+        handled: true
       });
     }
 
@@ -72,6 +84,7 @@ var FileRouter = Kern.EventManager.extend({
         }
 
         var framesToTransitionTo = state.exportState(doc);
+        that._cache[splitted[0]] = framesToTransitionTo;
 
         if (framesToTransitionTo.length > 0) {
           $.postAnimationFrame(function() {
