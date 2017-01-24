@@ -6,8 +6,15 @@ var $ = require('../domhelpers.js');
 var defaults = require('../defaults.js');
 
 var FileRouter = Kern.EventManager.extend({
-  constructor: function() {
+  constructor: function(options) {
+    options = options || {};
+
     this._cache = {};
+
+    if (options.cacheCurrent) {
+      var url = window.location.href.split('#')[0].replace(window.location.origin,'');
+      this._cache[url] = state.exportState();
+    }
   },
   /**
    * Will do the actual navigation to the url

@@ -27,7 +27,9 @@ var HashRouter = require("./framework/router/hashrouter.js");
 
 layerJS.init = function() {
   layerJS.parseManager.parseDocument();
-  layerJS.router.addRouter(new FileRouter());
+  layerJS.router.addRouter(new FileRouter({
+    cacheCurrent: true
+  }));
   layerJS.router.addRouter(new HashRouter());
 
   layerJS.router.cache = false;
