@@ -47,6 +47,7 @@ var FileRouter = Kern.EventManager.extend({
     }
 
     if (canHandle && this._cache.hasOwnProperty(splitted[0])) {
+      canHandle = false;
       var framesToTransitionTo = this._cache[splitted[0]];
       state.transitionTo(framesToTransitionTo, transition);
       promise.resolve({

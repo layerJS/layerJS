@@ -166,18 +166,17 @@ describe('Filerouter', function() {
     };
 
     var fileRouter = new FileRouter();
-    var promise = fileRouter.handle('http://localhost/somePage.html', transitionOptions);
+    var promise = fileRouter.handle('/somePage.html', transitionOptions);
     scope.done();
 
     promise.then(function(result) {
-      expect(fileRouter._cache['http://localhost/somePage.html']).toBeDefined();
-      expect(fileRouter._cache['http://localhost/somePage.html']).toEqual(state.exportState());
+      expect(fileRouter._cache['/somePage.html']).toBeDefined();
+      expect(fileRouter._cache['/somePage.html']).toEqual(state.exportState());
       done();
     });
   });
 
-  xit('will load the cached state of an already requested page', function(done) {
-
+  it('will load the cached state of an already requested page', function(done) {
     utilities.setHtml('<div data-lj-type="stage" id="contentstage">' +
       '<div data-lj-type="layer" id="contentlayer" data-lj-default-frame="frame1" data-lj-layout-type="canvas">' +
       '<div data-lj-type="frame" data-lj-name="frame1" data-lj-fit-to="responsive">' +
@@ -201,8 +200,8 @@ describe('Filerouter', function() {
     var layerView = document.getElementById('contentlayer')._ljView;
 
     var fileRouter = new FileRouter();
-    fileRouter._cache['http://localhost/somePage.html'] = ['contentstage.contentlayer.frame2'];
-    var promise = fileRouter.handle('http://localhost/somePage.html', transitionOptions);
+    fileRouter._cache['/somePage.html'] = ['contentstage.contentlayer.frame2'];
+    var promise = fileRouter.handle('/somePage.html', transitionOptions);
 
     promise.then(function(result) {
       expect(result.handled).toBeTruthy();
