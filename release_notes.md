@@ -8,6 +8,7 @@
     * attributesChanged
     * renderRequired
 * When no `lj-name` attribute is specified, an unique name gets generated.
+* The npm scripts now work on both Windows and Unix like systems.
 * The mouse drag has been disabled.
 * When transitioning to the same frame, the frame will move up (or down depending on the transition parameters) using an animation. This works in both native and non-native scrolling.
 * The `transitionTo()` method of the layerView now also accepts a specific startPosition or scroll positions (scrollX & scrollY).
