@@ -41,4 +41,4 @@ Contributions to layerJS are more than welcome. Get in touch with us at [develop
 layerJS uses a contribution agreement to be able to republish code under future licenses if necessary:
 [layerJS contribution agreement](https://github.com/layerJS/layerJS/wiki/Contribution.md)
 
-[Learn more about Harmony agreements.](harmonyagreements.org)
+[Learn more about Harmony agreements.](http://harmonyagreements.org)
