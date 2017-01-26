@@ -124,7 +124,7 @@ var CanvasLayout = LayerLayout.extend({
     var targetFrameY = (parseInt(frame.y(), 10) || 0);
 
     // this block will make sure that the difference between the current rotation of the canvas and the new rotation is <=180° (so the animation will not rotate the long way)
-    var rotation = frame.data.attributes.rotation || 0;
+    var rotation = frame.rotation() || 0;
     if (this._currentRotation) {
       if (rotation > this._currentRotation + 180) {
         rotation -= 360 * (1 + Math.floor((rotation - this._currentRotation) / 360));
@@ -135,26 +135,35 @@ var CanvasLayout = LayerLayout.extend({
     }
     this._currentRotation = rotation;
 
-    var transform = "translate3d(" + parseInt(-targetFrameTransformData.shiftX, 10) + "px," + parseInt(-targetFrameTransformData.shiftY, 10) + "px,0px) scale(" + targetFrameTransformData.scale / (frame.data.attributes.scaleX || 1) + "," + targetFrameTransformData.scale / (frame.data.attributes.scaleY || 1) + ") rotate(" + (-rotation || 0) + "deg) translate3d(" + (-targetFrameX) + "px," + (-targetFrameY) + "px,0px)";
+    var transform = "translate3d(" + parseInt(-targetFrameTransformData.shiftX, 10) + "px," + parseInt(-targetFrameTransformData.shiftY, 10) + "px,0px) scale(" + targetFrameTransformData.scale / (frame.scaleX() || 1) + "," + targetFrameTransformData.scale / (frame.scaleY() || 1) + ") rotate(" + (-rotation || 0) + "deg) translate3d(" + (-targetFrameX) + "px," + (-targetFrameY) + "px,0px)";
     return transform;
   },
   /**
    * apply new scrolling transform to layer
    *
    * @param {string} transform - the scrolling transform
+   * @param {Object} cssTransiton - css object containing the transition info (currently only single time -> transition: 2s)
    */
-  setLayerTransform: function(transform) {
+  setLayerTransform: function(transform, cssTransition) {
     var frames = this.layer.getChildViews();
     var framesLength = frames.length;
     var childFrame;
+    var p = new Kern.Promise();
+    if (cssTransition.transition) { // FIXME is this sufficient? should we rather pipe duration here, but what about other transtion properties like easing
+      this.layer.currentFrame.outerEl.addEventListener("transitionend", function f(e) { // FIXME needs webkitTransitionEnd etc
+        e.target.removeEventListener(e.type, f); // remove event listener for transitionEnd.
+        p.resolve();
+      });
+    } else {
+      p.resolve();
+    }
     // console.log('canvaslayout: setLayerTransform');
     // now apply all transforms to all frames
     for (var i = 0; i < framesLength; i++) {
       childFrame = frames[i];
-      this._applyTransform(childFrame, this._reverseTransform, transform, this.layer.inTransition() ? {
-        transition: this.layer.getRemainingTransitionTime() + 'ms'
-      } : {});
+      this._applyTransform(childFrame, this._reverseTransform, transform, cssTransition);
     }
+    return p;
   },
   /**
    * this functions puts a frame at its default position. It's called by layer's render() renderChildPosition()
@@ -164,28 +173,25 @@ var CanvasLayout = LayerLayout.extend({
    * @returns {void}
    */
   renderFramePosition: function(frame, transform) {
-    var attr = frame.data.attributes,
-      diff = frame.data.changedAttributes || frame.data.attributes,
-      el = frame.outerEl;
     var css = {};
     // just do width & height for now; FIXME
-    if ('width' in diff && attr.width !== undefined) {
-      css.width = attr.width;
-    }
-    if ('height' in diff && attr.height !== undefined) {
-      css.height = attr.height;
-    }
-    if ('x' in diff || 'y' in diff || 'rotation' in diff) {
+    //if ('width' in diff && attr.width !== undefined) {
+      css.width = frame.width(true);
+    //}
+    //if ('height' in diff && attr.height !== undefined) {
+      css.height = frame.height(true);
+    //}
+    //if ('x' in diff || 'y' in diff || 'rotation' in diff) {
       // calculate frameTransform of frame and store it in this._frameTransforms
-      delete this._frameTransforms[attr.id]; // this will be recalculated in _applyTransform
+      delete this._frameTransforms[frame.id()]; // this will be recalculated in _applyTransform
       if (this._reverseTransform && transform) {
         // currentFrame is initialized -> we need to render the frame at new position
         this._applyTransform(frame, this._currentReverseTransform, this.layer.currentTransform, css);
       } {
         // just apply width and height, everything else the first showFrame() should do
-        Kern._extend(el.style, css);
+        Kern._extend(frame.outerEl.style, css);
       }
-    }
+    //}
   },
   /**
    * apply transform by combining the frame transform with the reverse transform and the added scroll transform
@@ -197,11 +203,10 @@ var CanvasLayout = LayerLayout.extend({
    * @returns {void}
    */
   _applyTransform: function(frame, reverseTransform, addedTransform, styles) {
-    var attr = frame.data.attributes;
     // console.log('canvaslayout: applystyles', frame.data.attributes.name, styles.transition);
     // we need to add the frame transform (x,y,rot,scale) the reverse transform (that moves the current frame into the stage) and the transform representing the current scroll/displacement
     frame.applyStyles(styles || {}, {
-      transform: addedTransform + " " + reverseTransform + " " + (this._frameTransforms[attr.id] || (this._frameTransforms[attr.id] = "translate3d(" + (attr.x || 0) + "px," + (attr.y || 0) + "px,0px) rotate(" + (attr.rotation || 0) + "deg) scale(" + attr.scaleX + "," + attr.scaleY + ")"))
+      transform: addedTransform + " " + reverseTransform + " " + (this._frameTransforms[frame.id()] || (this._frameTransforms[frame.id()] = "translate3d(" + (frame.x() || 0) + "px," + (frame.y() || 0) + "px,0px) rotate(" + (frame.rotation() || 0) + "deg) scale(" + frame.scaleX() + "," + frame.scaleY() + ")"))
     });
   },
 });

@@ -96,11 +96,16 @@ var DomHelpers = {
    * select a layerJS view object using a CSS selector
    * returns only the first view it finds.
    *
-   * @param {string} selector - a CSS selector that identifies an element that is associated with a NodeView
+   * @param {string} selector - a CSS selector that identifies an element that is associated with a NodeView OR the element itself
    * @returns {NodeView} the selected view object
    */
   selectView: function(selector) {
-    var nodes = document.querySelectorAll(selector);
+    var nodes;
+    if (selector instanceof HTMLElement) {
+      nodes = [selector];
+    } else {
+      nodes = document.querySelectorAll(selector);
+    }
     for (var i = 0; i < nodes.length; i++) {
       if (nodes[i]._ljView) return nodes[i]._ljView;
     }
@@ -168,10 +173,11 @@ var DomHelpers = {
    * @param {string} value - the attribute value
    */
   setAttributeLJ: function(element, name, value) {
-    if (element.hasAttribute('lj-' + name)) {
-      element.setAttribute('lj-' + name, value);
+    name = 'lj-' + name;
+    if (element.getAttribute('data-' + name)) {
+      element.setAttribute('data-' + name, value);
     } else {
-      element.setAttribute('data-lj-' + name, value);
+      element.setAttribute(name, value);
     }
   },
   /**
@@ -186,7 +192,7 @@ var DomHelpers = {
     var found = false;
 
     while (parent && !found) {
-      if (parent._ljView && parent._ljView.data.attributes.type === type) {
+      if (parent._ljView && parent._ljView.type() === type) {
         found = true;
       } else {
         parent = parent.parentElement;
@@ -196,7 +202,7 @@ var DomHelpers = {
     return found ? parent._ljView : undefined;
   },
   timeToMS: function(time) {
-    var match = time.match(/^([\d\.]*)(s|ms|min|h)$/);
+    var match = time && time.match(/^([\d\.]*)(s|ms|min|h)$/);
     if (!match) return 0;
     switch (match[2]) {
       case 'ms':
@@ -209,6 +215,36 @@ var DomHelpers = {
         return match[1] * 60 * 60 * 1000;
     }
     return 0;
+  },
+  parseDimension: function(value) {
+    var match;
+    if (value && typeof value === 'string' && (match = value.match(/(.*)(?:px)?$/))) return parseInt(match[1]);
+    if (value && typeof value === 'number') return value;
+    return undefined;
+  },
+  /**
+   * Will generate a unique id for a specific prefix (layerJS type). The id is scoped
+   * to the current document.
+   *
+   * @param {string} prefix - a prefix (layerJS type)
+   * @param {Object} doc - the document to generate a unique id from
+   * @returns {string} a unique id
+   */
+  uniqueID: function(prefix, doc) {
+    doc = doc || document;
+    if (doc._ljUniqueHash === undefined) {
+      doc._ljUniqueHash = {};
+    }
+    var uniqueHash = doc._ljUniqueHash;
+    prefix = prefix || -1;
+    if (uniqueHash[prefix] === undefined) {
+      uniqueHash[prefix] = -1;
+    }
+    if (prefix !== -1) {
+      return prefix + "[" + (++uniqueHash[prefix]) + "]";
+    } else {
+      return ++uniqueHash[prefix];
+    }
   }
 };
 DomHelpers.detectBrowser();

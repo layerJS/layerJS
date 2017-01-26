@@ -20,7 +20,7 @@ var ScrollTransformer = Kern.EventManager.extend({
 
     // listen to scroll events
     this.layer.outerEl.addEventListener('scroll', function() {
-      if (that.layer.nativeScroll) {
+      if (that.layer.nativeScroll()) {
         var tfd = that.layer.currentFrameTransformData;
         tfd.scrollX = that.layer.outerEl.scrollLeft / tfd.scale;
         tfd.scrollY = that.layer.outerEl.scrollTop / tfd.scale;
@@ -57,7 +57,7 @@ var ScrollTransformer = Kern.EventManager.extend({
     // check if can't scroll in primary direction
     if (axis === "x" && !tfd.isScrollX) return false;
     if (axis === "y" && !tfd.isScrollY) return false;
-    if (this.layer.nativeScroll) {
+    if (this.layer.nativeScroll()) {
       if (axis === 'y') {
         if (gesture.shift.y > 0) { // Note: gesture.shift is negative
           return tfd.scrollY > 0; // return true if can scroll; false otherwise
@@ -111,8 +111,8 @@ var ScrollTransformer = Kern.EventManager.extend({
    */
   getScrollTransform: function(tfd, scrollX, scrollY, intermediate) {
     // update frameTransformData
-    tfd.scrollX = scrollX || tfd.scrollX;
-    tfd.scrollY = scrollY || tfd.scrollY;
+    tfd.scrollX = scrollX !== undefined ? scrollX : tfd.scrollX;
+    tfd.scrollY = scrollY !== undefined ? scrollY : tfd.scrollY;
     // limit scrolling to [0,maxScroll]
     if (tfd.scrollX > tfd.maxScrollX) {
       tfd.scrollX = tfd.maxScrollX;
@@ -126,7 +126,7 @@ var ScrollTransformer = Kern.EventManager.extend({
     if (tfd.scrollY < 0) {
       tfd.scrollY = 0;
     }
-    if (this.layer.nativeScroll) {
+    if (this.layer.nativeScroll()) {
       if (intermediate) {
         // in nativescroll, the scroll position is not applied via transform, but we need to compensate for a displacement due to the different scrollTop/Left values in the current frame and the target frame. This displacement is set to 0 after correcting the scrollTop/Left in the transitionEnd listener in transitionTo()
         var shiftX = this.layer.outerEl.scrollLeft - (tfd.scrollX * tfd.scale || 0);

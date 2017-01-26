@@ -2,7 +2,11 @@
 var Kern = require('../../kern/kern.js');
 var MutationsObserver = require('./mutationsobserver.js');
 var TimeoutObserver = require('./timeoutobserver.js');
+var SizeObserver = require('./sizeobserver.js');
 
+/**
+ * A factory class to get an observer
+ */
 var ObserverFactory = Kern.Base.extend({
   constructor: function() {},
   /**
@@ -14,6 +18,15 @@ var ObserverFactory = Kern.Base.extend({
   getObserver: function(element, options) {
     var elementWindow = element.ownerDocument.defaultView || element.ownerDocument.parentWindow;
     return (elementWindow && elementWindow.MutationObserver) ? new MutationsObserver(element, options) : new TimeoutObserver(element, options);
+  },
+  /**
+   * Creates a  size observer
+   *
+   * @param {object} element - a dom element
+   * @returns {object} options
+   */
+  getSizeObserver: function(element, options) {
+    return new SizeObserver(element, options);
   }
 });
 

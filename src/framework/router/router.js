@@ -57,43 +57,49 @@ var Router = Kern.EventManager.extend({
 
     // register link listener
     $.addDelegtedListener(this.rootElement, 'click', 'a', function(event) {
-      var href = this.href;
 
-      if (-1 !== href.indexOf('#')) {
-        // will chech for a local hash with special frame name.
-        var hash = href.substring(href.indexOf('#') + 1);
-        var states = hash.split(';');
-        var layerView;
+      if (event.nonlayerJS !== true) {
+        var href = this.href;
 
-        for (let index = 0; index < states.length; index++) {
-          for (var specialFrame in defaults.specialFrames) {
-            // local hash has been found
-            if (states[index] === defaults.specialFrames[specialFrame]) {
-              //find parent layer view
-              if (!layerView) {
-                layerView = domhelpers.findParentViewOfType(this, 'layer');
-              }
+        if (-1 !== href.indexOf('#')) {
+          // will chech for a local hash with special frame name.
+          var hash = href.substring(href.indexOf('#') + 1);
+          var states = hash.split(';');
+          var layerView;
 
-              if (layerView) {
-                // get path for layer view and append special frame name
-                states[index] = state.getPathForView(layerView) + '.' + defaults.specialFrames[specialFrame];
+          for (var index = 0; index < states.length; index++) {
+            for (var specialFrame in defaults.specialFrames) {
+              // local hash has been found
+              if (states[index] === defaults.specialFrames[specialFrame]) {
+                //find parent layer view
+                if (!layerView) {
+                  layerView = domhelpers.findParentViewOfType(this, 'layer');
+                }
+
+                if (layerView) {
+                  // get path for layer view and append special frame name
+                  states[index] = state.getPathForView(layerView) + '.' + defaults.specialFrames[specialFrame];
+                }
               }
             }
           }
+
+          // re-assemble url
+          href = href.substring(0, href.indexOf('#') + 1) + states.join(';');
         }
 
-        // re-assemble url
-        href = href.substring(0, href.indexOf('#') + 1) + states.join(';');
+        event.preventDefault();
+        event.stopPropagation();
+
+        that._navigate(href, true).then(function(result) {
+          if (!result) {
+            // if the url can not be resolve, re-dispatch event but add custom property to ignore in layerjs
+            var new_event = new event.constructor(event.type, event);
+            new_event.nonlayerJS = true;
+            event.target.dispatchEvent(new_event);
+          }
+        });
       }
-
-      event.preventDefault();
-      event.stopPropagation();
-
-      that._navigate(href, true).then(function(result) {
-        if (!result) { // if no router could handle the url just load the url in the browser
-          window.location.href = href;
-        }
-      });
     });
   },
   /**

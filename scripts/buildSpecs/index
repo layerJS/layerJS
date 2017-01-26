@@ -1,0 +1,9 @@
+rmdir /s  /q build\test
+
+mkdir -p build/test/js
+mkdir -p build/test/lib
+cp -r test/jasmine/lib build/test/lib
+cp test\SpecsInBrowser.html build\test\SpecsInBrowser.html
+
+node ./test/scripts/combinespecs.js
+browserify ./build/test/js/globalspecs.js > ./build/test/js/specs.js

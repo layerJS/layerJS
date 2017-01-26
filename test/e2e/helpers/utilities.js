@@ -11,6 +11,15 @@ utilities.transitionTo = function(layerId, frameName, transition, waitTime) {
   }, layerId, frameName, transition, waitTime);
 };
 
+utilities.scrollTo = function(layerId, scrollX, scrollY, transition, waitTime) {
+  waitTime = waitTime || 3000;
+
+  return browser.driver.executeAsyncScript(function(layerId, scrollX, scrollY, transition, waitTime, callBack) {
+    layerJS.select('#' + layerId).scrollTo(scrollX, scrollY, transition);
+    window.setTimeout(callBack, waitTime);
+  }, layerId, scrollX, scrollY, transition, waitTime);
+};
+
 utilities.getBoundingClientRect = function(elementId) {
   return browser.driver.executeAsyncScript(function(elementId, callBack) {
     var el = window.document.getElementById(elementId);
@@ -396,6 +405,23 @@ utilities.getDataAttribute = function(elementId, dataAttribute) {
     callback(result);
   }, elementId, dataAttribute);
 };
+
+utilities.getChildrenIds = function(elementId) {
+  return browser.driver.executeAsyncScript(function(id,callback) {
+    var element = document.getElementById(id);
+    var view = element._ljView;
+    var result = [];
+
+    var childrenViews = view.getChildViews();
+
+    for (var i = 0; i < childrenViews.length; i++) {
+      result.push(childrenViews[i].id());
+    }
+
+    callback(result);
+  }, elementId);
+};
+
 
 utilities.showFrame = function(layerId, frameName, scrollData,waitTime) {
   waitTime = waitTime || 0;

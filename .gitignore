@@ -1,8 +1,9 @@
 *.orig
 *.rej
+coverage
 node_modules
 dist
-build
+/build
 *.log
 .DS_Store
 examples/*/layerjs.js

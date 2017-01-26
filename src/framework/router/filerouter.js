@@ -3,15 +3,26 @@ var Kern = require('../../kern/Kern.js');
 var parseManager = require("../parsemanager.js");
 var state = require("../state.js");
 var $ = require('../domhelpers.js');
+var defaults = require('../defaults.js');
 
 var FileRouter = Kern.EventManager.extend({
+  constructor: function(options) {
+    options = options || {};
+
+    this._cache = {};
+
+    if (options.cacheCurrent) {
+      var url = window.location.href.split('#')[0].replace(window.location.origin,'');
+      this._cache[url] = state.exportState();
+    }
+  },
   /**
    * Will do the actual navigation to the url
    * @param {string} an url
    * @return {boolean} True if the router handled the url
    */
   handle: function(href, transition) {
-
+    var that = this;
     var promise = new Kern.Promise();
     var canHandle = true;
 
@@ -24,13 +35,24 @@ var FileRouter = Kern.EventManager.extend({
         });
       }
     }
+
     var splitted = href.split('#');
-    if (canHandle && window.location.href.indexOf(splitted[0]) !== -1) {
-      // same file
+    if (canHandle && window.location.href.indexOf(splitted[0]) !== -1 && splitted.length > 1) {
+      // same file and with a hash
       canHandle = false;
       promise.resolve({
         handled: false,
         stop: false
+      });
+    }
+
+    if (canHandle && this._cache.hasOwnProperty(splitted[0])) {
+      canHandle = false;
+      var framesToTransitionTo = this._cache[splitted[0]];
+      state.transitionTo(framesToTransitionTo, transition);
+      promise.resolve({
+        stop: false,
+        handled: true
       });
     }
 
@@ -43,14 +65,14 @@ var FileRouter = Kern.EventManager.extend({
 
         for (var x = 0; x < loadedFrames.length; x++) {
           var orginalView = state.getViewForPath(loadedFrames[x], document);
-          if (undefined !== orginalView) {
-            // already imported
+          if (undefined !== orginalView || loadedFrames[x].endsWith('.' + defaults.specialFrames.none)) {
+            // already imported or null frame
             continue;
           }
 
-          let parentView;
-          let parentPath = loadedFrames[x];
-          let pathToImport;
+          var parentView;
+          var parentPath = loadedFrames[x];
+          var pathToImport;
 
           while (undefined === parentView && parentPath.indexOf('.') > 0 && !alreadyImported.hasOwnProperty(parentPath)) {
             pathToImport = parentPath;
@@ -62,6 +84,7 @@ var FileRouter = Kern.EventManager.extend({
           if (undefined !== parentView && !alreadyImported.hasOwnProperty[parentPath]) {
             // parent found and not yet imported, add it's child (pathToImport) to it
             var stateToImport = state.getStateForPath(pathToImport, doc);
+            stateToImport.view.outerEl.style.opacity = 0;
             parentView.innerEl.insertAdjacentHTML('beforeend', stateToImport.view.outerEl.outerHTML);
             toParseChildren[parentPath] = true;
             alreadyImported[pathToImport] = true;
@@ -69,6 +92,7 @@ var FileRouter = Kern.EventManager.extend({
         }
 
         var framesToTransitionTo = state.exportState(doc);
+        that._cache[splitted[0]] = framesToTransitionTo;
 
         if (framesToTransitionTo.length > 0) {
           $.postAnimationFrame(function() {

@@ -212,19 +212,19 @@
     // API calls for slider left/right buttons
     var ilayer = layerJS.select('#layer_image');
     document.getElementById('next').addEventListener('click', function() {
-      ilayer.transitionTo(ilayer.currentFrame.data.attributes.neighbors.r, {
+      ilayer.transitionTo(ilayer.currentFrame.neighbors().r, {
         type: 'left'
       });
     });
     document.getElementById('prev').addEventListener('click', function() {
-      ilayer.transitionTo(ilayer.currentFrame.data.attributes.neighbors.l, {
+      ilayer.transitionTo(ilayer.currentFrame.neighbors().l, {
         type: 'right'
       });
     });
     // API calls for menu open closely
     var mlayer = layerJS.select('#layer_menu');
     document.getElementsByClassName('menubox')[0].addEventListener('click', function() {
-      if (mlayer.currentFrame.data.attributes.name == 'menu1') {
+      if (mlayer.currentFrame.name() == 'menu1') {
         mlayer.transitionTo('menu2', {
           type: 'down'
         });

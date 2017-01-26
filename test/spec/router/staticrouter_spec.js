@@ -35,7 +35,7 @@ describe('staticRouter', function() {
 
     utilities.setHtml(html);
 
-    new StageView(null, {
+    new StageView({
       el: document.getElementById('stage1')
     });
 
@@ -48,7 +48,7 @@ describe('staticRouter', function() {
         expect(result.handled).toBeTruthy();
         expect(result.stop).toBeTruthy();
         var layerView = document.getElementById('layer1')._ljView;
-        expect(layerView.currentFrame.data.attributes.name).toBe('frame2');
+        expect(layerView.currentFrame.name()).toBe('frame2');
         done();
       }, 500);
     });

@@ -1,63 +1,62 @@
 'use strict';
 var pluginManager = require('./pluginmanager.js');
-var GroupView = require('./groupview.js');
-var Kern = require('../kern/Kern.js');
 var defaults = require('./defaults.js');
 var $ = require('./domhelpers.js');
-var state = require('./state.js');
-
-
+var BaseView = require('./baseview.js');
 /**
  * A View which can have child views
  * @param {StageData} dataModel
  * @param {object}        options
  * @extends GroupView
  */
-var StageView = GroupView.extend({
-  constructor: function(dataModel, options) {
-    var that = this;
+var StageView = BaseView.extend({
+  constructor: function(options) {
     options = options || {};
-    GroupView.call(this, dataModel, Kern._extend({}, options, {
-      noRender: true
-    }));
-
-    if (!options.noRender && (options.forceRender || !options.el)) {
-      this.render();
-    }
-
-    window.addEventListener('resize', function() {
-      that.onResize();
-    }, false);
-
-    state.registerView(this);
-  },
-  _renderChildPosition: function(childView) {
-    if (childView.data.attributes.nodeType === 1) {
-      childView.disableObserver();
-      childView.outerEl.style.left = "0px";
-      childView.outerEl.style.top = "0px";
-      childView.enableObserver();
-    }
+    options.childType = 'layer';
+    BaseView.call(this, options);
   },
   /**
-   * Method will be invoked when a resize event is detected.
+   * Will add eventhandlers to specific events. It will handle a 'childrenChanged', 'sizeChanged' and
+   * 'attributesChanged' event. It will also handle it's parent 'renderRequired' event.
    */
-  onResize: function() {
-    var childViews = this.getChildViews();
-    var length = childViews.length;
-    for (var i = 0; i < length; i++) {
-      var childView = childViews[i];
-      childView.onResize();
+  registerEventHandlers: function() {
+    var that = this;
+
+    var onResize = function() {
+      that.trigger('renderRequired');
+    };
+
+    BaseView.prototype.registerEventHandlers.call(this);
+
+    window.addEventListener('resize', onResize, false);
+
+    this.on('sizeChanged', onResize);
+  },
+  /**
+   * Specifies what will need to be observed on the DOM element. (Attributes, Children and size)
+   */
+  startObserving: function() {
+    BaseView.prototype.observe.call(this, this.innerEl, {
+      attributes: true,
+      children: true,
+      size: true
+    });
+  },
+  /** Will place a child view at the correct position.
+   * @param {Object} childView - the childView
+   */
+  _renderChildPosition: function(childView) {
+    if (childView.nodeType() === 1) {
+      childView.unobserve();
+      childView.outerEl.style.left = "0px";
+      childView.outerEl.style.top = "0px";
+      childView.startObserving();
     }
-  }
+  },
 }, {
-  defaultProperties: Kern._extend({}, GroupView.defaultProperties, {
-    nativeScroll: true,
-    fitTo: 'width',
-    startPosition: 'top',
-    noScrolling: false,
+  defaultProperties: {
     type: 'stage'
-  }),
+  },
   identify: function(element) {
     var type = $.getAttributeLJ(element, 'type');
     return null !== type && type.toLowerCase() === StageView.defaultProperties.type;

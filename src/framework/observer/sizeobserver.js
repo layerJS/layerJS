@@ -1,49 +1,48 @@
 'use strict';
-var Kern = require('../../kern/kern.js');
+var Observer = require('./observer.js');
 
-var SizeObserver = Kern.Base.extend({
-  constructor: function(options) {
-    options = options || {};
-    this.options = options;
-    this.views = {};
-    this.checkSize();
+/**
+ * Class for observing the size of a DOM Element
+ */
+var SizeObserver = Observer.extend({
+  constructor: function(element, options) {
+    Observer.call(this, element, options);
+    this.dimensions = undefined;
   },
   /**
-   * Register all views to monitor for dimensions changes
+   * Register the dimensions
    *
-   * @param {array} views - An array of layerjs object to monitor
-   * @param {function} callBack - function to execute when a change in dimensions is detected
-   * @returns {string} the found ViewType
    */
-  register: function(views, callBack) {
-    var length = views.length;
-    for (var i = 0; i < length; i++) {
-      var view = views[i];
-      if (!this.views.hasOwnProperty(view.data.attributes.id) || this.views[view.data.attributes.id].callBack !== callBack) { // only register if view does not exist already in list
-        this.views[view.data.attributes.id] = {
-          view: view,
-          callBack: callBack,
-          size_inner: {
-            width: view.innerEl.scrollWidth,
-            height: view.innerEl.scrollHeight
-          },
-          size: {
-            width: view.innerEl.clientWidth,
-            height: view.innerEl.clientHeight
-          }
-        };
-      }
+  observe: function() {
+    if (this.counter !== 0) {
+      this.counter--;
+    }
+
+    if (this.counter === 0) {
+      this.dimensions = {
+        size_inner: {
+          width: this.element.scrollWidth,
+          height: this.element.scrollHeight
+        },
+        size: {
+          width: this.element.clientWidth,
+          height: this.element.clientHeight
+        }
+      };
+
+      this.checkSize();
     }
   },
   /**
-   * Unregister of views to monitor for dimensions changes
+   * Stop observing the size
    *
-   * @param {array} views - An array of layerjs object to unregister
    */
-  unRegister: function(views) {
-    var length = views.length;
-    for (var i = 0; i < length; i++) {
-      delete this.views[views[i].data.attributes.id];
+  stop: function() {
+    this.counter++;
+
+    if (this.counter === 1) {
+      clearTimeout(this.myTimeout);
+      this.myTimeout = undefined;
     }
   },
   /**
@@ -51,32 +50,30 @@ var SizeObserver = Kern.Base.extend({
    *
    */
   checkSize: function() {
-    for (var viewId in this.views) {
-      if (this.views.hasOwnProperty(viewId)) {
-        var el = this.views[viewId].view.innerEl;
-        var iwidth = el.scrollWidth;
-        var iheight = el.scrollHeight;
-        var width = el.clientWidth;
-        var height = el.clientHeight;
-        if (width !== this.views[viewId].size.width || height !== this.views[viewId].size.height || iwidth !== this.views[viewId].size_inner.width || iheight !== this.views[viewId].size_inner.height) {
-          this.views[viewId].size = {
-            width: width,
-            height: height
-          };
-          this.views[viewId].size_inner = {
-            width: iwidth,
-            height: iheight
-          };
-          this.views[viewId].callBack();
-        }
-      }
+
+    var el = this.element;
+    var iwidth = el.scrollWidth;
+    var iheight = el.scrollHeight;
+    var width = el.clientWidth;
+    var height = el.clientHeight;
+    if (width !== this.dimensions.size.width || height !== this.dimensions.size.height || iwidth !== this.dimensions.size_inner.width || iheight !== this.dimensions.size_inner.height) {
+      this.dimensions.size = {
+        width: width,
+        height: height
+      };
+      this.dimensions.size_inner = {
+        width: iwidth,
+        height: iheight
+      };
+      this._invokeCallBack();
+
     }
 
     var that = this;
-    setTimeout(function() {
+    this.myTimeout = setTimeout(function() {
       that.checkSize();
     }, this.options.timeout || 100);
   }
 });
 
-module.exports = new SizeObserver();
+module.exports = SizeObserver;

@@ -1,6 +1,7 @@
 'use strict';
 var layerJS = require('./layerjs.js');
 var pluginManager = require('./pluginmanager.js');
+var  $ = require('./domhelpers.js');
 
 var ParseManager = function() {
   /**
@@ -38,7 +39,7 @@ var ParseManager = function() {
     var length = stageElements.length;
 
     for (var index = 0; index < length; index++) {
-      pluginManager.createView('stage', {
+      pluginManager.createView($.getAttributeLJ(stageElements[index],'type'), {
         el: stageElements[index],
         document: doc
       });

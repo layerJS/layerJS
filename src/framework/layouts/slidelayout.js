@@ -149,7 +149,7 @@ var SlideLayout = LayerLayout.extend({
     if (frame === null) {
       prep = this.transitions[transition.type](transition.type, this.layer.currentFrameTransformData, targetFrameTransformData);
       finished.resolve(prep);
-    } else if ((prep = this._preparedTransitions[frame.data.attributes.id])) {
+    } else if ((prep = this._preparedTransitions[frame.id()])) {
       if (prep.transform === targetTransform && prep.applied) { // if also the targetTransform is already applied we can just continue
         finished.resolve(prep);
       } else {
@@ -159,7 +159,7 @@ var SlideLayout = LayerLayout.extend({
 
     if (undefined === prep) {
       // call the transition type function to calculate all frame positions/transforms
-      prep = this._preparedTransitions[frame.data.attributes.id] = this.transitions[transition.type](transition.type, this.layer.currentFrameTransformData, targetFrameTransformData); // WARNING: this.layer.currentFrameTransformData should still be the old one here. carefull: this.layer.currentFrameTransformData will be set by LayerView before transition ends!
+      prep = this._preparedTransitions[frame.id()] = this.transitions[transition.type](transition.type, this.layer.currentFrameTransformData, targetFrameTransformData); // WARNING: this.layer.currentFrameTransformData should still be the old one here. carefull: this.layer.currentFrameTransformData will be set by LayerView before transition ends!
       // apply pre position to target frame
       this._applyTransform(frame, prep.t0, this.layer.currentTransform, {
         transition: 'none',
@@ -179,11 +179,21 @@ var SlideLayout = LayerLayout.extend({
    * apply new scrolling transform to layer
    *
    * @param {string} transform - the scrolling transform
+   * @param {Object} cssTransiton - css object containing the transition info (currently only single time -> transition: 2s)
    */
-  setLayerTransform: function(transform) {
-    this._applyTransform(this.layer.currentFrame, this._currentFrameTransform, transform, this.layer.inTransition() ? {
-      transition: this.layer.getRemainingTransitionTime() + 'ms'
-    } : {});
+  setLayerTransform: function(transform, cssTransition) {
+    cssTransition = cssTransition || {};
+    var p = new Kern.Promise();
+    if (cssTransition.transition) { // FIXME is this sufficient? should we rather pipe duration here, but what about other transtion properties like easing
+      this.layer.currentFrame.outerEl.addEventListener("transitionend", function f(e) { // FIXME needs webkitTransitionEnd etc
+        e.target.removeEventListener(e.type, f); // remove event listener for transitionEnd.
+        p.resolve();
+      });
+    } else {
+      p.resolve();
+    }
+    this._applyTransform(this.layer.currentFrame, this._currentFrameTransform, transform, cssTransition);
+    return p;
   },
   /**
    * apply transform by combining the frames base transform with the added scroll transform

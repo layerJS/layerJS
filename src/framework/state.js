@@ -8,28 +8,11 @@ var defaults = require('./defaults.js');
 /**
  *  class that will contain the state off all the stages, layers, frames
  *
- * @extends Kern.Model
+ * @extends Kern.Base
  */
-var State = Kern.Model.extend({
+var State = Kern.Base.extend({
   constructor: function() {
     this.viewTypes = ['stage', 'layer', 'frame'];
-  },
-  /**
-   * Will return the next index of a layerjs object within it's parent
-   *
-   * @param {object} Represents the parent
-   * @param {string} A layerjs type
-   * @returns {integer} The index next index for that type
-   */
-  _getNextChildIndexByType: function(parent, type) {
-    var index = -1;
-    for (var name in parent.children) {
-      if (parent.children[name].view && parent.children[name].view.data.attributes.type === type) {
-        ++index;
-      }
-    }
-
-    return index + 1;
   },
   /**
    * Will add layerjs objects to it's parent structure state
@@ -48,27 +31,25 @@ var State = Kern.Model.extend({
 
       if (undefined === childView) {
         this._buildTree(parent, child.children);
-      } else if (-1 !== this.viewTypes.indexOf(childView.data.attributes.type)) {
-        var type = childView.data.attributes.type;
-
-        var name = (childView.data.attributes.name || child.id || type + '[' + this._getNextChildIndexByType(parent, type) + ']');
+      } else if (-1 !== this.viewTypes.indexOf(childView.type())) {
+        var name = childView.name();
         parent.children[name] = {
           view: childView,
           children: {}
         };
 
-        if (childView.data.attributes.type === 'layer') {
+        if (childView.type() === 'layer') {
           childView.on('transitionStarted', this._transitionToEvent(parent.children[name]));
         }
 
-        if (parent.view && parent.view.data.attributes.type === 'layer' && parent.children[name].view.data.attributes.type === 'frame') {
+        if (parent.view && parent.view.type() === 'layer' && parent.children[name].view.type() === 'frame') {
           parent.children[name].active = parent.view.currentFrame === parent.children[name].view;
         }
         this._buildTree(parent.children[name], childView.innerEl.children);
       }
     }
 
-    if (parent.view && parent.view.data.attributes.type === 'layer' && parent.view.currentFrame === null) {
+    if (parent.view && parent.view.type() === 'layer' && parent.view.currentFrame === null) {
       parent[0].active = true;
     }
 
@@ -92,21 +73,22 @@ var State = Kern.Model.extend({
   updateChildren: function(view, addedNodes, removedNodes) {
 
     var viewState = view.outerEl._state;
+    var i;
 
     if (undefined === viewState) {
       return;
     }
 
     if (undefined !== addedNodes && addedNodes.length > 0) {
-      for (let i = 0; i < addedNodes.length; i++) {
-        if (addedNodes[i]._ljView && -1 !== this.viewTypes.indexOf(addedNodes[i]._ljView.data.attributes.type)) {
+      for (i = 0; i < addedNodes.length; i++) {
+        if (addedNodes[i]._ljView && -1 !== this.viewTypes.indexOf(addedNodes[i]._ljView.type())) {
           this.buildParent(addedNodes[i], view.document);
         }
       }
     }
     if (undefined !== removedNodes && removedNodes.length > 0) {
-      for (var i = 0; i < removedNodes.length; i++) {
-        if (removedNodes[i]._ljView && -1 !== this.viewTypes.indexOf(removedNodes[i]._ljView.data.attributes.type)) {
+      for (i = 0; i < removedNodes.length; i++) {
+        if (removedNodes[i]._ljView && -1 !== this.viewTypes.indexOf(removedNodes[i]._ljView.type())) {
           for (var childName in viewState.children) {
             if (viewState.children.hasOwnProperty(childName)) {
               if (viewState.children[childName].view === removedNodes[i]._ljView) {
@@ -131,15 +113,12 @@ var State = Kern.Model.extend({
 
       // get the state of the parent layer,stage or frame node
       currentState = this.buildParent(parentNode.parentElement, ownerDocument);
-
       // layer helper divs are special; ignore them; ignoring means to pass the parent state as current state
       if (parentNode._ljView && !$.hasAttributeLJ(parentNode, 'helper')) {
         var view = parentNode._ljView;
-
         // ignore everything except frames, layers and stages; ignoring means to pass the parent state as current state
-        if (view && -1 !== (this.viewTypes.indexOf(view.data.attributes.type))) {
-          var type = view.data.attributes.type;
-          var name = (view.data.attributes.name || parentNode.id || type + '[' + this._getNextChildIndexByType(currentState, type) + ']');
+        if (view && -1 !== (this.viewTypes.indexOf(view.type()))) {
+          var name = view.name();
           // layerJS object already added
           if (!currentState.children.hasOwnProperty(name)) {
             // create the actual current state datastructure as a child of the parent's state structure
@@ -148,16 +127,19 @@ var State = Kern.Model.extend({
               children: {},
               parent: currentState
             };
-            if (view.data.attributes.type === 'frame') {
+            if (view.type() === 'frame') {
               currentState.children[name].active = false;
               // check if the current frame is the active frame
               if (currentState.view && currentState.view.currentFrame) {
-                currentState.children[name].active = currentState.view.currentFrame.data.attributes.name === view.data.attributes.name;
+                currentState.children[name].active = currentState.view.currentFrame.name() === view.name();
               }
-            } else if (view.data.attributes.type === 'layer') {
+            } else if (view.type() === 'layer') {
               // listen to state changes; state changes when transitions happen in layers
               view.on('transitionStarted', this._transitionToEvent(currentState.children[name]));
             }
+
+            view.on('childrenChanged', this._childrenChangedEvent(view));
+            view.on('attributesChanged', this._attributesChangedEvent(view));
           }
 
           // currentState did contain the parent's state; assing actual current state
@@ -212,8 +194,7 @@ var State = Kern.Model.extend({
    * @param {object} a layerJSView
    */
   registerView: function(view) {
-
-    if (view.data.attributes.type === 'frame') {
+    if (view.type() === 'frame') {
       var frameViews = this._getRegisteredFrameViews(view.document);
       frameViews.push(view);
     }
@@ -221,6 +202,7 @@ var State = Kern.Model.extend({
     // only add to state structure if the frame is really shown (attached to DOM)
     if (view.document.body.contains(view.outerEl)) {
       this.buildParent(view.outerEl, view.document);
+      view.innerEl._state = view.outerEl._state;
     }
   },
   /**
@@ -262,12 +244,14 @@ var State = Kern.Model.extend({
    */
   transitionTo: function(states, transition) {
     var pathsToTransition = this._determineTransitionPaths(states);
-    for (let i = 0; i < pathsToTransition.length; i++) {
+    for (var i = 0; i < pathsToTransition.length; i++) {
       var path = pathsToTransition[i];
       var layerView = this.getViewForPath(path.replace(/\.[^\.]*$/, ""));
       var frameName = path.substr(path.lastIndexOf(".") + 1);
       layerView.transitionTo(frameName, transition);
     }
+
+    return pathsToTransition.length > 0;
   },
   /**
    * Will show the state without a transition
@@ -276,7 +260,7 @@ var State = Kern.Model.extend({
    */
   showState: function(states) {
     var pathsToTransition = this._determineTransitionPaths(states);
-    for (let i = 0; i < pathsToTransition.length; i++) {
+    for (var i = 0; i < pathsToTransition.length; i++) {
       var path = pathsToTransition[i];
       var layerView = this.getViewForPath(path.replace(/\.[^\.]*$/, ""));
       var frameName = path.substr(path.lastIndexOf(".") + 1);
@@ -299,7 +283,7 @@ var State = Kern.Model.extend({
       var parentState = state.parent;
 
       while (parentState) {
-        let found = false;
+        var found = false;
         for (var childName in parentState.children) {
           if (parentState.children[childName] === state) {
             paths.push(childName);
@@ -327,8 +311,8 @@ var State = Kern.Model.extend({
     var currentStructure = this.exportStructure();
     var pathsToTransition = [];
 
-    for (let i = 0; i < length; i++) {
-      for (let x = 0; x < currentStructure.length; x++) {
+    for (var i = 0; i < length; i++) {
+      for (var x = 0; x < currentStructure.length; x++) {
         var tempStructure = currentStructure[x].replace(new RegExp(this._escapeRegex(states[i]) + '$'), '');
         if ('' === tempStructure || (currentStructure[x] !== tempStructure && tempStructure.endsWith('.'))) {
           if (-1 === pathsToTransition.indexOf(currentStructure[x])) {
@@ -385,21 +369,21 @@ var State = Kern.Model.extend({
     for (var element in parent.children) {
       if (parent.children.hasOwnProperty(element) && parent.children[element].hasOwnProperty('view')) {
         var path = rootpath;
-        if (parent.children[element].view.data.attributes.type === 'frame' && (parent.children[element].active || !active)) {
+        if (parent.children[element].view.type() === 'frame' && (parent.children[element].active || !active)) {
           if (parent.children[element].active) {
             hasActiveChildren = true;
           }
           path = rootpath + element;
           paths.push(path);
           paths = paths.concat(this._getPath(parent.children[element], path + '.', active));
-        } else if (parent.children[element].view.data.attributes.type !== 'frame') {
+        } else if (parent.children[element].view.type() !== 'frame') {
           path += element;
           paths = paths.concat(this._getPath(parent.children[element], path + '.', active));
         }
       }
     }
 
-    if (parent.view && parent.view.data.attributes.type === 'layer' && !hasActiveChildren) {
+    if (parent.view && parent.view.type() === 'layer' && !hasActiveChildren) {
       paths.push(rootpath + defaults.specialFrames.none);
     }
 
@@ -416,8 +400,36 @@ var State = Kern.Model.extend({
       for (var name in layerState.children) {
         // set new active frame; set all other frames to inactive
         if (layerState.children.hasOwnProperty(name) && layerState.children[name].hasOwnProperty('active')) {
-          layerState.children[name].active = layerState.children[name].view.data.attributes.name === frameName;
+          layerState.children[name].active = layerState.children[name].view.name() === frameName;
         }
+      }
+    };
+  },
+  /**
+   * Will return the handler for a childrenChanged event
+   *
+   * @param {object}  a view
+   * @returns {function} function that will be called when childrenChanged event is invoked
+   */
+  _childrenChangedEvent: function(view) {
+    var that = this;
+    return function(result) {
+      that.updateChildren(view, result.addedNodes, result.removedNodes);
+    };
+  },
+  /**
+   * Will return the handler for an attributesChanged event
+   *
+   * @param {object}  a view
+   * @returns {function} function that will be called when an attributesChanged event is invoked
+   */
+  _attributesChangedEvent: function(view) {
+    return function(attributes) {
+      if (attributes['lj-name'] || attributes['data-lj-name'] || attributes.id) {
+        var state = view.outerEl._state;
+        var parent = state.parent;
+        parent.children[view.name()] = state;
+        delete parent.children[(attributes['lj-name'] && attributes['lj-name'].oldValue) || (attributes['data-lj-name'] && attributes['data-lj-name'].oldValue) || (attributes.id && attributes.id.oldValue)];
       }
     };
   },

@@ -1,0 +1,2 @@
+cd dist
+zip layerjs-$npm_package_version.zip layerjs-$npm_package_version.js css

@@ -2,11 +2,8 @@ var LayerView = require('../../src/framework/layerview.js');
 var StageView = require('../../src/framework/stageview.js');
 var state = require('../../src/framework/state.js');
 
-var ViewsGroupViewTests = require('./helpers/views/group/viewtests.js');
-
-var ViewsCommonParseTests = require('./helpers/views/common/parsetests.js');
 var ViewsCommon_renderChildPositionTests = require('./helpers/views/common/_renderchildpositiontests.js');
-var ViewsGroup_parseChildrenTests = require('./helpers/views/group/_parseChildrentests.js');
+var ViewsCommon_parseChildrenTests = require('./helpers/views/common/_parseChildrentests.js');
 
 var ViewsCommonIdentifyTests = require('./helpers/views/common/identifytests.js');
 var ViewsCommonViewTests = require('./helpers/views/common/viewtests.js');
@@ -15,88 +12,17 @@ describe("LayerView", function() {
 
   var utilities = require('./helpers/utilities.js');
 
-  ViewsCommonViewTests('simple_layerdata_nochildren.js', function() {
+  ViewsCommonViewTests('layer_nochildren_1.js', function() {
     return {
       ViewType: LayerView,
-      data: require('./datasets/simple_layerdata_nochildren.js')[0]
+      htmlElement: require('./htmlelements/layer_nochildren_1.js')
     }
   });
 
-  ViewsGroupViewTests('simple_layerdata.js', function() {
+  ViewsCommon_renderChildPositionTests('simple_layer_1.js', function() {
     return {
-      data: require('./datasets/simple_layerdata.js'),
-      ViewType: LayerView,
-      parentId: 5
-    };
-  });
-
-  ViewsCommon_renderChildPositionTests('simple_layerdata.js', function() {
-    return {
-      data: require('./datasets/simple_layerdata.js'),
-      ViewType: LayerView,
-      parentId: 5
-    };
-  });
-
-  ViewsGroupViewTests('test_data_set.js', function() {
-    return {
-      data: JSON.parse(JSON.stringify(require('./datasets/test_data_set.js'))),
-      ViewType: LayerView,
-      parentId: 5
-    };
-  });
-
-  ViewsCommon_renderChildPositionTests('test_data_set.js', function() {
-    return {
-      data: require('./datasets/test_data_set.js'),
-      ViewType: LayerView,
-      parentId: 5
-    };
-  });
-
-  ViewsCommonParseTests(function() {
-    return {
+      htmlElement: require('./htmlelements/simple_layer_1.js'),
       ViewType: LayerView
-    }
-  });
-
-  it('the Parse method will set nativeScroll to true if the DOM element has a data-lj-native-scroll attribute equals true', function() {
-    var element = document.createElement('div');
-    element.setAttribute('data-lj-native-scroll', 'true');
-    element.innerHTML = "<div data-lj-helper='scroller'/>";
-
-    var layerView = new LayerView(null, {
-      el: element
-    });
-    var dataModel = layerView.data;
-
-    expect(dataModel.attributes.nativeScroll).toBeTruthy();
-  });
-
-  it('the Parse method will set nativeScroll to false if the DOM element has a data-lj-native-scroll attribute equals false', function() {
-    var element = document.createElement('div');
-    element.setAttribute('data-lj-native-scroll', 'false');
-    element.innerHTML = "<div/>";
-
-    var layerView = new LayerView(null, {
-      el: element
-    });
-    var dataModel = layerView.data;
-
-    expect(dataModel.attributes.nativeScroll).toBeFalsy();
-  });
-
-  ViewsGroup_parseChildrenTests(function() {
-    return {
-      ViewType: LayerView,
-      viewTypeName: 'LayerView',
-      type: 'layer',
-      HTML: "<div id='100' data-lj-id='100' data-lj-type='layer'>" +
-        "<div id='101' data-lj-id='101' data-lj-type='frame'></div>" +
-        "<div id='102' data-lj-id='102' data-lj-type='frame'></div>" +
-        "<div/>" +
-        "</div>",
-      expectedChildren: ['101', '102']
     };
   });
 
@@ -111,6 +37,23 @@ describe("LayerView", function() {
     return document.createElement('div');
   }, false);
 
+  it('the Parse method will set nativeScroll to true if the DOM element has a data-lj-native-scroll attribute equals true', function() {
+    var element = utilities.appendChildHTML('<div lj-native-scroll="true"><div lj-helper="scroller"></div></div>');
+    var layerView = new LayerView({
+      el: element
+    });
+
+    expect(layerView.nativeScroll()).toBeTruthy();
+  });
+
+  it('the Parse method will set nativeScroll to false if the DOM element has a data-lj-native-scroll attribute equals false', function() {
+    var element = utilities.appendChildHTML('<div lj-native-scroll="false"></div>');
+
+    var layerView = new LayerView({
+      el: element
+    });
+    expect(layerView.nativeScroll()).toBeFalsy();
+  });
 
   it('show frame will trigger events', function(done) {
     var html = "<div data-lj-type='stage' id='stage1'>" +
@@ -120,10 +63,10 @@ describe("LayerView", function() {
       "</div>" +
       "</div>";
 
-    utilities.setHtml(html);
+    var element = utilities.appendChildHTML(html);
 
-    var stageView1 = new StageView(null, {
-      el: document.getElementById('stage1')
+    var stageView1 = new StageView({
+      el: element
     });
 
     var layerView1 = document.getElementById('layer1')._ljView;
@@ -150,19 +93,21 @@ describe("LayerView", function() {
     }, 100);
   });
 
-  it('will register itself with the state', function() {
-    spyOn(state, 'registerView');
-    var layerView = new LayerView(new LayerView.Model(LayerView.defaultProperties));
-    expect(state.registerView).toHaveBeenCalledWith(layerView);
+  ViewsCommon_parseChildrenTests(function() {
+    return {
+      ViewType: LayerView,
+      htmlElement: require('./htmlelements/simple_layer_1.js'),
+      expectedChildren: ['simple_frame_1']
+    }
   });
 
   describe('can transition to special frame name', function() {
 
     function check(html, specialFrameName, expectedFrameName, done) {
-      utilities.setHtml(html);
+      var element = utilities.appendChildHTML(html);
 
-      var stageView1 = new StageView(null, {
-        el: document.getElementById('stage1')
+      var stageView1 = new StageView({
+        el: element
       });
 
       var layerView1 = document.getElementById('layer1')._ljView;
@@ -172,7 +117,7 @@ describe("LayerView", function() {
         if (null === expectedFrameName) {
           expect(layerView1.currentFrame).toBe(null);
         } else {
-          expect(layerView1.currentFrame.data.attributes.name).toBe(expectedFrameName);
+          expect(layerView1.currentFrame.name()).toBe(expectedFrameName);
         }
         done();
       }, 100);
@@ -250,10 +195,10 @@ describe("LayerView", function() {
   describe('can show to special frame name', function() {
 
     function check(html, specialFrameName, expectedFrameName, done) {
-      utilities.setHtml(html);
+      var element = utilities.appendChildHTML(html);
 
-      var stageView1 = new StageView(null, {
-        el: document.getElementById('stage1')
+      var stageView1 = new StageView({
+        el: element
       });
 
       var layerView1 = document.getElementById('layer1')._ljView;
@@ -263,7 +208,7 @@ describe("LayerView", function() {
         if (null === expectedFrameName) {
           expect(layerView1.currentFrame).toBe(null);
         } else {
-          expect(layerView1.currentFrame.data.attributes.name).toBe(expectedFrameName);
+          expect(layerView1.currentFrame.name()).toBe(expectedFrameName);
         }
         done();
       }, 100);
@@ -337,4 +282,80 @@ describe("LayerView", function() {
         "</div>", '!bottom', 'frame2', done);
     });
   });
-})
+
+  describe('event', function() {
+
+    describe('childrenChanged', function() {
+      it('when a node is added the _parseChildren should be called', function(done) {
+        var layerView = new LayerView({
+          el: utilities.appendChildHTML(require('./htmlelements/layer_nochildren_1.js'))
+        });
+
+        spyOn(layerView, '_parseChildren');
+
+        layerView.on('childrenChanged', function(options){
+          expect(options.addedNodes.length).toBe(1);
+          expect(layerView._parseChildren).toHaveBeenCalled();
+          done();
+        });
+
+        layerView.innerEl.innerHTML = require('./htmlelements/simple_frame_1.js');
+      });
+
+
+      it('when a node is removed the _parseChildren and updateChildren should be called from the state', function(done) {
+        var layerView = new LayerView({
+          el: utilities.appendChildHTML(require('./htmlelements/simple_frame_1.js'))
+        });
+
+        spyOn(state, 'updateChildren');
+        spyOn(layerView, '_parseChildren');
+
+        layerView.on('childrenChanged', function(options){
+          expect(options.removedNodes.length).toBe(1);
+          expect(state.updateChildren).toHaveBeenCalled();
+          expect(layerView._parseChildren).toHaveBeenCalled();
+          done();
+        });
+
+          layerView.innerEl.innerHTML = '';
+      });
+    });
+
+    describe('attributesChanged', function() {
+
+      it('when native-scroll is changed the switchScrolling method should be called', function(done) {
+        var layerView = new LayerView({
+          el: utilities.appendChildHTML(require('./htmlelements/simple_layer_1.js'))
+        });
+
+        spyOn(layerView, 'switchScrolling');
+
+        layerView.outerEl.setAttribute('lj-native-scroll', 'true');
+
+        setTimeout(function() {
+          expect(layerView.switchScrolling).toHaveBeenCalled();
+          done();
+        }, 100);
+      });
+    });
+
+    it('when layout-type is changed the switchLayout method should be called', function(done) {
+      var layerView = new LayerView({
+        el: utilities.appendChildHTML(require('./htmlelements/simple_layer_1.js'))
+      });
+
+      spyOn(layerView, 'switchLayout');
+
+      layerView.outerEl.setAttribute('lj-layout-type', 'canvas');
+
+      setTimeout(function() {
+        expect(layerView.switchLayout).toHaveBeenCalled();
+        done();
+      }, 100);
+    });
+  });
+
+
+
+});

@@ -12,7 +12,6 @@ utilities._beforeAll = function() {
 
   var head = document.head || document.getElementsByTagName('head')[0];
   var style = document.getElementById("wl-obj-css");
-
   if (!style) {
     style = document.createElement("style");
     style.id = "wl-obj-css";
@@ -52,7 +51,6 @@ utilities.beforeEach = function() {
 }
 
 utilities.afterEach = function() {
-  layerJS.repository.clear();
   layerJS.state.tree = {};
   layerJS.router.clearRouters();
   layerJS.router.previousUrl = undefined;
@@ -60,11 +58,13 @@ utilities.afterEach = function() {
   var sizeObserver = require("../../../src/framework/observer/sizeobserver.js");
   sizeObserver.views = {};
 
+  var domHelper = require("../../../src/framework/domhelpers.js");
+  delete document._ljUniqueHash;
   delete document._ljStateTree;
   delete document._ljStateFrameView;
 }
 
-utilities.setHtml = function(html) {
+utilities._getTestContainer = function() {
   var container = document.getElementById("testContainer");
 
   if (!container) {
@@ -72,7 +72,26 @@ utilities.setHtml = function(html) {
     container.id = "testContainer";
     document.body.appendChild(container);
   }
+  return container;
+}
+
+utilities.setHtml = function(html) {
+  var container = this._getTestContainer();
   container.innerHTML = html;
+}
+
+utilities.appendChildHTML = function(childHTML) {
+  var container = this._getTestContainer();
+  var temporary = document.createElement("div");
+  temporary.innerHTML = childHTML;
+
+  return utilities.appendChild(temporary.children[0]);
+}
+
+utilities.appendChild = function(child) {
+  var container = this._getTestContainer();
+  container.appendChild(child);
+  return child;
 }
 
 module.exports = utilities;

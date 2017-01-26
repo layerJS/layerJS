@@ -25,8 +25,15 @@ describe('TimeoutObserver', function() {
     it('can detect new attributes', function(done) {
       var element = document.createElement('div');
       var ok = false;
+      var oldValue;
+      var newValue;
       var callBack = function(param) {
-        ok = param.attributes.indexOf('something') != -1;
+        ok = param.attributes['something'] !== undefined;
+
+        if (ok){
+          oldValue = param.attributes['something'].oldValue;
+          newValue = param.attributes['something'].newValue;
+        }
       };
       var options = {
         attributes: true,
@@ -42,6 +49,8 @@ describe('TimeoutObserver', function() {
 
       setTimeout(function() {
         expect(ok).toBe(true);
+        expect(oldValue).not.toBeDefined();
+        expect(newValue).toBe('1');
         observer.stop();
         done();
       }, 55);
@@ -51,8 +60,15 @@ describe('TimeoutObserver', function() {
       var element = document.createElement('div');
       element.setAttribute('something', '1');
       var ok = false;
+      var oldValue;
+      var newValue;
       var callBack = function(param) {
-        ok = param.attributes.indexOf('something') != -1;
+        ok = param.attributes['something'] !== undefined;
+
+        if (ok){
+          oldValue = param.attributes['something'].oldValue;
+          newValue = param.attributes['something'].newValue;
+        }
       };
       var options = {
         attributes: true,
@@ -67,6 +83,8 @@ describe('TimeoutObserver', function() {
 
       setTimeout(function() {
         expect(ok).toBe(true);
+        expect(oldValue).toBe('1');
+        expect(newValue).toBe('2');
         observer.stop();
         done();
       }, 55);
@@ -76,8 +94,15 @@ describe('TimeoutObserver', function() {
       var element = document.createElement('div');
       element.setAttribute('something', '1');
       var ok = false;
+      var oldValue;
+      var newValue;
       var callBack = function(param) {
-        ok = param.attributes.indexOf('something') != -1;
+        ok = param.attributes['something'] !== undefined;
+
+        if (ok){
+          oldValue = param.attributes['something'].oldValue;
+          newValue = param.attributes['something'].newValue;
+        }
       };
       var options = {
         attributes: true,
@@ -92,6 +117,8 @@ describe('TimeoutObserver', function() {
 
       setTimeout(function() {
         expect(ok).toBe(true);
+        expect(oldValue).toBe('1');
+        expect(newValue).not.toBeDefined();
         observer.stop();
         done();
       }, 55);
@@ -123,8 +150,8 @@ describe('TimeoutObserver', function() {
         setTimeout(function(){
           expect(ok).toBe(true);
           done();
-        },55);
-      }, 55);
+        },60);
+      }, 60);
     });
 
 
@@ -157,10 +184,6 @@ describe('TimeoutObserver', function() {
         },55);
       }, 55);
     });
-
-
-
-
   });
 
   describe('childNodes', function() {

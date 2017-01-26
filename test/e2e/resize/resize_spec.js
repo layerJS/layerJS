@@ -62,7 +62,7 @@ describe('resize', function() {
   it('frame will keeps its vertical scroll position on a resize', function() {
     browser.get('resize/resize.html').then(function() {
       utilities.resizeWindow(600, 400);
-      utilities.scrollDown('layer', 1).then(function() {
+      utilities.scrollDown('layer', 10).then(function() {
         utilities.resizeWindow(500, 400);
         utilities.getScroll('layer').then(function(layer_scroll) {
           expect(layer_scroll.scrollTop).not.toBe(0);
@@ -71,13 +71,15 @@ describe('resize', function() {
     });
   });
 
+  // refactoring: add test that will detect a change in the fit-to attribute.
+
   it('frame will keeps its horizontal scroll position on a resize', function() {
     browser.get('resize/resize.html').then(function() {
       utilities.setAttributes('frame', {
         'data-lj-fit-to': 'height',
         'data-lj-start-position': 'left'
       }).then(function() {
-        utilities.resizeWindow(400, 600);
+        utilities.resizeWindow(400, 600); // refactor: should be removed
         utilities.scrollRight('layer', 1).then(function() {
           utilities.resizeWindow(400, 500);
           utilities.getScroll('layer').then(function(layer_scroll) {
@@ -116,6 +118,7 @@ describe('resize', function() {
         'data-lj-fit-to': 'height',
         'data-lj-start-position': 'left'
       }).then(function() {
+        utilities.resizeWindow(400, 400); // temporary fix, when attributes change, frame should be redraw
         protractor.promise.all([
           utilities.getBoundingClientRect('stage'),
           utilities.getBoundingClientRect('layer'),

@@ -1,11 +1,8 @@
 'use strict';
-var Kern = require('../kern/Kern.js');
 var pluginManager = require('./pluginmanager.js');
-var GroupView = require('./groupview.js');
-var Kern = require('../kern/Kern.js');
-var defaults = require('./defaults.js');
-var state = require('./state.js');
 var $ = require('./domhelpers.js');
+var BaseView = require('./baseview.js');
+var defaults = require('./defaults.js');
 
 /**
  * A View which can have child views
@@ -13,19 +10,53 @@ var $ = require('./domhelpers.js');
  * @param {object}        options
  * @extends GroupView
  */
-var FrameView = GroupView.extend({
-  constructor: function(dataModel, options) {
-    options = options || {};
+var FrameView = BaseView.extend({
+  constructor: function(options) {
+    this.renderRequiredAttributes = ['lj-fit-to', 'lj-elastic-left', 'lj-elastic-right', 'lj-elastic-top', 'lj-elastic-bottom', 'lj-width', 'lj-height', 'lj-x', 'lj-y', 'lj-scale-x', 'lj-scale-y', 'lj-rotation'];
     this.transformData = undefined;
-    GroupView.call(this, dataModel, Kern._extend({}, options, {
-      noRender: true
-    }));
 
-    if (!options.noRender && (options.forceRender || !options.el))
-      this.render();
+    BaseView.call(this, options);
+  },
+  /**
+   * Specifies what will need to be observed on the DOM element. (Attributes, Children and size)
+   */
+  startObserving: function() {
+    BaseView.prototype.observe.call(this, this.innerEl, {
+      attributes: true,
+      attributeFilter: ['name', 'lj-name', 'id'].concat(this.renderRequiredAttributes),
+      children: true,
+      size: true
+    });
+  },
+  /**
+   * Will add eventhandlers to specific events. It will handle a 'childrenChanged', 'sizeChanged' and
+   * 'attributesChanged' event.
+   */
+  registerEventHandlers: function() {
+    var that = this;
 
-    if (this.data.attributes.type === 'frame') {
-      state.registerView(this);
+    BaseView.prototype.registerEventHandlers.call(this);
+
+    this.on('sizeChanged', function() {
+      if (that.parent && !that.parent.inPreparation()) {
+        that.trigger('renderRequired', that.name());
+      }
+    });
+
+    this.on('attributesChanged', this.attributesChanged);
+  },
+  /**
+   * Will be invoked the an 'attributesChanged' event is triggered. Will trigger a 'renderRequired' when needed.
+   * @param {Object} attributes - a hash object the contains the changed attributes
+   */
+  attributesChanged: function(attributes) {
+    for (var i = 0; i < this.renderRequiredAttributes.length; i++) {
+      var attributeNames = Object.getOwnPropertyNames(attributes);
+      if (attributeNames.indexOf(this.renderRequiredAttributes[i]) !== -1 || attributeNames.indexOf('data-' + this.renderRequiredAttributes[i]) !== -1) {
+        this.transformData = undefined;
+        this.trigger('renderRequired', this.name());
+        break;
+      }
     }
   },
   /**
@@ -50,8 +81,7 @@ var FrameView = GroupView.extend({
     return d;
   },
   /**
-   * Returns the scroll data for this frame
-   *
+   * Returns the scroll data for this frame in form of a transition record with only the values for scroll positions and startPosition set.   *
    * @returns {object} contains the the startPosition, scrollX and scrollY
    */
   getScrollData: function() {
@@ -91,7 +121,7 @@ var FrameView = GroupView.extend({
     // indicate whether scrolling in x or y directions is active
     d.isScrollX = false;
     d.isScrollY = false;
-    switch (this.data.attributes.fitTo) {
+    switch (this.fitTo()) {
       case 'width':
         d.scale = stageWidth / d.frameWidth;
         d.isScrollY = true;
@@ -128,26 +158,26 @@ var FrameView = GroupView.extend({
         }
         break;
       case 'elastic-width':
-        if (stageWidth < d.frameWidth && stageWidth > d.frameWidth - this.data.attributes.elasticLeft - this.data.attributes.elasticRight) {
+        if (stageWidth < d.frameWidth && stageWidth > d.frameWidth - this.elasticLeft() - this.elasticRight()) {
           d.scale = 1;
-          d.shiftX = this.data.attributes.elasticLeft * (d.frameWidth - stageWidth) / (this.data.attributes.elasticLeft + this.data.attributes.elasticRight);
+          d.shiftX = this.elasticLeft() * (d.frameWidth - stageWidth) / (this.elasticLeft() + this.elasticRight());
         } else if (stageWidth > d.frameWidth) {
           d.scale = stageWidth / d.frameWidth;
         } else {
-          d.scale = stageWidth / (d.frameWidth - this.data.attributes.elasticLeft - this.data.attributes.elasticRight);
-          d.shiftX = this.data.attributes.elasticLeft;
+          d.scale = stageWidth / (d.frameWidth - this.elasticLeft() - this.elasticRight());
+          d.shiftX = this.elasticLeft();
         }
         d.isScrollY = true;
         break;
       case 'elastic-height':
-        if (stageHeight < d.frameHeight && stageHeight > d.frameHeight - this.data.attributes.elasticTop - this.data.attributes.elasticBottom) {
+        if (stageHeight < d.frameHeight && stageHeight > d.frameHeight - this.elasticTop() - this.elasticBottom()) {
           d.scale = 1;
-          d.shiftY = this.data.attributes.elasticTop * (d.frameHeight - stageHeight) / (this.data.attributes.elasticTop + this.data.attributes.elasticBottom);
+          d.shiftY = this.elasticTop() * (d.frameHeight - stageHeight) / (this.elasticTop() + this.elasticBottom());
         } else if (stageHeight > d.frameHeight) {
           d.scale = stageHeight / d.frameHeight;
         } else {
-          d.scale = stageHeight / (d.frameHeight - this.data.attributes.elasticTop - this.data.attributes.elasticBottom);
-          d.shiftY = this.data.attributes.elasticTop;
+          d.scale = stageHeight / (d.frameHeight - this.elasticTop() - this.elasticBottom());
+          d.shiftY = this.elasticTop();
         }
         d.isScrollY = true;
         break;
@@ -167,7 +197,7 @@ var FrameView = GroupView.extend({
         this.innerEl.style.height = d.frameHeight = stageHeight;
         break;
       default:
-        throw "unkown fitTo type '" + this.attributes.fitTo + "'";
+        throw "unkown fitTo type '" + this.fitTo() + "'";
     }
     // calculate maximum scroll positions (depend on frame and stage dimensions)
     // WARN: allow negative maxScroll for now
@@ -175,7 +205,7 @@ var FrameView = GroupView.extend({
     if (d.isScrollX) d.maxScrollX = d.frameWidth - stageWidth / d.scale;
     // define initial positioning
     // take startPosition from transition or from frame
-    d.startPosition = transitionStartPosition || this.data.attributes.startPosition;
+    d.startPosition = transitionStartPosition || this.startPosition();
     switch (d.startPosition) {
       case 'top':
         if (d.isScrollY) d.scrollY = 0;
@@ -241,7 +271,7 @@ var FrameView = GroupView.extend({
       d.isScrollY = false;
     }
     // disable scrolling if configured in frame
-    if (this.data.attributes.noScrolling) {
+    if (this.noScrolling()) {
       d.shiftX += d.scrollX;
       d.shiftY += d.scrollY;
       d.scrollX = 0;
@@ -274,13 +304,9 @@ var FrameView = GroupView.extend({
     return (this.transformData = d);
   }
 }, {
-  defaultProperties: Kern._extend({}, GroupView.defaultProperties, {
-    nativeScroll: true,
-    fitTo: 'width',
-    startPosition: 'top',
-    noScrolling: false,
+  defaultProperties: {
     type: 'frame'
-  }),
+  },
   identify: function(element) {
     var type = $.getAttributeLJ(element, 'type');
     return null !== type && type.toLowerCase() === FrameView.defaultProperties.type;
