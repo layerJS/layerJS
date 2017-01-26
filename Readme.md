@@ -15,8 +15,6 @@ layerJS can be included into your site from our CDN. Simply include the followin
 <script src="http://cdn.layerjs.org/libs/layerjs/layerjs-0.3.0.js"></script>
 <link href="http://cdn.layerjs.org/libs/layerjs/layerjs-0.3.0.css" type="text/css" rel="stylesheet" />
 ```
-If you would like to use the libraries locally, you can download the pre-build archives in the
-[releases](https://github.com/layerJS/layerJS/releases) section. Extract the zip file. In your HTML, link the layerjs.js and the layerjs.css.
 
 In layerJS you will define stages, layers in frame simply by adding HTML-attributes to `<div>`s. Here is an example structure:
 ```
