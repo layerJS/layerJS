@@ -58,7 +58,7 @@ var Router = Kern.EventManager.extend({
     // register link listener
     $.addDelegtedListener(this.rootElement, 'click', 'a', function(event) {
 
-      if (event.nonlayerJS !== true) {
+      if (event.nonlayerJS !== true && this.href !== '') {
         var href = this.href;
 
         if (-1 !== href.indexOf('#')) {
