@@ -1,0 +1,35 @@
+<html>
+
+<head>
+  <meta name="description" content="simple slider; medium.com example">
+  <script src="layerjs.js"></script>
+  <link href="layerjs.css" type="text/css" rel="stylesheet" />
+  <link href="your-style.css" type="text/css" rel="stylesheet" />
+</head>
+
+<body>
+  <div lj-type="stage">
+    <div lj-type="layer" lj-name="slider" lj-default-frame="frame1" lj-native-scroll="false">
+      <div lj-type="frame" lj-name="frame1" lj-fit-to="cover" lj-no-scrolling="true" lj-start-position="center" lj-neighbors.r="frame2">
+        <img src="img/samples1a.png">
+      </div>
+      <div lj-type="frame" lj-name="frame2" lj-fit-to="cover" lj-no-scrolling="true" lj-start-position="center" lj-neighbors.l="frame1" lj-neighbors.r="frame3">
+        <img src="img/samples1b.png">
+      </div>
+      <div lj-type="frame" lj-name="frame3" lj-fit-to="cover" lj-no-scrolling="true" lj-start-position="center" lj-neighbors.l="frame2">
+        <img src="img/samples1c.png">
+      </div>
+    </div>
+    <div lj-type="layer" lj-native-scroll="false" id="arrows">
+      <div lj-type="frame" lj-fit-to="width" lj-start-position="center" lj-no-scrolling="true">
+        <a class="btn-left btn" href="#slider.!prev?p=right">&lt;</a>
+        <a class="btn-right btn" href="#slider.!next">&gt;</a>
+      </div>
+    </div>
+  </div>
+  <script>
+    layerJS.init();
+  </script>
+</body>
+
+</html>

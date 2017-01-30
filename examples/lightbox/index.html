@@ -1,0 +1,43 @@
+<html>
+
+<head>
+  <meta name="description" content="lightbox example">
+  <script src="layerjs.js"></script>
+  <link href="layerjs.css" type="text/css" rel="stylesheet" />
+  <link href="your-style.css" type="text/css" rel="stylesheet" />
+</head>
+
+<body lj-type="stage">
+  <div lj-type="layer" lj-default-frame="frame1">
+    <div lj-type="frame" lj-name="frame1" lj-fit-to="responsive-width">
+      <p>Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea
+        takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores
+        et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.
+      </p>
+      <a href="#box-layer.box1?p=fade&t=0.2s">click here ...</a>
+      <p>Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea
+        takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores
+        et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.
+      </p>
+    </div>
+  </div>
+  <div lj-type="layer" lj-default-frame="!none" lj-name="box-layer" lj-native-scroll="false">
+    <div lj-type="frame" lj-name="box1" lj-fit-to="responsive" class="modal">
+      <div class="modal-inner">
+        <div>
+          <a href="#box-layer.!none?t=0.2s&p=fade" class="close">&#x2573;</a>
+        </div>
+
+        <h1>A modal</h1>
+        <p>
+          Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat
+        </p>
+      </div>
+    </div>
+  </div>
+  <script>
+    layerJS.init();
+  </script>
+</body>
+
+</html>

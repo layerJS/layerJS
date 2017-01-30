@@ -8,3 +8,5 @@ dist
 .DS_Store
 examples/*/layerjs.js
 examples/*/layerjs.css
+*_pgbackup*
+pinegrow.json

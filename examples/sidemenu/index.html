@@ -1,0 +1,45 @@
+<html>
+  <head>
+    <meta name="description" content="sidemenu 1 layer">
+    <script src="layerjs.js"></script>
+    <link href="layerjs.css" type="text/css" rel="stylesheet" />
+    <link href="your-style.css" type="text/css" rel="stylesheet" />
+  </head>
+  <body>
+    <div lj-type="stage">
+      <div lj-type="layer" lj-default-frame="frame1">
+        <div lj-type="frame" lj-name="frame1" class="content" lj-fit-to="responsive-width">
+          <p>  Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.</p>
+          <p>  Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.</p>
+        </div>
+      </div>
+      <div lj-type="layer" lj-name="menulayer" lj-native-scroll="false">
+        <div lj-type="frame" lj-name="hmenu" class="nav" lj-fit-to="responsive-width">
+          <div class="nav-hor">
+            <a href="#menu?p=slideOverRightFade&t=0.5s">&#x2630; Menu</a>
+          </div>
+        </div>
+        <div lj-type="frame" lj-name="menu" class="nav menu" lj-fit-to="responsive-height" lj-neighbors.r="hmenu">
+          <a href="#hmenu?t=0.5s&p=slideAwayLeftFade" class="close">&#x2573;</a>
+          <ul class="nav-list">
+            <li class="nav-item">
+              Menu 1
+</li>
+            <li class="nav-item">
+              Menu 2
+</li>
+            <li class="nav-item">
+              Menu 3
+</li>
+            <li class="nav-item">
+              Menu 4
+</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <script>
+    layerJS.init();
+  </script>
+  </body>
+</html>
