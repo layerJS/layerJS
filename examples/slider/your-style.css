@@ -1,48 +1,43 @@
-
-
-[lj-type="stage"]
-{
+[lj-type="stage"] {
     width: 100%;
     height: 100%;
     max-width: 800px;
     margin: auto;
 }
 
-.btn-left
-{
+.btn-left {
     float: left;
 }
 
-body
-{
+body {
     padding: 0px;
     margin: 0px;
 }
 
-#arrows
-{
+#arrows {
     width: 100%;
 }
 
-#arrows>div
-{
+#arrows>div {
     width: 100%;
     pointer-events: none;
 }
 
-.btn-right
-{
+.btn-right {
     float: right;
 }
 
-.btn
-{
+.btn {
+    background-color: rgba(128, 128, 128, 0.5);
     font-size: 32px;
     font-weight: bold;
     text-decoration: none;
     color: black;
     padding: 20px;
+    border-radius: 50%;
+    width: 30px;
     pointer-events: all;
+    height: 30px;
+    line-height: 30px;
+    text-align: center;
 }
-
-
