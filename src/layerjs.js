@@ -38,3 +38,4 @@ layerJS.init = function() {
     // layerJS.router.cache = true;
   });
 };
+console.log('*** layerJS *** checkout http://layerjs.org *** happy to help you: developers@layerjs.org ***');
