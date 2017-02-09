@@ -39,8 +39,6 @@ describe('staticRouter', function() {
       el: document.getElementById('stage1')
     });
 
-    state.buildTree();
-
     var promise = staticRouter.handle(url, {});
 
     promise.then(function(result) {

@@ -26,21 +26,6 @@ describe("FrameView", function() {
     return document.createElement('div');
   }, false);
 
-  it('will register itself with the state', function() {
-    var element = utilities.appendChildHTML(require('./htmlelements/simple_frame_1.js'));
-    var frameView = new FrameView({
-      el: element
-    });
-    var found = false;
-    var frameViews = state._getRegisteredFrameViews(document);
-
-    for (var i = 0; i < frameViews.length; i++) {
-      found = frameView === frameViews[i];
-    }
-
-    expect(found).toBe(true);
-  });
-
   describe('event', function() {
 
     describe('sizeChanged', function() {
