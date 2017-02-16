@@ -183,80 +183,107 @@ var FrameView = BaseView.extend({
         break;
       case 'responsive':
         d.scale = 1;
-        this.innerEl.style.width = d.frameWidth = stageWidth;
-        this.innerEl.style.height = d.frameHeight = stageHeight;
+        if (d.frameWidth !== stageWidth) {
+          // FIXME: if width:100% that wouldn't be necessary though. or would loadFrame already make sure that 100% is applied??
+          this.innerEl.style.width = d.frameWidth = stageWidth;
+          // FIXME: Afterward the height of the frame most likely changed which is not reflected in the transformData
+        }
+        if (d.frameHeight !== stageHeight) {
+          this.innerEl.style.height = d.frameHeight = stageHeight;
+        }
         break;
       case 'responsive-width':
         d.scale = 1;
         d.isScrollY = true;
-        this.innerEl.style.width = d.frameWidth = stageWidth;
+        if (d.frameWidth !== stageWidth) {
+          this.innerEl.style.width = d.frameWidth = stageWidth;
+        }
         break;
       case 'responsive-height':
         d.scale = 1;
         d.isScrollX = true;
-        this.innerEl.style.height = d.frameHeight = stageHeight;
+        if (d.frameHeight !== stageHeight) {
+          this.innerEl.style.height = d.frameHeight = stageHeight;
+        }
         break;
       default:
         throw "unkown fitTo type '" + this.fitTo() + "'";
     }
+    // calculate actual frame width height in stage space
+    d.width = d.frameWidth * d.scale;
+    d.height = d.frameHeight * d.scale;
     // calculate maximum scroll positions (depend on frame and stage dimensions)
     // WARN: allow negative maxScroll for now
+    d.maxScrollY = 0;
+    d.maxScrollX = 0;
     if (d.isScrollY) d.maxScrollY = d.frameHeight - stageHeight / d.scale;
     if (d.isScrollX) d.maxScrollX = d.frameWidth - stageWidth / d.scale;
     // define initial positioning
     // take startPosition from transition or from frame
     d.startPosition = transitionStartPosition || this.startPosition();
-    switch (d.startPosition) {
-      case 'top':
-        if (d.isScrollY) d.scrollY = 0;
-        break;
-      case 'bottom':
-        if (d.isScrollY) {
-          d.scrollY = d.maxScrollY;
-          if (d.scrollY < 0) {
-            d.shiftY = d.scrollY;
-            d.scrollY = 0;
-            // FIXME disable isScrollY????
+    var partials = ({ // get startPositions for x and y direction from generic startPosition string
+      top: ['top', 'center'],
+      bottom: ['bottom', 'center'],
+      left: ['left', 'middle'],
+      right: ['right', 'middle'],
+      'top-left': ['top', 'left'],
+      'top-right': ['top', 'right'],
+      'bottom-left': ['bottom', 'left'],
+      'bottom-right': ['bottom', 'right'],
+      'middle-center': ['middle', 'center'],
+      middle: ['middle', 'center'],
+      center: ['middle', 'center'],
+    })[d.startPosition];
+    for (var p = 0; p < partials.length; p++) {
+      switch (partials[p]) {
+        case 'top':
+          if (d.isScrollY) d.scrollY = 0;
+          break;
+        case 'bottom':
+          if (d.isScrollY) {
+            d.scrollY = d.maxScrollY;
+            if (d.scrollY < 0) {
+              d.shiftY = d.scrollY;
+              d.scrollY = 0;
+            }
           }
-        }
-        break;
-      case 'left':
-        if (d.isScrollX) d.scrollX = 0;
-        break;
-      case 'right':
-        if (d.isScrollX) {
-          d.scrollX = d.maxScrollX;
-          if (d.scrollX < 0) {
-            d.shiftX = d.scrollX;
-            d.scrollX = 0;
+          break;
+        case 'left':
+          if (d.isScrollX) d.scrollX = 0;
+          break;
+        case 'right':
+          if (d.isScrollX) {
+            d.scrollX = d.maxScrollX;
+            if (d.scrollX < 0) {
+              d.shiftX = d.scrollX;
+              d.scrollX = 0;
+            }
           }
-        }
-        break;
-      case 'middle': // middle and center act the same
-      case 'center':
-        if (d.isScrollX) {
-          d.scrollX = (d.frameWidth - stageWidth / d.scale) / 2;
-          if (d.scrollX < 0) {
-            d.shiftX = d.scrollX;
-            d.scrollX = 0;
+          break;
+        case 'center':
+          if (d.isScrollX) {
+            d.scrollX = (d.frameWidth - stageWidth / d.scale) / 2;
+            if (d.scrollX < 0) {
+              d.shiftX = d.scrollX;
+              d.scrollX = 0;
+            }
           }
-        }
-        if (d.isScrollY) {
-          d.scrollY = (d.frameHeight - stageHeight / d.scale) / 2;
-          if (d.scrollY < 0) {
-            d.shiftY = d.scrollY;
-            d.scrollY = 0;
+          break;
+        case 'middle':
+          if (d.isScrollY) {
+            d.scrollY = (d.frameHeight - stageHeight / d.scale) / 2;
+            if (d.scrollY < 0) {
+              d.shiftY = d.scrollY;
+              d.scrollY = 0;
+            }
           }
-        }
-        break;
-      default:
-        if (d.isScrollX) d.scrollX = 0;
-        if (d.isScrollY) d.scrollY = 0;
-        break;
+          break;
+        default:
+          if (d.isScrollX) d.scrollX = 0;
+          if (d.isScrollY) d.scrollY = 0;
+          break;
+      }
     }
-    // calculate actual frame width height in stage space
-    d.width = d.frameWidth * d.scale;
-    d.height = d.frameHeight * d.scale;
     // disable scrolling if maxscroll < 0
     if (d.maxScrollX <= 0) {
       d.shiftX += d.scrollX;
@@ -280,19 +307,6 @@ var FrameView = BaseView.extend({
       d.isScrollY = false;
       d.maxScrollX = 0;
       d.maxScrollY = 0;
-      // } else if (transition) {
-      //   // apply transition scroll information if available
-      //   // support transition.scroll as direction ambivalent scroll position
-      //   if (d.isScrollX) {
-      //     if (transition.scroll !== undefined) d.scrollX = transition.scroll * d.scale;
-      //     if (transition.scrollX !== undefined) d.scrollX = transition.scrollX * d.scale;
-      //     if (d.scrollX > d.maxScrollX) d.scrollX = d.maxScrollX;
-      //   }
-      //   if (d.isScrollY) {
-      //     if (transition.scroll !== undefined) d.scrollY = transition.scroll * d.scale;
-      //     if (transition.scrollY !== undefined) d.scrollY = transition.scrollY * d.scale;
-      //     if (d.scrollY > d.maxScrollY) d.scrollY = d.maxScrollY;
-      //   }
     }
 
     d.shiftX *= d.scale;
