@@ -158,9 +158,9 @@ var FrameView = BaseView.extend({
         }
         break;
       case 'elastic-width':
-        if (stageWidth < d.frameWidth && stageWidth > d.frameWidth - this.elasticLeft() - this.elasticRight()) {
+        if (stageWidth <= d.frameWidth && stageWidth >= d.frameWidth - this.elasticLeft() - this.elasticRight()) {
           d.scale = 1;
-          d.shiftX = this.elasticLeft() * (d.frameWidth - stageWidth) / (this.elasticLeft() + this.elasticRight());
+          d.shiftX = this.elasticLeft() * (d.frameWidth - stageWidth) / (parseInt(this.elasticLeft()) + parseInt(this.elasticRight()));
         } else if (stageWidth > d.frameWidth) {
           d.scale = stageWidth / d.frameWidth;
         } else {
@@ -170,9 +170,9 @@ var FrameView = BaseView.extend({
         d.isScrollY = true;
         break;
       case 'elastic-height':
-        if (stageHeight < d.frameHeight && stageHeight > d.frameHeight - this.elasticTop() - this.elasticBottom()) {
+        if (stageHeight <= d.frameHeight && stageHeight >= d.frameHeight - this.elasticTop() - this.elasticBottom()) {
           d.scale = 1;
-          d.shiftY = this.elasticTop() * (d.frameHeight - stageHeight) / (this.elasticTop() + this.elasticBottom());
+          d.shiftY = this.elasticTop() * (d.frameHeight - stageHeight) / (parseInt(this.elasticTop()) + parseInt(this.elasticBottom()));
         } else if (stageHeight > d.frameHeight) {
           d.scale = stageHeight / d.frameHeight;
         } else {
