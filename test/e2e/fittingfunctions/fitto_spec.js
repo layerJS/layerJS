@@ -232,8 +232,10 @@ describe("Fit to", function() {
         expect(layer_dimensions.height).not.toBe(frame_dimensions.height);
         expect(stage_dimensions.width).not.toBe(frame_dimensions.width);
         expect(layer_dimensions.width).not.toBe(frame_dimensions.width);
+        expect(frame_dimensions.width).toBe(550);
+        expect(frame_scale = 1).toBeTruthy();
         expect(frame_scale).toBe(1);
-        expect(frame_dimensions.left).toBeWithinRange(-1, 0);
+        expect(frame_dimensions.left).toBe(-25);
       });
     });
   });
@@ -276,10 +278,9 @@ describe("Fit to", function() {
 
         expect(stage_dimensions.height).not.toBe(frame_dimensions.height);
         expect(layer_dimensions.height).not.toBe(frame_dimensions.height);
-        expect(stage_dimensions.width).not.toBe(frame_dimensions.width);
-        expect(frame_dimensions.width).toBe(625);
+        expect(stage_dimensions.width).toBe(frame_dimensions.width);
         expect(frame_scale > 1).toBeTruthy();
-        expect(frame_dimensions.left).toBe(-62.5);
+        expect(frame_dimensions.left).toBe(0);
       });
     });
   });
