@@ -30,7 +30,8 @@ var LayerView = BaseView.extend({
 
     this._inPreparation = false; // indicates that the transition is in preparation
     this._inTransition = false; // indicates that transition is still being animated
-    this.transitionID = 1; // counts up every call of transitionTo();
+    this._transitionIDcounter = 1; // counts up every call of transitionTo()
+    this.transitionID = 1; // in principle the same as _transitionIDcounter, but may be reset is transitionTo is not actually executing a transition
     this.scrollID = 1; // counts up every solitary scrollTo call (if duration>0);
     this.currentFrame = null;
 
@@ -281,6 +282,9 @@ var LayerView = BaseView.extend({
     scrollY = (scrollY !== undefined ? scrollY : (transition.scrollY !== undefined ? transition.scrollY : tfd.scrollY || 0));
     this.currentTransform = this._transformer.getScrollTransform(tfd, scrollX, scrollY, true);
     var d = transition && transition.duration && $.timeToMS(transition.duration);
+    if (this.inTransition()) { // make scroll transition time at least as long as ongoing transition;
+      d = Math.max(this.getRemainingTransitionTime(), d || 0);
+    }
     var myScrollID;
     if (d) { // we have a transition time (duration)
       this.inTransition(true, d);
@@ -454,14 +458,20 @@ var LayerView = BaseView.extend({
     if (frame && null !== frame) {
       framename = frame.name();
     }
-
+    var wasInTransition = this.inTransition();
     that.trigger('beforeTransition', framename);
-    transition.transitionID = ++this.transitionID; // inc transition ID and save new ID into transition record
+    transition.transitionID = this.transitionID = ++this._transitionIDcounter; // inc transition ID and save new ID into transition record
     this.inPreparation(true, $.timeToMS(transition.duration));
     this.inTransition(true, $.timeToMS(transition.duration));
 
+    if (that.currentFrame === frame && wasInTransition) {
+      // this is not a valid transition -> so the transitionend handlers of the previous transition must be called (if in transition currently)
+      this.transitionID--; // note: this will not update _inTransitionIDcounter, so the next transition will not conflict with this invalid transition in the inTransition() setTimeout handlers.
+    }
+
     // make sure frame is there such that we can calculate dimensions and transform data
     return this._layout.loadFrame(frame).then(function() {
+      that.inPreparation(false);
       // calculate the layer transform for the target frame. Note: this will automatically consider native scrolling
       // getScrollIntermediateTransform will not change the current native scroll position but will calculate
       // a compensatory transform for the target scroll position.
@@ -473,23 +483,26 @@ var LayerView = BaseView.extend({
         // don't do a transition, just execute Promise
         var p = new Kern.Promise();
         p.resolve();
-        that.inPreparation(false);
         that.trigger('transitionStarted', framename);
         if (targetFrameTransformData.scrollX !== currentScroll.scrollX || targetFrameTransformData.scrollY !== currentScroll.scrollY) {
           return that.scrollTo(targetFrameTransformData.scrollX, targetFrameTransformData.scrollY, transition).then(function() {
-            that.trigger('transitionFinished', framename);
-            that.inTransition(false);
+            if (!wasInTransition) {
+              that.trigger('transitionFinished', framename);
+              that.inTransition(false);
+            }
           });
         } else {
-          that.trigger('transitionFinished', framename);
-          that.inTransition(false);
+          if (!wasInTransition) {
+            that.trigger('transitionFinished', framename);
+            that.inTransition(false);
+          }
+          p.resolve();
         }
         return p;
       }
 
 
       var layoutPromise = that._layout.transitionTo(frame, transition, targetFrameTransformData, targetTransform).then(function() {
-        that.inPreparation(false);
         // is this still the active transition?
         if (transition.transitionID === that.transitionID) {
           // this will now calculate the currect layer transform and set up scroll positions in native scroll
