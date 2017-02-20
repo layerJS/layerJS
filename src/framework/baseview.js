@@ -456,7 +456,7 @@ var BaseView = DOMObserver.extend({
    * @return {string} the value of the lj-layout-type attribute
    */
   layoutType: function() {
-    return this.getAttributeLJ('layout-type') || 'slide';
+    return this.getAttributeLJ('layout-type') || this.getAttributeLJ('layout') || 'slide';
   },
   /**
    * Will return the value of the lj-default-frame attribute on the outer element.
