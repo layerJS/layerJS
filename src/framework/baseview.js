@@ -413,7 +413,7 @@ var BaseView = DOMObserver.extend({
    * @return {string} the value of the lj-start-position attribute
    */
   startPosition: function() {
-    return this.getAttributeLJ('start-position') || 'top';
+    return this.getAttributeLJ('start-position') || 'top-left';
   },
   /**
    * Will return the value of the lj-no-scrolling attribute on the outer element.
