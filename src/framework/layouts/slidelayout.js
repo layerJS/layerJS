@@ -107,8 +107,10 @@ var SlideLayout = LayerLayout.extend({
           });
         });
       } else {
-        finished.resolve();
+        finished.resolve(); // FIXME: this would be only called if currentFrame and new frame are null ?????
       }
+      // notify listeners that we have all frames set up for the pre position
+      that.layer.trigger("transitionPrepared", frame ? frame.name() : '!none');
 
       that._applyTransform(frame, that._currentFrameTransform = that._calcFrameTransform(targetFrameTransformData), targetTransform, {
         transition: transition.duration,

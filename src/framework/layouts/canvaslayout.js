@@ -90,6 +90,8 @@ var CanvasLayout = LayerLayout.extend({
       }
       finished.resolve();
     });
+    // notify listeners that we have all frames set up for the pre position
+    that.layer.trigger("transitionPrepared", frame.name());
 
     if (null !== frame) {
       this._reverseTransform = this._calculateReverseTransform(frame, targetFrameTransformData);
