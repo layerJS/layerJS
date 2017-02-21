@@ -1,0 +1,35 @@
+<html>
+
+<head>
+  <title>Simple Example</title>
+  <link rel="stylesheet" type="text/css" href="../../../../../src/css/layerjs.css">
+</head>
+<style>
+  body {
+    margin: 0;
+  }
+
+  #stage {
+    margin: 0;
+  }
+
+  #layer {
+    width: 100%;
+    height: 100%;
+  }
+</style>
+
+<body>
+  <div id="stage" data-lj-type="stage" style="height:500px; width:500px">
+    <div id="layer" data-lj-type="layer" data-lj-default-frame="frame" data-lj-native-scroll="false">
+      <div id="frame" data-lj-type="frame" data-lj-start-position="center" data-lj-name="frame" data-lj-fit-to="fixed" style="width:200px;height:200px;background-color:red">
+      </div>
+    </div>
+  </div>
+  <script src="../../../../../dist/layerjs.js"></script>
+  <script>
+    layerJS.init();
+  </script>
+</body>
+
+</html>
