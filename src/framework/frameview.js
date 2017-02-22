@@ -12,7 +12,7 @@ var defaults = require('./defaults.js');
  */
 var FrameView = BaseView.extend({
   constructor: function(options) {
-    this.renderRequiredAttributes = ['lj-fit-to', 'lj-elastic-left', 'lj-elastic-right', 'lj-elastic-top', 'lj-elastic-bottom', 'lj-width', 'lj-height', 'lj-x', 'lj-y', 'lj-scale-x', 'lj-scale-y', 'lj-rotation',, 'lj-start-position'];
+    this.renderRequiredAttributes = ['lj-fit-to', 'lj-elastic-left', 'lj-elastic-right', 'lj-elastic-top', 'lj-elastic-bottom', 'lj-width', 'lj-height', 'lj-x', 'lj-y', 'lj-scale-x', 'lj-scale-y', 'lj-rotation', 'lj-start-position'];
     this.transformData = undefined;
 
     BaseView.call(this, options);
