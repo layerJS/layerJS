@@ -94,15 +94,13 @@ var Router = Kern.EventManager.extend({
           href = href.substring(0, href.indexOf('#') + 1) + states.join(';');
         }
 
-        event.preventDefault();
-        event.stopPropagation();
+        event.preventDefault();      
 
         that._navigate(href, true).then(function(result) {
           if (!result) {
-            // if the url can not be resolve, re-dispatch event but add custom property to ignore in layerjs
-            var new_event = new event.constructor(event.type, event);
-            new_event.nonlayerJS = true;
-            event.target.dispatchEvent(new_event);
+            setTimeout(function() {
+              window.location.href = href;
+            }, 1);
           }
         });
       }
