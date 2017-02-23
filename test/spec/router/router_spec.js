@@ -398,7 +398,7 @@ describe('router', function() {
     layerJS.router._navigate.and.callThrough();
   });
 
-  it('will append the layer path to a local special frame name', function() {
+  it('will append the path to the frame when using a local special frame name', function() {
     var html = "<div data-lj-type='stage' id='stage1'>" +
       "<div data-lj-type='layer' id='layer1' data-lj-default-frame='frame1'>" +
       "<div data-lj-type='frame' id='frame1' data-lj-name='frame1'><a id='next' href='#!next'>next</a></div>" +
@@ -429,6 +429,40 @@ describe('router', function() {
     var element = document.getElementById('next');
     element.click();
 
-    expect(resultUrl).toBe('/#stage1.layer1.!next');
+    expect(resultUrl).toBe('/#stage1.layer1.frame2');
+  });
+
+  it('will append the framename when using a layerpath with a special frame name', function() {
+    var html = "<div data-lj-type='stage' id='stage1'>" +
+      "<div data-lj-type='layer' id='layer1' data-lj-default-frame='frame1'>" +
+      "<div data-lj-type='frame' id='frame1' data-lj-name='frame1'><a id='next' href='#stage1.layer1.!next'>next</a></div>" +
+      "<div data-lj-type='frame' id='frame2' data-lj-name='frame2'></div>" +
+      "</div>" +
+      "</div>";
+
+    utilities.setHtml(html);
+
+    new StageView({
+      el: document.getElementById('stage1')
+    });
+
+    var resultUrl;
+    var dummyRouter = {
+      handle: function(url) {
+        var promise = new Kern.Promise();
+        resultUrl = url;
+        promise.resolve({
+          handled: true,
+          stop: true
+        });
+        return promise;
+      }
+    };
+
+    layerJS.router.addRouter(dummyRouter);
+    var element = document.getElementById('next');
+    element.click();
+
+    expect(resultUrl).toBe('/#stage1.layer1.frame2');
   });
 });

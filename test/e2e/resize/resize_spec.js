@@ -80,7 +80,7 @@ describe('resize', function() {
         'data-lj-start-position': 'left'
       }).then(function() {
         utilities.resizeWindow(400, 600); // refactor: should be removed
-        utilities.scrollRight('layer', 1).then(function() {
+        utilities.scrollRight('layer', 10).then(function() {
           utilities.resizeWindow(400, 500);
           utilities.getScroll('layer').then(function(layer_scroll) {
             expect(layer_scroll.scrollLeft).not.toBe(0);

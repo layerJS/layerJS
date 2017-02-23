@@ -14,62 +14,6 @@ var State = Kern.Base.extend({
   constructor: function() {
     this.viewTypes = ['stage', 'layer', 'frame'];
   },
-  /**
-   * Will add layerjs objects to it's parent structure state
-   *
-   * @param {object} Represents the parent
-   * @param {array} The dom children of the parent
-   */
-  _buildTree: function(parent, children) {
-    for (var i = 0; i < children.length; i++) {
-      var child = children[i];
-      if (child.nodeType !== 1) {
-        continue;
-      }
-
-      var childView = child._ljView;
-
-      if (undefined === childView) {
-        this._buildTree(parent, child.children);
-      } else if (-1 !== this.viewTypes.indexOf(childView.type())) {
-        var name = childView.name();
-        parent.children[name] = {
-          view: childView,
-          children: {}
-        };
-
-        if (childView.type() === 'layer') {
-          childView.on('transitionStarted', this._transitionToEvent(parent.children[name]));
-        }
-
-        if (parent.view && parent.view.type() === 'layer' && parent.children[name].view.type() === 'frame') {
-          parent.children[name].active = parent.view.currentFrame === parent.children[name].view;
-        }
-        this._buildTree(parent.children[name], childView.innerEl.children);
-      }
-    }
-
-    if (parent.view && parent.view.type() === 'layer' && parent.view.currentFrame === null) {
-      parent[0].active = true;
-    }
-
-  },
-  /**
-   * Will build a tree structure to represent the layerjs objects in the current document
-   *
-   * @param {object} Represents the options that con be passed into
-   */
-  buildTree: function(options) {
-    options = options || {
-      document: document
-    };
-
-    if (undefined === options.document) {
-      options.document = document;
-    }
-
-    this._buildTree(this._getTree(options.document), options.document.children);
-  },
   updateChildren: function(view, addedNodes, removedNodes) {
 
     var viewState = view.outerEl._state;
@@ -153,27 +97,6 @@ var State = Kern.Base.extend({
     return currentState;
   },
   /**
-   * Will build a tree structure to represent the layerjs objects in the current document
-   * @param {object} Represents the options that con be passed into
-   */
-  buildTree2: function(options) {
-    options = options || {
-      document: document
-    };
-
-    if (undefined === options.document) {
-      options.document = document;
-    }
-
-    var frameViews = this._getRegisteredFrameViews(options.document);
-
-    for (var i = 0; i < frameViews.length; i++) {
-      if (frameViews[i].document.body.contains(frameViews[i].innerEl)) {
-        this.buildParent(frameViews[i].innerEl, options.document);
-      }
-    }
-  },
-  /**
    * Will return all paths to active frames
    * @param {object} the document who's state will be exported
    * @returns {array} An array of strings pointing to active frames within the document
@@ -194,11 +117,6 @@ var State = Kern.Base.extend({
    * @param {object} a layerJSView
    */
   registerView: function(view) {
-    if (view.type() === 'frame') {
-      var frameViews = this._getRegisteredFrameViews(view.document);
-      frameViews.push(view);
-    }
-
     // only add to state structure if the frame is really shown (attached to DOM)
     if (view.document.body.contains(view.outerEl)) {
       this.buildParent(view.outerEl, view.document);
@@ -447,22 +365,6 @@ var State = Kern.Base.extend({
       doc[key] = {
         children: {}
       };
-    }
-
-    return doc[key];
-  },
-  /**
-   * Will return all registered frameViews in a document
-   *
-   * @param {object} a document object
-   * @returns {array} an array of frameViews
-   */
-  _getRegisteredFrameViews: function(ownerDocument) {
-    var doc = ownerDocument || document;
-    var key = '_ljStateFrameView';
-
-    if (!doc.hasOwnProperty(key)) {
-      doc[key] = [];
     }
 
     return doc[key];

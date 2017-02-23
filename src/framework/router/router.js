@@ -69,16 +69,22 @@ var Router = Kern.EventManager.extend({
 
           for (var index = 0; index < states.length; index++) {
             for (var specialFrame in defaults.specialFrames) {
-              // local hash has been found
-              if (states[index] === defaults.specialFrames[specialFrame]) {
-                //find parent layer view
-                if (!layerView) {
+              if (defaults.specialFrames.hasOwnProperty(specialFrame)) {
+                // local hash has been found
+                if (states[index] === defaults.specialFrames[specialFrame]) {
+                  //find parent layer view
                   layerView = domhelpers.findParentViewOfType(this, 'layer');
+                } else if (states[index].indexOf(defaults.specialFrames[specialFrame]) !== -1) {
+                  // path the contains a special frame name
+                  var layerPath = states[index].replace('.' + defaults.specialFrames[specialFrame], '');
+                  layerView = state.getViewForPath(layerPath);
                 }
 
                 if (layerView) {
                   // get path for layer view and append special frame name
-                  states[index] = state.getPathForView(layerView) + '.' + defaults.specialFrames[specialFrame];
+                  var frameView = layerView._getFrame(defaults.specialFrames[specialFrame]);
+                  var frameName = null !== frameView ? frameView.name() : defaults.specialFrames[specialFrame];
+                  states[index] = state.getPathForView(layerView) + '.' + frameName;
                 }
               }
             }
