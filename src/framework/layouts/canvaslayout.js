@@ -2,6 +2,7 @@
 var Kern = require('../../kern/Kern.js');
 var layoutManager = require('../layoutmanager.js');
 var LayerLayout = require('./layerlayout.js');
+var defaults = require('../defaults.js');
 
 var CanvasLayout = LayerLayout.extend({
   /**
@@ -91,7 +92,7 @@ var CanvasLayout = LayerLayout.extend({
       finished.resolve();
     });
     // notify listeners that we have all frames set up for the pre position
-    that.layer.trigger("transitionPrepared", frame.name());
+    that.layer.trigger("transitionPrepared", frame ? frame.name() : defaults.specialFrames.none);
 
     if (null !== frame) {
       this._reverseTransform = this._calculateReverseTransform(frame, targetFrameTransformData);

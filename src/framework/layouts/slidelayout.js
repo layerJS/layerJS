@@ -3,6 +3,7 @@ var $ = require('../domhelpers.js');
 var Kern = require('../../kern/Kern.js');
 var layoutManager = require('../layoutmanager.js');
 var LayerLayout = require('./layerlayout.js');
+var defaults = require('../defaults.js');
 
 var SlideLayout = LayerLayout.extend({
   /**
@@ -110,7 +111,7 @@ var SlideLayout = LayerLayout.extend({
         finished.resolve(); // FIXME: this would be only called if currentFrame and new frame are null ?????
       }
       // notify listeners that we have all frames set up for the pre position
-      that.layer.trigger("transitionPrepared", frame ? frame.name() : '!none');
+      that.layer.trigger("transitionPrepared", frame ? frame.name() : defaults.specialFrames.none);
 
       that._applyTransform(frame, that._currentFrameTransform = that._calcFrameTransform(targetFrameTransformData), targetTransform, {
         transition: transition.duration,
