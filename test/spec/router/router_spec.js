@@ -19,6 +19,7 @@ describe('router', function() {
     layerJS.router.clearRouters();
     layerJS.router.addRouter(require('../../../src/framework/router/filerouter.js'));
     layerJS.router.addRouter(require('../../../src/framework/router/hashrouter.js'));
+    window.location.href = "http://localhost/";
   });
 
   it('can be created', function() {
@@ -26,7 +27,18 @@ describe('router', function() {
   });
 
   it('will add the a StaticRouter at the beginning of the router pipline', function() {
-    layerJS.router.addRouter(undefined)
+    var dummyRouter = {
+      handle: function(url) {
+        var promise = new Kern.Promise();
+        promise.resolve({
+          handled: false,
+          stop: false
+        });
+        return promise;
+      }
+    };
+
+    layerJS.router.addRouter(dummyRouter);
     expect(layerJS.router.routers.length).toBe(2);
     expect(layerJS.router.routers[0] instanceof StaticRouter).toBeTruthy();
   });
@@ -256,7 +268,8 @@ describe('router', function() {
     });
   });
 
-  it('will add the exiting state to the StaticRouter when a new navigation is done', function() {
+  it('will add the exiting state to the StaticRouter when a new navigation is done', function(done) {
+    var routerCache = layerJS.router.cache;
     var url = window.location.origin + '/index.html';
     var dummyRouter = {
       handle: function(url) {
@@ -286,9 +299,11 @@ describe('router', function() {
 
     layerJS.router.addRouter(dummyRouter);
 
-    layerJS.router._navigate(url, true);
-    expect(layerJS.router.routers[0].routes.hasOwnProperty('/')).toBeTruthy();
-    expect(layerJS.router.routers[0].routes['/']).toEqual(['stage1.layer1.frame1']);
+    layerJS.router._navigate(url, true).then(function(){
+      expect(layerJS.router.routers[0].routes.hasOwnProperty('/')).toBeTruthy();
+      expect(layerJS.router.routers[0].routes['/']).toEqual(['stage1.layer1.frame1']);
+      done();
+    });
   });
 
   it('will stop iterating routers when a router return stop == true', function() {

@@ -85,7 +85,7 @@ describe('Filerouter', function() {
       done();
     });
 
-  });
+  },5000);
 
   it('when no matching path is found, the current frame stays', function(done) {
     var scope = nock('http://localhost')
@@ -135,7 +135,7 @@ describe('Filerouter', function() {
       expect(layerView.transitionTo).toHaveBeenCalledWith('frame2', transitionOptions);
       done();
     });
-  });
+  },5000);
 
   it('will return false when an error occured', function(done) {
     new StageView({
