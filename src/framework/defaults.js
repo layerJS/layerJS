@@ -18,10 +18,10 @@ module.exports = {
   },
 
   neighbors2transition : {
-    b: 'up',
-    t: 'down',
-    r: 'left',
-    l: 'right'
+    b: 'auto:up',
+    t: 'auto:down',
+    r: 'auto:left',
+    l: 'auto:right'
     // b: 'slideOverUp',
     // t: 'slideOverDown',
     // r: 'slideOverLeft',

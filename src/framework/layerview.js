@@ -452,14 +452,22 @@ var LayerView = BaseView.extend({
     if (frame && null !== frame) {
       framename = frame.name();
     }
-    // transition ommitted? create some default
+    // dealing with transition.type
+
+    // autotransitions are transition types automatically generated e.g. by swipe gestures. They are "suggested" and hence have to be dealt with lower priority
+    var autotransition;
+    if (transition && transition.type && transition.type.match(/^auto:/)) {
+      autotransition = transition.type.replace(/^auto:/, '');
+      delete transition.type; // needs to be removed for now; othervise if will overwrite default transitions which is not desired for auto transitions
+    }
+    // merge defaults with given transition records; transition.type will overwrite default transitions (unless auto transition)
     transition = Kern._extend({
-      type: transition && transition.type ? 'default' : (frame && frame.defaultTransition()) || this.defaultTransition() || 'default',
+      type: transition && transition.type ? 'default' : (frame && frame.defaultTransition()) || this.defaultTransition() || autotransition || 'default',
       previousType: transition && transition.type ? undefined : (this.currentFrame && this.currentFrame.defaultTransition()) || undefined,
       duration: '1s'
       // FIXME: add more default values like timing
     }, transition || {});
-    // check for reverse transition
+    // check for reverse transition; remove "r:"/"reverse:" indicator and set transition.reverse instead
     if (transition.type && transition.type.match(/^(?:r:|reverse:)/i)) {
       transition.type = transition.type.replace(/^(?:r:|reverse:)/i, '');
       transition.reverse = true;
