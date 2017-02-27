@@ -5,6 +5,61 @@ var layoutManager = require('../layoutmanager.js');
 var LayerLayout = require('./layerlayout.js');
 var defaults = require('../defaults.js');
 
+
+// partials
+// define define data for pre position / css of new frame (for in transition ) or post position / css of old frame
+// ['adjacent',x,y,scale,rotation,z,css,org_css]
+// x,y: position relative to stage (x=-1 left, x=+1 right, y=-1 top, y=+1 bottom), can be scaled (values <>1) and combined
+// scale, rotation: only for the pre target frame or post current frame
+// z: z component of translate3d for pre / post position
+// css: additional css parameters (e.g. opacity, clip) for the pre target frame or post current frame
+// org_css: additional css parameters (e.g. opacity, clip) for the post target frame or pre current frame
+var partials = {
+  none: ["adjacent", 0, 0, 1, 0],
+  left: ["adjacent", -1, 0, 1, 0],
+  right: ["adjacent", 1, 0, 1, 0],
+  bottom: ["adjacent", 0, 1, 1, 0],
+  top: ["adjacent", 0, -1, 1, 0],
+  fade: ["adjacent", 0, 0, 1, 0, {
+    opacity: 0
+  }],
+  blur: ["adjacent", 0, 0, 1, 0, {
+    filter: 'blur(5px)',
+    opacity: 0
+  }, {
+    filter: 'blur(0px)'
+  }],
+  zoomout: ["adjacent", 0, 0, 0.666, 0, {
+    opacity: 0
+  }],
+  zoomin: ["adjacent", 0, 0, 1.5, 0, {
+    opacity: 0
+  }],
+
+};
+// transitions
+// the first element is the partial for the targetframe (tin) and the second is the partial for the current frame (tout)
+// the third element defines the z direction: 1 - target frame is above current frame, -1 targetframe is below
+var transitions = {
+  default: [partials.right, partials.left, 1],
+  none: [partials.none, partials.none, 1],
+  left: [partials.right, partials.left, 1],
+  right: [partials.left, partials.right, 1],
+  up: [partials.bottom, partials.top, 1],
+  down: [partials.top, partials.bottom, 1],
+  fade: [partials.fade, partials.fade, -1],
+  blur: [partials.blur, partials.blur, -1],
+  slideOverLeft: [partials.right, partials.none, 1],
+  slideOverRight: [partials.left, partials.none, 1],
+  slideOverUp: [partials.bottom, partials.none, 1],
+  slideOverDown: [partials.top, partials.none, 1],
+  slideOverLeftFade: [partials.right, partials.fade, 1],
+  slideOverRightFade: [partials.left, partials.fade, 1],
+  slideOverUpFade: [partials.bottom, partials.fade, 1],
+  slideOverDownFade: [partials.top, partials.fade, 1],
+
+};
+
 var SlideLayout = LayerLayout.extend({
   /**
    * initalize SlideLayout with a layer
@@ -14,47 +69,14 @@ var SlideLayout = LayerLayout.extend({
    */
   constructor: function(layer) {
     LayerLayout.call(this, layer);
-    var that = this;
     this._preparedTransitions = {};
-    // create a bound version of swipeTransition() that will be stored to the transitions hash
-    var wrap_swipeTransition = function(type, currentFrameTransformData, targetFrameTransformData) {
-      return that.swipeTransition(type, currentFrameTransformData, targetFrameTransformData);
-    };
-    var wrap_slideOverTransition = function(type, currentFrameTransformData, targetFrameTransformData) {
-      return that.slideOverTransition(type, currentFrameTransformData, targetFrameTransformData);
-    };
-
-    this.transitions = {
-      default: wrap_swipeTransition,
-      left: wrap_swipeTransition,
-      right: wrap_swipeTransition,
-      up: wrap_swipeTransition,
-      down: wrap_swipeTransition,
-      fade: wrap_swipeTransition,
-      slideOverLeft: wrap_slideOverTransition,
-      slideOverRight: wrap_slideOverTransition,
-      slideOverUp: wrap_slideOverTransition,
-      slideOverDown: wrap_slideOverTransition,
-      slideOverLeftFade: wrap_slideOverTransition,
-      slideOverRightFade: wrap_slideOverTransition,
-      slideOverUpFade: wrap_slideOverTransition,
-      slideOverDownFade: wrap_slideOverTransition,
-      slideAwayLeft: wrap_slideOverTransition,
-      slideAwayRight: wrap_slideOverTransition,
-      slideAwayUp: wrap_slideOverTransition,
-      slideAwayDown: wrap_slideOverTransition,
-      slideAwayLeftFade: wrap_slideOverTransition,
-      slideAwayRightFade: wrap_slideOverTransition,
-      slideAwayUpFade: wrap_slideOverTransition,
-      slideAwayDownFade: wrap_slideOverTransition
-    };
   },
   /**
    * transforms immidiately to the specified frame. hides all other frames
    *
    * @param {FrameView} frame - the frame to activate
    * @param {Object} transfromData - transform data of current frame
-   * @param {string} transform - a string representing the scroll transform of the current frame
+   * @param {string} transform - a string represenptg the scroll transform of the current frame
    * @returns {void}
    */
   showFrame: function(frame, frameTransformData, transform) {
@@ -76,7 +98,7 @@ var SlideLayout = LayerLayout.extend({
    * @param {FrameView} frame - frame to transition to
    * @param {Object} transition - transition object
    * @param {Object} targetFrameTransformData - the transformData object of the target frame
-   * @param {string} targetTransform - transform representing the scrolling after transition
+   * @param {string} targetTransform - transform represenptg the scrolling after transition
    * @returns {Kern.Promise} a promise fullfilled after the transition finished. Note: if you start another transition before the first one finished, this promise will not be resolved.
    */
   transitionTo: function(frame, transition, targetFrameTransformData, targetTransform) {
@@ -86,18 +108,18 @@ var SlideLayout = LayerLayout.extend({
       var finished = new Kern.Promise();
       var frameToTransition = frame || currentFrame;
 
-      if (null !== frameToTransition) {
+      if (frameToTransition) {
         frameToTransition.outerEl.addEventListener("transitionend", function f(e) { // FIXME needs webkitTransitionEnd etc
           e.target.removeEventListener(e.type, f); // remove event listener for transitionEnd.
           if (transition.transitionID === that.layer.transitionID) {
             if (currentFrame) {
-              currentFrame.applyStyles({
+              currentFrame.applyStyles(t.fix_css, {
                 transition: 'none',
                 display: 'none'
               });
             }
             if (frame) {
-              frame.applyStyles({
+              frame.applyStyles(t.fix_css, {
                 transition: 'none'
               });
             }
@@ -113,7 +135,7 @@ var SlideLayout = LayerLayout.extend({
       // notify listeners that we have all frames set up for the pre position
       that.layer.trigger("transitionPrepared", frame ? frame.name() : defaults.specialFrames.none);
 
-      that._applyTransform(frame, that._currentFrameTransform = that._calcFrameTransform(targetFrameTransformData), targetTransform, {
+      that._applyTransform(frame, that._currentFrameTransform = t.t1, targetTransform, {
         transition: transition.duration,
         top: "0px",
         left: "0px",
@@ -141,35 +163,58 @@ var SlideLayout = LayerLayout.extend({
    * @param {ViewFrame} frame - the target frame
    * @param {Object} transition - transition object
    * @param {Object} targetFrameTransformData - the transformData object of the target frame
-   * @param {string} targetTransform - transform representing the scrolling after transition
+   * @param {string} targetTransform - transform represenptg the scrolling after transition
    * @returns {Promise} will fire when pre transform to target frame is applied
    */
   prepareTransition: function(frame, transition, targetFrameTransformData, targetTransform) {
     // create a promise that will wait for the transform being applied
     var finished = new Kern.Promise();
     var prep;
-
-    if (frame === null) {
-      prep = this.transitions[transition.type](transition.type, this.layer.currentFrameTransformData, targetFrameTransformData);
-      finished.resolve(prep);
-    } else if ((prep = this._preparedTransitions[frame.id()])) {
-      if (prep.transform === targetTransform && prep.applied) { // if also the targetTransform is already applied we can just continue
+    var currentFrame = this.layer.currentFrame;
+    if (frame && (prep = this._preparedTransitions[frame.id()])) {
+      if (prep.transform === targetTransform && prep.applied) { // if also the targetTransform is already applied we can just conptue
         finished.resolve(prep);
       } else {
         prep = undefined;
       }
     }
-
-    if (undefined === prep) {
+    if (!prep) {
+      var transitionfn = transitions[transition.type]; // transition function or record
+      if (!transitionfn && transition.type && transition.type.match(/\:/)) {
+        transitionfn = transition.type.split(':');
+      } else if (!transitionfn) {
+        transitionfn = [partials.none, partials.none, 1];
+      }
       // call the transition type function to calculate all frame positions/transforms
-      prep = this._preparedTransitions[frame.id()] = this.transitions[transition.type](transition.type, this.layer.currentFrameTransformData, targetFrameTransformData); // WARNING: this.layer.currentFrameTransformData should still be the old one here. carefull: this.layer.currentFrameTransformData will be set by LayerView before transition ends!
+      if (typeof transitionfn === 'function') { // custom transition function
+        prep = transitionfn(transition.type, this.layer.currentFrameTransformData, targetFrameTransformData); // WARNING: this.layer.currentFrameTransformData should still be the old one here. careful: this.layer.currentFrameTransformData will be set by LayerView before transition ends!
+      } else if (Array.isArray(transitionfn)) { // array of in and out partials
+        if (transition.reverse) {
+          prep = this.genericTransition(transitionfn[1], transitionfn[0], this.layer.currentFrameTransformData, targetFrameTransformData, (transitionfn[2] && -transitionfn[2]) || 0);
+        } else {
+          prep = this.genericTransition(transitionfn[0], transitionfn[1], this.layer.currentFrameTransformData, targetFrameTransformData, transitionfn[2]);
+          // WARNING: this.layer.currentFrameTransformData should still be the old one here. careful: this.layer.currentFrameTransformData will be set by LayerView before transition ends!
+        }
+      } else {
+        finished.reject();
+      }
+      prep.transform = targetTransform; // FIXME: targetTransform is not enough, need to check current transform as well
+      if (frame === null && !prep.current_css) { // nothing to do as new frame is "none"
+        prep.applied = true;
+        finished.resolve(prep);
+      }
       // apply pre position to target frame
       this._applyTransform(frame, prep.t0, this.layer.currentTransform, {
         transition: 'none',
         visibility: 'inital'
       });
-      prep.transform = targetTransform;
-      // wait until new postions are rendered then resolve promise
+      // apply pre position to current frame
+      if (prep.current_css) {
+        this._applyTransform(currentFrame, prep.c0, this.layer.currentTransform, {
+          transition: 'none',
+        });
+      }
+      // wait until new positions are rendered then resolve promise
       $.postAnimationFrame(function() {
         prep.applied = true;
         finished.resolve(prep);
@@ -224,8 +269,67 @@ var SlideLayout = LayerLayout.extend({
     var x = -frameTransformData.shiftX;
     var y = -frameTransformData.shiftY;
     return {
-      transform: "translate3d(" + x + "px," + y + "px,0px) scale(" + frameTransformData.scale + ")"
+      transform: "translate3d(" + x + "px," + y + "px,0px) scale(" + frameTransformData.scale + ")",
+      opacity: 1
     };
+  },
+  /**
+   * calculates pre and post position record based on data for the "in" partial transition (how target
+   * frame comes in) and data for the "out" partial transition (how current frame goes out)
+   *
+   * @param {Array} tin - transition data for the "in" transition
+   * @param {Array} tout - transition data for the "out" transition
+   * @param {Object} ctfd - currentFrameTransformData - transform data of current frame
+   * @param {Object} ttfd - targetFrameTransformData - transform data of target frame
+   * @returns {Object} the "t" record containing pre and post transforms
+   */
+  genericTransition: function(tin, tout, ctfd, ttfd, z) {
+    var that = this;
+    // calculates the transform for the in or the out part of the transition
+    var getPartialTransition = function(pt, ctfd, ttfd, z) {
+      var scale = function(org, dis, scale) {
+        return org + (dis - org) * Math.abs(scale);
+      };
+      var sw = that.getStageWidth(),
+        sh = that.getStageHeight(),
+        cx = -ctfd.shiftX,
+        cy = -ctfd.shiftY,
+        tx = -ttfd.shiftX,
+        ty = -ttfd.shiftY,
+        pt_x = pt[1],
+        pt_y = pt[2],
+        pt_scale = pt[3],
+        pt_rot = pt[4],
+        pt_css = pt[5] || {};
+      switch (pt[0]) {
+        case "adjacent":
+          tx = (pt_x < 0) ? scale(tx, Math.min(cx, 0) - ttfd.width, pt_x) : scale(tx, Math.max(cx + ctfd.width, sw), pt_x);
+          ty = (pt_y < 0) ? scale(ty, Math.min(cy, 0) - ttfd.height, pt_y) : scale(ty, Math.max(cy + ctfd.height, sh), pt_y);
+          // adjust scroll difference, but only perpendicular to transition direction (the other direction is taken care of by applying currentTransform and targetTransform later on)
+          if (pt_x === 0) tx += -ttfd.scrollX * ttfd.scale + ctfd.scrollX * ctfd.scale;
+          if (pt_y === 0) ty += -ttfd.scrollY * ttfd.scale + ctfd.scrollY * ctfd.scale;
+          return Kern._extend({
+            transform: "translate3d(" + tx + "px," + ty + "px," + z + "px) scale(" + ttfd.scale * pt_scale + ") rotate(" + pt_rot + "deg)",
+            opacity: 1
+          }, pt_css);
+      }
+    };
+    var tin_css_after = tin[6] || {};
+    var tout_css_before = tout[6] || {};
+    if (Object.keys(tout_css_before).length) t.current_css = true; // notify that we need to apply something to currentframe before transition.
+    var t = { // record taking pre and post positions
+      t1: Kern._extend(this._calcFrameTransform(ttfd), tin_css_after),
+      c0: Kern._extend(this._calcFrameTransform(ctfd), tout_css_before)
+    };
+    t.t0 = getPartialTransition(tin, ctfd, ttfd, z || 0);
+    t.c1 = getPartialTransition(tout, ttfd, ctfd, (z && -z) || 0); // WARNING: ctfd & ttfd are swapped here!
+    t.fix_css = [tin[5], tout[5], tin[6], tout[6]].map(function(e) {
+      return Object.keys(e || {});
+    }).reduce(function(css, property) {
+      if (property !== 'transform') css[property] = 'initial';
+      return css;
+    }, {}); // create a css record that sets all extra css properties back to inital
+    return t;
   },
   /**
    * calculates pre and post positions for simple swipe transitions.

@@ -120,7 +120,7 @@ describe("SlideLayout", function() {
             expect(f2_display).toBe('block');
 
             expect(stage_dimensions.width).toBe(f2_dimensions.width);
-            expect(f1_dimensions.top).toBeLessThan(stage_dimensions.top - stage_dimensions.height + 1);
+            expect(f1_dimensions.top).toBeLessThan(stage_dimensions.top - f1_dimensions.height + 1);
             expect(f2_dimensions.top).toBeGreaterThan(stage_dimensions.top - 1);
             expect(f2_dimensions.top).toBeLessThan(stage_dimensions.top + stage_dimensions.height);
           });
@@ -269,7 +269,7 @@ describe("SlideLayout", function() {
             expect(f1_display).toBe('none');
             expect(f2_display).toBe('none');
 
-            expect(f1_dimensions.top).toBeLessThan(stage_dimensions.top - stage_dimensions.height + 1);
+            expect(f1_dimensions.top).toBeLessThan(stage_dimensions.top - f1_dimensions.height + 1);
           });
         });
     });
