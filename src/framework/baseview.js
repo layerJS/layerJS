@@ -467,6 +467,14 @@ var BaseView = DOMObserver.extend({
     return this.getAttributeLJ('default-frame');
   },
   /**
+   * return the desired transition of a frame or layer of defined
+   *
+   * @returns {string} transition type
+   */
+  defaultTransition: function(){
+    return this.getAttributeLJ('transition');
+  },
+  /**
    * Will return the value of the lj-native-scroll attribute on the outer element.
    * The default value is false.
    *

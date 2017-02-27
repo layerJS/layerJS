@@ -443,17 +443,6 @@ var LayerView = BaseView.extend({
       framename = framename || (transition && transition.framename);
     }
     if (!framename && null !== framename) throw "transformTo: no frame given";
-    // transition ommitted? create some default
-    transition = Kern._extend({
-      type: 'default',
-      duration: '1s'
-      // FIXME: add more default values like timing
-    }, transition || {});
-    // check for reverse transition
-    if (transition.type && transition.type.match(/^(?:r:|reverse:)/i)) {
-      transition.type = transition.type.replace(/^(?:r:|reverse:)/i, '');
-      transition.reverse = true;
-    }
     // lookup frame by framename
     var frame = framename ? this._getFrame(framename, transition) : null;
 
@@ -462,6 +451,22 @@ var LayerView = BaseView.extend({
 
     if (frame && null !== frame) {
       framename = frame.name();
+    }
+    // transition ommitted? create some default
+    transition = Kern._extend({
+      type: transition && transition.type ? 'default' : (frame && frame.defaultTransition()) || this.defaultTransition() || 'default',
+      previousType: transition && transition.type ? undefined : (this.currentFrame && this.currentFrame.defaultTransition()) || undefined,
+      duration: '1s'
+      // FIXME: add more default values like timing
+    }, transition || {});
+    // check for reverse transition
+    if (transition.type && transition.type.match(/^(?:r:|reverse:)/i)) {
+      transition.type = transition.type.replace(/^(?:r:|reverse:)/i, '');
+      transition.reverse = true;
+    }
+    if (transition.previousType && transition.previousType.match(/^(?:r:|reverse:)/i)) {
+      transition.previousType = transition.previousType.replace(/^(?:r:|reverse:)/i, '');
+      transition.previousReverse = true;
     }
     var wasInTransition = this.inTransition();
     that.trigger('beforeTransition', framename);

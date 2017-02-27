@@ -189,14 +189,24 @@ var SlideLayout = LayerLayout.extend({
       if (typeof transitionfn === 'function') { // custom transition function
         prep = transitionfn(transition.type, this.layer.currentFrameTransformData, targetFrameTransformData); // WARNING: this.layer.currentFrameTransformData should still be the old one here. careful: this.layer.currentFrameTransformData will be set by LayerView before transition ends!
       } else if (Array.isArray(transitionfn)) { // array of in and out partials
+        var shuffled;
+        // bringing in and out transitions into right order
         if (transition.reverse) {
-          prep = this.genericTransition(transitionfn[1], transitionfn[0], this.layer.currentFrameTransformData, targetFrameTransformData, (transitionfn[2] && -transitionfn[2]) || 0);
+          shuffled = [transitionfn[1], transitionfn[0], this.layer.currentFrameTransformData, targetFrameTransformData, (transitionfn[2] && -transitionfn[2]) || 0];
         } else {
-          prep = this.genericTransition(transitionfn[0], transitionfn[1], this.layer.currentFrameTransformData, targetFrameTransformData, transitionfn[2]);
+          shuffled = [transitionfn[0], transitionfn[1], this.layer.currentFrameTransformData, targetFrameTransformData, transitionfn[2]];
           // WARNING: this.layer.currentFrameTransformData should still be the old one here. careful: this.layer.currentFrameTransformData will be set by LayerView before transition ends!
         }
+        // when using default transitions, it may be different for the currentFrame and the targetFrame. So add here the transition for the currentFrame as out transition
+        if (transition.previousType) {
+          var ptransitionfn = transitions[transition.previousType]; // transition function or record for default transition of currentFrameTransformData
+          if (Array.isArray(ptransitionfn)) { // only works if that is an array as well
+            shuffled[1] = transition.previousReverse ? ptransitionfn[1] : ptransitionfn[0];
+          }
+        }
+        prep = this.genericTransition.apply(this, shuffled);
       } else {
-        finished.reject();
+        throw "slidelayout: error in registered transition type.";
       }
       prep.transform = targetTransform; // FIXME: targetTransform is not enough, need to check current transform as well
       if (frame === null && !prep.current_css) { // nothing to do as new frame is "none"

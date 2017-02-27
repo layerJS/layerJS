@@ -14,13 +14,13 @@
         </div>
       </div>
       <div lj-type="layer" lj-name="menulayer" lj-native-scroll="false">
-        <div lj-type="frame" lj-name="hmenu" class="nav" lj-fit-to="responsive-width">
+        <div lj-type="frame" lj-name="hmenu" class="nav" lj-fit-to="responsive-width" lj-transition="fade">
           <div class="nav-hor">
-            <a href="#menu?p=slideOverRightFade&t=0.5s">&#x2630; Menu</a>
+            <a href="#menu?t=0.5s">&#x2630; Menu</a>
           </div>
         </div>
-        <div lj-type="frame" lj-name="menu" class="nav menu" lj-fit-to="responsive-height" lj-neighbors.r="hmenu">
-          <a href="#hmenu?t=0.5s&p=reverse:slideOverRightFade" class="close">&#x2573;</a>
+        <div lj-type="frame" lj-name="menu" class="nav menu" lj-fit-to="responsive-height" lj-neighbors.r="hmenu" lj-transition="slideOverRight">
+          <a href="#hmenu?t=0.5s" class="close">&#x2573;</a>
           <ul class="nav-list">
             <li class="nav-item">
               Menu 1
