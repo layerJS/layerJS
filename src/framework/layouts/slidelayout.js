@@ -132,26 +132,25 @@ var SlideLayout = LayerLayout.extend({
       } else {
         finished.resolve(); // FIXME: this would be only called if currentFrame and new frame are null ?????
       }
-      // notify listeners that we have all frames set up for the pre position
-      that.layer.trigger("transitionPrepared", frame ? frame.name() : defaults.specialFrames.none);
+      // wait for semaphore as there may be more transitions that need to be setup
+      transition.semaphore.sync().then(function() {
+        // notify listeners that we have all frames set up for the pre position
+        that.layer.trigger("transitionPrepared", frame ? frame.name() : defaults.specialFrames.none);
 
-      that._applyTransform(frame, that._currentFrameTransform = t.t1, targetTransform, {
-        transition: transition.duration,
-        top: "0px",
-        left: "0px",
-        opacity: "1"
-      });
+        that._applyTransform(frame, that._currentFrameTransform = t.t1, targetTransform, {
+          transition: transition.duration,
+          top: "0px",
+          left: "0px",
+          opacity: "1"
+        });
 
-      that._applyTransform(currentFrame, t.c1, targetTransform, {
-        transition: transition.duration,
-        top: "0px",
-        left: "0px"
+        that._applyTransform(currentFrame, t.c1, targetTransform, {
+          transition: transition.duration,
+          top: "0px",
+          left: "0px"
+        });
+        that._preparedTransitions = {};
       });
-      that._preparedTransitions = {};
-      // wait until post transforms are applied an signal that animation is now running.
-      /*  $.postAnimationFrame(function() {
-          that.layer.trigger('transitionStarted', frame === null ? null : frame.data.attributes.name);
-        });*/
       return finished;
     });
   },
@@ -212,6 +211,7 @@ var SlideLayout = LayerLayout.extend({
       if (frame === null && !prep.current_css) { // nothing to do as new frame is "none"
         prep.applied = true;
         finished.resolve(prep);
+        return finished;
       }
       // apply pre position to target frame
       this._applyTransform(frame, prep.t0, this.layer.currentTransform, {

@@ -476,6 +476,10 @@ var LayerView = BaseView.extend({
       transition.previousType = transition.previousType.replace(/^(?:r:|reverse:)/i, '');
       transition.previousReverse = true;
     }
+    // create a dummy semaphore if there isn't any
+    if (!transition.semaphore) {
+      transition.semaphore = (new Kern.Semaphore()).register();
+    }
     var wasInTransition = this.inTransition();
     that.trigger('beforeTransition', framename);
     transition.transitionID = this.transitionID = ++this._transitionIDcounter; // inc transition ID and save new ID into transition record

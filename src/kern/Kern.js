@@ -333,6 +333,10 @@
        * @returns {void}
        */
       resolve: function(value) {
+        if (this.state !== undefined) {
+          console.warn("Promise: double resolve/reject (ignored).");
+          return;
+        }
         this.state = true;
         this.value = value;
         this.execute();
@@ -344,6 +348,10 @@
        * @returns {void}
        */
       reject: function(reason) {
+        if (this.state !== undefined) {
+          console.warn("Promise: double resolve/reject (ignored).");
+          return;
+        }
         this.state = false;
         this.reason = reason;
         this.execute();
@@ -377,6 +385,44 @@
           if (this.errFn) this.errFn(this.reason);
           this.nextPromise.reject(this.reason);
         }
+      }
+    });
+    /**
+     * a simple semaphore which registers a set of stakeholders (just counts up the number of them) and the lets them synchronize through calling semaphore.sync().then(...)
+     *
+     */
+    var Semaphore = Kern.Semaphore = Base.extend({
+      constructor: function() {
+        this.num = 0;
+        this.cc = 0;
+        this.ps = [];
+      },
+      /**
+       * register a stakeholder for this semaphore
+       *
+       * @returns {Semaphore} the semaphore itself to be passed on
+       */
+      register: function() {
+        this.num++;
+        return this;
+      },
+      /**
+       * wait for all other stakeholders. returns a promise that will be fullfilled if all other stakeholders are in sync state as well (have called sync())
+       *
+       * @returns {Promise} the promise to be resolved when all stakeholders are in sync.
+       */
+      sync: function() {
+        var p;
+        this.cc++;
+        this.ps.push(p = new Kern.Promise());
+        if (this.cc === this.num) {
+          for (var i = 0; i < this.num; i++) {
+            this.ps[i].resolve();
+          }
+        } else if (this.cc >= this.num) {
+          throw "semaphore: more syncs than stakeholders";
+        }
+        return p;
       }
     });
 

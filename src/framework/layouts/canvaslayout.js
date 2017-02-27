@@ -91,29 +91,31 @@ var CanvasLayout = LayerLayout.extend({
       }
       finished.resolve();
     });
-    // notify listeners that we have all frames set up for the pre position
-    that.layer.trigger("transitionPrepared", frame ? frame.name() : defaults.specialFrames.none);
+    // wait for semaphore as there may be more transitions that need to be setup
+    transition.semaphore.sync().then(function() {
+      // notify listeners that we have all frames set up for the pre position
+      that.layer.trigger("transitionPrepared", frame ? frame.name() : defaults.specialFrames.none);
 
-    if (null !== frame) {
-      this._reverseTransform = this._calculateReverseTransform(frame, targetFrameTransformData);
-      // now apply all transforms to all frames
-      for (var i = 0; i < framesLength; i++) {
-        childFrame = frames[i];
-        this._applyTransform(childFrame, this._reverseTransform, targetTransform, {
-          transition: transition.duration,
-          opacity: 1
-        });
+      if (null !== frame) {
+        that._reverseTransform = that._calculateReverseTransform(frame, targetFrameTransformData);
+        // now apply all transforms to all frames
+        for (var i = 0; i < framesLength; i++) {
+          childFrame = frames[i];
+          that._applyTransform(childFrame, that._reverseTransform, targetTransform, {
+            transition: transition.duration,
+            opacity: 1
+          });
+        }
+      } else {
+        for (var x = 0; x < framesLength; x++) {
+          childFrame = frames[x];
+          childFrame.applyStyles({
+            opacity: 0,
+            transition: transition.duration
+          });
+        }
       }
-    } else {
-      for (var x = 0; x < framesLength; x++) {
-        childFrame = frames[x];
-        childFrame.applyStyles({
-          opacity: 0,
-          transition: transition.duration
-        });
-      }
-    }
-
+    });
 
     return finished;
   },
@@ -179,21 +181,21 @@ var CanvasLayout = LayerLayout.extend({
     var css = {};
     // just do width & height for now; FIXME
     //if ('width' in diff && attr.width !== undefined) {
-      css.width = frame.width(true);
+    css.width = frame.width(true);
     //}
     //if ('height' in diff && attr.height !== undefined) {
-      css.height = frame.height(true);
+    css.height = frame.height(true);
     //}
     //if ('x' in diff || 'y' in diff || 'rotation' in diff) {
-      // calculate frameTransform of frame and store it in this._frameTransforms
-      delete this._frameTransforms[frame.id()]; // this will be recalculated in _applyTransform
-      if (this._reverseTransform && transform) {
-        // currentFrame is initialized -> we need to render the frame at new position
-        this._applyTransform(frame, this._currentReverseTransform, this.layer.currentTransform, css);
-      } {
-        // just apply width and height, everything else the first showFrame() should do
-        Kern._extend(frame.outerEl.style, css);
-      }
+    // calculate frameTransform of frame and store it in this._frameTransforms
+    delete this._frameTransforms[frame.id()]; // this will be recalculated in _applyTransform
+    if (this._reverseTransform && transform) {
+      // currentFrame is initialized -> we need to render the frame at new position
+      this._applyTransform(frame, this._currentReverseTransform, this.layer.currentTransform, css);
+    } {
+      // just apply width and height, everything else the first showFrame() should do
+      Kern._extend(frame.outerEl.style, css);
+    }
     //}
   },
   /**
