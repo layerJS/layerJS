@@ -449,6 +449,11 @@ var LayerView = BaseView.extend({
       duration: '1s'
       // FIXME: add more default values like timing
     }, transition || {});
+    // check for reverse transition
+    if (transition.type && transition.type.match(/^(?:r:|reverse:)/i)) {
+      transition.type = transition.type.replace(/^(?:r:|reverse:)/i, '');
+      transition.reverse = true;
+    }
     // lookup frame by framename
     var frame = framename ? this._getFrame(framename, transition) : null;
 
