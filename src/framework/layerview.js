@@ -504,7 +504,6 @@ var LayerView = BaseView.extend({
       if (that.currentFrame === frame && that.currentFrameTransformData === targetFrameTransformData) {
         // don't do a transition, just execute Promise
         var p = new Kern.Promise();
-        p.resolve();
         that.trigger('transitionStarted', framename);
         if (targetFrameTransformData.scrollX !== currentScroll.scrollX || targetFrameTransformData.scrollY !== currentScroll.scrollY) {
           return that.scrollTo(targetFrameTransformData.scrollX, targetFrameTransformData.scrollY, transition).then(function() {
