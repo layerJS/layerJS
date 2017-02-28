@@ -92,7 +92,7 @@ var GestureManager = Kern.EventManager.extend({
       this.gesture.start.x = this.gesture.position.x = this._xPosition(event);
       this.gesture.start.y = this.gesture.position.y = this._yPosition(event);
       this.element = element;
-      this._raiseGesture(callback); // first
+      this._raiseGesture(event, callback); // first
     } else {
       this.gesture.startTime = new Date().getTime();
     }
@@ -109,7 +109,7 @@ var GestureManager = Kern.EventManager.extend({
     };
     // temporary set gesture.last here as gesture continuation has been disabled
     this.gesture.last = true;
-    this._raiseGesture(callback);
+    this._raiseGesture(event, callback);
     // var thisgesture = this.gesturecc;
     // this.gesturecc++;
     // this.timeoutWheel = setTimeout(function() {
@@ -158,7 +158,7 @@ var GestureManager = Kern.EventManager.extend({
     this.gesture.start.y = this._yPosition(event);
     this.gesture.touch = event.type !== "mousedown";
     this.gesture.click = event.type === "mousedown";
-    this._raiseGesture(callback);
+    this._raiseGesture(event, callback);
 
     return false;
   },
@@ -177,7 +177,7 @@ var GestureManager = Kern.EventManager.extend({
     this.gesture.shift.x = this.gesture.position.x - this.gesture.start.x;
     this.gesture.shift.y = this.gesture.position.y - this.gesture.start.y;
 
-    this._raiseGesture(callback);
+    this._raiseGesture(event, callback);
 
     this.gesture = this.element = null;
     return false;
@@ -197,7 +197,7 @@ var GestureManager = Kern.EventManager.extend({
       this.gesture.position.y = this._yPosition(event);
       this.gesture.shift.x = this.gesture.position.x - this.gesture.start.x;
       this.gesture.shift.y = this.gesture.position.y - this.gesture.start.y;
-      this._raiseGesture(callback);
+      this._raiseGesture(event, callback);
     }
     return false;
   },
@@ -236,7 +236,7 @@ var GestureManager = Kern.EventManager.extend({
    * Passes the gesture to the callback method
    * @param {callback} The callback method
    */
-  _raiseGesture: function(callback) {
+  _raiseGesture: function(event, callback) {
     if (callback && this.gesture) {
       if (!this.gesture.direction) { // is direction locked?
         var x = this.gesture.shift.x;
