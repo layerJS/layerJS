@@ -16,7 +16,7 @@ layerJS can be included into your site from our CDN. Simply include the followin
 <link href="http://cdn.layerjs.org/libs/layerjs/layerjs-0.4.1.css" type="text/css" rel="stylesheet" />
 ```
 
-In layerJS you will define stages, layers in frame simply by adding HTML-attributes to `<div>`s. Here is an example structure:
+In layerJS you will define stages, layers and frames simply by adding HTML-attributes to `<div>`s. Here is an example structure:
 ```
 <div data-lj-type="stage">
     <div data-lj-type="layer" data-lj-default-frame="main" >
