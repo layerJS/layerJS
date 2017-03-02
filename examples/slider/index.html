@@ -2,14 +2,19 @@
 
 <head>
   <meta name="description" content="simple slider; medium.com example">
-  <script src="layerjs.js"></script>
-  <link href="layerjs.css" type="text/css" rel="stylesheet" />
+  <script src="../../dist/layerjs.js"></script>
+  <link href="../../dist/layerjs.css" type="text/css" rel="stylesheet" />
   <link href="your-style.css" type="text/css" rel="stylesheet" />
 </head>
 
 <body>
-  <div lj-type="stage">
+  <div lj-type="stage"> <!--  Define a single stage.  -->
+    <!--  Define the layer "slider" for the slides.  -->
+    <!--  The default frame is "frame1" -->
     <div lj-type="layer" lj-name="slider" lj-default-frame="frame1" lj-native-scroll="false">
+      <!--  Define one frame per slide.  -->
+      <!--  lj-fit-to="cover" will make sure that the stage will be fully filled with the frame.  -->
+      <!--  "neighbors.l"/"r" define which frames will be transitioned to upon left/right swipe gestures. -->
       <div lj-type="frame" lj-name="frame1" lj-fit-to="cover" lj-no-scrolling="true" lj-start-position="center" lj-neighbors.r="frame2">
         <img src="img/samples1a.png">
       </div>
@@ -20,15 +25,18 @@
         <img src="img/samples1c.png">
       </div>
     </div>
+    <!--  A second layer for the controls -->
     <div lj-type="layer" lj-native-scroll="false" id="arrows">
+      <!--  The control frame. The frame will be centered in the stage. -->
       <div lj-type="frame" lj-fit-to="width" lj-start-position="center" lj-no-scrolling="true">
-        <a class="btn-left btn" href="#slider.!prev?p=right">&lt;</a>
-        <a class="btn-right btn" href="#slider.!next">&gt;</a>
+        <!--  the link will trigger the transition to the previous frame of the currently active frame in layer "slider". -->
+        <a class="btn-left btn" href="#slider.!left?p=right">&lt;</a>
+        <a class="btn-right btn" href="#slider.!right?p=left">&gt;</a>
       </div>
     </div>
   </div>
   <script>
-    layerJS.init();
+    layerJS.init(); // initialize layerJS
   </script>
 </body>
 

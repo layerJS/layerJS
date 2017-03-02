@@ -1,6 +1,5 @@
 mkdir -p dist
 cp build/layerjs.js dist/layerjs.js
 cp dist/layerjs.js dist/layerjs-$npm_package_version.js
-mkdir -p dist/css
-cp src/css/layerjs.css dist/css/layerjs.css
-cp src/css/layerjs.css dist/css/layerjs-$npm_package_version.css
+cp src/css/layerjs.css dist/layerjs.css
+cp src/css/layerjs.css dist/layerjs-$npm_package_version.css

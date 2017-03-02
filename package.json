@@ -36,7 +36,7 @@
     "package": "scripty",
     "zip": "scripty",
 
-    "buildexamples": "scripty",
+    "buildExamples": "scripty",
 
     "pretest": "npm run jshint",
 
@@ -49,7 +49,9 @@
 
     "buildSpecs": "scripty",
 
-    "deployCDN": "scp ./dist/layerjs-$npm_package_version.js ./dist/css/layerjs-$npm_package_version.css www-data@layerjs.org:cdn/layerjs.org/libs/layerjs/",
+    "deployCDN": "scp ./dist/layerjs-$npm_package_version.js ./dist/layerjs-$npm_package_version.css www-data@layerjs.org:cdn/layerjs.org/libs/layerjs/",
+
+    "deployExamples": "rsync -uaxv ./dist/examples/ www-data@layerjs.org:cdn/layerjs.org/examples/",
 
     "coverage" : "istanbul cover --include-all-sources node_modules/jasmine/bin/jasmine.js JASMINE_CONFIG_PATH=./test/spec/support/jasmine.json"
   }

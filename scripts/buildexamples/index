@@ -1,4 +1,14 @@
-for i in `find ./examples | grep layerjs.js` ; do rm $i;done;
-for i in `find ./examples | grep layerjs.css` ; do rm $i;done;
-for i in `ls -d ./examples/*/` ;do echo $i;cp ./dist/layerjs.js $i;cp ./dist/css/layerjs.css $i;done
-
+cp -a ./examples ./dist/
+mkdir ./dist/examples_escaped
+cd ./dist/examples
+for i in `find . | grep 'html$'`; do mv $i $i.sve;
+path=`dirname $i`;
+path=`echo $path | sed 's/\.\///'`;
+echo $path;
+cat $i.sve |
+sed 's/[\.\/]*dist\/layerjs.js/https:\/\/cdn.layerjs.org\/libs\/layerjs\/layerjs-'$npm_package_version.js'/g' |
+sed 's/[\.\/]*dist\/layerjs.css/https:\/\/cdn.layerjs.org\/libs\/layerjs\/layerjs-'$npm_package_version.css'/g' |
+sed -E $'/http/! s%(src|href)(=[\\\"\\\'])([a-zA-Z0-9_])%''\1\2https://cdn.layerjs.org/examples/'$path'/\3%g' > $i;
+rm $i.sve;
+cat $i | sed 's/&/\&amp;/g; s/</\&lt;/g; s/>/\&gt;/g; s/"/\&quot;/g; s/'"'"'/\&#39;/g' >../examples_escaped/$path.html;
+done;
