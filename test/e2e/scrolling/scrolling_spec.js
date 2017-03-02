@@ -1,5 +1,6 @@
+var utilities = require('../helpers/utilities.js');
+
 describe('scrolling', function() {
-  var utilities = require('../helpers/utilities.js');
 
   beforeEach(function() {
     utilities.resizeWindow(800, 600);
@@ -24,7 +25,7 @@ describe('scrolling', function() {
               var layer_scroll = data[2];
 
               expect(layer_scroll.scrollTop).toBe(frame_dimensions.height - layer_dimensions.height);
-            })
+            });
           });
         });
       });
@@ -621,33 +622,35 @@ describe('scrolling', function() {
             'data-lj-fit-to': 'height'
           }).then(function() {
             utilities.resizeWindow(800, 599);
-            utilities.getBoundingClientRect('frame1').then(function(frame1_dimensions_before) {
-              utilities.transitionTo('layer', 'frame2', {}, 1).then(function() {
-                utilities.getBoundingClientRect('frame2').then(function(frame2_dimensions_before) {
-                  utilities.wait(3000);
+            utilities.listenDimensionsBeforeTransition('layer','frame1');
+            utilities.listenDimensionsBeforeTransition('layer','frame2');
+               utilities.transitionTo('layer', 'frame2', {}, 1).then(function() {
+                 utilities.wait(3000);
                   protractor.promise.all([
                     utilities.getBoundingClientRect('stage'),
-                    utilities.getBoundingClientRect('frame1'),
-                    utilities.getBoundingClientRect('frame2'),
-                  ]).then(function(data) {
-                    var stage_dimensions = data[0];
-                    var frame1_dimensions_after = data[1];
-                    var frame2_dimensions_after = data[2];
+                     utilities.getBoundingClientRect('frame1'),
+                     utilities.getBoundingClientRect('frame2'),
+                     utilities.getFromStore('frame1'),
+                     utilities.getFromStore('frame2')
+                   ]).then(function(data) {
+                     var stage_dimensions = data[0];
+                     var frame1_dimensions_after = data[1];
+                     var frame2_dimensions_after = data[2];
+                     var frame1_dimensions_before = data[3];
+                     var frame2_dimensions_before = data[4];
 
-                    expect(frame1_dimensions_before.top).toBe(frame1_dimensions_after.top);
-                    expect(frame1_dimensions_after.left).toBe(frame2_dimensions_after.width * -1);
-                    expect(frame2_dimensions_before.top).toBe(frame2_dimensions_after.top);
-                    // because the animation was already in progress, subtract 50
-                    expect(frame2_dimensions_before.left).toBeWithinRange(frame1_dimensions_before.left + stage_dimensions.width - 50, frame1_dimensions_before.left + stage_dimensions.width);
-                    expect(frame2_dimensions_after.left).toBe(stage_dimensions.width - frame2_dimensions_after.width);
-                  });
-                });
-              });
-            });
-          });
-        });
-      });
-    });
+                     expect(frame1_dimensions_before.top).toBe(frame1_dimensions_after.top);
+                     expect(frame1_dimensions_after.right).toBe(frame2_dimensions_after.left);
+                     expect(frame1_dimensions_before.right).toBe(frame2_dimensions_before.left);
+                     expect(frame2_dimensions_before.top).toBe(frame2_dimensions_after.top);
+                     expect(frame2_dimensions_before.left).toBe(frame1_dimensions_before.right);
+                     expect(frame2_dimensions_after.left).toBe(stage_dimensions.width - frame2_dimensions_after.width);
+               });
+             });
+           });
+         });
+       });
+     });
 
     it('when a transition is done to the same frame, the frame will be scrolled up', function() {
       browser.get('scrolling/non_native_scrolling.html').then(function() {
@@ -676,11 +679,13 @@ describe('scrolling', function() {
                   expect(frame_dimensions_after.top).toBe(0);
                 });
               });
-            })
+            });
           });
         });
       });
     });
+  });
+
 
     describe('a transition can pass in a startPosition', function() {
       it('bottom', function() {
@@ -907,10 +912,6 @@ describe('scrolling', function() {
       });
 
     });
-
-  });
-
-  //});
 
   describe('can switch scrolling', function() {
     it('from native scrolling to non-native scrolling', function() {
