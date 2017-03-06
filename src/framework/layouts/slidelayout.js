@@ -7,7 +7,7 @@ var defaults = require('../defaults.js');
 
 
 // partials
-// define define data for pre position / css of new frame (for in transition ) or post position / css of old frame
+// define data for pre position / css of new frame (for in transition ) or post position / css of old frame
 // ['adjacent',x,y,scale,rotation,z,css,org_css]
 // x,y: position relative to stage (x=-1 left, x=+1 right, y=-1 top, y=+1 bottom), can be scaled (values <>1) and combined
 // scale, rotation: only for the pre target frame or post current frame
@@ -326,11 +326,11 @@ var SlideLayout = LayerLayout.extend({
     };
     var tin_css_after = tin[6] || {};
     var tout_css_before = tout[6] || {};
-    if (Object.keys(tout_css_before).length) t.current_css = true; // notify that we need to apply something to currentframe before transition.
     var t = { // record taking pre and post positions
       t1: Kern._extend(this._calcFrameTransform(ttfd), tin_css_after),
       c0: Kern._extend(this._calcFrameTransform(ctfd), tout_css_before)
     };
+    if (Object.keys(tout_css_before).length) t.current_css = true; // notify that we need to apply something to currentframe before transition.
     t.t0 = getPartialTransition(tin, ctfd, ttfd, z || 0);
     t.c1 = getPartialTransition(tout, ttfd, ctfd, (z && -z) || 0); // WARNING: ctfd & ttfd are swapped here!
     t.fix_css = [tin[5], tout[5], tin[6], tout[6]].map(function(e) {
