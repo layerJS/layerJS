@@ -320,7 +320,8 @@ var SlideLayout = LayerLayout.extend({
           if (pt_y === 0) ty += -ttfd.scrollY * ttfd.scale + ctfd.scrollY * ctfd.scale;
           return Kern._extend({
             transform: "translate3d(" + tx + "px," + ty + "px," + z + "px) scale(" + ttfd.scale * pt_scale + ") rotate(" + pt_rot + "deg)",
-            opacity: 1
+            opacity: 1,
+            'z-index': z
           }, pt_css);
       }
     };

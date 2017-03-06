@@ -1,5 +1,21 @@
 # Release notes #
 
+## New in 0.4.1
+* allow specifying the default transition type on the frame or layer (HTML attribute lj-transition).
+* allow specifying the reverse transition by prepending "r:" to the transition type
+* refactored slide transition code. Now a transition is composed of an "in" and an "out" part. This makes it easy to calculate the reverse transitions. Make code more compact.
+* synchronized multi frame transitions. if two frames (in two layers) were transitioning in parallel, there could be out of sync if one frame was already present while the other still had to be loaded.
+* new event "transitionPrepared" which is triggered right before the actual animation starts
+* new lj-startPosition options (top-left, top-right, top-center, middle-left, etc.) for initial positioning of frame in stage
+* fixed a bug where the router could trigger click handlers twice on links
+* fixed issue in transition To where the transition end wasn't detected if the transition was triggered twice (through double click on link)
+* fixed an issue in Firefox where touch pad swipe gestures where not reliably detected.
+* fixed elastic fitting
+* allow using lj-layout (instead of lj-layout-type) for setting layer layout
+* fixed a bug that scrolled to top if '#'-link was clicked
+* moved ./dist/css/layerjs.css -> ./dist/layerjs.css
+* remove some old unnecessary code
+
 ## New in 0.4
 * The framework has been simplified. Only the stage, layer and frame views are left.
 * A new system has been put into place to detect modifications on the actual DOM element (attribute changes, new children) and on it's size. When modifications are detected an event is triggered.
