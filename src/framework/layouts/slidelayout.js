@@ -320,17 +320,18 @@ var SlideLayout = LayerLayout.extend({
           if (pt_y === 0) ty += -ttfd.scrollY * ttfd.scale + ctfd.scrollY * ctfd.scale;
           return Kern._extend({
             transform: "translate3d(" + tx + "px," + ty + "px," + z + "px) scale(" + ttfd.scale * pt_scale + ") rotate(" + pt_rot + "deg)",
-            opacity: 1
+            opacity: 1,
+            'z-index': z
           }, pt_css);
       }
     };
     var tin_css_after = tin[6] || {};
     var tout_css_before = tout[6] || {};
-    if (Object.keys(tout_css_before).length) t.current_css = true; // notify that we need to apply something to currentframe before transition.
     var t = { // record taking pre and post positions
       t1: Kern._extend(this._calcFrameTransform(ttfd), tin_css_after),
       c0: Kern._extend(this._calcFrameTransform(ctfd), tout_css_before)
     };
+    if (Object.keys(tout_css_before).length) t.current_css = true; // notify that we need to apply something to currentframe before transition.
     t.t0 = getPartialTransition(tin, ctfd, ttfd, z || 0);
     t.c1 = getPartialTransition(tout, ttfd, ctfd, (z && -z) || 0); // WARNING: ctfd & ttfd are swapped here!
     t.fix_css = [tin[5], tout[5], tin[6], tout[6]].map(function(e) {

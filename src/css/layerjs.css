@@ -15,6 +15,7 @@
   left: 0px;
   width: 0px;
   height: 0px;
+  z-index: 0;
 }
 .nativescroll[data-lj-type='layer'], .nativescroll[lj-type='layer'] {
   position: absolute;
