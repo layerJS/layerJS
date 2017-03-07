@@ -227,13 +227,16 @@ var BaseView = DOMObserver.extend({
     return this.outerEl && this.outerEl.nodeType;
   },
   /**
-   * Will return the width of the view
+   * Will return the width of the view (including the margins)
    *
    * @param {Boolean} attributeValue - when true, the lj-width value will be used
    * @return {Number} the width of the view
    */
   width: function(attributeValue) {
     var width;
+
+    var margin = this.getMargin();
+    var marginToAdd = margin.left + margin.right;
 
     if (attributeValue !== true) {
       width = this.outerEl.offsetWidth;
@@ -252,16 +255,19 @@ var BaseView = DOMObserver.extend({
       width = this.getAttributeLJ('width');
     }
 
-    return $.parseDimension(width);
+    return $.parseDimension(width) + marginToAdd;
   },
   /**
-   * Will return the height of the view
+   * Will return the height of the view (including the margins)
    *
    * @param {Boolean} attributeValue - when true, the lj-height value will be used
    * @return {Number} the height of the view
    */
   height: function(attributeValue) {
     var height;
+
+    var margin = this.getMargin();
+    var marginToAdd = margin.top + margin.bottom;
 
     if (attributeValue !== true) {
       height = this.outerEl.offsetHeight;
@@ -280,7 +286,31 @@ var BaseView = DOMObserver.extend({
       height = this.getAttributeLJ('height');
     }
 
-    return $.parseDimension(height);
+    return $.parseDimension(height) + marginToAdd;
+  },
+  /**
+   * Will set the width of the view (excluding the margins)
+   *
+   * @param {Number} width
+   */
+  setWidth: function(width) {
+    width = $.parseDimension(width);
+    var margin = this.getMargin();
+    var marginToSubtract = margin.left + margin.right;
+
+    this.outerEl.style.width = width - marginToSubtract + 'px';
+  },
+  /**
+   * Will set the width of the view (excluding the margins)
+   *
+   * @param {Number} height
+   */
+  setHeight: function(height) {
+    height = $.parseDimension(height);
+    var margin = this.getMargin();
+    var marginToSubtract = margin.top + margin.bottom;
+
+    this.outerEl.style.height = height - marginToSubtract + 'px';
   },
   /**
    * Will return the x value of the view. This method will use
@@ -491,6 +521,21 @@ var BaseView = DOMObserver.extend({
    */
   setNativeScroll: function(nativeScroll) {
     this.setAttributeLJ('native-scroll', nativeScroll);
+  }  ,
+  /**
+   * Will return the margin for the outerEl
+   *
+   * @return {Object}
+   */
+  getMargin: function() {
+    var computedStyle = window.getComputedStyle(this.outerEl, null);
+
+    return {
+      top: $.parseDimension(computedStyle.getPropertyValue('margin-top') || '0'),
+      bottom: $.parseDimension(computedStyle.getPropertyValue('margin-bottom') || '0'),
+      right: $.parseDimension(computedStyle.getPropertyValue('margin-right') || '0'),
+      left: $.parseDimension(computedStyle.getPropertyValue('margin-left') || '0'),
+    };
   },
   /**
    * ##destroy
