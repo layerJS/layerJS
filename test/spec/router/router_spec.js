@@ -58,7 +58,9 @@ describe('router', function() {
 
     layerJS.router._navigate.and.callThrough();
   });
+
   it('will let the current router can handle the url', function() {
+    var called = false;
     var dummyRouter = {
       handle: function(url) {
         var promise = new Kern.Promise();
@@ -66,11 +68,10 @@ describe('router', function() {
           handled: true,
           stop: true
         });
+        called = true;
         return promise;
       }
     };
-
-    spyOn(dummyRouter, 'handle');
 
     layerJS.router.addRouter(dummyRouter);
     var element = document.createElement('a');
@@ -78,7 +79,7 @@ describe('router', function() {
     document.body.appendChild(element);
     element.click();
 
-    expect(dummyRouter.handle).toHaveBeenCalled();
+    expect(called).toBeTruthy();
   });
 
   it('will add a new entry to the history when url is handled', function() {
@@ -299,7 +300,7 @@ describe('router', function() {
 
     layerJS.router.addRouter(dummyRouter);
 
-    layerJS.router._navigate(url, true).then(function(){
+    layerJS.router._navigate(url, true).then(function() {
       expect(layerJS.router.routers[0].routes.hasOwnProperty('/')).toBeTruthy();
       expect(layerJS.router.routers[0].routes['/']).toEqual(['stage1.layer1.frame1']);
       done();
@@ -413,10 +414,10 @@ describe('router', function() {
     layerJS.router._navigate.and.callThrough();
   });
 
-  it('will append the path to the frame when using a local special frame name', function() {
+  function specialFrameNamesTest(href, expectedUrl) {
     var html = "<div data-lj-type='stage' id='stage1'>" +
       "<div data-lj-type='layer' id='layer1' data-lj-default-frame='frame1'>" +
-      "<div data-lj-type='frame' id='frame1' data-lj-name='frame1'><a id='next' href='#!next'>next</a></div>" +
+      "<div data-lj-type='frame' id='frame1' data-lj-name='frame1'><a id='next' href='" + href + "'>next</a></div>" +
       "<div data-lj-type='frame' id='frame2' data-lj-name='frame2'></div>" +
       "</div>" +
       "</div>";
@@ -444,40 +445,18 @@ describe('router', function() {
     var element = document.getElementById('next');
     element.click();
 
-    expect(resultUrl).toBe('/#stage1.layer1.frame2');
+    expect(resultUrl).toBe(expectedUrl);
+  }
+
+  it('will append the path to the frame when using a local special frame name', function() {
+    specialFrameNamesTest('#!next', '/#stage1.layer1.frame2');
   });
 
   it('will append the framename when using a layerpath with a special frame name', function() {
-    var html = "<div data-lj-type='stage' id='stage1'>" +
-      "<div data-lj-type='layer' id='layer1' data-lj-default-frame='frame1'>" +
-      "<div data-lj-type='frame' id='frame1' data-lj-name='frame1'><a id='next' href='#stage1.layer1.!next'>next</a></div>" +
-      "<div data-lj-type='frame' id='frame2' data-lj-name='frame2'></div>" +
-      "</div>" +
-      "</div>";
+    specialFrameNamesTest('#stage1.layer1.!next', '/#stage1.layer1.frame2');
+  });
 
-    utilities.setHtml(html);
-
-    new StageView({
-      el: document.getElementById('stage1')
-    });
-
-    var resultUrl;
-    var dummyRouter = {
-      handle: function(url) {
-        var promise = new Kern.Promise();
-        resultUrl = url;
-        promise.resolve({
-          handled: true,
-          stop: true
-        });
-        return promise;
-      }
-    };
-
-    layerJS.router.addRouter(dummyRouter);
-    var element = document.getElementById('next');
-    element.click();
-
-    expect(resultUrl).toBe('/#stage1.layer1.frame2');
+  it('will append the framename when using a partial layerpath with a special frame name', function() {
+    specialFrameNamesTest('#layer1.!next', '/#stage1.layer1.frame2');
   });
 });

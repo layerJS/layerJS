@@ -62,39 +62,60 @@ var Router = Kern.EventManager.extend({
         var href = this.href;
 
         if (-1 !== href.indexOf('#')) {
-          // will chech for a local hash with special frame name.
-          var hash = href.substring(href.indexOf('#') + 1);
+          var url = href;
+          var queryParameters = '';
+          var hash = '';
+
+          if (href.indexOf('?') > 0) {
+            var queryStart = href.indexOf('?');
+            url = href.substr(0, queryStart);
+            queryParameters = href.substr(queryStart);
+          }
+
+          hash = url.substring(url.indexOf('#') + 1);
+          url = url.substring(0, url.indexOf('#'));
+
           var states = hash.split(';');
           var layerView;
+          var statesToTransition = [];
+          var specialFrame;
 
-          for (var index = 0; index < states.length; index++) {
-            for (var specialFrame in defaults.specialFrames) {
-              if (defaults.specialFrames.hasOwnProperty(specialFrame)) {
-                // local hash has been found
-                if (states[index] === defaults.specialFrames[specialFrame]) {
-                  //find parent layer view
-                  layerView = domhelpers.findParentViewOfType(this, 'layer');
-                } else if (states[index].indexOf(defaults.specialFrames[specialFrame]) !== -1) {
-                  // path the contains a special frame name
-                  var layerPath = states[index].replace('.' + defaults.specialFrames[specialFrame], '');
-                  layerView = state.getViewForPath(layerPath);
-                }
+          for (var i = 0; i < states.length; i++) {
+            var isLocalHash = false;
+            for (specialFrame in defaults.specialFrames) {
+              if (defaults.specialFrames.hasOwnProperty(specialFrame) && states[i] === defaults.specialFrames[specialFrame]) {
+                isLocalHash = true;
+                layerView = domhelpers.findParentViewOfType(this, 'layer');
+                statesToTransition.push(state.getPathForView(layerView) + '.' + defaults.specialFrames[specialFrame]);
+                break;
+              }
+            }
 
-                if (layerView) {
-                  // get path for layer view and append special frame name
-                  var frameView = layerView._getFrame(defaults.specialFrames[specialFrame]);
-                  var frameName = null !== frameView ? frameView.name() : defaults.specialFrames[specialFrame];
-                  states[index] = state.getPathForView(layerView) + '.' + frameName;
-                }
+            if (!isLocalHash) {
+              // resolve partial paths
+              statesToTransition = statesToTransition.concat(state._determineTransitionPaths([states[i]]));
+            }
+          }
+
+          // resolve special frame names
+          for (var index = 0; index < statesToTransition.length; index++) {
+            for (specialFrame in defaults.specialFrames) {
+              if (defaults.specialFrames.hasOwnProperty(specialFrame) && -1 !== statesToTransition[index].indexOf(defaults.specialFrames[specialFrame])) {
+                var layerPath = statesToTransition[index].replace('.' + defaults.specialFrames[specialFrame], '');
+                layerView = state.getViewForPath(layerPath);
+                var frameView = layerView._getFrame(defaults.specialFrames[specialFrame]);
+                var frameName = (undefined !== frameView && null !== frameView) ? frameView.name() : defaults.specialFrames[specialFrame];
+                statesToTransition[index] = state.getPathForView(layerView) + '.' + frameName;
+                break;
               }
             }
           }
 
           // re-assemble url
-          href = href.substring(0, href.indexOf('#') + 1) + states.join(';');
+          href = url + '#' + statesToTransition.join(';') + queryParameters;
         }
 
-        event.preventDefault();      
+        event.preventDefault();
 
         that._navigate(href, true).then(function(result) {
           if (!result) {
