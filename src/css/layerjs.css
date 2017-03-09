@@ -8,6 +8,7 @@
   -webkit-transform-origin: left top;
   top: 0px;
   left: 0px;
+  box-sizing: border-box;
 }
 [data-lj-type='layer'], [lj-type='layer'] {
   position: absolute;
