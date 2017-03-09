@@ -48,7 +48,9 @@ describe('Filerouter', function() {
     var layerView = document.getElementById('contentlayer')._ljView;
 
     var fileRouter = new FileRouter();
-    var promise = fileRouter.handle('http://localhost/somePage.html');
+    var promise = fileRouter.handle({
+      url: 'http://localhost/somePage.html'
+    });
     scope.done();
 
     promise.then(function(result) {
@@ -75,7 +77,9 @@ describe('Filerouter', function() {
     var layerView = document.getElementById('contentlayer')._ljView;
 
     var fileRouter = new FileRouter();
-    var promise = fileRouter.handle('http://localhost/somePage.html');
+    var promise = fileRouter.handle({
+      url: 'http://localhost/somePage.html'
+    });
     scope.done();
 
     promise.then(function(result) {
@@ -85,7 +89,7 @@ describe('Filerouter', function() {
       done();
     });
 
-  },5000);
+  }, 5000);
 
   it('when no matching path is found, the current frame stays', function(done) {
     var scope = nock('http://localhost')
@@ -104,7 +108,9 @@ describe('Filerouter', function() {
     var layerView = document.getElementById('contentlayer')._ljView;
 
     var fileRouter = new FileRouter();
-    var promise = fileRouter.handle('/somePage.html');
+    var promise = fileRouter.handle({
+      url: '/somePage.html'
+    });
     scope.done();
 
     promise.then(function() {
@@ -128,14 +134,17 @@ describe('Filerouter', function() {
     };
 
     var fileRouter = new FileRouter();
-    var promise = fileRouter.handle('/somePage.html', transitionOptions);
+    var promise = fileRouter.handle({
+      url: '/somePage.html',
+      transition: transitionOptions
+    });
     scope.done();
 
     promise.then(function() {
       expect(layerView.transitionTo).toHaveBeenCalledWith('frame2', transitionOptions);
       done();
     });
-  },5000);
+  }, 5000);
 
   it('will return false when an error occured', function(done) {
     new StageView({
@@ -143,7 +152,9 @@ describe('Filerouter', function() {
     });
 
     var fileRouter = new FileRouter();
-    var promise = fileRouter.handle('/somePage.html');
+    var promise = fileRouter.handle({
+      url: '/somePage.html'
+    });
 
     promise.then(function(result) {
       expect(result.handled).toBe(false);
@@ -166,7 +177,10 @@ describe('Filerouter', function() {
     };
 
     var fileRouter = new FileRouter();
-    var promise = fileRouter.handle('/somePage.html', transitionOptions);
+    var promise = fileRouter.handle({
+      url: '/somePage.html',
+      transition: transitionOptions
+    });
     scope.done();
 
     promise.then(function(result) {
@@ -174,7 +188,7 @@ describe('Filerouter', function() {
       expect(fileRouter._cache['/somePage.html']).toEqual(state.exportState());
       done();
     });
-  });
+  }, 5000);
 
   it('will load the cached state of an already requested page', function(done) {
     utilities.setHtml('<div data-lj-type="stage" id="contentstage">' +
@@ -201,7 +215,10 @@ describe('Filerouter', function() {
 
     var fileRouter = new FileRouter();
     fileRouter._cache['/somePage.html'] = ['contentstage.contentlayer.frame2'];
-    var promise = fileRouter.handle('/somePage.html', transitionOptions);
+    var promise = fileRouter.handle({
+      url: '/somePage.html',
+      transition: transitionOptions
+    });
 
     promise.then(function(result) {
       expect(result.handled).toBeTruthy();
@@ -217,7 +234,9 @@ describe('Filerouter', function() {
     });
 
     var layerView = document.getElementById('contentlayer')._ljView;
-    var fileRouter = new FileRouter({cacheCurrent : true});
+    var fileRouter = new FileRouter({
+      cacheCurrent: true
+    });
     expect(fileRouter._cache['/']).toEqual(state.exportState());
   });
 });

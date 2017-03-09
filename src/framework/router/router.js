@@ -135,7 +135,7 @@ var Router = Kern.EventManager.extend({
   _parseUrl: function(href) {
     var result = {
       url: href,
-      transitionOptions: {}
+      transition: {}
     };
 
     for (var parameter in defaults.transitionParameters) {
@@ -144,7 +144,7 @@ var Router = Kern.EventManager.extend({
         var regEx = new RegExp("[?&]" + parameterName + "=([^&]+)");
         var match = result.url.match(regEx);
         if (match) {
-          result.transitionOptions[parameter] = match[1];
+          result.transition[parameter] = match[1];
           result.url = result.url.replace(regEx, '');
         }
       }
@@ -208,7 +208,7 @@ var Router = Kern.EventManager.extend({
 
     var callRouter = function() {
       if (index < count) {
-        that.routers[index].handle(options.url, options.transitionOptions).then(function(result) {
+        that.routers[index].handle(options).then(function(result) {
           if (!handled && result.handled) {
             if (window.history && addToHistory) {
               window.history.pushState({}, "", options.url);

@@ -538,6 +538,17 @@ var BaseView = DOMObserver.extend({
     };
   },
   /**
+   * Will return if the layer should show it's frame in the url
+   *
+   * @return {Boolean} the value of the lj-no-url attribute
+   */
+  noUrl: function() {
+    var noUrl = this.getAttributeLJ('no-url');
+
+    return noUrl === 'true' ? true : false;
+  },
+
+  /**
    * ##destroy
    * This element was requested to be deleted completly; before the delete happens
    * an event is triggerd on which this function id bound (in `initialialize`). It

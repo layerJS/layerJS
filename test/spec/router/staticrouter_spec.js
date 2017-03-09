@@ -39,7 +39,7 @@ describe('staticRouter', function() {
       el: document.getElementById('stage1')
     });
 
-    var promise = staticRouter.handle(url, {});
+    var promise = staticRouter.handle({ url, transition: {}});
 
     promise.then(function(result) {
       setTimeout(function() {

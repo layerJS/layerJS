@@ -23,11 +23,14 @@ describe('HashRouter', function() {
 
     utilities.setHtml(html);
 
-    new StageView( {
+    new StageView({
       el: document.getElementById('stage1')
     });
 
-    var promise = hashRouter.handle(url, {});
+    var promise = hashRouter.handle({
+      url: url,
+      transition: {}
+    });
 
     promise.then(function(result) {
       setTimeout(function() {
@@ -40,8 +43,43 @@ describe('HashRouter', function() {
     });
   });
 
+  it('will not show in url if no-url="true"', function(done) {
+    var url = window.location.href + '#stage1.layer1.frame2';
+
+    var html = "<div data-lj-type='stage' id='stage1'>" +
+      "<div data-lj-type='layer' id='layer1' data-lj-no-url='true' data-lj-default-frame='frame1'>" +
+      "<div data-lj-type='frame' id='frame1' data-lj-name='frame1'></div>" +
+      "<div data-lj-type='frame' id='frame2' data-lj-name='frame2'></div>" +
+      "</div>" +
+      "</div>";
+
+    utilities.setHtml(html);
+
+    new StageView({
+      el: document.getElementById('stage1')
+    });
+    var options = {
+      url: url,
+      transition: {}
+    };
+
+    var promise = hashRouter.handle(options);
+
+    promise.then(function(result) {
+      setTimeout(function() {
+        expect(result.handled).toBeTruthy();
+        expect(result.stop).toBeTruthy();
+        expect(options.url).toBe(window.location.href + '#')
+        done();
+      }, 500);
+    });
+  });
+
   it('can only handle an url with a hash', function(done) {
-    var promise = hashRouter.handle('http://localhost/', {});
+    var promise = hashRouter.handle({
+      url: 'http://localhost/',
+      transition: {}
+    });
 
     promise.then(function(result) {
       expect(result.handled).toBeFalsy();
@@ -50,7 +88,10 @@ describe('HashRouter', function() {
   });
 
   it('can only handle an url with a hash that is the same as the current url', function(done) {
-    var promise = hashRouter.handle('http://localhost/test.html#stage1.layer1.frame2', {});
+    var promise = hashRouter.handle({
+      url: 'http://localhost/test.html#stage1.layer1.frame2',
+      transition: {}
+    });
 
     promise.then(function(result) {
       expect(result.handled).toBeFalsy();

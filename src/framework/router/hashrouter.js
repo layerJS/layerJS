@@ -8,10 +8,10 @@ var HashRouter = Kern.EventManager.extend({
    * @param {string} an url
    * @return {boolean} True if the router handled the url
    */
-  handle: function(href, transition) {
+  handle: function(options) {
 
     var promise = new Kern.Promise();
-    var splitted = href.split('#');
+    var splitted = options.url.split('#');
 
     if (window.location.href.indexOf(splitted[0]) === -1 || splitted.length !== 2) {
       // not the same file or no hash in href
@@ -22,7 +22,18 @@ var HashRouter = Kern.EventManager.extend({
     } else {
       var hash = splitted[1];
       var states = hash.split(';');
-      var result = state.transitionTo(states, transition);
+
+      var stateParameters = [];
+      for (var index = 0; index < states.length; index++) {
+        var frameView = state.getViewForPath(states[index]);
+        if (!frameView.parent.noUrl()) {
+          stateParameters.push(states[index]);
+        }
+      }
+
+      options.url = options.url.replace(states.join(';'), stateParameters.join(';'));
+
+      var result = state.transitionTo(states, options.transition);
       promise.resolve({
         stop: result,
         handled: result

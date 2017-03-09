@@ -28,7 +28,7 @@ describe('router', function() {
 
   it('will add the a StaticRouter at the beginning of the router pipline', function() {
     var dummyRouter = {
-      handle: function(url) {
+      handle: function(options) {
         var promise = new Kern.Promise();
         promise.resolve({
           handled: false,
@@ -62,7 +62,7 @@ describe('router', function() {
   it('will let the current router can handle the url', function() {
     var called = false;
     var dummyRouter = {
-      handle: function(url) {
+      handle: function(options) {
         var promise = new Kern.Promise();
         promise.resolve({
           handled: true,
@@ -84,7 +84,7 @@ describe('router', function() {
 
   it('will add a new entry to the history when url is handled', function() {
     var dummyRouter = {
-      handle: function(url) {
+      handle: function(options) {
         var promise = new Kern.Promise();
         promise.resolve({
           handled: true,
@@ -112,7 +112,7 @@ describe('router', function() {
 
   it('will not add a new entry to the history when url can not be handled', function() {
     var dummyRouter = {
-      handle: function(url) {
+      handle: function(options) {
         var promise = new Kern.Promise();
         promise.resolve({
           handled: false,
@@ -141,7 +141,7 @@ describe('router', function() {
 
   it('the window.popState will call the navigate method on the router and won\'t add an entry to the history', function() {
     var dummyRouter = {
-      handle: function(url) {
+      handle: function(options) {
         var promise = new Kern.Promise();
         promise.resolve({
           handled: true,
@@ -171,7 +171,7 @@ describe('router', function() {
     var result = layerJS.router._parseUrl(url);
 
     expect(result.url).toBe('/index.html?id=1&cat=p');
-    expect(result.transitionOptions).toEqual({
+    expect(result.transition).toEqual({
       duration: '100s',
       type: 'left'
     });
@@ -232,7 +232,7 @@ describe('router', function() {
       var result = layerJS.router._parseUrl(url);
 
       expect(result.url).toBe('/index.html?id=1&cat=p');
-      expect(result.transitionOptions).toEqual({
+      expect(result.transition).toEqual({
         duration: '100s',
         type: 'left'
       });
@@ -243,8 +243,8 @@ describe('router', function() {
     var transitionOptions, urlHistory;
 
     var dummyRouter = {
-      handle: function(url, transition) {
-        transitionOptions = transition;
+      handle: function(options) {
+        transitionOptions = options.transition;
 
         var promise = new Kern.Promise();
         promise.resolve({
@@ -273,7 +273,7 @@ describe('router', function() {
     var routerCache = layerJS.router.cache;
     var url = window.location.origin + '/index.html';
     var dummyRouter = {
-      handle: function(url) {
+      handle: function(options) {
         var promise = new Kern.Promise();
         promise.resolve({
           handled: true,
@@ -311,7 +311,7 @@ describe('router', function() {
     var url = window.location.origin + '/index.html';
     var handled = false;
     var dummyRouter = {
-      handle: function(url) {
+      handle: function(options) {
         var promise = new Kern.Promise();
         promise.resolve({
           handled: true,
@@ -322,7 +322,7 @@ describe('router', function() {
     };
 
     var dummyRouter2 = {
-      handle: function(url) {
+      handle: function(options) {
         handled = true;
         var promise = new Kern.Promise();
         promise.resolve({
@@ -359,7 +359,7 @@ describe('router', function() {
     var url = window.location.origin + '/index.html';
     var handled = false;
     var dummyRouter = {
-      handle: function(url) {
+      handle: function(options) {
         var promise = new Kern.Promise();
         promise.resolve({
           handled: true,
@@ -370,7 +370,7 @@ describe('router', function() {
     };
 
     var dummyRouter2 = {
-      handle: function(url) {
+      handle: function(options) {
         handled = true;
         var promise = new Kern.Promise();
         promise.resolve({
@@ -430,9 +430,9 @@ describe('router', function() {
 
     var resultUrl;
     var dummyRouter = {
-      handle: function(url) {
+      handle: function(options) {
         var promise = new Kern.Promise();
-        resultUrl = url;
+        resultUrl = options.url;
         promise.resolve({
           handled: true,
           stop: true

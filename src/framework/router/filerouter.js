@@ -21,13 +21,13 @@ var FileRouter = Kern.EventManager.extend({
    * @param {string} an url
    * @return {boolean} True if the router handled the url
    */
-  handle: function(href, transition) {
+  handle: function(options) {
     var that = this;
     var promise = new Kern.Promise();
     var canHandle = true;
 
-    if (href.match(/^\w+:/)) { // absolute URL
-      if (!href.match(new RegExp('^' + window.location.origin))) {
+    if (options.url.match(/^\w+:/)) { // absolute URL
+      if (!options.url.match(new RegExp('^' + window.location.origin))) {
         canHandle = false;
         promise.resolve({
           handled: false,
@@ -36,7 +36,7 @@ var FileRouter = Kern.EventManager.extend({
       }
     }
 
-    var splitted = href.split('#');
+    var splitted = options.url.split('#');
     if (canHandle && window.location.href.indexOf(splitted[0]) !== -1 && splitted.length > 1) {
       // same file and with a hash
       canHandle = false;
@@ -49,7 +49,7 @@ var FileRouter = Kern.EventManager.extend({
     if (canHandle && this._cache.hasOwnProperty(splitted[0])) {
       canHandle = false;
       var framesToTransitionTo = this._cache[splitted[0]];
-      state.transitionTo(framesToTransitionTo, transition);
+      state.transitionTo(framesToTransitionTo, options.transition);
       promise.resolve({
         stop: false,
         handled: true
@@ -57,7 +57,7 @@ var FileRouter = Kern.EventManager.extend({
     }
 
     if (canHandle) {
-      this._loadHTML(href).then(function(doc) {
+      this._loadHTML(options.url).then(function(doc) {
         parseManager.parseDocument(doc);
         var loadedFrames = state.exportStructure(doc);
         var toParseChildren = {};
@@ -96,7 +96,7 @@ var FileRouter = Kern.EventManager.extend({
 
         if (framesToTransitionTo.length > 0) {
           $.postAnimationFrame(function() {
-            state.transitionTo(framesToTransitionTo, transition);
+            state.transitionTo(framesToTransitionTo, options.transition);
             promise.resolve({
               stop: false,
               handled: true
