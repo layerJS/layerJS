@@ -6,8 +6,11 @@ utilities.transitionTo = function(layerId, frameName, transition, waitTime) {
   waitTime = waitTime || 3000;
 
   return browser.driver.executeAsyncScript(function(layerId, frameName, transition, waitTime, callBack) {
-    layerJS.select('#' + layerId).transitionTo(frameName, transition);
-    window.setTimeout(callBack, waitTime);
+    var layer = layerJS.select('#' + layerId);
+    layer.transitionTo(frameName, transition);
+    layer.on("transitionFinished", function() {
+      callBack();
+    });
   }, layerId, frameName, transition, waitTime);
 };
 
@@ -28,9 +31,35 @@ utilities.getBoundingClientRect = function(elementId) {
     el.style.display = 'block';
     var result = el.getBoundingClientRect();
     el.style.display = orgDisplay;
+    var style = window.getComputedStyle(el);
+    result.opacity = style.getPropertyValue('opacity');
+    result['z-index'] = style.getPropertyValue('z-index');
 
     callBack(result);
   }, elementId);
+};
+
+utilities.listenDimensionsBeforeTransition = function(layerId, frameId) {
+  return browser.driver.executeScript(function(layerId, frameId) {
+    var lyEl = window.document.getElementById(layerId);
+    var frEl = window.document.getElementById(frameId);
+    lyEl._ljView.on("transitionPrepared", function() {
+      var orgDisplay = frEl.style.display;
+      frEl.style.display = 'block';
+      var frameResult = frEl.getBoundingClientRect();
+      frEl.style.display = orgDisplay;
+      var style = window.getComputedStyle(frEl);
+      frameResult.opacity = style.getPropertyValue('opacity');
+      frameResult['z-index'] = style.getPropertyValue('z-index');
+      (window._selenium_store = window._selenium_store || {})[frameId] = frameResult;
+    });
+  }, layerId, frameId);
+};
+
+utilities.getFromStore = function(id) {
+  return browser.driver.executeAsyncScript(function(id, callback) {
+    callback(window._selenium_store[id]);
+  }, id);
 };
 
 utilities.getScale = function(elementId) {
@@ -98,6 +127,24 @@ utilities.setAttribute = function(elementId, attribute, value) {
     callBack();
   }, elementId, attribute, value);
 };
+
+utilities.getAttribute = function(elementId, attribute) {
+  return browser.driver.executeAsyncScript(function(elementId, attribute, callBack) {
+    var el = window.document.getElementById(elementId);
+    callBack(el.getAttribute(attribute));
+  }, elementId, attribute);
+};
+
+utilities.getStyle = function(elementId, cssAttribtue) {
+  return browser.driver.executeAsyncScript(function(elementId, cssAttribtue, callBack) {
+    var el = window.document.getElementById(elementId);
+    var style = window.getComputedStyle(el);
+    // var cssAtt = style.getPropertyValue('cssAttribtue');
+    callBack(style.getPropertyValue(cssAttribtue));
+  }, elementId, cssAttribtue);
+};
+
+
 
 utilities.setAttributes = function(elementId, attributes) {
   return browser.driver.executeAsyncScript(function(elementId, attributes, callBack) {
@@ -407,7 +454,7 @@ utilities.getDataAttribute = function(elementId, dataAttribute) {
 };
 
 utilities.getChildrenIds = function(elementId) {
-  return browser.driver.executeAsyncScript(function(id,callback) {
+  return browser.driver.executeAsyncScript(function(id, callback) {
     var element = document.getElementById(id);
     var view = element._ljView;
     var result = [];
@@ -423,16 +470,16 @@ utilities.getChildrenIds = function(elementId) {
 };
 
 
-utilities.showFrame = function(layerId, frameName, scrollData,waitTime) {
+utilities.showFrame = function(layerId, frameName, scrollData, waitTime) {
   waitTime = waitTime || 0;
 
-  return browser.driver.executeAsyncScript(function(id, frameName, scrollData, waitTime,callback) {
+  return browser.driver.executeAsyncScript(function(id, frameName, scrollData, waitTime, callback) {
     layerJS.select('#' + id).showFrame(frameName, scrollData);
     callback();
   }, layerId, frameName, scrollData, waitTime);
 };
 
-utilities.addElement= function(parentId, elementHTML) {
+utilities.addElement = function(parentId, elementHTML) {
   return browser.driver.executeAsyncScript(function(parentId, elementHTML, callBack) {
     var el = document.getElementById(parentId);
     el.insertAdjacentHTML('beforeend', elementHTML);
