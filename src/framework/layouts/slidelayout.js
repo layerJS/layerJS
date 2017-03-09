@@ -8,10 +8,9 @@ var defaults = require('../defaults.js');
 
 // partials
 // define data for pre position / css of new frame (for in transition ) or post position / css of old frame
-// ['adjacent',x,y,scale,rotation,z,css,org_css]
+// ['adjacent',x,y,scale,rotation,css,org_css]
 // x,y: position relative to stage (x=-1 left, x=+1 right, y=-1 top, y=+1 bottom), can be scaled (values <>1) and combined
 // scale, rotation: only for the pre target frame or post current frame
-// z: z component of translate3d for pre / post position
 // css: additional css parameters (e.g. opacity, clip) for the pre target frame or post current frame
 // org_css: additional css parameters (e.g. opacity, clip) for the post target frame or pre current frame
 var partials = {
@@ -98,7 +97,7 @@ var SlideLayout = LayerLayout.extend({
    * @param {FrameView} frame - frame to transition to
    * @param {Object} transition - transition object
    * @param {Object} targetFrameTransformData - the transformData object of the target frame
-   * @param {string} targetTransform - transform represenptg the scrolling after transition
+   * @param {string} targetTransform - transform representing the scrolling after transition
    * @returns {Kern.Promise} a promise fullfilled after the transition finished. Note: if you start another transition before the first one finished, this promise will not be resolved.
    */
   transitionTo: function(frame, transition, targetFrameTransformData, targetTransform) {

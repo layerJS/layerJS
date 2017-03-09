@@ -27,4 +27,4 @@ exports.config = {
     browser.resetUrl = 'file://';
     browser.ignoreSynchronization = true;
   }
-}
+};
