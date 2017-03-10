@@ -265,7 +265,10 @@ var SlideLayout = LayerLayout.extend({
     if (frame) {
       var css = Kern._extend({}, frameTransform);
       css.transform = addedTransform + " " + (css.transform || "");
-      frame.applyStyles(styles || {}, css);
+      frame.applyStyles({
+        left: '0px', // force top, left to be 0 in slide layout
+        top: '0px'
+      }, styles || {}, css);
     }
   },
   /**

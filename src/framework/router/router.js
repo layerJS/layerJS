@@ -115,7 +115,8 @@ var Router = Kern.EventManager.extend({
           href = url + '#' + statesToTransition.join(';') + queryParameters;
         }
 
-        event.preventDefault();
+        event.preventDefault(); // prevent default action, i.e. going to link target
+        // do not stop propagation; other libraries may listen to link clicks
 
         that._navigate(href, true).then(function(result) {
           if (!result) {
