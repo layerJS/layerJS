@@ -85,11 +85,13 @@ var UrlData = Kern.Base.extend({
       var hashTransition = Kern._extend({}, this.transition, result.transition);
 
       for (var index = 0; index < paths.length; index++) {
-        this.hashTransitions[paths[index]] = hashTransition;
-        this.hasHashTransitions = true;
-        if (!state.getViewForPath(paths[index]).parent.noUrl()) {
-          tmpHashParts.push(paths[index] + search + queryParams);
-        }
+        var view = state.getViewForPath(paths[index]);
+          this.hashTransitions[paths[index]] = hashTransition;
+          this.hasHashTransitions = true;
+          if (!view || !view.parent || !view.parent.noUrl()) {
+            tmpHashParts.push(paths[index] + search + queryParams);
+          }
+
       }
     }
 
