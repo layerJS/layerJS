@@ -46,6 +46,7 @@
 
     "webdriverManagerStart": "webdriver-manager start",
     "e2eTest": "./node_modules/.bin/protractor protractorconfig.js",
+    "e2e": "scripty",
 
     "buildSpecs": "scripty",
 
