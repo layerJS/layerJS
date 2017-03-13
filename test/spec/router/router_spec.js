@@ -4,6 +4,7 @@ describe('router', function() {
   var utilities = require('../helpers/utilities.js');
   var StageView = require('../../../src/framework/stageview.js');
   var state = require('../../../src/framework/state.js');
+  var UrlData = require('../../../src/framework/url/urldata.js')
   var Kern = require('../../../src/kern/kern.js');
 
   beforeEach(function() {
@@ -28,7 +29,7 @@ describe('router', function() {
 
   it('will add the a StaticRouter at the beginning of the router pipline', function() {
     var dummyRouter = {
-      handle: function(options) {
+      handle: function(urlData) {
         var promise = new Kern.Promise();
         promise.resolve({
           handled: false,
@@ -62,7 +63,7 @@ describe('router', function() {
   it('will let the current router can handle the url', function() {
     var called = false;
     var dummyRouter = {
-      handle: function(options) {
+      handle: function(urlData) {
         var promise = new Kern.Promise();
         promise.resolve({
           handled: true,
@@ -84,7 +85,7 @@ describe('router', function() {
 
   it('will add a new entry to the history when url is handled', function() {
     var dummyRouter = {
-      handle: function(options) {
+      handle: function(urlData) {
         var promise = new Kern.Promise();
         promise.resolve({
           handled: true,
@@ -112,7 +113,7 @@ describe('router', function() {
 
   it('will not add a new entry to the history when url can not be handled', function() {
     var dummyRouter = {
-      handle: function(options) {
+      handle: function(urlData) {
         var promise = new Kern.Promise();
         promise.resolve({
           handled: false,
@@ -138,10 +139,9 @@ describe('router', function() {
     window.history.pushState.and.callThrough();
   });
 
-
   it('the window.popState will call the navigate method on the router and won\'t add an entry to the history', function() {
     var dummyRouter = {
-      handle: function(options) {
+      handle: function(urlData) {
         var promise = new Kern.Promise();
         promise.resolve({
           handled: true,
@@ -165,86 +165,12 @@ describe('router', function() {
     window.history.pushState.and.callThrough();
   });
 
-  it('will parse an url for transition options', function() {
-    var url = window.location.origin + '/index.html?id=1&t=100s&p=left&cat=p';
-
-    var result = layerJS.router._parseUrl(url);
-
-    expect(result.url).toBe('/index.html?id=1&cat=p');
-    expect(result.transition).toEqual({
-      duration: '100s',
-      type: 'left'
-    });
-  });
-
-  it('will resolve relative paths', function() {
-    var url = '/dir1/dir2/../index.html';
-    var result = layerJS.router._parseUrl(url);
-
-    expect(result.url).toBe('/dir1/index.html');
-  });
-
-  it('will resolve ~/ paths', function() {
-    var url = '~/index.html';
-
-    var result = layerJS.router._parseUrl(url);
-
-    expect(result.url).toBe('/index.html');
-  });
-
-  it('will resolve /~/ paths', function() {
-    var url = 'test/~/index.html';
-
-    var result = layerJS.router._parseUrl(url);
-
-    expect(result.url).toBe('/index.html');
-  });
-
-  it('will make paths absolute from the same domain', function() {
-    var url = window.location.origin + '/dir/../index.html';
-
-    var result = layerJS.router._parseUrl(url);
-
-    expect(result.url).toBe('/index.html');
-  });
-
-  it('will not resolve paths from other domains', function() {
-    var url = 'http://layerjs.org/dir/../index.html';
-
-    var result = layerJS.router._parseUrl(url);
-
-    expect(result.url).toBe('http://layerjs.org/dir/../index.html');
-  });
-
-  it('the name for the transition options in an url are configurable', function() {
-
-    var types = ['a', 'b', 'c', ];
-    var durations = ['z', 'y', 'x', ];
-
-    for (var i = 0; i < types.length; i++) {
-      var type = types[i];
-      var duration = durations[i];
-
-      defaults.transitionParameters.type = type;
-      defaults.transitionParameters.duration = duration;
-
-      var url = window.location.origin + '/index.html?id=1&' + duration + '=100s&' + type + '=left&cat=p';
-      var result = layerJS.router._parseUrl(url);
-
-      expect(result.url).toBe('/index.html?id=1&cat=p');
-      expect(result.transition).toEqual({
-        duration: '100s',
-        type: 'left'
-      });
-    }
-  });
-
   it('will pass the transition options to the current router and will add a cleaned up url to the history', function() {
     var transitionOptions, urlHistory;
 
     var dummyRouter = {
-      handle: function(options) {
-        transitionOptions = options.transition;
+      handle: function(urlData) {
+        transitionOptions = urlData.transition;
 
         var promise = new Kern.Promise();
         promise.resolve({
@@ -273,7 +199,7 @@ describe('router', function() {
     var routerCache = layerJS.router.cache;
     var url = window.location.origin + '/index.html';
     var dummyRouter = {
-      handle: function(options) {
+      handle: function(urlData) {
         var promise = new Kern.Promise();
         promise.resolve({
           handled: true,
@@ -299,10 +225,9 @@ describe('router', function() {
     });
 
     layerJS.router.addRouter(dummyRouter);
-
     layerJS.router._navigate(url, true).then(function() {
-      expect(layerJS.router.routers[0].routes.hasOwnProperty('/')).toBeTruthy();
-      expect(layerJS.router.routers[0].routes['/']).toEqual(['stage1.layer1.frame1']);
+      expect(layerJS.router.routers[0].routes.hasOwnProperty('http://localhost/')).toBeTruthy();
+      expect(layerJS.router.routers[0].routes['http://localhost/']).toEqual(['stage1.layer1.frame1']);
       done();
     });
   });
@@ -311,7 +236,7 @@ describe('router', function() {
     var url = window.location.origin + '/index.html';
     var handled = false;
     var dummyRouter = {
-      handle: function(options) {
+      handle: function(urlData) {
         var promise = new Kern.Promise();
         promise.resolve({
           handled: true,
@@ -322,7 +247,7 @@ describe('router', function() {
     };
 
     var dummyRouter2 = {
-      handle: function(options) {
+      handle: function(urlData) {
         handled = true;
         var promise = new Kern.Promise();
         promise.resolve({
@@ -359,7 +284,7 @@ describe('router', function() {
     var url = window.location.origin + '/index.html';
     var handled = false;
     var dummyRouter = {
-      handle: function(options) {
+      handle: function(urlData) {
         var promise = new Kern.Promise();
         promise.resolve({
           handled: true,
@@ -370,7 +295,7 @@ describe('router', function() {
     };
 
     var dummyRouter2 = {
-      handle: function(options) {
+      handle: function(urlData) {
         handled = true;
         var promise = new Kern.Promise();
         promise.resolve({
@@ -414,49 +339,4 @@ describe('router', function() {
     layerJS.router._navigate.and.callThrough();
   });
 
-  function specialFrameNamesTest(href, expectedUrl) {
-    var html = "<div data-lj-type='stage' id='stage1'>" +
-      "<div data-lj-type='layer' id='layer1' data-lj-default-frame='frame1'>" +
-      "<div data-lj-type='frame' id='frame1' data-lj-name='frame1'><a id='next' href='" + href + "'>next</a></div>" +
-      "<div data-lj-type='frame' id='frame2' data-lj-name='frame2'></div>" +
-      "</div>" +
-      "</div>";
-
-    utilities.setHtml(html);
-
-    new StageView({
-      el: document.getElementById('stage1')
-    });
-
-    var resultUrl;
-    var dummyRouter = {
-      handle: function(options) {
-        var promise = new Kern.Promise();
-        resultUrl = options.url;
-        promise.resolve({
-          handled: true,
-          stop: true
-        });
-        return promise;
-      }
-    };
-
-    layerJS.router.addRouter(dummyRouter);
-    var element = document.getElementById('next');
-    element.click();
-
-    expect(resultUrl).toBe(expectedUrl);
-  }
-
-  it('will append the path to the frame when using a local special frame name', function() {
-    specialFrameNamesTest('#!next', '/#stage1.layer1.frame2');
-  });
-
-  it('will append the framename when using a layerpath with a special frame name', function() {
-    specialFrameNamesTest('#stage1.layer1.!next', '/#stage1.layer1.frame2');
-  });
-
-  it('will append the framename when using a partial layerpath with a special frame name', function() {
-    specialFrameNamesTest('#layer1.!next', '/#stage1.layer1.frame2');
-  });
 });

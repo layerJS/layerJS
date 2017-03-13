@@ -18,16 +18,16 @@ var FileRouter = Kern.EventManager.extend({
   },
   /**
    * Will do the actual navigation to the url
-   * @param {string} an url
+   * @param {UrlData} an url
    * @return {boolean} True if the router handled the url
    */
-  handle: function(options) {
+  handle: function(urlData) {
     var that = this;
     var promise = new Kern.Promise();
     var canHandle = true;
 
-    if (options.url.match(/^\w+:/)) { // absolute URL
-      if (!options.url.match(new RegExp('^' + window.location.origin))) {
+    if (urlData.url.match(/^\w+:/)) { // absolute URL
+      if (!urlData.url.match(new RegExp('^' + window.location.origin))) {
         canHandle = false;
         promise.resolve({
           handled: false,
@@ -36,8 +36,8 @@ var FileRouter = Kern.EventManager.extend({
       }
     }
 
-    var splitted = options.url.split('#');
-    if (canHandle && window.location.href.indexOf(splitted[0]) !== -1 && splitted.length > 1) {
+    var splitted = urlData.url.split('#');
+    if (canHandle && window.location.href.indexOf(urlData.pathname) !== -1 && splitted.length > 1) {
       // same file and with a hash
       canHandle = false;
       promise.resolve({
@@ -46,10 +46,10 @@ var FileRouter = Kern.EventManager.extend({
       });
     }
 
-    if (canHandle && this._cache.hasOwnProperty(splitted[0])) {
+    if (canHandle && this._cache.hasOwnProperty(urlData.pathname)) {
       canHandle = false;
-      var framesToTransitionTo = this._cache[splitted[0]];
-      state.transitionTo(framesToTransitionTo, options.transition);
+      var framesToTransitionTo = this._cache[urlData.pathname];
+      state.transitionTo(framesToTransitionTo, urlData.transition);
       promise.resolve({
         stop: false,
         handled: true
@@ -57,7 +57,7 @@ var FileRouter = Kern.EventManager.extend({
     }
 
     if (canHandle) {
-      this._loadHTML(options.url).then(function(doc) {
+      this._loadHTML(urlData.url).then(function(doc) {
         parseManager.parseDocument(doc);
         var loadedFrames = state.exportStructure(doc);
         var toParseChildren = {};
@@ -92,11 +92,11 @@ var FileRouter = Kern.EventManager.extend({
         }
 
         var framesToTransitionTo = state.exportState(doc);
-        that._cache[splitted[0]] = framesToTransitionTo;
+        that._cache[urlData.url] = framesToTransitionTo;
 
         if (framesToTransitionTo.length > 0) {
           $.postAnimationFrame(function() {
-            state.transitionTo(framesToTransitionTo, options.transition);
+            state.transitionTo(framesToTransitionTo, urlData.transition);
             promise.resolve({
               stop: false,
               handled: true

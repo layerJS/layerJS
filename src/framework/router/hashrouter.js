@@ -5,35 +5,35 @@ var state = require("../state.js");
 var HashRouter = Kern.EventManager.extend({
   /**
    * Will do the actual navigation to a hash
-   * @param {string} an url
+   * @param {UrlData} an url
    * @return {boolean} True if the router handled the url
    */
-  handle: function(options) {
+  handle: function(urlData) {
 
     var promise = new Kern.Promise();
-    var splitted = options.url.split('#');
-
-    if (window.location.href.indexOf(splitted[0]) === -1 || splitted.length !== 2) {
+    if (!urlData.hasHashTransitions) {
       // not the same file or no hash in href
       promise.resolve({
         handled: false,
         stop: false
       });
     } else {
-      var hash = splitted[1];
-      var states = hash.split(';');
+      var paths = [];
+      var transitions =[urlData.transition];
 
-      var stateParameters = [];
-      for (var index = 0; index < states.length; index++) {
-        var frameView = state.getViewForPath(states[index]);
-        if (!frameView.parent.noUrl()) {
-          stateParameters.push(states[index]);
+      for (var path in urlData.hashTransitions) {
+        if (urlData.hashTransitions.hasOwnProperty(path)) {
+          paths.push(path);
+          transitions.push(urlData.hashTransitions[path]);
         }
       }
 
-      options.url = options.url.replace(states.join(';'), stateParameters.join(';'));
+      var result = true;
 
-      var result = state.transitionTo(states, options.transition);
+      if (paths.length > 0) {
+        result = state.transitionTo(paths, transitions);
+      }
+
       promise.resolve({
         stop: result,
         handled: result

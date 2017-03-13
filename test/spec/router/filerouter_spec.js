@@ -1,10 +1,11 @@
 describe('Filerouter', function() {
-  var FileRouter, StageView;
+  var FileRouter, StageView, UrlData;
   var utilities, nock;
 
   beforeEach(function() {
     nock = require('nock');
     FileRouter = require('../../../src/framework/router/filerouter.js');
+    UrlData = require('../../../src/framework/url/urldata.js');
     utilities = require('../helpers/utilities.js');
     StageView = require('../../../src/framework/stageview.js');
     state = require('../../../src/framework/state.js');
@@ -48,9 +49,7 @@ describe('Filerouter', function() {
     var layerView = document.getElementById('contentlayer')._ljView;
 
     var fileRouter = new FileRouter();
-    var promise = fileRouter.handle({
-      url: 'http://localhost/somePage.html'
-    });
+    var promise = fileRouter.handle(new UrlData('http://localhost/somePage.html'));
     scope.done();
 
     promise.then(function(result) {
@@ -77,9 +76,7 @@ describe('Filerouter', function() {
     var layerView = document.getElementById('contentlayer')._ljView;
 
     var fileRouter = new FileRouter();
-    var promise = fileRouter.handle({
-      url: 'http://localhost/somePage.html'
-    });
+    var promise = fileRouter.handle(new UrlData('http://localhost/somePage.html'));
     scope.done();
 
     promise.then(function(result) {
@@ -108,9 +105,7 @@ describe('Filerouter', function() {
     var layerView = document.getElementById('contentlayer')._ljView;
 
     var fileRouter = new FileRouter();
-    var promise = fileRouter.handle({
-      url: '/somePage.html'
-    });
+    var promise = fileRouter.handle(new UrlData('/somePage.html'));
     scope.done();
 
     promise.then(function() {
@@ -134,14 +129,12 @@ describe('Filerouter', function() {
     };
 
     var fileRouter = new FileRouter();
-    var promise = fileRouter.handle({
-      url: '/somePage.html',
-      transition: transitionOptions
-    });
+    var urlData = new UrlData('/somePage.html?t=2s&p=left');
+    var promise = fileRouter.handle(urlData);
     scope.done();
 
     promise.then(function() {
-      expect(layerView.transitionTo).toHaveBeenCalledWith('frame2', transitionOptions);
+      expect(layerView.transitionTo).toHaveBeenCalledWith('frame2', urlData.transition);
       done();
     });
   }, 5000);
@@ -152,9 +145,7 @@ describe('Filerouter', function() {
     });
 
     var fileRouter = new FileRouter();
-    var promise = fileRouter.handle({
-      url: '/somePage.html'
-    });
+    var promise = fileRouter.handle(new UrlData('/somePage.html'));
 
     promise.then(function(result) {
       expect(result.handled).toBe(false);
@@ -177,10 +168,7 @@ describe('Filerouter', function() {
     };
 
     var fileRouter = new FileRouter();
-    var promise = fileRouter.handle({
-      url: '/somePage.html',
-      transition: transitionOptions
-    });
+    var promise = fileRouter.handle(new UrlData('/somePage.html'));
     scope.done();
 
     promise.then(function(result) {
@@ -215,10 +203,7 @@ describe('Filerouter', function() {
 
     var fileRouter = new FileRouter();
     fileRouter._cache['/somePage.html'] = ['contentstage.contentlayer.frame2'];
-    var promise = fileRouter.handle({
-      url: '/somePage.html',
-      transition: transitionOptions
-    });
+    var promise = fileRouter.handle(new UrlData('/somePage.html'));
 
     promise.then(function(result) {
       expect(result.handled).toBeTruthy();

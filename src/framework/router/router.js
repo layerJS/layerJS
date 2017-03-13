@@ -2,7 +2,7 @@
 var layerJS = require('../layerjs.js');
 var $ = require('../domhelpers.js');
 var Kern = require('../../kern/kern.js');
-var defaults = require('../defaults.js');
+var UrlData = require('../url/urldata.js');
 var StaticRouter = require('./staticrouter.js');
 var state = require('../state.js');
 var domhelpers = require('../domhelpers.js');
@@ -34,7 +34,7 @@ var Router = Kern.EventManager.extend({
    * @returns {Type} Description
    */
   addStaticRoute: function(url, state, nomodify) {
-    this.routers[0].addRoute(this._parseUrl(url).url, state, nomodify);
+    this.routers[0].addRoute(url, state, nomodify);
   },
   /**
    * Will clear all registered routers except the StaticRouter
@@ -61,63 +61,9 @@ var Router = Kern.EventManager.extend({
       if (event.nonlayerJS !== true && this.href !== '') {
         var href = this.href;
 
-        if (-1 !== href.indexOf('#')) {
-          var url = href;
-          var queryParameters = '';
-          var hash = '';
-
-          if (href.indexOf('?') > 0) {
-            var queryStart = href.indexOf('?');
-            url = href.substr(0, queryStart);
-            queryParameters = href.substr(queryStart);
-          }
-
-          hash = url.substring(url.indexOf('#') + 1);
-          url = url.substring(0, url.indexOf('#'));
-
-          var states = hash.split(';');
-          var layerView;
-          var statesToTransition = [];
-          var specialFrame;
-
-          for (var i = 0; i < states.length; i++) {
-            var isLocalHash = false;
-            for (specialFrame in defaults.specialFrames) {
-              if (defaults.specialFrames.hasOwnProperty(specialFrame) && states[i] === defaults.specialFrames[specialFrame]) {
-                isLocalHash = true;
-                layerView = domhelpers.findParentViewOfType(this, 'layer');
-                statesToTransition.push(state.getPathForView(layerView) + '.' + defaults.specialFrames[specialFrame]);
-                break;
-              }
-            }
-
-            if (!isLocalHash) {
-              // resolve partial paths
-              statesToTransition = statesToTransition.concat(state._determineTransitionPaths([states[i]]));
-            }
-          }
-
-          // resolve special frame names
-          for (var index = 0; index < statesToTransition.length; index++) {
-            for (specialFrame in defaults.specialFrames) {
-              if (defaults.specialFrames.hasOwnProperty(specialFrame) && -1 !== statesToTransition[index].indexOf(defaults.specialFrames[specialFrame])) {
-                var layerPath = statesToTransition[index].replace('.' + defaults.specialFrames[specialFrame], '');
-                layerView = state.getViewForPath(layerPath);
-                var frameView = layerView._getFrame(defaults.specialFrames[specialFrame]);
-                var frameName = (undefined !== frameView && null !== frameView) ? frameView.name() : defaults.specialFrames[specialFrame];
-                statesToTransition[index] = state.getPathForView(layerView) + '.' + frameName;
-                break;
-              }
-            }
-          }
-
-          // re-assemble url
-          href = url + '#' + statesToTransition.join(';') + queryParameters;
-        }
-
         event.preventDefault();
 
-        that._navigate(href, true).then(function(result) {
+        that._navigate(href, true, domhelpers.findParentViewOfType(this, 'layer')).then(function(result) {
           if (!result) {
             setTimeout(function() {
               window.location.href = href;
@@ -128,68 +74,15 @@ var Router = Kern.EventManager.extend({
     });
   },
   /**
-   * Will parse the url for transition parameters and will return a cleaned up url and parameters
-   * @param {string} Url where to navigate
-   * @return {Object} An object containing a cleaned up url and transitionOptions
-   */
-  _parseUrl: function(href) {
-    var result = {
-      url: href,
-      transition: {}
-    };
-
-    for (var parameter in defaults.transitionParameters) {
-      if (defaults.transitionParameters.hasOwnProperty(parameter)) {
-        var parameterName = defaults.transitionParameters[parameter];
-        var regEx = new RegExp("[?&]" + parameterName + "=([^&]+)");
-        var match = result.url.match(regEx);
-        if (match) {
-          result.transition[parameter] = match[1];
-          result.url = result.url.replace(regEx, '');
-        }
-      }
-    }
-
-    result.url = result.url.replace(window.location.origin, '');
-
-    var pattern = /^((http|https):\/\/)/;
-    if (!pattern.test(result.url) && (result.url.indexOf('~/') !== -1 || result.url.indexOf('./') !== -1 || result.url.indexOf('../') !== -1)) {
-      result.url = this._getAbsoluteUrl(result.url);
-    }
-
-    return result;
-  },
-  /**
-   *  Will transform a relative url to an absolute url
-   * https://developer.mozilla.org/en-US/docs/Web/API/document/cookie#Using_relative_URLs_in_the_path_parameter
-   * @param {string} url to tranform to an absolute url
-   * @return {string} an absolute url
-   */
-  _getAbsoluteUrl: function(sRelPath) {
-
-    if (sRelPath.startsWith('~/')) {
-      return sRelPath.substr(1);
-    } else if (sRelPath.indexOf('/~/') !== -1) {
-      return sRelPath.substr(sRelPath.indexOf('/~/') + 2);
-    }
-
-    var nUpLn, sDir = "",
-      sPath = window.location.pathname.replace(/[^\/]*$/, sRelPath.replace(/(\/|^)(?:\.?\/+)+/g, "$1"));
-    for (var nEnd, nStart = 0; nEnd = sPath.indexOf("/../", nStart), nEnd > -1; nStart = nEnd + nUpLn) {
-      nUpLn = /^\/(?:\.\.\/)*/.exec(sPath.slice(nEnd))[0].length;
-      sDir = (sDir + sPath.substring(nStart, nEnd)).replace(new RegExp("(?:\\\/+[^\\\/]*){0," + ((nUpLn - 1) / 3) + "}$"), "/");
-    }
-    return sDir + sPath.substr(nStart);
-  },
-  /**
    * When the router can navigate to the url, it will do this.
    * @param {string} Url where to navigate
    * @param {boolean} Indicate if the url needs to be added to the history
+   * @param {LayerView} LayerView where the click event originated
    * @return {boolean} Indicates if the router could do the navigation to the url
    */
-  _navigate: function(href, addToHistory) {
+  _navigate: function(href, addToHistory, layerView) {
     //var navigate = false;
-    var options = this._parseUrl(href);
+    var urlData = new UrlData(href, layerView);
     var count = this.routers.length;
     var that = this;
     var promise = new Kern.Promise();
@@ -208,10 +101,10 @@ var Router = Kern.EventManager.extend({
 
     var callRouter = function() {
       if (index < count) {
-        that.routers[index].handle(options).then(function(result) {
+        that.routers[index].handle(urlData).then(function(result) {
           if (!handled && result.handled) {
             if (window.history && addToHistory) {
-              window.history.pushState({}, "", options.url);
+              window.history.pushState({}, "", urlData.url);
             }
             that.previousUrl = href;
             handled = result.handled;

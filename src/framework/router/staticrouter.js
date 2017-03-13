@@ -33,13 +33,13 @@ var StaticRouter = Kern.EventManager.extend({
    * @param {string} an url
    * @return {void}
    */
-  handle: function(options) {
-    var result = this.routes.hasOwnProperty(options.url);
+  handle: function(urlData) {
+    var result = this.routes.hasOwnProperty(urlData.baseUrl);
     var promise = new Kern.Promise();
 
     if (result) {
-      var activeFrames = this.routes[options.url];
-      state.transitionTo(activeFrames, options.transition);
+      var activeFrames = this.routes[urlData.baseUrl];
+      state.transitionTo(activeFrames, urlData.transition);
     }
 
     promise.resolve({

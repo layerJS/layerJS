@@ -158,18 +158,20 @@ var State = Kern.Base.extend({
    * Will transition to a state
    *
    * @param {array} states States to transition to
-   * @param {object} transition Transition properties
+   * @param {object} transitions Transition properties
    */
-  transitionTo: function(states, transition) {
-    transition = transition || {};
-    var semaphore = new Kern.Semaphore(); // semaphore is necessary to let all transition run in sync
+  transitionTo: function(states, transitions) {
+    transitions = Array.isArray(transitions) && transitions || [transitions || {}];
     var pathsToTransition = this._determineTransitionPaths(states);
+    var semaphore = new Kern.Semaphore(pathsToTransition.length); // semaphore is necessary to let all transition run in sync
+
     for (var i = 0; i < pathsToTransition.length; i++) { // FIXME: this will trigger possibly a lot of non-necessary transitions
       var path = pathsToTransition[i];
       var layerView = this.getViewForPath(path.replace(/\.[^\.]*$/, ""));
       var frameName = path.substr(path.lastIndexOf(".") + 1);
-      transition.semaphore = semaphore.register(); // let the semaphore know how many transitions are running at the same time;
-      layerView.transitionTo(frameName, transition);
+      var pathTransition = transitions[Math.min(i, transitions.length - 1)];
+      pathTransition.semaphore = semaphore;
+      layerView.transitionTo(frameName, pathTransition);
     }
 
     return pathsToTransition.length > 0;

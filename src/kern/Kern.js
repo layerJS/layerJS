@@ -392,8 +392,8 @@
      *
      */
     var Semaphore = Kern.Semaphore = Base.extend({
-      constructor: function() {
-        this.num = 0;
+      constructor: function(num) {
+        this.num =  num || 0;
         this.cc = 0;
         this.ps = [];
       },
