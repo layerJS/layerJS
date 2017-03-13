@@ -24,8 +24,12 @@ var LayerLayout = Kern.EventManager.extend({
    * @param {FrameView} frame - the frame to be positioned
    * @returns {void}
    */
-  renderFramePosition: function(frame) {   // jshint ignore:line
-    // virtual function
+  renderFramePosition: function(frame) {
+    // we need to initialize positions and dimensions, if they are defined through attributes
+    frame.x();
+    frame.y();
+    frame.width();
+    frame.height();
   },
   /**
    * make sure frame is rendered (i.e. has display: block)

@@ -178,6 +178,7 @@ var CanvasLayout = LayerLayout.extend({
    * @returns {void}
    */
   renderFramePosition: function(frame, transform) {
+    LayerLayout.prototype.renderFramePosition.call(this, frame, transform);
     delete this._frameTransforms[frame.id()]; // this will be recalculated in _applyTransform
     if (this._reverseTransform && transform) {
       // currentFrame is initialized -> we need to render the frame at new position
@@ -198,7 +199,7 @@ var CanvasLayout = LayerLayout.extend({
     // console.log('canvaslayout: applystyles', frame.data.attributes.name, styles.transition);
     // we need to add the frame transform (x,y,rot,scale) the reverse transform (that moves the current frame into the stage) and the transform representing the current scroll/displacement
     frame.applyStyles(styles || {}, {
-      transform: addedTransform + " " + reverseTransform + " " + (this._frameTransforms[frame.id()] || (this._frameTransforms[frame.id()] = "rotate(" + (frame.rotation() || 0) + "deg) scale(" + frame.scaleX() + "," + frame.scaleY() + ")"))
+      transform: "translate3d(" + (-frame.x() || 0) + "px," + (-frame.y() || 0) + "px,0px)" + addedTransform + " " + reverseTransform + " " + (this._frameTransforms[frame.id()] || (this._frameTransforms[frame.id()] = "translate3d(" + (frame.x() || 0) + "px," + (frame.y() || 0) + "px,0px) rotate(" + (frame.rotation() || 0) + "deg) scale(" + frame.scaleX() + "," + frame.scaleY() + ")"))
     });
   },
 });
