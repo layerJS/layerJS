@@ -3,8 +3,6 @@ var $ = require('../domhelpers.js');
 var Kern = require('../../kern/Kern.js');
 var layoutManager = require('../layoutmanager.js');
 var LayerLayout = require('./layerlayout.js');
-var defaults = require('../defaults.js');
-
 
 // partials
 // define data for pre position / css of new frame (for in transition ) or post position / css of old frame
@@ -114,12 +112,14 @@ var SlideLayout = LayerLayout.extend({
             if (currentFrame) {
               currentFrame.applyStyles(t.fix_css, {
                 transition: 'none',
-                display: 'none'
+                display: 'none',
+                'z-index': 'initial'
               });
             }
             if (frame) {
               frame.applyStyles(t.fix_css, {
-                transition: 'none'
+                transition: 'none',
+                'z-index': 'initial'
               });
             }
           }
@@ -133,8 +133,6 @@ var SlideLayout = LayerLayout.extend({
       }
       // wait for semaphore as there may be more transitions that need to be setup
       transition.semaphore.sync().then(function() {
-        // notify listeners that we have all frames set up for the pre position
-        that.layer.trigger("transitionPrepared", frame ? frame.name() : defaults.specialFrames.none);
 
         that._applyTransform(frame, that._currentFrameTransform = t.t1, targetTransform, {
           transition: transition.duration,
@@ -221,6 +219,7 @@ var SlideLayout = LayerLayout.extend({
       if (prep.current_css) {
         this._applyTransform(currentFrame, prep.c0, this.layer.currentTransform, {
           transition: 'none',
+          'z-index': 'initial'
         });
       }
       // wait until new positions are rendered then resolve promise

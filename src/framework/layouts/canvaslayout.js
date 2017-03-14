@@ -2,7 +2,6 @@
 var Kern = require('../../kern/Kern.js');
 var layoutManager = require('../layoutmanager.js');
 var LayerLayout = require('./layerlayout.js');
-var defaults = require('../defaults.js');
 
 var CanvasLayout = LayerLayout.extend({
   /**
@@ -93,8 +92,6 @@ var CanvasLayout = LayerLayout.extend({
     });
     // wait for semaphore as there may be more transitions that need to be setup
     transition.semaphore.sync().then(function() {
-      // notify listeners that we have all frames set up for the pre position
-      that.layer.trigger("transitionPrepared", frame ? frame.name() : defaults.specialFrames.none);
 
       if (null !== frame) {
         that._reverseTransform = that._calculateReverseTransform(frame, targetFrameTransformData);
