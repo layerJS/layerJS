@@ -216,10 +216,20 @@ var DomHelpers = {
     }
     return 0;
   },
-  parseDimension: function(value) {
-    var match;
-    if (value && typeof value === 'string' && (match = value.match(/(.*)(?:px)?$/))) return parseInt(match[1]);
-    if (value && typeof value === 'number') return value;
+  /**
+   * will convert a css dimension value (e.g. 3px, 4em, 6vh) into a number representing pixels
+   *
+   * @param {string|number} value - the value to be converted
+   * @param {HTMLElement} element - needed for dimensions based on 'em'; note: 'ex' is not supported
+   * @returns {number} dimension in pixels
+   */
+  parseDimension: function(value, element) {
+    if (!isNaN(Number(value))) return Number(value);
+    if (value.match(/px$/)) return parseInt(value);
+    if (value.match(/em$/)) return parseInt(value) * parseInt(window.getComputedStyle(element)['font-size']);
+    if (value.match(/vh$/)) return parseInt(value) * window.innerHeight / 100;
+    if (value.match(/vw$/)) return parseInt(value) * window.innerWidth / 100;
+    // FIXME: '%' missing
     return undefined;
   },
   /**

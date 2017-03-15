@@ -229,64 +229,38 @@ var BaseView = DOMObserver.extend({
   /**
    * Will return the width of the view (including the margins)
    *
-   * @param {Boolean} attributeValue - when true, the lj-width value will be used
    * @return {Number} the width of the view
    */
-  width: function(attributeValue) {
-    var width;
+  width: function() {
 
     var margin = this.getMargin();
     var marginToAdd = margin.left + margin.right;
 
-    if (attributeValue !== true) {
-      width = this.outerEl.offsetWidth;
-
-      if (!width && this.outerEl.style.width !== undefined)
-        width = this.outerEl.style.width;
-
-      if (!width) {
-        width = this.getAttributeLJ('width');
-      }
-
-      if (!width) {
-        width = this.getAttribute('width');
-      }
+    var width = this.getAttributeLJ('width') || this.getAttribute('width'); // prefer explicit width
+    if (width !== null) {
+      this.setWidth(width + marginToAdd); // if we had an explicit width we need to apply this.
     } else {
-      width = this.getAttributeLJ('width');
+      width = this.outerEl.offsetWidth || this.outerEl.style.width || 0; // else take width of element
     }
-
-    return $.parseDimension(width) + marginToAdd;
+    return $.parseDimension(width, this.outerEl) + marginToAdd; // we always return width incl. margin to also fit margin into stage
   },
   /**
    * Will return the height of the view (including the margins)
    *
-   * @param {Boolean} attributeValue - when true, the lj-height value will be used
    * @return {Number} the height of the view
    */
-  height: function(attributeValue) {
-    var height;
+  height: function() {
 
     var margin = this.getMargin();
     var marginToAdd = margin.top + margin.bottom;
 
-    if (attributeValue !== true) {
-      height = this.outerEl.offsetHeight;
-
-      if (!height && this.outerEl.style.height !== undefined)
-        height = this.outerEl.style.height;
-
-      if (!height) {
-        height = this.getAttributeLJ('height');
-      }
-
-      if (!height) {
-        height = this.getAttribute('height');
-      }
+    var height = this.getAttributeLJ('height') || this.getAttribute('height'); // prefer explicit height
+    if (height !== null) {
+      this.setHeight(height + marginToAdd); // if we had an explicit height we need to apply this.
     } else {
-      height = this.getAttributeLJ('height');
+      height = this.outerEl.offsetHeight || this.outerEl.style.height || 0; // else take height of element
     }
-
-    return $.parseDimension(height) + marginToAdd;
+    return $.parseDimension(height, this.outerEl) + marginToAdd; // we always return height incl. margin to also fit margin into stage
   },
   /**
    * Will set the width of the view (excluding the margins)
@@ -294,7 +268,7 @@ var BaseView = DOMObserver.extend({
    * @param {Number} width
    */
   setWidth: function(width) {
-    width = $.parseDimension(width);
+    width = $.parseDimension(width, this.outerEl);
     var margin = this.getMargin();
     var marginToSubtract = margin.left + margin.right;
 
@@ -306,7 +280,7 @@ var BaseView = DOMObserver.extend({
    * @param {Number} height
    */
   setHeight: function(height) {
-    height = $.parseDimension(height);
+    height = $.parseDimension(height, this.outerEl);
     var margin = this.getMargin();
     var marginToSubtract = margin.top + margin.bottom;
 
@@ -320,12 +294,8 @@ var BaseView = DOMObserver.extend({
    */
   x: function() {
     var x = this.getAttributeLJ('x');
-
-    if (this.outerEl.style.left) {
-      x = this.outerEl.style.left;
-    }
-
-    return this.outerEl.offsetLeft || $.parseDimension(x);
+    x = (x !== null && (this.outerEl.style.left = $.parseDimension(x) + 'px') && x) || this.outerEl.offsetLeft || this.outerEl.style.left || 0;
+    return $.parseDimension(x, this.outerEl);
   },
   /**
    * Will return the y value of the view. This method will use
@@ -335,44 +305,8 @@ var BaseView = DOMObserver.extend({
    */
   y: function() {
     var y = this.getAttributeLJ('y');
-
-    if (this.outerEl.style.top) {
-      y = this.outerEl.style.top;
-    }
-
-    return this.outerEl.offsetTop || $.parseDimension(y);
-  },
-  /**
-   * Will return if the view is hidden
-   *
-   * @return {Boolean} when true the view is hidden
-   */
-  hidden: function() {
-    return this.outerEl.style.display === 'none';
-  },
-  /**
-   * Will return the z-index of the outer element
-   *
-   * @return {string} the z-index of the outer element
-   */
-  zIndex: function() {
-    return this.outerEl.style.zIndex;
-  },
-  /**
-   * Will return the tag of the outer element
-   *
-   * @return {string} the tag of the outer element
-   */
-  tag: function() {
-    return this.nodeType() === 1 ? this.outerEl.tagName : '';
-  },
-  /**
-   * Will return the value of the lj-classes attribute on the outer element
-   *
-   * @return {string} the value of the lj-classes attribute
-   */
-  classes: function() {
-    return this.getAttributeLJ('classes') || '';
+    y = (y !== null && (this.outerEl.style.top = $.parseDimension(y) + 'px') && y) || this.outerEl.offsetTop || this.outerEl.style.top || 0;
+    return $.parseDimension(y);
   },
   /**
    * Will return the value of the lj-scale-x attribute on the outer element
@@ -501,7 +435,7 @@ var BaseView = DOMObserver.extend({
    *
    * @returns {string} transition type
    */
-  defaultTransition: function(){
+  defaultTransition: function() {
     return this.getAttributeLJ('transition');
   },
   /**
@@ -521,7 +455,7 @@ var BaseView = DOMObserver.extend({
    */
   setNativeScroll: function(nativeScroll) {
     this.setAttributeLJ('native-scroll', nativeScroll);
-  }  ,
+  },
   /**
    * Will return the margin for the outerEl
    *

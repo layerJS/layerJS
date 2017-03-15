@@ -61,7 +61,8 @@ var Router = Kern.EventManager.extend({
       if (event.nonlayerJS !== true && this.href !== '') {
         var href = this.href;
 
-        event.preventDefault();
+        event.preventDefault(); // prevent default action, i.e. going to link target
+        // do not stop propagation; other libraries may listen to link clicks
 
         that._navigate(href, true, domhelpers.findParentViewOfType(this, 'layer')).then(function(result) {
           if (!result) {

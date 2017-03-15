@@ -2,7 +2,7 @@
   "name": "layerJS",
   "description": "layerJS, a lean javascript UX framework",
   "author": "LayerJs",
-  "version": "0.4.1",
+  "version": "0.4.2",
   "devDependencies": {
     "browserify": "latest",
     "jasmine": "latest",
@@ -46,6 +46,7 @@
 
     "webdriverManagerStart": "webdriver-manager start",
     "e2eTest": "./node_modules/.bin/protractor protractorconfig.js",
+    "e2e": "scripty",
 
     "buildSpecs": "scripty",
 

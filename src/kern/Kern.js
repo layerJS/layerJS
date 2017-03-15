@@ -407,6 +407,16 @@
         return this;
       },
       /**
+       * register a listener for this semaphore which will not influence the waiting process
+       *
+       * @returns {Semaphore} the semaphore itself to be passed on
+       */
+      listen: function() {
+        var p;
+        this.ps.push(p = new Kern.Promise());
+        return p;
+      },
+      /**
        * wait for all other stakeholders. returns a promise that will be fullfilled if all other stakeholders are in sync state as well (have called sync())
        *
        * @returns {Promise} the promise to be resolved when all stakeholders are in sync.
@@ -416,7 +426,7 @@
         this.cc++;
         this.ps.push(p = new Kern.Promise());
         if (this.cc === this.num) {
-          for (var i = 0; i < this.num; i++) {
+          for (var i = 0; i < this.ps.length; i++) {
             this.ps[i].resolve();
           }
         } else if (this.cc >= this.num) {

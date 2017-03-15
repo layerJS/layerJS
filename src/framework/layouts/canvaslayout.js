@@ -2,7 +2,6 @@
 var Kern = require('../../kern/Kern.js');
 var layoutManager = require('../layoutmanager.js');
 var LayerLayout = require('./layerlayout.js');
-var defaults = require('../defaults.js');
 
 var CanvasLayout = LayerLayout.extend({
   /**
@@ -93,8 +92,6 @@ var CanvasLayout = LayerLayout.extend({
     });
     // wait for semaphore as there may be more transitions that need to be setup
     transition.semaphore.sync().then(function() {
-      // notify listeners that we have all frames set up for the pre position
-      that.layer.trigger("transitionPrepared", frame ? frame.name() : defaults.specialFrames.none);
 
       if (null !== frame) {
         that._reverseTransform = that._calculateReverseTransform(frame, targetFrameTransformData);
@@ -178,23 +175,11 @@ var CanvasLayout = LayerLayout.extend({
    * @returns {void}
    */
   renderFramePosition: function(frame, transform) {
-    var css = {};
-    // just do width & height for now; FIXME
-    //if ('width' in diff && attr.width !== undefined) {
-    css.width = frame.width(true);
-    //}
-    //if ('height' in diff && attr.height !== undefined) {
-    css.height = frame.height(true);
-    //}
-    //if ('x' in diff || 'y' in diff || 'rotation' in diff) {
-    // calculate frameTransform of frame and store it in this._frameTransforms
+    LayerLayout.prototype.renderFramePosition.call(this, frame, transform);
     delete this._frameTransforms[frame.id()]; // this will be recalculated in _applyTransform
     if (this._reverseTransform && transform) {
       // currentFrame is initialized -> we need to render the frame at new position
-      this._applyTransform(frame, this._currentReverseTransform, this.layer.currentTransform, css);
-    } {
-      // just apply width and height, everything else the first showFrame() should do
-      Kern._extend(frame.outerEl.style, css);
+      this._applyTransform(frame, this._currentReverseTransform, this.layer.currentTransform, {});
     }
     //}
   },
@@ -211,7 +196,7 @@ var CanvasLayout = LayerLayout.extend({
     // console.log('canvaslayout: applystyles', frame.data.attributes.name, styles.transition);
     // we need to add the frame transform (x,y,rot,scale) the reverse transform (that moves the current frame into the stage) and the transform representing the current scroll/displacement
     frame.applyStyles(styles || {}, {
-      transform: addedTransform + " " + reverseTransform + " " + (this._frameTransforms[frame.id()] || (this._frameTransforms[frame.id()] = "translate3d(" + (frame.x() || 0) + "px," + (frame.y() || 0) + "px,0px) rotate(" + (frame.rotation() || 0) + "deg) scale(" + frame.scaleX() + "," + frame.scaleY() + ")"))
+      transform: "translate3d(" + (-frame.x() || 0) + "px," + (-frame.y() || 0) + "px,0px)" + addedTransform + " " + reverseTransform + " " + (this._frameTransforms[frame.id()] || (this._frameTransforms[frame.id()] = "translate3d(" + (frame.x() || 0) + "px," + (frame.y() || 0) + "px,0px) rotate(" + (frame.rotation() || 0) + "deg) scale(" + frame.scaleX() + "," + frame.scaleY() + ")"))
     });
   },
 });

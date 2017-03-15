@@ -480,6 +480,11 @@ var LayerView = BaseView.extend({
     if (!transition.semaphore) {
       transition.semaphore = (new Kern.Semaphore()).register();
     }
+    // add listener to the sempahore to get the moment the animation really startsWith
+    transition.semaphore.listen().then(function() {
+      that.trigger('transitionPrepared'); // notify listeners about prepared state.
+    });
+
     var wasInTransition = this.inTransition();
     that.trigger('beforeTransition', framename);
     transition.transitionID = this.transitionID = ++this._transitionIDcounter; // inc transition ID and save new ID into transition record
@@ -505,20 +510,23 @@ var LayerView = BaseView.extend({
         // don't do a transition, just execute Promise
         var p = new Kern.Promise();
         that.trigger('transitionStarted', framename);
-        if (targetFrameTransformData.scrollX !== currentScroll.scrollX || targetFrameTransformData.scrollY !== currentScroll.scrollY) {
-          return that.scrollTo(targetFrameTransformData.scrollX, targetFrameTransformData.scrollY, transition).then(function() {
+        transition.semaphore.sync().then(function() { // we need to call sync in case there are other transitions waiting.
+          if (targetFrameTransformData.scrollX !== currentScroll.scrollX || targetFrameTransformData.scrollY !== currentScroll.scrollY) {
+            that.scrollTo(targetFrameTransformData.scrollX, targetFrameTransformData.scrollY, transition).then(function() {
+              if (!wasInTransition) {
+                that.trigger('transitionFinished', framename);
+                that.inTransition(false);
+              }
+              p.resolve();
+            });
+          } else {
             if (!wasInTransition) {
               that.trigger('transitionFinished', framename);
               that.inTransition(false);
             }
-          });
-        } else {
-          if (!wasInTransition) {
-            that.trigger('transitionFinished', framename);
-            that.inTransition(false);
+            p.resolve();
           }
-          p.resolve();
-        }
+        });
         return p;
       }
 

@@ -57,10 +57,10 @@ describe('blur', function() {
                 expect(frame2_dimensions_after.opacity).toBe('1');
                 expect(frame1_dimensions_after.opacity).toBe('0');
                 // z-index shouldn't change by the transition
-                expect(frame1_dimensions_before['z-index']).toBe('1');
+                expect(frame1_dimensions_before['z-index']).toBe('auto');
                 expect(frame2_dimensions_before['z-index']).toBe('-1');
-                expect(frame2_dimensions_after['z-index']).toBe('-1');
-                expect(frame1_dimensions_after['z-index']).toBe('1');
+                expect(frame2_dimensions_after['z-index']).toBe('auto');
+                expect(frame1_dimensions_after['z-index']).toBe('auto');
                 // positioning and dimensions of frame1 and frame 2
                 expect(frame1_dimensions_after.width).toBe(stage_dimensions.width);
                 expect(frame2_dimensions_after.width).toBe(stage_dimensions.width);

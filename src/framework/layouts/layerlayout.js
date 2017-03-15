@@ -20,25 +20,16 @@ var LayerLayout = Kern.EventManager.extend({
   },
   /**
    * this functions puts a frame at its default position
-   * Note: by default this only renders width and height, but no position or transforms.
-   * Width and height are needed for getting the frame transform data
    *
    * @param {FrameView} frame - the frame to be positioned
    * @returns {void}
    */
   renderFramePosition: function(frame) {
-  /*  var attr = frame.data.attributes,
-      diff = frame.data.changedAttributes || frame.data.attributes,
-      el = frame.outerEl;*/
-    var css = {};
-    // just do width & height for now; FIXME
-  //  if ('width' in diff && attr.width !== undefined) {
-      css.width = frame.width(true);
-  //  }
-  //  if ('height' in diff && attr.height !== undefined) {
-      css.height = frame.height(true);
-  //  }
-    Kern._extend(frame.outerEl.style, css);
+    // we need to initialize positions and dimensions, if they are defined through attributes
+    frame.x();
+    frame.y();
+    frame.width();
+    frame.height();
   },
   /**
    * make sure frame is rendered (i.e. has display: block)

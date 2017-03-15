@@ -1,0 +1,6 @@
+nohup npm run webdriverManagerStart &
+echo $! > wdrv_pid.sve
+sleep 2
+npm run e2eTest
+kill -1 `netstat -axnv | grep 4444 | sed -E 's/ +/:/g' | cut -d':' -f9`
+rm wdrv_pid.sve

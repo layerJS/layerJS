@@ -185,25 +185,25 @@ var FrameView = BaseView.extend({
         d.scale = 1;
         if (d.frameWidth !== stageWidth) {
           // FIXME: if width:100% that wouldn't be necessary though. or would loadFrame already make sure that 100% is applied??
-          this.innerEl.style.width = (d.frameWidth = stageWidth) + "px";
-          // FIXME: Afterward the height of the frame most likely changed which is not reflected in the transformData
+          this.setWidth(d.frameWidth = stageWidth);
+          // FIXME: Afterward the height of the frame most likely changed which is not reflected in the transformData; we would need to wait for render, though, before reading new height
         }
         if (d.frameHeight !== stageHeight) {
-          this.innerEl.style.height = (d.frameHeight = stageHeight) + "px";
+          this.setHeight(d.frameHeight = stageHeight);
         }
         break;
       case 'responsive-width':
         d.scale = 1;
         d.isScrollY = true;
         if (d.frameWidth !== stageWidth) {
-          this.innerEl.style.width = (d.frameWidth = stageWidth) + "px";
+          this.setWidth(d.frameWidth = stageWidth);
         }
         break;
       case 'responsive-height':
         d.scale = 1;
         d.isScrollX = true;
         if (d.frameHeight !== stageHeight) {
-          this.innerEl.style.height = (d.frameHeight = stageHeight) + "px";
+          this.setHeight(d.frameHeight = stageHeight);
         }
         break;
       default:
