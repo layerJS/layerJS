@@ -75,9 +75,8 @@ describe('scrolling', function() {
             ]).then(function(data) {
               var frame1_dimensions_before = data[0];
               var layer_scroll_before = data[1];
-              utilities.transitionTo('layer', 'frame2', {}, 1).then(function() {
+              utilities.transitionTo('layer', 'frame2', {}).then(function() {
                 utilities.getBoundingClientRect('frame2').then(function(frame2_dimensions_before) {
-                  utilities.wait(3000);
                   protractor.promise.all([
                     utilities.getBoundingClientRect('layer'),
                     utilities.getBoundingClientRect('frame2'),
@@ -138,9 +137,8 @@ describe('scrolling', function() {
               ]).then(function(data) {
                 var frame1_dimensions_before = data[0];
                 var layer_scroll_before = data[1];
-                utilities.transitionTo('layer', 'frame2', {}, 1).then(function() {
+                utilities.transitionTo('layer', 'frame2', {}).then(function() {
                   utilities.getBoundingClientRect('frame2').then(function(frame2_dimensions_before) {
-                    utilities.wait(3000);
                     protractor.promise.all([
                       utilities.getBoundingClientRect('layer'),
                       utilities.getBoundingClientRect('frame2'),
@@ -228,9 +226,8 @@ describe('scrolling', function() {
               var layer_scroll_before = data[1];
               utilities.transitionTo('layer', 'frame2', {
                 startPosition: 'bottom'
-              }, 1).then(function() {
+              }).then(function() {
                 utilities.getBoundingClientRect('frame2').then(function(frame2_dimensions_before) {
-                  utilities.wait(3000);
                   protractor.promise.all([
                     utilities.getBoundingClientRect('layer'),
                     utilities.getBoundingClientRect('frame2'),
@@ -292,9 +289,8 @@ describe('scrolling', function() {
                 var layer_scroll_before = data[1];
                 utilities.transitionTo('layer', 'frame2', {
                   startPosition: 'right'
-                }, 1).then(function() {
+                }).then(function() {
                   utilities.getBoundingClientRect('frame2').then(function(frame2_dimensions_before) {
-                    utilities.wait(3000);
                     protractor.promise.all([
                       utilities.getBoundingClientRect('layer'),
                       utilities.getBoundingClientRect('frame2'),
@@ -353,9 +349,8 @@ describe('scrolling', function() {
               var layer_scroll_before = data[1];
               utilities.transitionTo('layer', 'frame2', {
                 scrollY: 250
-              }, 1).then(function() {
+              }).then(function() {
                 utilities.getBoundingClientRect('frame2').then(function(frame2_dimensions_before) {
-                  utilities.wait(3000);
                   protractor.promise.all([
                     utilities.getBoundingClientRect('layer'),
                     utilities.getBoundingClientRect('frame2'),
@@ -417,9 +412,8 @@ describe('scrolling', function() {
                 var layer_scroll_before = data[1];
                 utilities.transitionTo('layer', 'frame2', {
                   scrollX: '250'
-                }, 1).then(function() {
+                }).then(function() {
                   utilities.getBoundingClientRect('frame2').then(function(frame2_dimensions_before) {
-                    utilities.wait(3000);
                     protractor.promise.all([
                       utilities.getBoundingClientRect('layer'),
                       utilities.getBoundingClientRect('frame2'),
@@ -597,7 +591,7 @@ describe('scrolling', function() {
             utilities.resizeWindow(800, 599);
             utilities.listenDimensionsBeforeTransition('layer', 'frame1');
             utilities.listenDimensionsBeforeTransition('layer', 'frame2');
-            utilities.transitionTo('layer', 'frame2', {}, 1).then(function() {
+            utilities.transitionTo('layer', 'frame2', {}).then(function() {
               protractor.promise.all([
                 utilities.getBoundingClientRect('stage'),
                 utilities.getBoundingClientRect('frame1'),
@@ -641,8 +635,7 @@ describe('scrolling', function() {
             utilities.resizeWindow(800, 599);
             utilities.listenDimensionsBeforeTransition('layer', 'frame1');
             utilities.listenDimensionsBeforeTransition('layer', 'frame2');
-            utilities.transitionTo('layer', 'frame2', {}, 1).then(function() {
-              utilities.wait(3000);
+            utilities.transitionTo('layer', 'frame2', {}).then(function() {
               protractor.promise.all([
                 utilities.getBoundingClientRect('stage'),
                 utilities.getBoundingClientRect('frame1'),
