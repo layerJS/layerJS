@@ -200,7 +200,7 @@ describe('scrolling', function() {
                   expect(layer_scroll.scrollLeft).toBe(0);
                 });
               });
-            })
+            });
           });
         });
       });

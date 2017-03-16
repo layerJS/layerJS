@@ -99,7 +99,7 @@ var LayerView = BaseView.extend({
   startObserving: function() {
     BaseView.prototype.observe.call(this, this.innerEl, {
       attributes: true,
-      attributeFilter: ['name', 'lj-name', 'id', 'data-lj-native-scroll', 'data-lj-no-scrolling', 'lj-layout-type', 'lj-native-scroll', 'lj-no-scrolling', 'lj-layout-type'],
+      attributeFilter: ['name', 'lj-name', 'id', 'lj-layout-type', 'lj-native-scroll', 'lj-no-scrolling'],
       children: true
     });
   },
