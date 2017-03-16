@@ -6,6 +6,7 @@ utilities.isNodeContext = function() {
 
 utilities._init = function() {
   require("../../../src/layerjs.js");
+  window.location.href = 'http://localhost';
 }
 
 utilities._beforeAll = function() {
