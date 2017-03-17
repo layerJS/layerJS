@@ -146,6 +146,26 @@ var DomHelpers = {
     });
   },
   /**
+   * compare position of two HTML elements in source order
+   *
+   * @param {HTMLElement} a - the first element
+   * @param {HTMLElement} b - the second element
+   * @returns {Number} 1 if a is after b; -1 otherwise
+   */
+  comparePosition: function(a, b) {
+    if (a === b) return 0;
+    if (!a.compareDocumentPosition) {
+      // support for IE8 and below
+      return a.sourceIndex - b.sourceIndex;
+    }
+    var cmp = a.compareDocumentPosition(b);
+    /*jslint bitwise: true */
+    if ((cmp & Node.DOCUMENT_POSITION_DISCONNECTED)) throw "compare position: the two elements belong to different documents";
+    if ((cmp & Node.DOCUMENT_POSITION_PRECEDING) || (cmp & Node.DOCUMENT_POSITION_CONTAINS)) return 1;
+    return -1;
+    /*jslint bitwise: false */
+  },
+  /**
    * Will get the value for a data-lj-* or lj-* attribute
    *
    * @param {HTMLElement} element
