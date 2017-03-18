@@ -39,16 +39,23 @@ var State = Kern.Base.extend({
       if (view.type() === 'layer') this.layer.push(id);
       view.on('childAdded', function(child) {
         that.registerView(child);
+      }, {
+        context: this
       });
       view.on('childRemoved', function(child) {
         that.unregisgterView(child.name(), child);
+      }, {
+        context: this
       });
       view.on('transitionStarted', function() {
         // FIXME: need to wait for multi transition
         that.trigger("stateChanged");
+      }, {
+        context: this
       });
-      view.on('attributesChanged', this._attributesChangedEvent(view));
-
+      view.on('attributesChanged', this._attributesChangedEvent(view), {
+        context: this
+      });
     }
   },
   /**
@@ -70,6 +77,7 @@ var State = Kern.Base.extend({
       i = this.layers.indexOf(id);
       this.layers.splice(i, 1);
     }
+    view.off(undefined, undefined, this);
   },
   /**
    * Will return all paths to active frames
@@ -185,22 +193,22 @@ var State = Kern.Base.extend({
    * @returns {Array} Array of layerViews and the frameNames;
    */
   resolvePath: function(path, context) {
-    var i, contextpath = this.buildPath(context),
+    var i, contextpath = context && this.buildPath(context),
       segments = path.split('.'),
       frameName = segments.pop(),
       isSpecial = (frameName[0] === '!'),
       layerpath = segments.join('.'),
       candidates = (isSpecial ? (layerpath ? this.paths[layerpath] : this.layers) : this.paths[path]); // if special frame name, only search for layer
     if (!candidates || candidates.length === 0) throw "state: could not resolve path '" + path + "'";
-    if (candidates.length > 1 && contextpath) {
+    if (candidates.length > 1 && contextpath) { // check whether we can reduce list of candidates be resolving relative to the context path
       var reduced = [];
-      while (reduced.length === 0 && contextpath) {
+      while (reduced.length === 0 && contextpath) { // if we don't find any frames in context, move context path one up and try again
         for (i = 0; i < candidates.length; i++) {
           if (this.views[candidates[i]].path.startsWith(contextpath)) reduced.push(candidates[i]);
         }
         contextpath = contextpath.replace(/\.?[^\.]$/, '');
       }
-      candidates = (reduced.length ? reduced : candidates);
+      candidates = (reduced.length ? reduced : candidates); // take original candidates if context didn't contain any
     }
     var result = [];
     for (i = 0; i < candidates.length; i++) {
@@ -212,12 +220,18 @@ var State = Kern.Base.extend({
           frameName: frameName
         });
       } else {
-        if (view.type() !== 'frame') throw "state: you need to specify a path to a frame in '" + path + "'";
-        result.push({
-          layer: view.parent,
-          frameName: frameName,
-          active: view.parent.currentFrame.name() === frameName
-        });
+        if (view.type() === 'frame') { // for frames return a bit more information which is helpful to trigger the transition
+          result.push({
+            layer: view.parent,
+            view: view,
+            frameName: frameName,
+            active: view.parent.currentFrame.name() === frameName
+          });
+        } else {
+          result.push({
+            view: view
+          });
+        }
       }
     }
     return result;
