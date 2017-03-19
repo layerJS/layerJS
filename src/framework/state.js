@@ -14,6 +14,9 @@ var State = Kern.Base.extend({
     this.document = doc || document;
     this.document._ljState = this;
     this.viewTypes = ['stage', 'layer', 'frame'];
+    this.views={}; // contains view and path; indexed by id
+    this.layers=[]; // list of all layers (ids)
+    this.paths={}; // lookup by path (and all path endings) for all ids
   },
   /**
    * Will register a View with the state
@@ -43,7 +46,7 @@ var State = Kern.Base.extend({
         context: this
       });
       view.on('childRemoved', function(child) {
-        that.unregisgterView(child.name(), child);
+        that.unregisterView(child.name(), child);
       }, {
         context: this
       });
@@ -77,6 +80,7 @@ var State = Kern.Base.extend({
       i = this.layers.indexOf(id);
       this.layers.splice(i, 1);
     }
+    delete this.views[view.id()]; // remove from views hash
     view.off(undefined, undefined, this);
   },
   /**
@@ -84,14 +88,14 @@ var State = Kern.Base.extend({
    * @param {object} the document who's state will be exported
    * @returns {array} An array of strings pointing to active frames within the document
    */
-  exportState: function() {
+  exportState: function(reduced) {
     var state = [];
     for (var i = 0; i < this.layers.length; i++) {
       var layer = this.views[this.layers[i]].view;
       if (layer.currentFrame) {
         state.push(this.views[layer.currentFrame.id()].path);
       } else {
-        state.push(this.views[layer.id()].path + "!none");
+        state.push(this.views[layer.id()].path + ".!none");
       }
     }
     return state;
@@ -101,7 +105,8 @@ var State = Kern.Base.extend({
    * @returns {array} An array of strings pointing to alle frames within the document
    */
   exportStructure: function() {
-    return Object.keys(this.views).sort($.comparePosition);
+    var that=this;
+    return Object.keys(this.views).sort($.comparePosition).map(function(id){that.view[id].path}); // FIXME
   },
   /**
    * Will transition to a state
@@ -126,8 +131,8 @@ var State = Kern.Base.extend({
     }, []);
     var semaphore = new Kern.Semaphore(transitions.length); // semaphore is necessary to let all transition run in sync
     for (var i = 0; i < transitions.length; i++) { // FIXME: this will trigger possibly a lot of non-necessary transitions
-      transitions[i].semaphore = semaphore;
-      transitions[i].layer.transitionTo(transitions[i].frame, transitions[i].transition); // run the transition on the corresponding layer
+      transitions[i].transition.semaphore = semaphore;
+      transitions[i].layer.transitionTo(transitions[i].frameName, transitions[i].transition); // run the transition on the corresponding layer
     }
     return transitions.length > 0;
   },
