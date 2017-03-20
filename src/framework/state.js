@@ -14,9 +14,9 @@ var State = Kern.Base.extend({
     this.document = doc || document;
     this.document._ljState = this;
     this.viewTypes = ['stage', 'layer', 'frame'];
-    this.views={}; // contains view and path; indexed by id
-    this.layers=[]; // list of all layers (ids)
-    this.paths={}; // lookup by path (and all path endings) for all ids
+    this.views = {}; // contains view and path; indexed by id
+    this.layers = []; // list of all layers (ids)
+    this.paths = {}; // lookup by path (and all path endings) for all ids
   },
   /**
    * Will register a View with the state
@@ -89,6 +89,7 @@ var State = Kern.Base.extend({
    * @returns {array} An array of strings pointing to active frames within the document
    */
   exportState: function(reduced) {
+    reduced = reduced || false; // FIXME: Add for futher. Option to reduce export path
     var state = [];
     for (var i = 0; i < this.layers.length; i++) {
       var layer = this.views[this.layers[i]].view;
@@ -105,8 +106,10 @@ var State = Kern.Base.extend({
    * @returns {array} An array of strings pointing to alle frames within the document
    */
   exportStructure: function() {
-    var that=this;
-    return Object.keys(this.views).sort($.comparePosition).map(function(id){that.view[id].path}); // FIXME
+    var that = this;
+    return Object.keys(this.views).sort($.comparePosition).map(function(id) {
+      return that.view[id].path;
+    }); // FIXME
   },
   /**
    * Will transition to a state

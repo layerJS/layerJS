@@ -203,7 +203,7 @@
             // remove specific callback in all event
             for (var ev in this.__listeners__) {
               if (this.__listeners__.hasOwnProperty(ev)) {
-                listeners = this.__listeners__[event];
+                listeners = this.__listeners__[ev] ;
                 for (i = 0; i < listeners.length; i++) {
                   if ((!callback || listeners[i].callback === callback) && (!context || listeners[i].options.context === context)) {
                     listeners.splice(i, 1);

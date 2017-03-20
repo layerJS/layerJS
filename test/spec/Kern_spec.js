@@ -7,7 +7,7 @@ describe("Kern", function() {
   it('can crate an EventManager', function() {
     var e = new Kern.EventManager();
     expect(e).not.toBeUndefined();
-  });  
+  });
 
   it('can extend objects', function() {
     var o1 = {
@@ -174,7 +174,7 @@ describe("EventManager", function() {
     this.e.trigger('testevent2');
     expect(this.eventcalled).toBe(2);
   });
-  it('can bind context to functions and preapply parameters', function() {
+  xit('can bind context to functions and preapply parameters', function() {
     that = this;
     var handler = function(a, b, c, d) {
       that.params = this + a + b + c + d;
@@ -191,6 +191,68 @@ describe("EventManager", function() {
     expect(this.e.trigger("change")).toBe(this.e);
     expect(this.e.off("change")).toBe(this.e);
   });
+  it('can pass in a context for the callback', function() {
+    var myContext = {};
+    var handlerThis;
+    that.e.on('onEvent', function() {
+      handlerThis = this;
+    }, {
+      context: myContext
+    });
+
+    that.e.trigger('onEvent');
+
+    expect(handlerThis).toBe(myContext);
+  });
+  it('can pass in a context for the callback when removing an event', function() {
+    var myContext = {};
+    var myContext2 = {};
+    var myContextHandled = false;
+    var myContext2Handled =  false;
+
+    that.e.on('onEvent', function() {
+      myContextHandled = true;
+    }, {
+      context: myContext
+    });
+
+    that.e.on('onEvent', function() {
+      myContext2Handled = true;
+    }, {
+      context: myContext2
+    });
+
+    that.e.off('onEvent', undefined, myContext);
+    that.e.trigger('onEvent');
+
+    expect(myContextHandled).toBeFalsy();
+    expect(myContext2Handled).toBeTruthy();
+  });
+
+  it('can remove all events on a specific context', function() {
+    var myContext = {};
+    var handled = false;
+
+    that.e.on('onEvent1', function() {
+      handled = true;
+    }, {
+      context: myContext
+    });
+
+    that.e.on('onEvent2', function() {
+      handled = true;
+    }, {
+      context: myContext
+    });
+
+    that.e.off(undefined, undefined, myContext);
+    that.e.trigger('onEvent1');
+    expect(handled).toBeFalsy();
+    that.e.trigger('onEvent2');
+    expect(handled).toBeFalsy();
+  });
+
+
 });
 
 describe('Promise', function() {
