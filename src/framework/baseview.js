@@ -66,10 +66,12 @@ var BaseView = DOMObserver.extend({
   },
   /**
    * Will parse the current DOM Element it's children.
-   * @param {object} options - optional: includes addedNodes
+   * Will trigger childAdded and/or childRemoved.
+   * @param {object} options - optional: includes addedNodes, removedNodes
    */
   _parseChildren: function(options) {
     options = options || {};
+    var that = this;
 
     this._cache.children = [];
     this._cache.childNames = {};
@@ -84,6 +86,7 @@ var BaseView = DOMObserver.extend({
             document: this.document
           });
           this._renderChildPosition(child._ljView);
+          this.trigger('childAdded', child._ljView);
         }
         if (child._ljView && child._ljView.type() === this.childType) {
           var cv = child._ljView;
@@ -102,6 +105,15 @@ var BaseView = DOMObserver.extend({
         }
       }
     }
+
+    if ( options.removedNodes && options.removedNodes.length > 0){
+      options.removedNodes.forEach(function(removedNode){
+        if (removedNode._ljView){
+          that.trigger('childRemoved', removedNode._ljView);
+        }
+      });
+    }
+
   },
   /**
    * Will return a childview by a specific name
