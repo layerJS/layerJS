@@ -22,6 +22,7 @@ utilities._beforeAll = function() {
   style.innerHTML = "";
 
   this.setHtml("");
+  layerJS.getState(document);
 }
 
 utilities._beforeEachNodeJS = function() {
@@ -52,7 +53,7 @@ utilities.beforeEach = function() {
 }
 
 utilities.afterEach = function() {
-  layerJS.state.tree = {};
+  delete document._ljState;
   layerJS.router.clearRouters();
   layerJS.router.previousUrl = undefined;
 

@@ -1,5 +1,4 @@
 'use strict';
-var state = require('./state.js');
 var $ = require('./domhelpers.js');
 var pluginManager = require('./pluginmanager.js');
 var parseManager = require('./parsemanager.js');
@@ -31,11 +30,12 @@ var BaseView = DOMObserver.extend({
     this.outerEl = this.outerEl || options.el || this.innerEl;
     this.outerEl._ljView = this;
 
-    state.registerView(this);
-
     if (!this.parent && this.outerEl._state && this.outerEl._state.view) {
       this.parent = this.outerEl._state.parent.view;
     }
+
+    var state = layerJS.getState(this.document);
+    state.registerView(this);
 
     this._parseChildren();
     this.registerEventHandlers();
@@ -72,7 +72,6 @@ var BaseView = DOMObserver.extend({
   _parseChildren: function(options) {
     options = options || {};
     var that = this;
-
     this._cache.children = [];
     this._cache.childNames = {};
     this._cache.childIDs = {};
@@ -101,14 +100,19 @@ var BaseView = DOMObserver.extend({
       for (var x = 0; x < length; x++) {
         // check if added nodes don't already have a view defined.
         if (!options.addedNodes[x]._ljView) {
-          parseManager.parseElement(options.addedNodes[x].parentNode);
+          parseManager.parseElement(options.addedNodes[x].parentNode, {
+            parent: this
+          });
+        }
+        if (options.addedNodes[x]._ljView) {
+          this.trigger('childAdded', options.addedNodes[x]._ljView);
         }
       }
     }
 
-    if ( options.removedNodes && options.removedNodes.length > 0){
-      options.removedNodes.forEach(function(removedNode){
-        if (removedNode._ljView){
+    if (options.removedNodes && options.removedNodes.length > 0) {
+      options.removedNodes.forEach(function(removedNode) {
+        if (removedNode._ljView) {
           that.trigger('childRemoved', removedNode._ljView);
         }
       });
@@ -493,7 +497,6 @@ var BaseView = DOMObserver.extend({
 
     return noUrl === 'true' ? true : false;
   },
-
   /**
    * ##destroy
    * This element was requested to be deleted completly; before the delete happens

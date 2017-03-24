@@ -1,5 +1,5 @@
 var utilities = require("../../utilities.js");
-var state = require('../../../../../src/framework/state.js');
+var state = layerJS.getState();
 
 module.exports = function(scenario, initFunction) {
 
@@ -29,7 +29,9 @@ module.exports = function(scenario, initFunction) {
 
     it('will register itself with the state', function() {
       spyOn(state, 'registerView');
-      var view = new ViewType({el: sourceElement});
+      var view = new ViewType({
+        el: sourceElement
+      });
       expect(state.registerView).toHaveBeenCalledWith(view);
     });
 

@@ -7,9 +7,9 @@ var $ = require('./domhelpers.js');
 /**
  *  class that will contain the state off all the stages, layers, frames
  *
- * @extends Kern.Base
+ * @extends Kern.EventManager
  */
-var State = Kern.Base.extend({
+var State = Kern.EventManager.extend({
   constructor: function(doc) {
     this.document = doc || document;
     this.document._ljState = this;
@@ -39,20 +39,20 @@ var State = Kern.Base.extend({
       this.getTrailingPaths(path).forEach(function(tp) { // add paths index for all path endings
         (that.paths[tp] = that.paths[tp] || []).push(id);
       });
-      if (view.type() === 'layer') this.layer.push(id);
+      if (view.type() === 'layer') this.layers.push(id);
       view.on('childAdded', function(child) {
         that.registerView(child);
       }, {
         context: this
       });
       view.on('childRemoved', function(child) {
-        that.unregisterView(child.name(), child);
+        that.unregisterView(child);
       }, {
         context: this
       });
       view.on('transitionStarted', function() {
         // FIXME: need to wait for multi transition
-        that.trigger("stateChanged");
+        // that.trigger("stateChanged");
       }, {
         context: this
       });
@@ -69,19 +69,24 @@ var State = Kern.Base.extend({
    */
   unregisterView: function(view) {
     var i,
-      id = this.id,
+      id = view.id(),
       that = this;
-    this.getTrailingPaths(this.views[id]).forEach(function(tp) {
+    this.getTrailingPaths(this.views[id].path).forEach(function(tp) {
       var i = that.paths[tp].indexOf(id);
       that.paths[tp].splice(i, 1);
       if (that.paths[tp].length === 0) delete that.paths[tp];
     });
     if (view.type() === 'layer') {
-      i = this.layers.indexOf(id);
+      i = this.layers.indexOf(view);
       this.layers.splice(i, 1);
     }
-    delete this.views[view.id()]; // remove from views hash
+    delete this.views[id]; // remove from views hash
     view.off(undefined, undefined, this);
+
+    view.getChildViews().forEach(function(v) {
+      that.unregisterView(v);
+    });
+
   },
   /**
    * Will return all paths to active frames
@@ -107,8 +112,10 @@ var State = Kern.Base.extend({
    */
   exportStructure: function() {
     var that = this;
-    return Object.keys(this.views).sort($.comparePosition).map(function(id) {
-      return that.view[id].path;
+    return Object.keys(this.views).map(function(key) {
+      return that.views[key].view.outerEl;
+    }).sort($.comparePosition).map(function(element) {
+      return that.views[element._ljView.id()].path;
     }); // FIXME
   },
   /**
@@ -123,15 +130,23 @@ var State = Kern.Base.extend({
     // build an array that contains all layer/frame combinations that need to transition including their transitions records
     transitions = states.map(function(state) {
       return that.resolvePath(state);
-    }).reduce(function(collection, layerframe, index) {
+    });
+
+    var reduced = [];
+
+    transitions.reduce(function(collection, layerframe, index) {
       for (var i = 0; i < layerframe.length; i++) {
-        if (!layerframe[i].active) collection.push({ // ignore currently active frames
-          layer: layerframe[i].layer,
-          frameName: layerframe[i].frameName,
-          transition: transitions[Math.min(index, transitions.length - 1)]
-        });
+        if (!layerframe[i].active) {
+          collection.push({ // ignore currently active frames
+            layer: layerframe[i].layer,
+            frameName: layerframe[i].frameName,
+            transition: transitions[Math.min(index, transitions.length - 1)] || {}
+          });
+        }
       }
-    }, []);
+    }, reduced);
+
+    transitions = reduced;
     var semaphore = new Kern.Semaphore(transitions.length); // semaphore is necessary to let all transition run in sync
     for (var i = 0; i < transitions.length; i++) { // FIXME: this will trigger possibly a lot of non-necessary transitions
       transitions[i].transition.semaphore = semaphore;
@@ -147,8 +162,10 @@ var State = Kern.Base.extend({
   showState: function(states) {
     transitions = Array.isArray(transitions) && transitions || [transitions || {}];
     var that = this;
+
     // build an array that contains all layer/frame combinations that need to transition including their transitions records
-    var transitions = states.map(function(state) {
+    var transitions = [];
+    states.map(function(state) {
       return that.resolvePath(state);
     }).reduce(function(collection, layerframe) {
       for (var i = 0; i < layerframe.length; i++) {
@@ -157,10 +174,10 @@ var State = Kern.Base.extend({
           frameName: layerframe[i].frameName
         });
       }
-    }, []);
+    }, transitions);
     // switch all layers
     for (var i = 0; i < transitions.length; i++) { // FIXME: this will trigger possibly a lot of non-necessary transitions
-      transitions[i].layer.showFrame(transitions[i].frame); // switch to frame
+      transitions[i].layer.showFrame(transitions[i].frameName); // switch to frame
     }
     return transitions.length > 0;
   },
@@ -168,17 +185,23 @@ var State = Kern.Base.extend({
    * create the path of a particular view
    *
    * @param {HTMLElement} node - the HTML node for which the layerJS path should be build
+   * @param {boolean} reCalculate - if true, no lookups will be used
    * @returns {string} the path
    */
-  buildPath: function(node) {
+  buildPath: function(node, reCalculate) {
     if (!node) return "";
-    var parent = this.buildParent(node.parentElement);
-    if (node._ljView) {
-      var name = node._ljView.name();
-      return ((parent ? parent + "." : "") + name);
-    } else {
-      return parent;
-    }
+
+    if (!node._ljView)
+      return this.buildPath(node.parentNode);
+
+    var parentView = node._ljView.parent;
+
+    var parentPath = (!reCalculate && parentView) ? this.views[parentView.id()].path : this.buildPath(node.parentNode);
+
+    if (parentPath !== '')
+      parentPath += '.';
+
+    return parentPath + node._ljView.name();
   },
   /**
    * calculate all different endings of a path
@@ -186,6 +209,7 @@ var State = Kern.Base.extend({
    * @param {string} path - the full path
    * @returns {Array} array of path endings
    */
+
   getTrailingPaths: function(path) {
     var paths = [path];
     while ((path = path.replace(/^[^\.]*\.?/, ''))) {
@@ -207,6 +231,7 @@ var State = Kern.Base.extend({
       isSpecial = (frameName[0] === '!'),
       layerpath = segments.join('.'),
       candidates = (isSpecial ? (layerpath ? this.paths[layerpath] : this.layers) : this.paths[path]); // if special frame name, only search for layer
+
     if (!candidates || candidates.length === 0) throw "state: could not resolve path '" + path + "'";
     if (candidates.length > 1 && contextpath) { // check whether we can reduce list of candidates be resolving relative to the context path
       var reduced = [];
@@ -220,7 +245,7 @@ var State = Kern.Base.extend({
     }
     var result = [];
     for (i = 0; i < candidates.length; i++) {
-      var view = this.views[candidates[i]];
+      var view = this.views[candidates[i]].view;
       if (isSpecial) {
         if (view.type() !== 'layer') throw "state: expected layer name in front of '" + frameName + "'";
         result.push({
@@ -259,6 +284,12 @@ var State = Kern.Base.extend({
       }
     };
   },
+}, {
+  getState: function(doc) {
+    doc = doc || document;
+    return doc._ljState || new State(doc);
+  }
 });
 
-module.exports = layerJS.state = new State();
+layerJS.getState = State.getState;
+module.exports = State;

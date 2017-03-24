@@ -159,9 +159,10 @@ var DomHelpers = {
       return a.sourceIndex - b.sourceIndex;
     }
     var cmp = a.compareDocumentPosition(b);
+
     /*jslint bitwise: true */
-    if ((cmp & Node.DOCUMENT_POSITION_DISCONNECTED)) throw "compare position: the two elements belong to different documents";
-    if ((cmp & Node.DOCUMENT_POSITION_PRECEDING) || (cmp & Node.DOCUMENT_POSITION_CONTAINS)) return 1;
+    if ((cmp & window.Node.DOCUMENT_POSITION_DISCONNECTED)) throw "compare position: the two elements belong to different documents";
+    if ((cmp & window.Node.DOCUMENT_POSITION_PRECEDING) || (cmp & window.Node.DOCUMENT_POSITION_CONTAINS)) return 1;
     return -1;
     /*jslint bitwise: false */
   },

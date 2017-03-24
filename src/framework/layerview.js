@@ -713,7 +713,7 @@ var LayerView = BaseView.extend({
    * @param {object} options - optional: includes addedNodes
    */
   _parseChildren: function(options) {
-
+    
     BaseView.prototype._parseChildren.call(this, options);
 
     var childrenViews = this._cache.children;
