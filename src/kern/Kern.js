@@ -393,7 +393,7 @@
      */
     var Semaphore = Kern.Semaphore = Base.extend({
       constructor: function(num) {
-        this.num =  num || 0;
+        this.num = num || 0;
         this.cc = 0;
         this.ps = [];
       },
@@ -417,6 +417,19 @@
         return p;
       },
       /**
+       * reduces the number of stakeholders by one. If this was the last one it will actually trigger sync.
+       *
+       * @returns {void}
+       */
+      skip: function() {
+        this.num--;
+        if (this.num < 0) throw "semaphore: skipped stakeholder that was not registered";
+        if (this.num === this.cc) {
+          this.cc--; // let on more to go for triggering synchronization in normal syn method (may become negative)
+          this.sync();
+        }
+      },
+      /**
        * wait for all other stakeholders. returns a promise that will be fullfilled if all other stakeholders are in sync state as well (have called sync())
        *
        * @returns {Promise} the promise to be resolved when all stakeholders are in sync.
@@ -427,7 +440,7 @@
         this.ps.push(p = new Kern.Promise());
         if (this.cc === this.num) {
           for (var i = 0; i < this.ps.length; i++) {
-            this.ps[i].resolve();
+            this.ps[i].resolve(this.num);
           }
         } else if (this.cc >= this.num) {
           throw "semaphore: more syncs than stakeholders";

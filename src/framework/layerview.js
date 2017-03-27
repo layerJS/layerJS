@@ -476,26 +476,39 @@ var LayerView = BaseView.extend({
       transition.previousType = transition.previousType.replace(/^(?:r:|reverse:)/i, '');
       transition.previousReverse = true;
     }
+
     // create a dummy semaphore if there isn't any
     if (!transition.semaphore) {
       transition.semaphore = (new Kern.Semaphore()).register();
     }
     // add listener to the sempahore to get the moment the animation really startsWith
-    transition.semaphore.listen().then(function() {
-      that.trigger('transitionPrepared'); // notify listeners about prepared state.
+    transition.semaphore.listen().then(function(num) {
+      if (num > 0) that.trigger('transitionPrepared'); // notify listeners about prepared state. (unless all have skipped, e.g. delayed transitions)
     });
+
+    if (transition.delay) { // handle delayed transition
+      transition.semaphore.skip();
+      setTimeout(function() {
+        delete transition.semaphore;
+        delete transition.delay;
+        delete transition.transitionID;
+        that.transitionTo(framename, transition); // trigger transition
+      }, $.timeToMS(transition.delay));
+      return;
+    }
 
     var wasInTransition = this.inTransition();
     that.trigger('beforeTransition', framename);
-    transition.transitionID = this.transitionID = ++this._transitionIDcounter; // inc transition ID and save new ID into transition record
+    transition.transitionID = this.transitionID = ++this._transitionIDcounter; // inc transition ID and save new ID into transition record; keep exiting transitionID if existing (delayed transitions)
     this.inPreparation(true, $.timeToMS(transition.duration));
     this.inTransition(true, $.timeToMS(transition.duration));
 
-    if (that.currentFrame === frame && wasInTransition) {
+    if ((that.currentFrame === frame && wasInTransition) || transition.delay) {
       // this is not a valid transition -> so the transitionend handlers of the previous transition must be called (if in transition currently)
+      // delayed transitions are not counted as separate transitions
       this.transitionID--; // note: this will not update _inTransitionIDcounter, so the next transition will not conflict with this invalid transition in the inTransition() setTimeout handlers.
+      transition.transitionID--;
     }
-
     // make sure frame is there such that we can calculate dimensions and transform data
     return this._layout.loadFrame(frame).then(function() {
       that.inPreparation(false);
