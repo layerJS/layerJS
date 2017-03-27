@@ -2,7 +2,8 @@ module.exports = {
   version: 'default',
   transitionParameters: {
     duration: 't',
-    type: 'p'
+    type: 'p',
+    delay: 'd'
   },
   identifyPriority : {
     low: 1,

@@ -188,4 +188,22 @@ describe('delay', function() {
       });
     });
   });
+  it('trigger transition chain with router', function() {
+    browser.get('delay/delay.html').then(function() {
+      utilities.wait(300); // time for loading everything
+      utilities.getBoundingClientRect('stage').then(function(stage_dimensions) {
+        utilities.listenDimensionsBeforeTransition('layer', 'frame1');
+        utilities.listenDimensionsBeforeTransition('layer', 'frame2');
+        utilities.navigate('#frame3;frame2&d=1s')
+        utilities.wait(510); // wait. there should be the first transition finished
+        utilities.getCurrentFrame('layer').then(function(frameName1) {
+          expect(frameName1).toBe('frame3');
+          utilities.wait(1100); // wait until delay ends
+          utilities.getCurrentFrame('layer').then(function(frameName1) {
+            expect(frameName1).toBe('frame2');
+          });
+        });
+      });
+    });
+  });
 });
