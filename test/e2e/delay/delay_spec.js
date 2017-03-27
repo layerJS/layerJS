@@ -56,7 +56,7 @@ describe('delay', function() {
       });
     });
   });
-  it('can can concatenated transitions with delay', function() {
+  it('can concatenated transitions with delay', function() {
     browser.get('delay/delay.html').then(function() {
       utilities.wait(300); // time for loading everything
       utilities.getBoundingClientRect('stage').then(function(stage_dimensions) {
@@ -123,6 +123,64 @@ describe('delay', function() {
                 expect(frame3_dimensions_after2.left).toBe(stage_dimensions.left);
                 expect(frame3_dimensions_after2.top).toBe(stage_dimensions.top);
                 expect(frame2_dimensions_after2.right).toBe(stage_dimensions.left);
+              });
+            });
+          });
+        });
+      });
+    });
+  });
+  it('a new transition cancels delayed transition', function() {
+    browser.get('delay/delay.html').then(function() {
+      utilities.wait(300); // time for loading everything
+      utilities.getBoundingClientRect('stage').then(function(stage_dimensions) {
+        utilities.listenDimensionsBeforeTransition('layer', 'frame1');
+        utilities.listenDimensionsBeforeTransition('layer', 'frame2');
+        utilities.transitionTo('layer', 'frame2', {
+          duration: "500ms",
+          delay: '1000ms',
+          type: "left"
+        }, 1).then(function() {
+          utilities.transitionTo('layer', 'frame3', {
+            duration: "500ms",
+            type: "left"
+          }, 1).then(function() {
+            utilities.wait(510); // wait. there should be the 2nd transition finished
+            utilities.getCurrentFrame('layer').then(function(frameName1) {
+              expect(frameName1).toBe('frame3');
+              utilities.wait(1100); // wait until delay ends
+              utilities.getCurrentFrame('layer').then(function(frameName1) {
+                expect(frameName1).toBe('frame3');
+              });
+            });
+          });
+        });
+      });
+    });
+  });
+  it('delayed and immidiate transitions can be triggered after each other with same triggerID', function() {
+    browser.get('delay/delay.html').then(function() {
+      utilities.wait(300); // time for loading everything
+      utilities.getBoundingClientRect('stage').then(function(stage_dimensions) {
+        utilities.listenDimensionsBeforeTransition('layer', 'frame1');
+        utilities.listenDimensionsBeforeTransition('layer', 'frame2');
+        utilities.transitionTo('layer', 'frame2', {
+          duration: "500ms",
+          delay: '1000ms',
+          type: "left",
+          triggerID: 't1'
+        }, 1).then(function() {
+          utilities.transitionTo('layer', 'frame3', {
+            duration: "500ms",
+            type: "left",
+            triggerID: 't1'
+          }, 1).then(function() {
+            utilities.wait(510); // wait. there should be the 2nd transition finished
+            utilities.getCurrentFrame('layer').then(function(frameName1) {
+              expect(frameName1).toBe('frame3');
+              utilities.wait(1100); // wait until delay ends
+              utilities.getCurrentFrame('layer').then(function(frameName1) {
+                expect(frameName1).toBe('frame2');
               });
             });
           });

@@ -161,6 +161,7 @@ var State = Kern.Base.extend({
    * @param {object} transitions Transition properties
    */
   transitionTo: function(states, transitions) {
+    var triggerID = $.uniqueID("trigger");
     transitions = Array.isArray(transitions) && transitions || [transitions || {}];
     var pathsToTransition = this._determineTransitionPaths(states);
     var semaphore = new Kern.Semaphore(pathsToTransition.length); // semaphore is necessary to let all transition run in sync
@@ -171,6 +172,7 @@ var State = Kern.Base.extend({
       var frameName = path.substr(path.lastIndexOf(".") + 1);
       var pathTransition = transitions[Math.min(i, transitions.length - 1)];
       pathTransition.semaphore = semaphore;
+      pathTransition.triggerID = triggerID;
       layerView.transitionTo(frameName, pathTransition);
     }
 

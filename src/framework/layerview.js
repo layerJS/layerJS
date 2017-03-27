@@ -486,9 +486,11 @@ var LayerView = BaseView.extend({
       if (num > 0) that.trigger('transitionPrepared'); // notify listeners about prepared state. (unless all have skipped, e.g. delayed transitions)
     });
 
+    this.lastTriggerID = transition.triggerID || (transition.triggerID = $.uniqueID('trigger'));
     if (transition.delay) { // handle delayed transition
       transition.semaphore.skip();
       setTimeout(function() {
+        if (transition.triggerID !== that.lastTriggerID) return; // skip if there was another transition triggered in between
         delete transition.semaphore;
         delete transition.delay;
         delete transition.transitionID;

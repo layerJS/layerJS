@@ -18,6 +18,12 @@ utilities.transitionTo = function(layerId, frameName, transition, waitTime) {
     }
   }, layerId, frameName, transition, waitTime);
 };
+utilities.getCurrentFrame = function(layerId) {
+  return browser.driver.executeAsyncScript(function(layerId, callBack) {
+    var layer = layerJS.select('#' + layerId);
+    callBack(layer.currentFrame ? layer.currentFrame.name() : "!none");
+  }, layerId);
+};
 
 utilities.scrollTo = function(layerId, scrollX, scrollY, transition, waitTime) {
   waitTime = waitTime || 3000;
