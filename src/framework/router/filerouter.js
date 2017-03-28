@@ -1,19 +1,18 @@
 'use strict';
 var Kern = require('../../kern/Kern.js');
 var parseManager = require("../parsemanager.js");
-var state = require("../state.js");
 var $ = require('../domhelpers.js');
-var defaults = require('../defaults.js');
 
 var FileRouter = Kern.EventManager.extend({
   constructor: function(options) {
     options = options || {};
 
     this._cache = {};
+    this._state = layerJS.getState();
 
     if (options.cacheCurrent) {
-      var url = window.location.href.split('#')[0].replace(window.location.origin,'');
-      this._cache[url] = state.exportState();
+      var url = window.location.href.split('#')[0].replace(window.location.origin, '');
+      this._cache[url] = this._state.exportState();
     }
   },
   /**
@@ -49,7 +48,7 @@ var FileRouter = Kern.EventManager.extend({
     if (canHandle && this._cache.hasOwnProperty(urlData.pathname)) {
       canHandle = false;
       var framesToTransitionTo = this._cache[urlData.pathname];
-      state.transitionTo(framesToTransitionTo, urlData.transition);
+      this._state.transitionTo(framesToTransitionTo, urlData.transition);
       promise.resolve({
         stop: false,
         handled: true
@@ -59,44 +58,51 @@ var FileRouter = Kern.EventManager.extend({
     if (canHandle) {
       this._loadHTML(urlData.url).then(function(doc) {
         parseManager.parseDocument(doc);
-        var loadedFrames = state.exportStructure(doc);
-        var toParseChildren = {};
-        var alreadyImported = {};
+        var globalStructureHash = {};
 
-        for (var x = 0; x < loadedFrames.length; x++) {
-          var orginalView = state.getViewForPath(loadedFrames[x], document);
-          if (undefined !== orginalView || loadedFrames[x].endsWith('.' + defaults.specialFrames.none)) {
-            // already imported or null frame
-            continue;
+        var state = that._state;
+        state.exportStructure().forEach(function(path) {
+          globalStructureHash[path] = {};
+        });
+
+        var fileState = layerJS.getState(doc);
+        var addedHash = {};
+
+        fileState.exportStructure().forEach(function(path) {
+          if (!globalStructureHash[path]) {
+
+            var found = Object.keys(addedHash).filter(function(addedPath) {
+              return path.startsWith(addedPath);
+            }).length > 0;
+
+            if (!found) {
+              var parentPath = path.replace(/\.[^\.]*$/, '');
+
+              if (globalStructureHash[parentPath]) {
+                var html = fileState.getViewByPath(path).outerEl.outerHTML;
+                var parentView = state.getViewByPath(parentPath);
+                parentView.innerEl.insertAdjacentHTML('beforeend', html);
+                addedHash[path] = {};
+              }
+            }
           }
+        });
 
-          var parentView;
-          var parentPath = loadedFrames[x];
-          var pathToImport;
+        var framesToTransitionTo = fileState.exportState();
+        for (var i = 0; i < framesToTransitionTo.length; i++) {
+          var isSpecial = framesToTransitionTo[i].split('.').pop()[0] === '!';
 
-          while (undefined === parentView && parentPath.indexOf('.') > 0 && !alreadyImported.hasOwnProperty(parentPath)) {
-            pathToImport = parentPath;
-            parentPath = pathToImport.replace(/\.[^\.]*$/, "");
-            parentView = state.getViewForPath(parentPath, document);
-            // find parent in existing document or check if it has just been added
-          }
-
-          if (undefined !== parentView && !alreadyImported.hasOwnProperty[parentPath]) {
-            // parent found and not yet imported, add it's child (pathToImport) to it
-            var stateToImport = state.getStateForPath(pathToImport, doc);
-            stateToImport.view.outerEl.style.opacity = 0;
-            parentView.innerEl.insertAdjacentHTML('beforeend', stateToImport.view.outerEl.outerHTML);
-            toParseChildren[parentPath] = true;
-            alreadyImported[pathToImport] = true;
+          if (!(globalStructureHash[framesToTransitionTo[i]] || addedHash[framesToTransitionTo]) && !isSpecial) {
+            framesToTransitionTo.splice(i,1);
+            i--;
           }
         }
 
-        var framesToTransitionTo = state.exportState(doc);
         that._cache[urlData.url] = framesToTransitionTo;
 
         if (framesToTransitionTo.length > 0) {
           $.postAnimationFrame(function() {
-            state.transitionTo(framesToTransitionTo, urlData.transition);
+            that._state.transitionTo(framesToTransitionTo, urlData.transition);
             promise.resolve({
               stop: false,
               handled: true
@@ -116,6 +122,7 @@ var FileRouter = Kern.EventManager.extend({
       });
     }
 
+
     return promise;
   },
   /**
@@ -133,10 +140,13 @@ var FileRouter = Kern.EventManager.extend({
         p.reject();
       };
       xhr.onload = function() {
-        var doc = document.implementation.createHTMLDocument("framedoc");
-        doc.documentElement.innerHTML = xhr.responseText;
-
-        p.resolve(doc);
+        if (xhr.status === 200) {
+          var doc = document.implementation.createHTMLDocument("framedoc");
+          doc.documentElement.innerHTML = xhr.responseText;
+          p.resolve(doc);
+        } else {
+          p.reject();
+        }
       };
       xhr.open("GET", URL);
       xhr.responseType = "text";

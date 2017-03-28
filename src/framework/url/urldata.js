@@ -1,7 +1,7 @@
 'use strict';
 var Kern = require('../../kern/Kern.js');
 var defaults = require('../defaults.js');
-var state = require('../state.js');
+var state =  require('../state.js').getState();
 
 var UrlData = Kern.Base.extend({
   constructor: function(url, localLayerView) {
@@ -99,9 +99,13 @@ var UrlData = Kern.Base.extend({
   },
   _resolveHashPath: function(hashPath) {
     var results = [];
-    var isLocalHash = false;
-    var frameView, layerView;
+    console.log(hashPath);
+    //var isLocalHash = false;
+    //var frameView, layerView;
 
+
+      //return state.resolvePath(hashPath, this.localLayerView ? this.localLayerView.innerEl : undefined);
+/*
 
     for (var specialFrame in defaults.specialFrames) {
       if (defaults.specialFrames.hasOwnProperty(specialFrame) && hashPath === defaults.specialFrames[specialFrame]) {
@@ -128,7 +132,7 @@ var UrlData = Kern.Base.extend({
           break;
         }
       }
-    }
+    }*/
 
     return results;
   },

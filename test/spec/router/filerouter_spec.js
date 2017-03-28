@@ -8,7 +8,7 @@ describe('Filerouter', function() {
     UrlData = require('../../../src/framework/url/urldata.js');
     utilities = require('../helpers/utilities.js');
     StageView = require('../../../src/framework/stageview.js');
-    state = require('../../../src/framework/state.js');
+    state = require('../../../src/framework/state.js').getState();
 
     utilities.setHtml('<div data-lj-type="stage" id="contentstage">' +
       '<div data-lj-type="layer" id="contentlayer" data-lj-default-frame="frame1">' +
@@ -121,7 +121,7 @@ describe('Filerouter', function() {
     });
 
     var layerView = document.getElementById('contentlayer')._ljView;
-    spyOn(layerView, 'transitionTo');
+    spyOn(state, 'transitionTo');
 
     var transitionOptions = {
       duration: '2s',
@@ -133,10 +133,12 @@ describe('Filerouter', function() {
     var promise = fileRouter.handle(urlData);
     scope.done();
 
-    promise.then(function() {
-      expect(layerView.transitionTo).toHaveBeenCalledWith('frame2', urlData.transition);
-      done();
-    });
+    setTimeout(function() {
+      promise.then(function() {
+        expect(state.transitionTo).toHaveBeenCalledWith(['contentstage.contentlayer.frame2'], urlData.transition); //, urlData.transition);
+        done();
+      });
+    }, 1000);
   }, 5000);
 
   it('will return false when an error occured', function(done) {

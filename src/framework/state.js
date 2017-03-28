@@ -284,6 +284,24 @@ var State = Kern.EventManager.extend({
       }
     };
   },
+  /**
+   * Will return a view based on the path
+   * @param {string} path document who's state will be exported
+   * @returns {Object} A view
+   */
+  getViewByPath: function(path) {
+    var result;
+    if (undefined !== this.paths[path]) {
+      for (var i = 0; i < this.paths[path].length; i++) {
+        var id = this.paths[path][i];
+        if (this.views[id].path === path) {
+          result = this.views[id].view;
+        }
+      }
+    }
+
+    return result;
+  },
 }, {
   getState: function(doc) {
     doc = doc || document;
