@@ -1,12 +1,12 @@
 'use strict';
 var Kern = require('../../kern/Kern.js');
 var defaults = require('../defaults.js');
-var state =  require('../state.js').getState();
 
 var UrlData = Kern.Base.extend({
   constructor: function(url, localLayerView) {
     this.baseUrl = url;
     this.localLayerView = localLayerView;
+    this._state = layerJS.getState();
     this.parse();
   },
   _getTransitionAndPart: function(part) {
@@ -68,6 +68,11 @@ var UrlData = Kern.Base.extend({
       queryParams = '';
 
     for (var i = 0; i < hashParts.length; i++) {
+
+      if (hashParts[i].length === 0) {
+        break;
+      }
+
       result = this._getTransitionAndPart(hashParts[i]);
       hashParts[i] = result.part;
 
@@ -85,12 +90,12 @@ var UrlData = Kern.Base.extend({
       var hashTransition = Kern._extend({}, this.transition, result.transition);
 
       for (var index = 0; index < paths.length; index++) {
-        var view = state.getViewForPath(paths[index]);
-          this.hashTransitions[paths[index]] = hashTransition;
-          this.hasHashTransitions = true;
-          if (!view || !view.parent || !view.parent.noUrl()) {
-            tmpHashParts.push(paths[index] + search + queryParams);
-          }
+        var view = this._state.getViewByPath(paths[index]);
+        this.hashTransitions[paths[index]] = hashTransition;
+        this.hasHashTransitions = true;
+        if (!view || !view.parent || !view.parent.noUrl()) {
+          tmpHashParts.push(paths[index] + search + queryParams);
+        }
 
       }
     }
@@ -99,40 +104,27 @@ var UrlData = Kern.Base.extend({
   },
   _resolveHashPath: function(hashPath) {
     var results = [];
-    console.log(hashPath);
-    //var isLocalHash = false;
-    //var frameView, layerView;
 
+    var isLocalHash = false;
 
-      //return state.resolvePath(hashPath, this.localLayerView ? this.localLayerView.innerEl : undefined);
-/*
+    var views;
+
 
     for (var specialFrame in defaults.specialFrames) {
       if (defaults.specialFrames.hasOwnProperty(specialFrame) && hashPath === defaults.specialFrames[specialFrame]) {
         isLocalHash = true;
-        frameView = this.localLayerView._getFrame(defaults.specialFrames[specialFrame]);
-        results.push(state.getPathForView(this.localLayerView) + '.' + defaults.specialFrames[specialFrame]);
         break;
       }
     }
 
-    if (!isLocalHash) {
-      results = state._determineTransitionPaths([hashPath]);
+    if (isLocalHash) {
+      views = this._state.resolvePath(hashPath, this.localLayerView.innerEl);
+    } else {
+      views = this._state.resolvePath(hashPath);
     }
-
-    // resolve special frame names
-    for (var index = 0; index < results.length; index++) {
-      for (specialFrame in defaults.specialFrames) {
-        if (defaults.specialFrames.hasOwnProperty(specialFrame) && -1 !== results[index].indexOf(defaults.specialFrames[specialFrame])) {
-          var layerPath = results[index].replace('.' + defaults.specialFrames[specialFrame], '');
-          layerView = state.getViewForPath(layerPath);
-          frameView = layerView._getFrame(defaults.specialFrames[specialFrame]);
-          var frameName = (undefined !== frameView && null !== frameView) ? frameView.name() : defaults.specialFrames[specialFrame];
-          results[index] = state.getPathForView(layerView) + '.' + frameName;
-          break;
-        }
-      }
-    }*/
+    for (var i = 0; i < views.length; i++) {
+      results.push(this._state.buildPath(views[i].view.outerEl));
+    }
 
     return results;
   },

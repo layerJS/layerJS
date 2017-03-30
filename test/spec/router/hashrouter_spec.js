@@ -34,8 +34,7 @@ describe('HashRouter', function() {
       setTimeout(function() {
         expect(result.handled).toBeTruthy();
         expect(result.stop).toBeTruthy();
-        var layerView = document.getElementById('layer1')._ljView;
-        expect(layerView.currentFrame.name()).toBe('frame2');
+        expect(result.paths).toEqual(['stage1.layer1.frame2']);
         done();
       }, 500);
     });
@@ -50,7 +49,7 @@ describe('HashRouter', function() {
     });
   });
 
-  it('can only handle an url with a hash that is the same as the current url', function(done) {
+  xit('can only handle an url with a hash that is the same as the current url', function(done) {
     var promise = hashRouter.handle(new UrlData('http://localhost/test.html#stage1.layer1.frame2'));
 
     promise.then(function(result) {

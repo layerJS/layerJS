@@ -1,6 +1,5 @@
 'use strict';
 var Kern = require('../../kern/kern.js');
-var state = require('../state.js');
 
 var StaticRouter = Kern.EventManager.extend({
   constructor: function() {
@@ -36,15 +35,16 @@ var StaticRouter = Kern.EventManager.extend({
   handle: function(urlData) {
     var result = this.routes.hasOwnProperty(urlData.baseUrl);
     var promise = new Kern.Promise();
+    var activeFrames = [];
 
     if (result) {
-      var activeFrames = this.routes[urlData.baseUrl];
-      state.transitionTo(activeFrames, urlData.transition);
+      activeFrames = this.routes[urlData.baseUrl];
     }
 
     promise.resolve({
       stop: result,
-      handled: result
+      handled: result,
+      paths: activeFrames
     });
 
     return promise;

@@ -24,8 +24,8 @@ describe('staticRouter', function() {
 
   it('can handle a predefined route', function(done) {
     var url = '/test.html';
-
-    staticRouter.addRoute(url, ['stage1.layer1.frame2']);
+    var paths = ['stage1.layer1.frame2'];
+    staticRouter.addRoute(url, paths);
 
     var html = "<div data-lj-type='stage' id='stage1'>" +
       "<div data-lj-type='layer' id='layer1' data-lj-default-frame='frame1'>" +
@@ -46,8 +46,7 @@ describe('staticRouter', function() {
       setTimeout(function() {
         expect(result.handled).toBeTruthy();
         expect(result.stop).toBeTruthy();
-        var layerView = document.getElementById('layer1')._ljView;
-        expect(layerView.currentFrame.name()).toBe('frame2');
+        expect(result.paths).toEqual(paths);
         done();
       }, 500);
     });

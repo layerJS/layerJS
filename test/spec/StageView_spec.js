@@ -67,12 +67,10 @@ describe("StageView", function() {
           el: utilities.appendChildHTML(require('./htmlelements/simple_stage_1.js'))
         });
 
-        spyOn(state, 'updateChildren');
         spyOn(stageView, '_parseChildren');
 
         stageView.on('childrenChanged', function(options){
           expect(options.removedNodes.length).toBe(1);
-          expect(state.updateChildren).toHaveBeenCalled();
           expect(stageView._parseChildren).toHaveBeenCalled();
           done();
         });

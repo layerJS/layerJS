@@ -203,7 +203,8 @@ describe('router', function() {
         var promise = new Kern.Promise();
         promise.resolve({
           handled: true,
-          stop: true
+          stop: true,
+          paths: []
         });
         return promise;
       }
@@ -337,6 +338,47 @@ describe('router', function() {
     expect(layerJS.router._navigate).toHaveBeenCalled();
 
     layerJS.router._navigate.and.callThrough();
+  });
+
+  it('will use the paths from the routers to transition', function() {
+    var dummyRouter1 = {
+      handle: function() {
+        var promise = new Kern.Promise();
+        promise.resolve({
+          handled: true,
+          stop: false,
+          paths: ['contentStage1.contentLayer1.frame1']
+        });
+        return promise;
+      }
+    };
+
+    var dummyRouter2 = {
+      handle: function() {
+        var promise = new Kern.Promise();
+        promise.resolve({
+          handled: true,
+          stop: false,
+          paths: ['contentStage2.contentLayer1.frame1']
+        });
+        return promise;
+      }
+    };
+
+    layerJS.router.addRouter(dummyRouter1);
+    layerJS.router.addRouter(dummyRouter2);
+    var state = layerJS.getState();
+    var paths;
+    spyOn(state, 'transitionTo').and.callFake(function(states) {
+      paths = states;
+    });
+
+    var promise = layerJS.router._navigate(window.location.origin + '/index.html', false);
+
+    promise.then(function() {
+      expect(state.transitionTo).toHaveBeenCalled();
+      expect(paths).toEqual(['contentStage1.contentLayer1.frame1', 'contentStage2.contentLayer1.frame1']);
+    });
   });
 
 });

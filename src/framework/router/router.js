@@ -4,7 +4,6 @@ var $ = require('../domhelpers.js');
 var Kern = require('../../kern/kern.js');
 var UrlData = require('../url/urldata.js');
 var StaticRouter = require('./staticrouter.js');
-var state = require('../state.js');
 var domhelpers = require('../domhelpers.js');
 
 var Router = Kern.EventManager.extend({
@@ -87,6 +86,7 @@ var Router = Kern.EventManager.extend({
     var count = this.routers.length;
     var that = this;
     var promise = new Kern.Promise();
+    var state = layerJS.getState();
 
     var index = 0;
 
@@ -99,26 +99,36 @@ var Router = Kern.EventManager.extend({
     }
 
     var handled = false;
+    var paths = [];
+
+    var resolve = function() {
+      if (handled) {
+        if (window.history && addToHistory) {
+          window.history.pushState({}, "", urlData.url);
+        }
+        that.previousUrl = href;
+        state.transitionTo(paths, urlData.transitions);
+      }
+
+      promise.resolve(handled);
+    };
 
     var callRouter = function() {
       if (index < count) {
         that.routers[index].handle(urlData).then(function(result) {
-          if (!handled && result.handled) {
-            if (window.history && addToHistory) {
-              window.history.pushState({}, "", urlData.url);
-            }
-            that.previousUrl = href;
+          if (result.handled) {
             handled = result.handled;
+            Array.prototype.push.apply(paths, result.paths);
           }
 
           if ((result.handled && !result.stop) || (!result.handled)) {
             index++;
             callRouter();
           } else
-            promise.resolve(handled);
+            resolve();
         });
       } else {
-        promise.resolve(handled);
+        resolve();
       }
     };
 

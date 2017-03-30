@@ -1,6 +1,5 @@
 'use strict';
 var Kern = require('../../kern/Kern.js');
-var state = require("../state.js");
 
 var HashRouter = Kern.EventManager.extend({
   /**
@@ -13,30 +12,25 @@ var HashRouter = Kern.EventManager.extend({
     var promise = new Kern.Promise();
     if (!urlData.hasHashTransitions) {
       // not the same file or no hash in href
+
       promise.resolve({
         handled: false,
-        stop: false
+        stop: false,
+        paths: []
       });
     } else {
       var paths = [];
-      var transitions =[urlData.transition];
 
       for (var path in urlData.hashTransitions) {
         if (urlData.hashTransitions.hasOwnProperty(path)) {
           paths.push(path);
-          transitions.push(urlData.hashTransitions[path]);
         }
       }
 
-      var result = true;
-
-      if (paths.length > 0) {
-        result = state.transitionTo(paths, transitions);
-      }
-
       promise.resolve({
-        stop: result,
-        handled: result
+        stop: true,
+        handled: true,
+        paths: paths
       });
     }
 

@@ -24,38 +24,35 @@ var FileRouter = Kern.EventManager.extend({
     var that = this;
     var promise = new Kern.Promise();
     var canHandle = true;
+    var paths = [];
 
-    if (urlData.url.match(/^\w+:/)) { // absolute URL
-      if (!urlData.url.match(new RegExp('^' + window.location.origin))) {
-        canHandle = false;
-        promise.resolve({
-          handled: false,
-          stop: false
-        });
-      }
+    if (urlData.url.match(/^\w+:/) && !urlData.url.match(new RegExp('^' + window.location.origin))) {
+      canHandle = false;
     }
 
     var splitted = urlData.url.split('#');
     if (canHandle && window.location.href.indexOf(urlData.pathname) !== -1 && splitted.length > 1) {
       // same file and with a hash
       canHandle = false;
-      promise.resolve({
-        handled: false,
-        stop: false
-      });
     }
 
     if (canHandle && this._cache.hasOwnProperty(urlData.pathname)) {
       canHandle = false;
       var framesToTransitionTo = this._cache[urlData.pathname];
-      this._state.transitionTo(framesToTransitionTo, urlData.transition);
       promise.resolve({
         stop: false,
-        handled: true
+        handled: true,
+        paths : framesToTransitionTo
       });
     }
 
-    if (canHandle) {
+    if (!canHandle) {
+      promise.resolve({
+        handled: false,
+        stop: false,
+        paths: paths
+      });
+    } else {
       this._loadHTML(urlData.url).then(function(doc) {
         parseManager.parseDocument(doc);
         var globalStructureHash = {};
@@ -93,7 +90,7 @@ var FileRouter = Kern.EventManager.extend({
           var isSpecial = framesToTransitionTo[i].split('.').pop()[0] === '!';
 
           if (!(globalStructureHash[framesToTransitionTo[i]] || addedHash[framesToTransitionTo]) && !isSpecial) {
-            framesToTransitionTo.splice(i,1);
+            framesToTransitionTo.splice(i, 1);
             i--;
           }
         }
@@ -102,22 +99,24 @@ var FileRouter = Kern.EventManager.extend({
 
         if (framesToTransitionTo.length > 0) {
           $.postAnimationFrame(function() {
-            that._state.transitionTo(framesToTransitionTo, urlData.transition);
             promise.resolve({
               stop: false,
-              handled: true
+              handled: true,
+              paths: framesToTransitionTo
             });
           });
         } else {
           promise.resolve({
             stop: false,
-            handled: true
+            handled: true,
+            paths: []
           });
         }
       }, function() {
         promise.resolve({
           stop: false,
-          handled: false
+          handled: false,
+          paths: []
         });
       });
     }

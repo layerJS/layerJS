@@ -1,6 +1,7 @@
 'use strict';
 require("./kern/kern.js");
 require("./framework/layerjs.js");
+require("./framework/state.js");
 
 /* others*/
 require("./framework/pluginmanager.js");
@@ -11,7 +12,6 @@ require("./framework/layouts/slidelayout.js");
 require("./framework/layouts/canvaslayout.js");
 require("./framework/gestures/gesturemanager.js");
 require("./framework/router/router.js");
-require("./framework/state.js");
 
 /* data objects*/
 require("./framework/defaults.js");

@@ -1,5 +1,4 @@
 'use strict';
-var layerJS = require('./layerjs.js');
 var pluginManager = require('./pluginmanager.js');
 var $ = require('./domhelpers.js');
 var Kern = require('../kern/Kern.js');
