@@ -7,7 +7,6 @@ var ScrollTransformer = require('./scrolltransformer.js');
 var gestureManager = require('./gestures/gesturemanager.js');
 var defaults = require('./defaults.js');
 var BaseView = require('./baseview.js');
-
 /**
  * A View which can have child views
  * @param {LayerData} dataModel
@@ -92,6 +91,8 @@ var LayerView = BaseView.extend({
     } else {
       this.showFrame(this.currentFrame.name());
     }
+
+    this.autoTrigger();
   },
   /**
    * Specifies what will need to be observed on the DOM element. (Attributes, Children and size)
@@ -120,6 +121,10 @@ var LayerView = BaseView.extend({
         }
       });
     }
+
+    this.on('transitionStarted',function(){
+      that.autoTrigger();
+    });
   },
   /**
    * Will be invoked the an 'attributesChanged' event is triggered.
@@ -135,6 +140,23 @@ var LayerView = BaseView.extend({
       this.switchLayout(this.layoutType());
     }
 
+    if (attributes['lj-timer'] !== -1 || attributes['data-lj-timer'] !== -1) {
+      this.autoTrigger();
+    }
+
+  },
+  /**
+   * will trigger a delayed transition after a previous transitions finished
+   *
+   * @param {Type} Name - Description
+   * @returns {Type} Description
+   */
+  autoTrigger: function() {
+    var timerRoute = this.timer();
+    if (timerRoute) {
+      if (timerRoute.match(/^[0-9]/)) timerRoute = "#!next&d=" + timerRoute; // interprete tie values (e.g. 2s) as #!next&d=2s
+      layerJS.router._navigate(timerRoute, true, this);
+    }
   },
   /**
    * Will place a child view at the correct position.

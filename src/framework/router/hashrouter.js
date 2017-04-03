@@ -19,7 +19,7 @@ var HashRouter = Kern.EventManager.extend({
       });
     } else {
       var paths = [];
-      var transitions =[urlData.transition];
+      var transitions =[];
 
       for (var path in urlData.hashTransitions) {
         if (urlData.hashTransitions.hasOwnProperty(path)) {

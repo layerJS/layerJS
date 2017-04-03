@@ -481,6 +481,15 @@ var BaseView = DOMObserver.extend({
 
     return noUrl === 'true' ? true : false;
   },
+  /**
+   * returns the value for lj-timer which is used for auto trigger transitions.
+   *
+   * @param {Type} Name - Description
+   * @returns {Type} Description
+   */
+  timer: function() {
+    return this.getAttributeLJ('timer');
+  },
 
   /**
    * ##destroy
