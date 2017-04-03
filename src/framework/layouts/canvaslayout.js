@@ -36,6 +36,7 @@ var CanvasLayout = LayerLayout.extend({
       // now apply all transforms to all frames
       for (var i = 0; i < framesLength; i++) {
         childFrame = frames[i];
+        childFrame.getTransformData(this.layer.stage); // this will initialize dimensions for the frame
         this._applyTransform(childFrame, this._reverseTransform, transform, {
           transition: 'none',
           opacity: 1,
@@ -98,6 +99,7 @@ var CanvasLayout = LayerLayout.extend({
         // now apply all transforms to all frames
         for (var i = 0; i < framesLength; i++) {
           childFrame = frames[i];
+          childFrame.getTransformData(that.layer.stage); // this will initialize dimensions for the frame
           that._applyTransform(childFrame, that._reverseTransform, targetTransform, {
             transition: transition.duration,
             opacity: 1
@@ -196,7 +198,7 @@ var CanvasLayout = LayerLayout.extend({
     // console.log('canvaslayout: applystyles', frame.data.attributes.name, styles.transition);
     // we need to add the frame transform (x,y,rot,scale) the reverse transform (that moves the current frame into the stage) and the transform representing the current scroll/displacement
     frame.applyStyles(styles || {}, {
-      transform: "translate3d(" + (-frame.x() || 0) + "px," + (-frame.y() || 0) + "px,0px)" + addedTransform + " " + reverseTransform + " " + (this._frameTransforms[frame.id()] || (this._frameTransforms[frame.id()] = "translate3d(" + (frame.x() || 0) + "px," + (frame.y() || 0) + "px,0px) rotate(" + (frame.rotation() || 0) + "deg) scale(" + frame.scaleX() + "," + frame.scaleY() + ")"))
+      transform: "translate3d(" + (-frame.x() || 0) + "px," + (-frame.y() || 0) + "px,0px)" + addedTransform + " " + reverseTransform + " " + (this._frameTransforms[frame.id()] = "translate3d(" + (frame.x() || 0) + "px," + (frame.y() || 0) + "px,0px) rotate(" + (frame.rotation() || 0) + "deg) scale(" + frame.scaleX() + "," + frame.scaleY() + ")")
     });
   },
 });
