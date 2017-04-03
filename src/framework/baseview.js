@@ -314,7 +314,7 @@ var BaseView = DOMObserver.extend({
    * @return {string} the value of the lj-scale-x attribute
    */
   scaleX: function() {
-    var scaleX = this.getAttributeLJ('scale-x');
+    var scaleX = this.getAttributeLJ('scale') || this.getAttributeLJ('scale-x');
 
     return scaleX ? parseFloat(scaleX) : 1;
   },
@@ -324,7 +324,7 @@ var BaseView = DOMObserver.extend({
    * @return {string} the value of the lj-scale-y attribute
    */
   scaleY: function() {
-    var scaleY = this.getAttributeLJ('scale-y');
+    var scaleY = this.getAttributeLJ('scale') || this.getAttributeLJ('scale-y');
 
     return scaleY ? parseFloat(scaleY) : 1;
   },
