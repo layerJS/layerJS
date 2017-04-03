@@ -28,6 +28,12 @@ var DomHelpers = {
       element.appendChild(wrapper.childNodes[0]);
     }
   },
+  addClass: function(element, className) {
+    element.className += (element.className ? " " : "") + className;
+  },
+  removeClass: function(element, className) {
+    element.className = element.className.replace(new RegExp("(?:\\s+|^)" + className + "(?:\\s+|$)"), "");
+  },
   /**
    * browser detection
    * no mobile detection

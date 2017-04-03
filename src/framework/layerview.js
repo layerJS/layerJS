@@ -252,13 +252,13 @@ var LayerView = BaseView.extend({
         this.innerEl._ljView = this.outerEl._ljView;
         this.innerEl._state = this.outerEl._state;
       }
-      this.outerEl.className += ' nativescroll';
+      $.addClass(this.outerEl,'nativescroll');
     } else {
       if (hasScroller) {
         $.unwrapChildren(this.outerEl);
       }
       this.innerEl = this.outerEl;
-      this.outerEl.className = this.outerEl.className.replace(' nativescroll', '');
+      $.removeClass(this.outerEl,'nativescroll');
     }
 
     this._transformer = this._layout.getScrollTransformer() || new ScrollTransformer(this);
@@ -425,13 +425,13 @@ var LayerView = BaseView.extend({
     this._layout.loadFrame(frame).then(function() {
       var tfd = that.currentFrameTransformData = null === frame ? that.noFrameTransformdata(scrollData.startPosition) : frame.getTransformData(that.stage, scrollData.startPosition);
       that.currentTransform = that._transformer.getScrollTransform(tfd, scrollData.scrollX || (tfd.isScrollX && tfd.scrollX) || 0, scrollData.scrollY || (tfd.isScrollY && tfd.scrollY) || 0);
-      that.currentFrame = frame;
 
+      that.updateClasses(frame);
+      that.currentFrame = frame;
       that.trigger('transitionStarted', framename);
       that._layout.showFrame(frame, tfd, that.currentTransform);
       that.inPreparation(false);
       that.inTransition(false); // we stop all transitions if we do a showframe
-      that.currentFrame = frame;
       that.trigger('transitionFinished', framename);
     });
   },
@@ -706,11 +706,10 @@ var LayerView = BaseView.extend({
    */
   updateClasses: function(newFrame) {
     if (this.currentFrame) {
-      this._saveLastFrame = this.currentFrame;
-      this.currentFrame.outerEl.className = this.currentFrame.outerEl.className.replace(/\s*wl\-active\s*/g, '');
+      $.removeClass(this.currentFrame.outerEl,'lj-active');
     }
     if (null !== newFrame) {
-      newFrame.outerEl.className += " wl-active";
+      $.addClass(newFrame.outerEl,'lj-active');
     }
   },
   /**
