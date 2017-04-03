@@ -1,0 +1,63 @@
+<html>
+
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="zoomin interface">
+  <script src="../../dist/layerjs.js"></script>
+  <link href="../../dist/layerjs.css" type="text/css" rel="stylesheet" />
+  <link href="your-style.css" type="text/css" rel="stylesheet" />
+</head>
+
+<!-- Add a main stage. -->
+<body lj-type="stage" id="mainstage">
+  <!-- The layer for the zoom menu -->
+  <div lj-type="layer" lj-default-frame="zoomout" lj-layout="canvas">
+
+    <!-- The frame showing everything in the zoomed out state -->
+    <div lj-type="frame" id="zoomout" lj-fit-to="fixed">
+      <h1>Abitrage Ipsum Momentum</h1>
+      <h2>Beware of the Little White Rabbit</h2>
+      <p>
+        Click on one of the content frames below to get the details. Swipe to switch between them. Use the menu icon in the frames to get back to the main menu.
+      </p>
+    </div>
+    <div lj-type="frame" id="zoomin" lj-fit-to="fixed" lj-scale="0.25">
+      <!-- The zoomed in frame only showing the current content frame -->
+      <div lj-type="stage" id="contentstage">
+        <!-- The stage that handles the transitions between the content frames -->
+        <div lj-type="layer" id="contentlayer" lj-layout="canvas" lj-native-scroll="false">
+          <!-- The layer for the content frames -->
+
+
+          <!-- 1st content frame. It uses an external iframe to not clutter this example with content. -->
+          <div lj-type="frame" id="frame1" lj-fit-to="responsive" lj-neighbors.r="frame2">
+            <a class="coverlink" href="#frame1;zoomin;minimenu.hamburger"></a>
+            <iframe width="100%" height="100%" frameborder="0" src="https://techcrunch.com/2017/04/03/apple-gpu-tech/amp/"></iframe>
+          </div>
+          <div lj-type="frame" id="frame2" lj-fit-to="responsive" lj-neighbors.r="frame3" lj-neighbors.l="frame1">
+            <a class="coverlink" href="#frame2;zoomin;minimenu.hamburger"></a>
+            <iframe width="100%" height="100%" frameborder="0" src="https://www.wired.com/2017/03/yes-spider-man-can-jump-6-meters-onto-moving-ferry-physics-says/?amp=1"></iframe>
+          </div>
+          <div lj-type="frame" id="frame3" lj-fit-to="responsive" lj-neighbors.r="frame4" lj-neighbors.l="frame2">
+            <a class="coverlink" href="#frame3;zoomin;minimenu.hamburger"></a>
+            <iframe width="100%" height="100%" frameborder="0" src="https://venturebeat.com/2017/04/02/understanding-the-limits-of-deep-learning/amp/"></iframe>
+          </div>
+          <div lj-type="frame" id="frame4" lj-fit-to="responsive" lj-neighbors.l="frame3">
+            <a class="coverlink" href="#frame4;zoomin;minimenu.hamburger"></a>
+            <iframe width="100%" height="100%" frameborder="0" src="https://techcrunch.com/2017/04/03/statcounter-android-windows/amp/"></iframe>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div lj-type="layer" id="minimenu" lj-default-frame="!none" lj-native-scroll="false">
+    <a href="#zoomout;frame1;minimenu.!none" lj-type="frame" id="hamburger" lj-start-position="top" lj-fit-to="fixed" lj-transition="down">
+      &#x2630;
+    </a>
+  </div>
+  <script>
+    layerJS.init(); // Initialize layerJS
+  </script>
+</body>
+
+</html>
