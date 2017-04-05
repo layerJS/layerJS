@@ -1,4 +1,4 @@
-describe('UrlData', function() {
+xdescribe('UrlData', function() {
 
   var defaults;
   var utilities = require('../helpers/utilities.js');

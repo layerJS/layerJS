@@ -27,21 +27,25 @@ describe('HashRouter', function() {
     new StageView({
       el: document.getElementById('stage1')
     });
-
-    var promise = hashRouter.handle(new UrlData(url));
+    var options = {
+      url: url,
+      transitions: []
+    };
+    var promise = hashRouter.handle(options.url, options);
 
     promise.then(function(result) {
       setTimeout(function() {
         expect(result.handled).toBeTruthy();
         expect(result.stop).toBeTruthy();
         expect(result.paths).toEqual(['stage1.layer1.frame2']);
+        expect(options.url).toBe(window.location.href + '#');
         done();
       }, 500);
     });
   });
 
   it('can only handle an url with a hash', function(done) {
-    var promise = hashRouter.handle(new UrlData('http://localhost/'));
+    var promise = hashRouter.handle('http://localhost/');
 
     promise.then(function(result) {
       expect(result.handled).toBeFalsy();
@@ -50,7 +54,7 @@ describe('HashRouter', function() {
   });
 
   xit('can only handle an url with a hash that is the same as the current url', function(done) {
-    var promise = hashRouter.handle(new UrlData('http://localhost/test.html#stage1.layer1.frame2'));
+    var promise = hashRouter.handle('http://localhost/test.html#stage1.layer1.frame2');
 
     promise.then(function(result) {
       expect(result.handled).toBeFalsy();

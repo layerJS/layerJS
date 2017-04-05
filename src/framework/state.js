@@ -137,7 +137,8 @@ var State = Kern.EventManager.extend({
     transitions.reduce(function(collection, layerframe, index) {
       for (var i = 0; i < layerframe.length; i++) {
         if (!layerframe[i].active) {
-          collection.push({ // ignore currently active frames
+          // for some reason the collection parameter is undefined the second pass ( solution use the reduced collection directly)
+          reduced.push({ // ignore currently active frames
             layer: layerframe[i].layer,
             frameName: layerframe[i].frameName,
             transition: transitions[Math.min(index, transitions.length - 1)] || {}
@@ -209,7 +210,6 @@ var State = Kern.EventManager.extend({
    * @param {string} path - the full path
    * @returns {Array} array of path endings
    */
-
   getTrailingPaths: function(path) {
     var paths = [path];
     while ((path = path.replace(/^[^\.]*\.?/, ''))) {
@@ -301,8 +301,14 @@ var State = Kern.EventManager.extend({
     }
 
     return result;
-  },
+  }
 }, {
+  /**
+   * Resolves the state for a specific document
+   *
+   * @param {object} doc - A document where the state needs to be retrieved, if undefined the global document will be used
+   * @returns {object} The current state object for the document
+   */
   getState: function(doc) {
     doc = doc || document;
     return doc._ljState || new State(doc);

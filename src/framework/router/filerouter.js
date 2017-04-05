@@ -17,28 +17,28 @@ var FileRouter = Kern.EventManager.extend({
   },
   /**
    * Will do the actual navigation to the url
-   * @param {UrlData} an url
+   * @param {url} an url
    * @return {boolean} True if the router handled the url
    */
-  handle: function(urlData) {
+  handle: function(url) {
     var that = this;
     var promise = new Kern.Promise();
     var canHandle = true;
     var paths = [];
 
-    if (urlData.url.match(/^\w+:/) && !urlData.url.match(new RegExp('^' + window.location.origin))) {
+    if (url.match(/^\w+:/) && !url.match(new RegExp('^' + window.location.origin))) {
       canHandle = false;
     }
 
-    var splitted = urlData.url.split('#');
-    if (canHandle && window.location.href.indexOf(urlData.pathname) !== -1 && splitted.length > 1) {
+    var splitted = url.split('#');
+    if (canHandle && window.location.href.indexOf(splitted[0]) !== -1 && splitted.length > 1) {
       // same file and with a hash
       canHandle = false;
     }
 
-    if (canHandle && this._cache.hasOwnProperty(urlData.pathname)) {
+    if (canHandle && this._cache.hasOwnProperty(url)) {
       canHandle = false;
-      var framesToTransitionTo = this._cache[urlData.pathname];
+      var framesToTransitionTo = this._cache[url];
       promise.resolve({
         stop: false,
         handled: true,
@@ -53,11 +53,12 @@ var FileRouter = Kern.EventManager.extend({
         paths: paths
       });
     } else {
-      this._loadHTML(urlData.url).then(function(doc) {
+      this._loadHTML(url).then(function(doc) {
         parseManager.parseDocument(doc);
         var globalStructureHash = {};
 
         var state = that._state;
+        // create a hash that contains all paths for the current document
         state.exportStructure().forEach(function(path) {
           globalStructureHash[path] = {};
         });
@@ -66,15 +67,17 @@ var FileRouter = Kern.EventManager.extend({
         var addedHash = {};
 
         fileState.exportStructure().forEach(function(path) {
+          // check if new path exists in current state
           if (!globalStructureHash[path]) {
-
+            // check if the parent is already added
             var found = Object.keys(addedHash).filter(function(addedPath) {
               return path.startsWith(addedPath);
             }).length > 0;
 
             if (!found) {
+              // Path not yet added, get parent path
               var parentPath = path.replace(/\.[^\.]*$/, '');
-
+              // only add the new path if the parent exists in current state
               if (globalStructureHash[parentPath]) {
                 var html = fileState.getViewByPath(path).outerEl.outerHTML;
                 var parentView = state.getViewByPath(parentPath);
@@ -88,14 +91,14 @@ var FileRouter = Kern.EventManager.extend({
         var framesToTransitionTo = fileState.exportState();
         for (var i = 0; i < framesToTransitionTo.length; i++) {
           var isSpecial = framesToTransitionTo[i].split('.').pop()[0] === '!';
-
-          if (!(globalStructureHash[framesToTransitionTo[i]] || addedHash[framesToTransitionTo]) && !isSpecial) {
+          // only transition to frames the already existed or just have been added
+          if (!(globalStructureHash[framesToTransitionTo[i]] || addedHash[framesToTransitionTo[i]] || isSpecial)) {
             framesToTransitionTo.splice(i, 1);
             i--;
           }
         }
 
-        that._cache[urlData.url] = framesToTransitionTo;
+        that._cache[url] = framesToTransitionTo;
 
         if (framesToTransitionTo.length > 0) {
           $.postAnimationFrame(function() {

@@ -24,6 +24,10 @@ describe('staticRouter', function() {
 
   it('can handle a predefined route', function(done) {
     var url = '/test.html';
+    var options = {
+      url: url,
+      transitions: []
+    };
     var paths = ['stage1.layer1.frame2'];
     staticRouter.addRoute(url, paths);
 
@@ -40,7 +44,7 @@ describe('staticRouter', function() {
       el: document.getElementById('stage1')
     });
 
-    var promise = staticRouter.handle(new UrlData(url));
+    var promise = staticRouter.handle(url);
 
     promise.then(function(result) {
       setTimeout(function() {

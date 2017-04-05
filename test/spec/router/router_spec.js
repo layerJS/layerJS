@@ -4,7 +4,6 @@ describe('router', function() {
   var utilities = require('../helpers/utilities.js');
   var StageView = require('../../../src/framework/stageview.js');
   var state = require('../../../src/framework/state.js');
-  var UrlData = require('../../../src/framework/url/urldata.js')
   var Kern = require('../../../src/kern/kern.js');
 
   beforeEach(function() {
@@ -23,13 +22,13 @@ describe('router', function() {
     window.location.href = "http://localhost/";
   });
 
-  it('can be created', function() {
+it('can be created', function() {
     expect(layerJS.router).toBeDefined();
   });
 
-  it('will add the a StaticRouter at the beginning of the router pipline', function() {
+it('will add the a StaticRouter at the beginning of the router pipline', function() {
     var dummyRouter = {
-      handle: function(urlData) {
+      handle: function(url) {
         var promise = new Kern.Promise();
         promise.resolve({
           handled: false,
@@ -44,7 +43,7 @@ describe('router', function() {
     expect(layerJS.router.routers[0] instanceof StaticRouter).toBeTruthy();
   });
 
-  it('will detect a link click event', function() {
+it('will detect a link click event', function() {
     var navigate = layerJS.router._navigate;
 
     var element = document.createElement('a');
@@ -60,10 +59,10 @@ describe('router', function() {
     layerJS.router._navigate.and.callThrough();
   });
 
-  it('will let the current router can handle the url', function() {
+it('will let the current router can handle the url', function() {
     var called = false;
     var dummyRouter = {
-      handle: function(urlData) {
+      handle: function(url) {
         var promise = new Kern.Promise();
         promise.resolve({
           handled: true,
@@ -83,9 +82,9 @@ describe('router', function() {
     expect(called).toBeTruthy();
   });
 
-  it('will add a new entry to the history when url is handled', function() {
+it('will add a new entry to the history when url is handled', function() {
     var dummyRouter = {
-      handle: function(urlData) {
+      handle: function(url) {
         var promise = new Kern.Promise();
         promise.resolve({
           handled: true,
@@ -111,9 +110,9 @@ describe('router', function() {
     window.history.pushState.and.callThrough();
   });
 
-  it('will not add a new entry to the history when url can not be handled', function() {
+it('will not add a new entry to the history when url can not be handled', function() {
     var dummyRouter = {
-      handle: function(urlData) {
+      handle: function(url) {
         var promise = new Kern.Promise();
         promise.resolve({
           handled: false,
@@ -139,9 +138,9 @@ describe('router', function() {
     window.history.pushState.and.callThrough();
   });
 
-  it('the window.popState will call the navigate method on the router and won\'t add an entry to the history', function() {
+it('the window.popState will call the navigate method on the router and won\'t add an entry to the history', function() {
     var dummyRouter = {
-      handle: function(urlData) {
+      handle: function(url) {
         var promise = new Kern.Promise();
         promise.resolve({
           handled: true,
@@ -165,12 +164,12 @@ describe('router', function() {
     window.history.pushState.and.callThrough();
   });
 
-  it('will pass the transition options to the current router and will add a cleaned up url to the history', function() {
+xit('will pass the transition options to the current router and will add a cleaned up url to the history', function() {
     var transitionOptions, urlHistory;
 
     var dummyRouter = {
-      handle: function(urlData) {
-        transitionOptions = urlData.transition;
+      handle: function(url, options) {
+        transitionOptions = options.transition;
 
         var promise = new Kern.Promise();
         promise.resolve({
@@ -195,11 +194,11 @@ describe('router', function() {
     });
   });
 
-  it('will add the exiting state to the StaticRouter when a new navigation is done', function(done) {
+it('will add the exiting state to the StaticRouter when a new navigation is done', function(done) {
     var routerCache = layerJS.router.cache;
     var url = window.location.origin + '/index.html';
     var dummyRouter = {
-      handle: function(urlData) {
+      handle: function(url) {
         var promise = new Kern.Promise();
         promise.resolve({
           handled: true,
@@ -233,11 +232,11 @@ describe('router', function() {
     });
   });
 
-  it('will stop iterating routers when a router return stop == true', function() {
+it('will stop iterating routers when a router return stop == true', function() {
     var url = window.location.origin + '/index.html';
     var handled = false;
     var dummyRouter = {
-      handle: function(urlData) {
+      handle: function(url) {
         var promise = new Kern.Promise();
         promise.resolve({
           handled: true,
@@ -248,7 +247,7 @@ describe('router', function() {
     };
 
     var dummyRouter2 = {
-      handle: function(urlData) {
+      handle: function(url) {
         handled = true;
         var promise = new Kern.Promise();
         promise.resolve({
@@ -281,11 +280,11 @@ describe('router', function() {
     expect(handled).toBe(false);
   });
 
-  it('will iterate to the next router when a router return stop == false but handled the url', function() {
+it('will iterate to the next router when a router return stop == false but handled the url', function() {
     var url = window.location.origin + '/index.html';
     var handled = false;
     var dummyRouter = {
-      handle: function(urlData) {
+      handle: function(url) {
         var promise = new Kern.Promise();
         promise.resolve({
           handled: true,
@@ -296,7 +295,7 @@ describe('router', function() {
     };
 
     var dummyRouter2 = {
-      handle: function(urlData) {
+      handle: function(url) {
         handled = true;
         var promise = new Kern.Promise();
         promise.resolve({
@@ -328,7 +327,7 @@ describe('router', function() {
     expect(handled).toBe(true);
   });
 
-  it('layerJS.init() will call the navigate function', function() {
+it('layerJS.init() will call the navigate function', function() {
     var promise = new Kern.Promise();
     promise.resolve(true);
     spyOn(layerJS.router, '_navigate').and.returnValue(promise);
@@ -340,7 +339,7 @@ describe('router', function() {
     layerJS.router._navigate.and.callThrough();
   });
 
-  it('will use the paths from the routers to transition', function() {
+it('will use the paths from the routers to transition', function() {
     var dummyRouter1 = {
       handle: function() {
         var promise = new Kern.Promise();

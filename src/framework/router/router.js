@@ -2,9 +2,9 @@
 var layerJS = require('../layerjs.js');
 var $ = require('../domhelpers.js');
 var Kern = require('../../kern/kern.js');
-var UrlData = require('../url/urldata.js');
 var StaticRouter = require('./staticrouter.js');
 var domhelpers = require('../domhelpers.js');
+var urlHelper = require('../urlhelper.js');
 
 var Router = Kern.EventManager.extend({
   constructor: function(rootEl, options) {
@@ -81,8 +81,20 @@ var Router = Kern.EventManager.extend({
    * @return {boolean} Indicates if the router could do the navigation to the url
    */
   _navigate: function(href, addToHistory, layerView) {
-    //var navigate = false;
-    var urlData = new UrlData(href, layerView);
+    /*var urlData = new UrlData(href, layerView);
+    href = urlHelper.getAbsoluteUrl(href);*/
+    var parsed = urlHelper.parseQueryString(href);
+    var options = {
+      url: parsed.url,
+      transitions: [],
+      context: layerView
+    };
+
+    if (undefined !== parsed.transition) {
+      options.transitions.push(parsed.transition);
+    }
+
+    var url = options.url;
     var count = this.routers.length;
     var that = this;
     var promise = new Kern.Promise();
@@ -104,10 +116,10 @@ var Router = Kern.EventManager.extend({
     var resolve = function() {
       if (handled) {
         if (window.history && addToHistory) {
-          window.history.pushState({}, "", urlData.url);
+          window.history.pushState({}, "", url);
         }
-        that.previousUrl = href;
-        state.transitionTo(paths, urlData.transitions);
+        that.previousUrl = options.url;
+        state.transitionTo(paths, options.transitions);
       }
 
       promise.resolve(handled);
@@ -115,7 +127,7 @@ var Router = Kern.EventManager.extend({
 
     var callRouter = function() {
       if (index < count) {
-        that.routers[index].handle(urlData).then(function(result) {
+        that.routers[index].handle(options.url, options).then(function(result) {
           if (result.handled) {
             handled = result.handled;
             Array.prototype.push.apply(paths, result.paths);
