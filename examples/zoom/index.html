@@ -3,16 +3,15 @@
 <head>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="zoomin interface">
-  <script src="../../dist/layerjs.js"></script>
+  <script src="../../dist/layerjs.js"></script><!-- link layerjs -->
   <link href="../../dist/layerjs.css" type="text/css" rel="stylesheet" />
-  <link href="your-style.css" type="text/css" rel="stylesheet" />
+  <link href="your-style.css" type="text/css" rel="stylesheet" /><!-- add styling to the content -->
 </head>
 
 <!-- Add a main stage. -->
 <body lj-type="stage" id="mainstage">
-  <!-- The layer for the zoom menu -->
+  <!-- The layer for the zoom menu. By default the zoomed out state is shown. -->
   <div lj-type="layer" lj-default-frame="zoomout" lj-layout="canvas">
-
     <!-- The frame showing everything in the zoomed out state -->
     <div lj-type="frame" id="zoomout" lj-fit-to="fixed">
       <h1>Abitrage Ipsum Momentum</h1>
@@ -21,19 +20,18 @@
         Click on one of the content frames below to get the details. Swipe to switch between them. Use the menu icon in the frames to get back to the main menu.
       </p>
     </div>
+    <!-- The zoomed in frame only showing the current content frame -->
     <div lj-type="frame" id="zoomin" lj-fit-to="fixed" lj-scale="0.25">
-      <!-- The zoomed in frame only showing the current content frame -->
+      <!-- The stage that handles the transitions between the content frames -->
       <div lj-type="stage" id="contentstage">
-        <!-- The stage that handles the transitions between the content frames -->
+        <!-- The layer for the content frames -->
         <div lj-type="layer" id="contentlayer" lj-layout="canvas" lj-native-scroll="false">
-          <!-- The layer for the content frames -->
-
-
-          <!-- 1st content frame. It uses an external iframe to not clutter this example with content. -->
+          <!-- 1st content frame. -->
           <div lj-type="frame" id="frame1" lj-fit-to="responsive" lj-neighbors.r="frame2">
-            <a class="coverlink" href="#frame1;zoomin;minimenu.hamburger"></a>
-            <iframe width="100%" height="100%" frameborder="0" src="https://techcrunch.com/2017/04/03/apple-gpu-tech/amp/"></iframe>
+            <a class="coverlink" href="#frame1;zoomin;minimenu.hamburger"></a><!-- an overlay linking to the zoomed in state of frame1 with the hamburger menu showing -->
+            <iframe width="100%" height="100%" frameborder="0" src="https://techcrunch.com/2017/04/03/apple-gpu-tech/amp/"></iframe><!-- We use an external iframe to not clutter this example with content. -->
           </div>
+          <!-- the next content frame -->
           <div lj-type="frame" id="frame2" lj-fit-to="responsive" lj-neighbors.r="frame3" lj-neighbors.l="frame1">
             <a class="coverlink" href="#frame2;zoomin;minimenu.hamburger"></a>
             <iframe width="100%" height="100%" frameborder="0" src="https://www.wired.com/2017/03/yes-spider-man-can-jump-6-meters-onto-moving-ferry-physics-says/?amp=1"></iframe>
@@ -50,8 +48,8 @@
       </div>
     </div>
   </div>
-  <div lj-type="layer" id="minimenu" lj-default-frame="!none" lj-native-scroll="false">
-    <a href="#zoomout;frame1;minimenu.!none" lj-type="frame" id="hamburger" lj-start-position="top" lj-fit-to="fixed" lj-transition="down">
+  <div lj-type="layer" id="minimenu" lj-default-frame="!none" lj-native-scroll="false"> <!-- the layer for the hamburger menu. It's not shown by default -->
+    <a href="#zoomout;frame1;minimenu.!none" lj-type="frame" id="hamburger" lj-start-position="top" lj-fit-to="fixed" lj-transition="down"><!-- the "hamburger" linking to the zoomed out state with the hamburger not shown. -->
       &#x2630;
     </a>
   </div>

@@ -39,7 +39,7 @@ body {
   color: #60C694;
   font-size: 48px;
 }
-@media (max-device-width: 480px) {
+@media (max-device-width: 520px) {
   #zoomout h1 {
     color: #60C694;
     font-size: 42px;
