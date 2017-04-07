@@ -92,17 +92,21 @@ var State = Kern.EventManager.extend({
   },
   /**
    * Will return all paths to active frames
-   * @param {object} the document who's state will be exported
+   * @param {boolean} minimise When true, minimise the returned paths
    * @returns {array} An array of strings pointing to active frames within the document
    */
-  exportState: function(reduced) {
-    reduced = reduced || false; // FIXME: Add for futher. Option to reduce export path
+  exportState: function(minimise) {
+    minimise = minimise || false;
     var state = [];
     for (var i = 0; i < this.layers.length; i++) {
       var layer = this.views[this.layers[i]].view;
       if (layer.currentFrame) {
         state.push(this.views[layer.currentFrame.id()].path);
-      } else {
+        if (true === minimise && (layer.noUrl() || layer.currentFrame.name() === layer.defaultFrame() ||
+            (null === layer.defaultFrame() && null === layer.currentFrame.outerEl.previousSibling))) {
+          state.pop();
+        }
+      } else if (true !== minimise) {
         state.push(this.views[layer.id()].path + ".!none");
       }
     }
