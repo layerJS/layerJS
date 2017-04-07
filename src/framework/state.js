@@ -17,6 +17,8 @@ var State = Kern.EventManager.extend({
     this.views = {}; // contains view and path; indexed by id
     this.layers = []; // list of all layers (ids)
     this.paths = {}; // lookup by path (and all path endings) for all ids
+
+    Kern.EventManager.call(this);
   },
   /**
    * Will register a View with the state
@@ -52,7 +54,7 @@ var State = Kern.EventManager.extend({
       });
       view.on('transitionStarted', function() {
         // FIXME: need to wait for multi transition
-        // that.trigger("stateChanged");
+        this.trigger("stateChanged");
       }, {
         context: this
       });
