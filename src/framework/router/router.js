@@ -58,7 +58,7 @@ var Router = Kern.EventManager.extend({
     // register link listener
     $.addDelegtedListener(this.rootElement, 'click', 'a', function(event) {
 
-      if (event.nonlayerJS !== true && this.href !== '') {
+      if (event.nonlayerJS !== true && this.href !== '' && !this.href.startsWith('javascript:')) { // jshint ignore:line
         var href = this.href;
 
         event.preventDefault(); // prevent default action, i.e. going to link target
