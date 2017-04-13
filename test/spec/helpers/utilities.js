@@ -53,7 +53,10 @@ utilities.beforeEach = function() {
 }
 
 utilities.afterEach = function() {
-  delete document._ljState;
+  var state = layerJS.getState();
+  state.views = {};
+  state.layers = [];
+  state.paths = {};
   layerJS.router.clearRouters();
   layerJS.router.previousUrl = undefined;
 

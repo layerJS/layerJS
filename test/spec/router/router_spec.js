@@ -23,7 +23,6 @@ describe('router', function() {
     layerJS.router.addRouter(new HashRouter());
     window.location.href = "http://localhost/";
   });
-/*
   it('can be created', function() {
     expect(layerJS.router).toBeDefined();
   });
@@ -85,7 +84,7 @@ describe('router', function() {
   });
 
 
-  it('will not add a new entry to the history when url can not be handled', function() {
+  xit('will not add a new entry to the history when url can not be handled', function(done) {
     var dummyRouter = {
       handle: function(url) {
         var promise = new Kern.Promise();
@@ -98,9 +97,11 @@ describe('router', function() {
     };
 
     var history = window.history;
+    var called = false;
+    window.history.replaceState = function() {
+      called = true
+    };
 
-    window.history.replaceState = function() {};
-    spyOn(window.history, 'replaceState');
 
     layerJS.router.addRouter(dummyRouter);
     var element = document.createElement('a');
@@ -108,9 +109,11 @@ describe('router', function() {
     document.body.appendChild(element);
     element.click();
 
-    expect(window.history.replaceState).not.toHaveBeenCalled();
-
-    window.history.replaceState.and.callThrough();
+    setTimeout(function() {
+      expect(called).toBe(false);
+      delete window.history.replaceState;
+      done();
+    }, 1000);
   });
 
   it('the window.popState will call the navigate method on the router and won\'t add an entry to the history', function() {
@@ -224,8 +227,8 @@ describe('router', function() {
     layerJS.router._navigate(url, true);
     expect(handled).toBe(false);
   });
-*/
-  xit('will iterate to the next router when a router return stop == false but handled the url', function() {
+
+  it('will iterate to the next router when a router return stop == false but handled the url', function() {
     var url = window.location.origin + '/index.html';
     var handled = false;
     var dummyRouter = {
@@ -234,7 +237,7 @@ describe('router', function() {
         promise.resolve({
           handled: true,
           stop: false,
-          paths : []
+          paths: []
         });
         return promise;
       }
@@ -247,26 +250,12 @@ describe('router', function() {
         promise.resolve({
           handled: true,
           stop: true,
-          paths : []
+          paths: []
         });
         return promise;
       }
     };
 
-  /*  var html = "<div data-lj-type='stage' id='stage1'>" +
-      "<div data-lj-type='layer' id='layer1' data-lj-default-frame='frame1'>" +
-      "<div data-lj-type='frame' id='frame1' data-lj-name='frame1'></div>" +
-      "<div data-lj-type='frame' id='frame2' data-lj-name='frame2'></div>" +
-      "</div>" +
-      "</div>";
-
-    utilities.setHtml(html);
-
-    //window.history.pushState = function(param1, param2, url) {};
-
-    new StageView({
-      el: document.getElementById('stage1')
-    });*/
 
     layerJS.router.addRouter(dummyRouter);
     layerJS.router.addRouter(dummyRouter2);
