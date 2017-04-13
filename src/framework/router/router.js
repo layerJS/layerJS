@@ -159,11 +159,12 @@ var Router = Kern.EventManager.extend({
   _stateChanged: function(newState) {
 
     newState = newState || [];
-
+    var parsed = urlHelper.splitUrl(window.location.href);
     var options = {
       state: newState,
-      url: window.location.href
+      url: parsed.location + parsed.queryString
     };
+
     for (var i = 0; i < this.routers.length && options.state.length > 0; i++) {
       this.routers[i].buildUrl(options);
     }
