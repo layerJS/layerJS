@@ -31,18 +31,19 @@ var FileRouter = Kern.EventManager.extend({
     }
 
     var splitted = url.split('#');
-    if (canHandle && window.location.href.indexOf(splitted[0]) !== -1 && splitted.length > 1) {
+    var urlNoHash = splitted[0];
+    if (canHandle && window.location.href.indexOf(urlNoHash) !== -1 && splitted.length > 1) {
       // same file and with a hash
       canHandle = false;
     }
 
-    if (canHandle && this._cache.hasOwnProperty(url)) {
+    if (canHandle && this._cache.hasOwnProperty(urlNoHash)) {
       canHandle = false;
-      var framesToTransitionTo = this._cache[url];
+      var framesToTransitionTo = this._cache[urlNoHash];
       promise.resolve({
         stop: false,
         handled: true,
-        paths : framesToTransitionTo
+        paths: framesToTransitionTo
       });
     }
 
@@ -98,7 +99,7 @@ var FileRouter = Kern.EventManager.extend({
           }
         }
 
-        that._cache[url] = framesToTransitionTo;
+        that._cache[urlNoHash] = framesToTransitionTo;
 
         if (framesToTransitionTo.length > 0) {
           $.postAnimationFrame(function() {
@@ -142,6 +143,7 @@ var FileRouter = Kern.EventManager.extend({
         p.reject();
       };
       xhr.onload = function() {
+
         if (xhr.status === 200) {
           var doc = document.implementation.createHTMLDocument("framedoc");
           doc.documentElement.innerHTML = xhr.responseText;
@@ -158,6 +160,35 @@ var FileRouter = Kern.EventManager.extend({
     }
 
     return p;
+  },
+  /**
+   * Will try to resolve an url based on it's cached states
+   *
+   * @param {Object} options - contains a url and a state (array)
+   * @returns {Promise} a promise that will return the HTML document
+   */
+  buildUrl: function(options) {
+    var foundPathsLength = 0;
+    var foundPaths = [];
+    var find = function(path) {
+      return options.state.indexOf(path) !== -1;
+    };
+
+    for (var url in this._cache) {
+      if (this._cache.hasOwnProperty(url) && this._cache[url].length > foundPathsLength) {
+        var found = this._cache[url].filter(find);
+        var count = found.length;
+        if (count > foundPathsLength) {
+          foundPaths = found;
+          foundPathsLength = count;
+          options.url = url;
+        }
+      }
+    }
+
+    foundPaths.forEach(function(path) {
+      options.state.splice(options.state.indexOf(path), 1);
+    });
   }
 });
 

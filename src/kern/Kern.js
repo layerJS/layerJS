@@ -354,7 +354,7 @@
               that.nextPromise.resolve(result);
             }
           } catch (e) {
-            console.log("in Promise handler:", e.stack);
+            console.log("in Promise handler:", e);
             this.nextPromise.reject(e);
           }
         } else if (this.state === false) {

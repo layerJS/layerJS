@@ -5,6 +5,8 @@ describe('router', function() {
   var StageView = require('../../../src/framework/stageview.js');
   var state = require('../../../src/framework/state.js');
   var Kern = require('../../../src/kern/kern.js');
+  var FileRouter = require('../../../src/framework/router/filerouter.js');
+  var HashRouter = require('../../../src/framework/router/hashrouter.js');
 
   beforeEach(function() {
     layerJS = require('../../../src/framework/layerjs.js');
@@ -17,16 +19,16 @@ describe('router', function() {
     defaults.transitionParameters.type = 'p';
     defaults.transitionParameters.duration = 't';
     layerJS.router.clearRouters();
-    layerJS.router.addRouter(require('../../../src/framework/router/filerouter.js'));
-    layerJS.router.addRouter(require('../../../src/framework/router/hashrouter.js'));
+    layerJS.router.addRouter(new FileRouter());
+    layerJS.router.addRouter(new HashRouter());
     window.location.href = "http://localhost/";
   });
-
-it('can be created', function() {
+/*
+  it('can be created', function() {
     expect(layerJS.router).toBeDefined();
   });
 
-it('will add the a StaticRouter at the beginning of the router pipline', function() {
+  it('will add the a StaticRouter at the beginning of the router pipline', function() {
     var dummyRouter = {
       handle: function(url) {
         var promise = new Kern.Promise();
@@ -43,7 +45,7 @@ it('will add the a StaticRouter at the beginning of the router pipline', functio
     expect(layerJS.router.routers[0] instanceof StaticRouter).toBeTruthy();
   });
 
-it('will detect a link click event', function() {
+  it('will detect a link click event', function() {
     var navigate = layerJS.router._navigate;
 
     var element = document.createElement('a');
@@ -59,7 +61,7 @@ it('will detect a link click event', function() {
     layerJS.router._navigate.and.callThrough();
   });
 
-it('will let the current router can handle the url', function() {
+  it('will let the current router can handle the url', function() {
     var called = false;
     var dummyRouter = {
       handle: function(url) {
@@ -82,35 +84,8 @@ it('will let the current router can handle the url', function() {
     expect(called).toBeTruthy();
   });
 
-it('will add a new entry to the history when url is handled', function() {
-    var dummyRouter = {
-      handle: function(url) {
-        var promise = new Kern.Promise();
-        promise.resolve({
-          handled: true,
-          stop: true
-        });
-        return promise;
-      }
-    };
 
-    var history = window.history;
-
-    window.history.pushState = function() {};
-    spyOn(window.history, 'pushState');
-
-    layerJS.router.addRouter(dummyRouter);
-    var element = document.createElement('a');
-    element.href = '#';
-    document.body.appendChild(element);
-    element.click();
-
-    expect(window.history.pushState).toHaveBeenCalled();
-
-    window.history.pushState.and.callThrough();
-  });
-
-it('will not add a new entry to the history when url can not be handled', function() {
+  it('will not add a new entry to the history when url can not be handled', function() {
     var dummyRouter = {
       handle: function(url) {
         var promise = new Kern.Promise();
@@ -124,8 +99,8 @@ it('will not add a new entry to the history when url can not be handled', functi
 
     var history = window.history;
 
-    window.history.pushState = function() {};
-    spyOn(window.history, 'pushState');
+    window.history.replaceState = function() {};
+    spyOn(window.history, 'replaceState');
 
     layerJS.router.addRouter(dummyRouter);
     var element = document.createElement('a');
@@ -133,12 +108,12 @@ it('will not add a new entry to the history when url can not be handled', functi
     document.body.appendChild(element);
     element.click();
 
-    expect(window.history.pushState).not.toHaveBeenCalled();
+    expect(window.history.replaceState).not.toHaveBeenCalled();
 
-    window.history.pushState.and.callThrough();
+    window.history.replaceState.and.callThrough();
   });
 
-it('the window.popState will call the navigate method on the router and won\'t add an entry to the history', function() {
+  it('the window.popState will call the navigate method on the router and won\'t add an entry to the history', function() {
     var dummyRouter = {
       handle: function(url) {
         var promise = new Kern.Promise();
@@ -164,37 +139,7 @@ it('the window.popState will call the navigate method on the router and won\'t a
     window.history.pushState.and.callThrough();
   });
 
-xit('will pass the transition options to the current router and will add a cleaned up url to the history', function() {
-    var transitionOptions, urlHistory;
-
-    var dummyRouter = {
-      handle: function(url, options) {
-        transitionOptions = options.transition;
-
-        var promise = new Kern.Promise();
-        promise.resolve({
-          handled: true,
-          stop: true
-        });
-        return promise;
-      }
-    };
-
-    window.history.pushState = function(param1, param2, url) {
-      urlHistory = url;
-    };
-
-    layerJS.router.addRouter(dummyRouter);
-    layerJS.router._navigate(window.location.origin + '/index.aspx/?1&test=2&t=10s&p=top&a=3', true);
-
-    expect(urlHistory).toBe('/index.aspx/?1&test=2&a=3');
-    expect(transitionOptions).toEqual({
-      duration: '10s',
-      type: 'top'
-    });
-  });
-
-it('will add the exiting state to the StaticRouter when a new navigation is done', function(done) {
+  it('will add the exiting state to the StaticRouter when a new navigation is done', function(done) {
     var routerCache = layerJS.router.cache;
     var url = window.location.origin + '/index.html';
     var dummyRouter = {
@@ -232,7 +177,7 @@ it('will add the exiting state to the StaticRouter when a new navigation is done
     });
   });
 
-it('will stop iterating routers when a router return stop == true', function() {
+  it('will stop iterating routers when a router return stop == true', function() {
     var url = window.location.origin + '/index.html';
     var handled = false;
     var dummyRouter = {
@@ -279,8 +224,8 @@ it('will stop iterating routers when a router return stop == true', function() {
     layerJS.router._navigate(url, true);
     expect(handled).toBe(false);
   });
-
-it('will iterate to the next router when a router return stop == false but handled the url', function() {
+*/
+  xit('will iterate to the next router when a router return stop == false but handled the url', function() {
     var url = window.location.origin + '/index.html';
     var handled = false;
     var dummyRouter = {
@@ -288,7 +233,8 @@ it('will iterate to the next router when a router return stop == false but handl
         var promise = new Kern.Promise();
         promise.resolve({
           handled: true,
-          stop: false
+          stop: false,
+          paths : []
         });
         return promise;
       }
@@ -300,13 +246,14 @@ it('will iterate to the next router when a router return stop == false but handl
         var promise = new Kern.Promise();
         promise.resolve({
           handled: true,
-          stop: true
+          stop: true,
+          paths : []
         });
         return promise;
       }
     };
 
-    var html = "<div data-lj-type='stage' id='stage1'>" +
+  /*  var html = "<div data-lj-type='stage' id='stage1'>" +
       "<div data-lj-type='layer' id='layer1' data-lj-default-frame='frame1'>" +
       "<div data-lj-type='frame' id='frame1' data-lj-name='frame1'></div>" +
       "<div data-lj-type='frame' id='frame2' data-lj-name='frame2'></div>" +
@@ -315,11 +262,11 @@ it('will iterate to the next router when a router return stop == false but handl
 
     utilities.setHtml(html);
 
-    window.history.pushState = function(param1, param2, url) {};
+    //window.history.pushState = function(param1, param2, url) {};
 
     new StageView({
       el: document.getElementById('stage1')
-    });
+    });*/
 
     layerJS.router.addRouter(dummyRouter);
     layerJS.router.addRouter(dummyRouter2);
@@ -327,7 +274,38 @@ it('will iterate to the next router when a router return stop == false but handl
     expect(handled).toBe(true);
   });
 
-it('layerJS.init() will call the navigate function', function() {
+  it('will use the replace state after a transition that started with a click', function(done) {
+    var newUrl;
+    window.history.replaceState = function(param1, param2, url) {
+      newUrl = url;
+    };
+
+    var html = "<div data-lj-type='stage' id='stage1'>" +
+      "<div data-lj-type='layer' id='layer1' data-lj-default-frame='frame1'>" +
+      "<div data-lj-type='frame' id='frame1' data-lj-name='frame1'>" +
+      "<a href='/#frame2' id='link'>click me </a>" +
+      "</div>" +
+      "<div data-lj-type='frame' id='frame2' data-lj-name='frame2'></div>" +
+      "</div>" +
+      "</div>";
+
+    utilities.setHtml(html);
+
+    new StageView({
+      el: document.getElementById('stage1')
+    });
+
+    layerJS.router.addRouter(new FileRouter());
+    layerJS.router.addRouter(new HashRouter());
+    document.getElementById('link').click();
+
+    setTimeout(function() {
+      expect(newUrl).toBe('http://localhost/#frame2');
+      done();
+    }, 2000);
+  });
+
+  it('layerJS.init() will call the navigate function', function() {
     var promise = new Kern.Promise();
     promise.resolve(true);
     spyOn(layerJS.router, '_navigate').and.returnValue(promise);
@@ -339,7 +317,7 @@ it('layerJS.init() will call the navigate function', function() {
     layerJS.router._navigate.and.callThrough();
   });
 
-it('will use the paths from the routers to transition', function() {
+  it('will use the paths from the routers to transition', function() {
     var dummyRouter1 = {
       handle: function() {
         var promise = new Kern.Promise();

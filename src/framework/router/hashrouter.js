@@ -13,7 +13,7 @@ var HashRouter = Kern.EventManager.extend({
     var promise = new Kern.Promise();
     var urlInfo = urlHelper.splitUrl(url);
 
-    if (urlInfo.hash === undefined || urlInfo.hash === '') {
+    if (urlInfo.hash === undefined || urlInfo.hash === '#' || urlInfo.hash === '') {
       // not the same file or no hash in href
       promise.resolve({
         handled: false,
@@ -24,7 +24,7 @@ var HashRouter = Kern.EventManager.extend({
       var hashPaths = (urlInfo.hash.startsWith('#') ? urlInfo.hash.substr(1) : urlInfo.hash).split(';');
       var hash = '#';
       var paths = [];
-
+      
       for (var i = 0; i < hashPaths.length; i++) {
         var frameName = hashPaths[i].split('?')[0].split('&')[0];
         var state = layerJS.getState();
@@ -57,6 +57,41 @@ var HashRouter = Kern.EventManager.extend({
     }
 
     return promise;
+  },
+  /**
+   * Will try to resolve the hash part for the url
+   *
+   * @param {Object} options - contains a url and a state (array)
+   * @returns {Promise} a promise that will return the HTML document
+   */
+  buildUrl: function(options) {
+    var hash = '';
+    var state = layerJS.getState();
+    var paths = [];
+
+    for (var i = 0; i < options.state.length; i++) {
+      var splittedPath = options.state[i].split('.');
+      var path = undefined;
+      var ok = false;
+      do {
+        path = splittedPath.pop() + (path ? '.' + path : '');
+        ok = state.resolvePath(path).length === 1;
+      }
+      while (!ok && splittedPath.length > 0);
+
+      if (ok) {
+        paths.push(path);
+        options.state.splice(i, 1);
+        i--;
+      }
+    }
+
+    if (paths.length > 0) {
+      hash = paths.join(';');
+      var parsedUrl = urlHelper.splitUrl(options.url);
+      parsedUrl.hash = '#' + hash;
+      options.url = parsedUrl.location + parsedUrl.queryString + parsedUrl.hash;
+    }
   }
 });
 

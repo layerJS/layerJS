@@ -79,7 +79,7 @@ var UrlHelper = Kern.Base.extend({
 
     return {
       transition: parsed.transition,
-      url: parsedUrl.location + (parsed.string.length > 0 ? (parsed.string) : '') + (parsedUrl.hash.length > 0 ? ('#' + parsedUrl.hash) : '')
+      url: parsedUrl.location + (parsed.string.length > 0 ? (parsed.string) : '') + (parsedUrl.hash.length > 0 ? (parsedUrl.hash) : '')
     };
   },
   /**

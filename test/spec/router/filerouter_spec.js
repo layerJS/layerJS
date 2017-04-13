@@ -224,4 +224,20 @@ describe('Filerouter', function() {
     });
     expect(fileRouter._cache['/']).toEqual(state.exportState());
   });
+
+  it('can build an url based on it\'s cached states', function() {
+    var fileRouter = new FileRouter();
+
+    fileRouter._cache['/index.html?id=1&a=4'] = ['stage1.layer1.frame1', 'stage1.layer2.frame2', 'stage1.layer3.frame3'];
+    fileRouter._cache['/index2.html'] = ['stage1.layer1.frame1', 'stage1.layer2.frame3'];
+
+    var options = {
+      url: '',
+      state: ['stage1.layer1.frame1', 'stage1.layer2.frame2', 'stage1.layer4.frame2']
+    };
+
+    fileRouter.buildUrl(options);
+    expect(options.url).toBe('/index.html?id=1&a=4');
+    expect(options.state).toEqual(['stage1.layer4.frame2']);
+  });
 });

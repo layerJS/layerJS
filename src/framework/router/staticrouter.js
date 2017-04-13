@@ -48,6 +48,35 @@ var StaticRouter = Kern.EventManager.extend({
     });
 
     return promise;
+  },
+  /**
+   * Will try to resolve an url based on it's cached states
+   *
+   * @param {Object} options - contains a url and a state (array)
+   * @returns {Promise} a promise that will return the HTML document
+   */
+  buildUrl: function(options) {
+    var foundPathsLength = 0;
+    var foundPaths = [];
+    var find = function(path) {
+      return options.state.indexOf(path) !== -1;
+    };
+
+    for (var url in this.routes) {
+      if (this.routes.hasOwnProperty(url) && this.routes[url].length > foundPathsLength) {
+        var found = this.routes[url].filter(find);
+        var count = found.length;
+        if (count > foundPathsLength) {
+          foundPaths = found;
+          foundPathsLength = count;
+          options.url = url;
+        }
+      }
+    }
+
+    foundPaths.forEach(function(path) {
+      options.state.splice(options.state.indexOf(path), 1);
+    });
   }
 });
 

@@ -1,11 +1,11 @@
 var utilities = require("../../utilities.js");
-var state = layerJS.getState();
+;
 
 module.exports = function(scenario, initFunction) {
 
   describe('(basis view tests) ' + scenario, function() {
 
-    var data, ViewType, defaultProperties, pluginManager, sourceElement;
+    var data, ViewType, defaultProperties, pluginManager, sourceElement, state;
 
     beforeEach(function() {
       pluginManager = require('../../../../../src/framework/pluginmanager.js');
@@ -13,6 +13,7 @@ module.exports = function(scenario, initFunction) {
       ViewType = init.ViewType;
       sourceElement = utilities.appendChildHTML(init.htmlElement);
       defaultProperties = JSON.parse(JSON.stringify(ViewType.defaultProperties));
+      state = layerJS.getState();
     });
 
     it('will have a defaultProperties static property which will contain all default properties for the data', function() {

@@ -13,6 +13,12 @@ var Router = Kern.EventManager.extend({
     this.cache = (options ? options.cache : true);
     this._registerLinkClickedListener();
     this.previousUrl = undefined;
+    this.addToHistory = true;
+    this.isClickEvent = false;
+    this.state = layerJS.getState();
+    this.state.on('stateChanged', this._stateChanged, {
+      context: this
+    });
   },
   /**
    * Will add a new router to the lists of routers
@@ -63,7 +69,7 @@ var Router = Kern.EventManager.extend({
         event.preventDefault(); // prevent default action, i.e. going to link target
         // do not stop propagation; other libraries may listen to link clicks
 
-        that._navigate(href, true, domhelpers.findParentViewOfType(this, 'layer')).then(function(result) {
+        that._navigate(href, true, true, domhelpers.findParentViewOfType(this, 'layer')).then(function(result) {
           if (!result) {
             setTimeout(function() {
               window.location.href = href;
@@ -77,12 +83,12 @@ var Router = Kern.EventManager.extend({
    * When the router can navigate to the url, it will do this.
    * @param {string} Url where to navigate
    * @param {boolean} Indicate if the url needs to be added to the history
+   * @param {boolean} Indicate if it is a click event
    * @param {LayerView} LayerView where the click event originated
    * @return {boolean} Indicates if the router could do the navigation to the url
    */
-  _navigate: function(href, addToHistory, layerView) {
-    /*var urlData = new UrlData(href, layerView);
-    href = urlHelper.getAbsoluteUrl(href);*/
+  _navigate: function(href, addToHistory, isClickEvent, layerView) {
+
     var parsed = urlHelper.parseQueryString(href);
     var options = {
       url: parsed.url,
@@ -93,8 +99,7 @@ var Router = Kern.EventManager.extend({
     if (undefined !== parsed.transition) {
       options.transitions.push(parsed.transition);
     }
-
-    var url = options.url;
+    //var url = options.url;
     var count = this.routers.length;
     var that = this;
     var promise = new Kern.Promise();
@@ -115,10 +120,9 @@ var Router = Kern.EventManager.extend({
 
     var resolve = function() {
       if (handled) {
-        if (window.history && addToHistory) {
-          window.history.pushState({}, "", url);
-        }
         that.previousUrl = options.url;
+        that.isClickEvent = true === isClickEvent;
+        that.addToHistory = addToHistory;
         state.transitionTo(paths, options.transitions);
       }
 
@@ -132,7 +136,6 @@ var Router = Kern.EventManager.extend({
             handled = result.handled;
             Array.prototype.push.apply(paths, result.paths);
           }
-
           if ((result.handled && !result.stop) || (!result.handled)) {
             index++;
             callRouter();
@@ -147,6 +150,32 @@ var Router = Kern.EventManager.extend({
     callRouter();
 
     return promise;
+  },
+  /**
+   * Will be called when the state is changed (stateChanged event).
+   * Will create a url to represent the current (changed) state.
+   * @param {Array} newState the minimised (changed) state
+   */
+  _stateChanged: function(newState) {
+
+    newState = newState || [];
+
+    var options = {
+      state: newState,
+      url: window.location.href
+    };
+    for (var i = 0; i < this.routers.length && options.state.length > 0; i++) {
+      this.routers[i].buildUrl(options);
+    }
+    if (window.history && this.addToHistory) {
+      if (this.isClickEvent) {
+        window.history.replaceState({}, "", options.url);
+      } else {
+        window.history.pushState({}, "", options.url);
+      }
+    }
+  this.isClickEvent = false;
+  this.addToHistory = true;
   }
 });
 

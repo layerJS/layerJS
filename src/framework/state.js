@@ -54,7 +54,7 @@ var State = Kern.EventManager.extend({
       });
       view.on('transitionStarted', function() {
         // FIXME: need to wait for multi transition
-        this.trigger("stateChanged");
+        this.trigger("stateChanged", this.exportState(true));
       }, {
         context: this
       });
@@ -88,7 +88,6 @@ var State = Kern.EventManager.extend({
     view.getChildViews().forEach(function(v) {
       that.unregisterView(v);
     });
-
   },
   /**
    * Will return all paths to active frames
@@ -264,7 +263,7 @@ var State = Kern.EventManager.extend({
             layer: view.parent,
             view: view,
             frameName: frameName,
-            active: view.parent.currentFrame.name() === frameName
+            active: (undefined !== view.parent.currentFrame && null !== view.parent.currentFrame) ? view.parent.currentFrame.name() === frameName : false
           });
         } else {
           result.push({

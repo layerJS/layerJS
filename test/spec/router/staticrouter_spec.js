@@ -56,4 +56,19 @@ describe('staticRouter', function() {
     });
   });
 
+  it('can build an url based on it\'s states', function() {
+    staticRouter.addRoute('/index.html?id=1&a=4', ['stage1.layer1.frame1', 'stage1.layer2.frame2', 'stage1.layer3.frame3']);
+    staticRouter.addRoute('/index2.html',  ['stage1.layer1.frame1', 'stage1.layer2.frame3']);
+
+
+    var options = {
+      url: '',
+      state: ['stage1.layer1.frame1', 'stage1.layer2.frame2', 'stage1.layer4.frame2']
+    };
+
+    staticRouter.buildUrl(options);
+    expect(options.url).toBe('/index.html?id=1&a=4');
+    expect(options.state).toEqual(['stage1.layer4.frame2']);
+  });
+
 });
