@@ -111,6 +111,14 @@ var FrameView = BaseView.extend({
     d.scale = 1;
     d.frameWidth = this.width();
     d.frameHeight = this.height();
+
+    if (stage.autoWidth()) {
+      stageWidth= d.frameWidth;
+    }
+    else if ( stage.autoHeight()){
+      stageHeight = d.frameHeight;
+    }
+
     // d.shiftX/Y indicate how much the top-left corner of the frame should be shifted from
     // the stage top-left corner (in stage space)
     d.shiftX = 0;
@@ -209,9 +217,24 @@ var FrameView = BaseView.extend({
       default:
         throw "unkown fitTo type '" + this.fitTo() + "'";
     }
+
+    if (d.isScrollY && stage.autoWidth()) {
+      throw 'we can\'t adapt stage width if we fit to width';
+    } else if (d.isScrollX && stage.autoHeight()) {
+      throw 'we can\'t adapt stage height if we fit to height';
+    }
+
+
     // calculate actual frame width height in stage space
     d.width = d.frameWidth * d.scale;
     d.height = d.frameHeight * d.scale;
+
+    if (stage.autoWidth()) {
+      stageWidth= d.width;
+    }
+    else if ( stage.autoHeight()){
+      stageHeight = d.height;
+    }
     // calculate maximum scroll positions (depend on frame and stage dimensions)
     // WARN: allow negative maxScroll for now
     d.maxScrollY = 0;

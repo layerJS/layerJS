@@ -1,0 +1,34 @@
+<html>
+
+<head>
+  <title>Simple Example</title>
+  <link rel="stylesheet" type="text/css" href="../../../src/css/layerjs.css">
+</head>
+<style>
+  body {
+    margin: 0;
+  }
+
+  #stage {
+    margin: 0;
+  }
+</style>
+
+<body>
+  <div id="stage" data-lj-type="stage" data-lj-auto-width="layer">
+    <div id="layer" data-lj-type="layer" data-lj-default-frame="frame1">
+      <div id="frame1" data-lj-type="frame" data-lj-name="frame1" data-lj-fit-to="height" style="background:blue;width:800px; height:500px">
+        <h1>FRAME  1</h1>
+      </div>
+      <div id="frame2" data-lj-type="frame" data-lj-name="frame2" data-lj-fit-to="height" style="background:red;width:500px; height:500px">
+        <h1>FRAME  2 </h1>
+      </div>
+    </div>
+  </div>
+
+  <script src="../../../dist/layerjs.js"></script>
+  <script>
+    layerJS.init();
+  </script>
+</body>
+</html>

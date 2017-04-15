@@ -122,7 +122,7 @@ var LayerView = BaseView.extend({
       });
     }
 
-    this.on('transitionStarted',function(){
+    this.on('transitionStarted', function() {
       that.autoTrigger();
     });
   },
@@ -252,13 +252,13 @@ var LayerView = BaseView.extend({
         this.innerEl._ljView = this.outerEl._ljView;
         this.innerEl._state = this.outerEl._state;
       }
-      $.addClass(this.outerEl,'nativescroll');
+      $.addClass(this.outerEl, 'nativescroll');
     } else {
       if (hasScroller) {
         $.unwrapChildren(this.outerEl);
       }
       this.innerEl = this.outerEl;
-      $.removeClass(this.outerEl,'nativescroll');
+      $.removeClass(this.outerEl, 'nativescroll');
     }
 
     this._transformer = this._layout.getScrollTransformer() || new ScrollTransformer(this);
@@ -437,10 +437,21 @@ var LayerView = BaseView.extend({
   },
   noFrameTransformdata: function(transitionStartPosition) {
     var d = {};
+    var width = this.stage.width(),
+      height = this.stage.height();
+
+    if (this.stage.autoHeight()) {
+      height = 0;
+    }
+
+    if (this.stage.autoWidth()) {
+      width = 0;
+    }
+
     d.stage = this.stage;
     d.scale = 1;
-    d.width = d.frameWidth = this.stage.width();
-    d.height = d.frameHeight = this.stage.height();
+    d.width = d.frameWidth = width;
+    d.height = d.frameHeight = height;
     d.shiftX = d.shiftY = d.scrollX = d.scrollY = 0;
     d.isScrollX = d.isScrollY = false;
     d.startPosition = transitionStartPosition || 'top';
@@ -546,7 +557,7 @@ var LayerView = BaseView.extend({
       if (that.currentFrame === frame && that.currentFrameTransformData === targetFrameTransformData) {
         // don't do a transition, just execute Promise
         var p = new Kern.Promise();
-        that.trigger('transitionStarted', framename);
+        that.trigger('transitionStarted', framename, transition);
         transition.semaphore.sync().then(function() { // we need to call sync in case there are other transitions waiting.
           if (targetFrameTransformData.scrollX !== currentScroll.scrollX || targetFrameTransformData.scrollY !== currentScroll.scrollY) {
             that.scrollTo(targetFrameTransformData.scrollX, targetFrameTransformData.scrollY, transition).then(function() {
@@ -586,7 +597,7 @@ var LayerView = BaseView.extend({
       that.currentFrameTransformData = targetFrameTransformData;
       that.currentFrame = frame;
       that.currentTransform = targetTransform;
-      that.trigger('transitionStarted', framename);
+      that.trigger('transitionStarted', framename, transition);
 
       return layoutPromise;
     });
@@ -706,10 +717,10 @@ var LayerView = BaseView.extend({
    */
   updateClasses: function(newFrame) {
     if (this.currentFrame) {
-      $.removeClass(this.currentFrame.outerEl,'lj-active');
+      $.removeClass(this.currentFrame.outerEl, 'lj-active');
     }
     if (null !== newFrame) {
-      $.addClass(newFrame.outerEl,'lj-active');
+      $.addClass(newFrame.outerEl, 'lj-active');
     }
   },
   /**

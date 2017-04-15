@@ -490,6 +490,22 @@ var BaseView = DOMObserver.extend({
   timer: function() {
     return this.getAttributeLJ('timer');
   },
+  /**
+   * returns the value for lj-auto-height
+   *
+   * @returns {string} A layername
+   */
+  autoHeight: function() {
+    return this.getAttributeLJ('auto-height');
+  },
+  /**
+   * returns the value for lj-auto-width
+   *
+   * @returns {string} A layername
+   */
+  autoWidth: function() {
+    return this.getAttributeLJ('auto-width');
+  },
 
   /**
    * ##destroy
