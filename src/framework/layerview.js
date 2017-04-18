@@ -43,7 +43,7 @@ var LayerView = BaseView.extend({
     // register for gestures
     gestureManager.register(this.outerEl, this.gestureListener.bind(this), {
       dragging: true,
-      mouseDragging: false
+      mouseDragging: this.draggable()
     });
 
     var that = this;
@@ -713,7 +713,7 @@ var LayerView = BaseView.extend({
    * @param {object} options - optional: includes addedNodes
    */
   _parseChildren: function(options) {
-    
+
     BaseView.prototype._parseChildren.call(this, options);
 
     var childrenViews = this._cache.children;

@@ -18,6 +18,11 @@
   height: 0px;
   z-index: 0;
 }
+[data-lj-type='layer'] [data-lj-draggable='true'], [lj-type='layer'] [lj-draggable='true'] {
+  cursor: pointer;
+  cursor: hand;
+  user-select: none
+}
 .nativescroll[data-lj-type='layer'], .nativescroll[lj-type='layer'] {
   position: absolute;
   top: 0px;
@@ -30,7 +35,7 @@
   height: initial;
   overflow: auto;
 }
-.nativescroll[data-lj-type='layer'] > div, .nativescroll[lj-type='layer'] > div {
+.nativescroll[data-lj-type='layer']>div, .nativescroll[lj-type='layer']>div {
   position: relative;
   top: 0px;
   left: 0px;

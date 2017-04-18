@@ -498,6 +498,16 @@ var BaseView = DOMObserver.extend({
     return noUrl === 'true' ? true : false;
   },
   /**
+   * Will return if the layer allows dragging
+   *
+   * @return {Boolean} the value of the lj-draggable attribute
+   */
+  draggable: function() {
+    var draggable = this.getAttributeLJ('draggable');
+
+    return draggable === 'true' ? true : false;
+  },
+  /**
    * ##destroy
    * This element was requested to be deleted completly; before the delete happens
    * an event is triggerd on which this function id bound (in `initialialize`). It
