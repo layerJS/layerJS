@@ -6,7 +6,6 @@ utilities.transitionTo = function(layerId, frameName, transition, waitTime) {
 
   return browser.driver.executeAsyncScript(function(layerId, frameName, transition, waitTime, callBack) {
     var layer = layerJS.select('#' + layerId);
-    layer.transitionTo(frameName, transition);
     if (waitTime) {
       setTimeout(function() {
         callBack();
@@ -16,6 +15,7 @@ utilities.transitionTo = function(layerId, frameName, transition, waitTime) {
         callBack();
       });
     }
+    layer.transitionTo(frameName, transition);
   }, layerId, frameName, transition, waitTime);
 };
 utilities.getCurrentFrame = function(layerId) {
