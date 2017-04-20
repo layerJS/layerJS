@@ -129,7 +129,9 @@ var FrameView = BaseView.extend({
     // indicate whether scrolling in x or y directions is active
     d.isScrollX = false;
     d.isScrollY = false;
-    switch (this.fitTo()) {
+
+    var fitTo = this.fitTo(false) || this.parent.fitTo();
+    switch (fitTo) {
       case 'width':
         d.scale = stageWidth / d.frameWidth;
         d.isScrollY = true;
@@ -215,7 +217,7 @@ var FrameView = BaseView.extend({
         }
         break;
       default:
-        throw "unkown fitTo type '" + this.fitTo() + "'";
+        throw "unkown fitTo type '" + fitTo + "'";
     }
 
     if (d.isScrollY && stage.autoWidth()) {

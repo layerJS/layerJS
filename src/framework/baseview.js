@@ -332,11 +332,17 @@ var BaseView = DOMObserver.extend({
    * Will return the value of the lj-fit-to attribute on the outer element.
    * The default value is 'width'.
    *
+   * @param {boolean} useFallBack (optional) when false, the fallback value will not be used
    * @return {string} the value of the lj-fit-to attribute
    */
-  /*frame */
-  fitTo: function() {
-    return this.getAttributeLJ('fit-to') || 'width';
+  fitTo: function(useFallBack) {
+    var fitTo = this.getAttributeLJ('fit-to');
+
+    if (useFallBack === false && !fitTo) {
+      fitTo = 'width';
+    }
+
+    return fitTo;
   },
   /**
    * Will return the value of the lj-elastic-left attribute on the outer element
