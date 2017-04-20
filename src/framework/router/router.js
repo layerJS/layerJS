@@ -170,9 +170,9 @@ var Router = Kern.EventManager.extend({
     }
     if (window.history && this.addToHistory) {
       if (this.isClickEvent) {
-        window.history.replaceState({}, "", options.url);
-      } else {
         window.history.pushState({}, "", options.url);
+      } else {
+        window.history.replaceState({}, "", options.url);        
       }
     }
     this.isClickEvent = false;

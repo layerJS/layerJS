@@ -98,7 +98,7 @@ describe('router', function() {
 
     var history = window.history;
     var called = false;
-    window.history.replaceState = function() {
+    window.history.pushState = function() {
       called = true
     };
 
@@ -289,7 +289,7 @@ describe('router', function() {
     document.getElementById('link').click();
 
     setTimeout(function() {
-      expect(newUrl).toBe('http://localhost/#frame2');
+      expect(newUrl).toBe('http://localhost/');
       done();
     }, 2000);
   });
