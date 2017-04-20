@@ -133,15 +133,15 @@ var State = Kern.EventManager.extend({
     transitions = Array.isArray(transitions) && transitions || [transitions || {}];
     var that = this;
     // build an array that contains all layer/frame combinations that need to transition including their transitions records
-    transitions = states.map(function(state) {
+    var paths = states.map(function(state) {
       return that.resolvePath(state);
     });
 
     var reduced = [];
 
-    transitions.reduce(function(collection, layerframe, index) {
+    paths.reduce(function(collection, layerframe, index) {
       for (var i = 0; i < layerframe.length; i++) {
-        if (!layerframe[i].active) {
+        if (!layerframe[i].active || states.indexOf(layerframe[i].path) !== -1) {
           // for some reason the collection parameter is undefined the second pass ( solution use the reduced collection directly)
           reduced.push({ // ignore currently active frames
             layer: layerframe[i].layer,
@@ -152,13 +152,13 @@ var State = Kern.EventManager.extend({
       }
     }, reduced);
 
-    transitions = reduced;
-    var semaphore = new Kern.Semaphore(transitions.length); // semaphore is necessary to let all transition run in sync
-    for (var i = 0; i < transitions.length; i++) { // FIXME: this will trigger possibly a lot of non-necessary transitions
-      transitions[i].transition.semaphore = semaphore;
-      transitions[i].layer.transitionTo(transitions[i].frameName, transitions[i].transition); // run the transition on the corresponding layer
+    paths = reduced;
+    var semaphore = new Kern.Semaphore(paths.length); // semaphore is necessary to let all transition run in sync
+    for (var i = 0; i < paths.length; i++) { // FIXME: this will trigger possibly a lot of non-necessary transitions
+      paths[i].transition.semaphore = semaphore;
+      paths[i].layer.transitionTo(paths[i].frameName, paths[i].transition); // run the transition on the corresponding layer
     }
-    return transitions.length > 0;
+    return paths.length > 0;
   },
   /**
    * Will transition to a state without animation
@@ -263,6 +263,7 @@ var State = Kern.EventManager.extend({
             layer: view.parent,
             view: view,
             frameName: frameName,
+            path: this.buildPath(view.outerEl, false),
             active: (undefined !== view.parent.currentFrame && null !== view.parent.currentFrame) ? view.parent.currentFrame.name() === frameName : false
           });
         } else {

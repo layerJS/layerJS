@@ -93,7 +93,8 @@ var Router = Kern.EventManager.extend({
     var options = {
       url: parsed.url,
       transitions: [],
-      context: layerView
+      context: layerView,
+      paths: []
     };
 
     if (undefined !== parsed.transition) {
@@ -116,14 +117,13 @@ var Router = Kern.EventManager.extend({
     }
 
     var handled = false;
-    var paths = [];
 
     var resolve = function() {
       if (handled) {
         that.previousUrl = options.url;
         that.isClickEvent = true === isClickEvent;
         that.addToHistory = addToHistory;
-        state.transitionTo(paths, options.transitions);
+        state.transitionTo(options.paths, options.transitions);
       }
 
       promise.resolve(handled);
@@ -134,7 +134,7 @@ var Router = Kern.EventManager.extend({
         that.routers[index].handle(options.url, options).then(function(result) {
           if (result.handled) {
             handled = result.handled;
-            Array.prototype.push.apply(paths, result.paths);
+            Array.prototype.push.apply(options.paths, result.paths);
           }
           if ((result.handled && !result.stop) || (!result.handled)) {
             index++;
@@ -175,8 +175,8 @@ var Router = Kern.EventManager.extend({
         window.history.pushState({}, "", options.url);
       }
     }
-  this.isClickEvent = false;
-  this.addToHistory = true;
+    this.isClickEvent = false;
+    this.addToHistory = true;
   }
 });
 
