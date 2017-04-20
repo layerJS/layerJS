@@ -32,8 +32,8 @@ var HashRouter = Kern.EventManager.extend({
           // an anchorId will be the first one in the list
           // check if it is an anchor element
           var anchor = document.getElementById(hashPaths[i]);
-
-          if (anchor) {
+          // only proceed when an element is found and if that element is visible
+          if (anchor && window.getComputedStyle(anchor).display !== 'none') {
             var frameView = $.findParentViewOfType(anchor, 'frame');
 
             if (undefined !== frameView) {
