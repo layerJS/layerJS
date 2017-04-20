@@ -3,14 +3,19 @@ var utilities = {};
 require('jasmine-expect');
 
 utilities.transitionTo = function(layerId, frameName, transition, waitTime) {
-  waitTime = waitTime || 3000;
 
   return browser.driver.executeAsyncScript(function(layerId, frameName, transition, waitTime, callBack) {
     var layer = layerJS.select('#' + layerId);
+    if (waitTime) {
+      setTimeout(function() {
+        callBack();
+      }, waitTime);
+    } else {
+      layer.on("transitionFinished", function() {
+        callBack();
+      });
+    }
     layer.transitionTo(frameName, transition);
-    layer.on("transitionFinished", function() {
-      callBack();
-    });
   }, layerId, frameName, transition, waitTime);
 };
 
