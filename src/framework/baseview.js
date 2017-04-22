@@ -338,7 +338,7 @@ var BaseView = DOMObserver.extend({
   fitTo: function(useFallBack) {
     var fitTo = this.getAttributeLJ('fit-to');
 
-    if (useFallBack === false && !fitTo) {
+    if (useFallBack !== false && !fitTo) {
       fitTo = 'width';
     }
 

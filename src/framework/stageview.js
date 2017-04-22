@@ -71,16 +71,10 @@ var StageView = BaseView.extend({
         if (that.autoWidth()) {
           //that.setWidth(currentFrameTransformData.width);
           style.width = currentFrameTransformData.width;
-          if (frameName === defaults.specialFrames.none) {
-            style.height = currentFrameTransformData.height;
-          }
           //style.transform = 'scaleX(' + (1 / that.width()) * currentFrameTransformData.width + ')';
         } else if (that.autoHeight()) {
           //that.setHeight(currentFrameTransformData.height);
           style.height = currentFrameTransformData.height;
-          if (frameName === defaults.specialFrames.none) {
-            style.width = currentFrameTransformData.width;
-          }
           //style.transform = 'scaleY(' + (1 / that.height()) * currentFrameTransformData.height + ')';
         }
         that.applyStyles(style);
