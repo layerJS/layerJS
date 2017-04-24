@@ -3,7 +3,6 @@ describe('HashRouter', function() {
   var HashRouter = require('../../../src/framework/router/hashRouter.js');
   var utilities = require('../helpers/utilities.js');
   var StageView = require('../../../src/framework/stageview.js');
-  var UrlData = require('../../../src/framework/url/urldata.js')
   var state = require('../../../src/framework/state.js');
 
   var hashRouter;
