@@ -13,9 +13,9 @@ describe('stage', function() {
         utilities.transitionTo('layer', 'frame2', {
           duration: '1s'
         }).then(function() {
-          utilities.wait(1000);
           protractor.promise.all([utilities.getBoundingClientRect('stage'),
-          utilities.getBoundingClientRect('frame2')]).then(function(result) {
+            utilities.getBoundingClientRect('frame2')
+          ]).then(function(result) {
             expect(result[0].height).toBe(result[1].height);
           });
         });
@@ -25,9 +25,9 @@ describe('stage', function() {
     it('will set the height of the stage to 0 if the current frame is a !none frame', function() {
       browser.get('stage_autolength/autoheight.html').then(function() {
         utilities.transitionTo('layer', '!none', {
-          duration: '1s'
+          duration: '1s',
+          type: 'none'
         }).then(function() {
-          utilities.wait(1000);
           utilities.getBoundingClientRect('stage').then(function(result) {
             expect(result.height).toBe(0);
           });
@@ -44,13 +44,13 @@ describe('stage', function() {
     });
 
     it('will set the width of the stage equal to the height of the current frame', function() {
-      browser.get('stage_autolength/autoheight.html').then(function() {
+      browser.get('stage_autolength/autowidth.html').then(function() {
         utilities.transitionTo('layer', 'frame2', {
           duration: '1s'
         }).then(function() {
-          utilities.wait(1000);
           protractor.promise.all([utilities.getBoundingClientRect('stage'),
-          utilities.getBoundingClientRect('frame2')]).then(function(result) {
+            utilities.getBoundingClientRect('frame2')
+          ]).then(function(result) {
             expect(result[0].width).toBe(result[1].width);
           });
         });
@@ -58,13 +58,12 @@ describe('stage', function() {
     });
 
     it('will set the width of the stage to 0 if the current frame is a !none frame', function() {
-      browser.get('stage_autolength/autoheight.html').then(function() {
+      browser.get('stage_autolength/autowidth.html').then(function() {
         utilities.transitionTo('layer', '!none', {
-          duration: '1s'
+          duration: '1s',
+          type: 'none'
         }).then(function() {
-          utilities.wait(1000);
           utilities.getBoundingClientRect('stage').then(function(result) {
-            console.log(result);
             expect(result.width).toBe(0);
           });
         });
