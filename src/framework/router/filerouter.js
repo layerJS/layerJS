@@ -28,6 +28,7 @@ var FileRouter = Kern.EventManager.extend({
     var canHandle = true;
     var paths = [];
 
+    // check it the passed in url is in the same domain
     if (url.match(/^\w+:/) && !url.match(new RegExp('^' + window.location.origin))) {
       canHandle = false;
     }
@@ -39,6 +40,7 @@ var FileRouter = Kern.EventManager.extend({
       canHandle = false;
     }
 
+    // url has been handled before, read the state from the cache
     if (canHandle && this._cache.hasOwnProperty(urlNoHash)) {
       canHandle = false;
       var framesToTransitionTo = this._cache[urlNoHash];
@@ -170,12 +172,13 @@ var FileRouter = Kern.EventManager.extend({
    * @returns {Promise} a promise that will return the HTML document
    */
   buildUrl: function(options) {
-    var foundPathsLength = 0;
+    var foundPathsLength = 0; // max found common paths within a previous cached url
     var foundPaths = [];
     var find = function(path) {
       return options.state.indexOf(path) !== -1;
     };
 
+    // look in the cache to find a url that has a state that is closest to the current state (changed)
     for (var url in this._cache) {
       if (this._cache.hasOwnProperty(url) && this._cache[url].length > foundPathsLength) {
         var found = this._cache[url].filter(find);
@@ -188,6 +191,7 @@ var FileRouter = Kern.EventManager.extend({
       }
     }
 
+    // remove the found paths from the passed in options(.state)
     foundPaths.forEach(function(path) {
       options.state.splice(options.state.indexOf(path), 1);
     });
