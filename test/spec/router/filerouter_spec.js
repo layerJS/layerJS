@@ -222,7 +222,7 @@ describe('Filerouter', function() {
     var fileRouter = new FileRouter({
       cacheCurrent: true
     });
-    expect(fileRouter._cache['/']).toEqual(state.exportState());
+    expect(fileRouter._cache['http://localhost/']).toEqual(state.exportState());
   });
 
   it('can build an url based on it\'s cached states', function() {

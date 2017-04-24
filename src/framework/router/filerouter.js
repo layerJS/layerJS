@@ -1,6 +1,7 @@
 'use strict';
 var Kern = require('../../kern/Kern.js');
 var parseManager = require("../parsemanager.js");
+var urlHelper = require('../urlhelper.js');
 var $ = require('../domhelpers.js');
 
 var FileRouter = Kern.EventManager.extend({
@@ -11,8 +12,9 @@ var FileRouter = Kern.EventManager.extend({
     this._state = layerJS.getState();
 
     if (options.cacheCurrent) {
-      var url = window.location.href.split('#')[0].replace(window.location.origin, '');
-      this._cache[url] = this._state.exportState();
+      // remove layerJS parameters from the url before caching it the fist time
+      var parsed = urlHelper.parseQueryString(window.location.href.split('#')[0]);
+      this._cache[parsed.url] = this._state.exportState();
     }
   },
   /**
