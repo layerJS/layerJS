@@ -83,9 +83,10 @@ var Router = Kern.EventManager.extend({
    * @param {boolean} Indicate if the url needs to be added to the history
    * @param {boolean} Indicate if it is a click event
    * @param {LayerView} LayerView where the click event originated
+   * @param {boolean} initial when true the router will not do a transition but instead will directly show it
    * @return {boolean} Indicates if the router could do the navigation to the url
    */
-  _navigate: function(href, addToHistory, isClickEvent, layerView) {
+  _navigate: function(href, addToHistory, isClickEvent, layerView, initial) {
 
     var parsed = urlHelper.parseQueryString(href);
     var options = {
@@ -112,7 +113,11 @@ var Router = Kern.EventManager.extend({
       if (handled) {
         that.isClickEvent = true === isClickEvent;
         that.addToHistory = addToHistory;
-        state.transitionTo(options.paths, options.transitions);
+        if (initial === true) {
+          state.showstate(options.paths);
+        } else {
+          state.transitionTo(options.paths, options.transitions);
+        }
       }
 
       promise.resolve(handled);
