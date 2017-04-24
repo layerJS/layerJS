@@ -7,12 +7,10 @@ var domhelpers = require('../domhelpers.js');
 var urlHelper = require('../urlhelper.js');
 
 var Router = Kern.EventManager.extend({
-  constructor: function(rootEl, options) {
+  constructor: function(rootEl) {
     this.rootElement = rootEl || document;
     this.routers = [new StaticRouter()]; // always have a state router
-    this.cache = (options ? options.cache : true);
     this._registerLinkClickedListener();
-    this.previousUrl = undefined;
     this.addToHistory = true;
     this.isClickEvent = false;
     this.state = layerJS.getState();
@@ -108,19 +106,10 @@ var Router = Kern.EventManager.extend({
 
     var index = 0;
 
-    // save the exiting state; we need previousUrl as in case of popState, the window.location.href is already the new one
-    if (this.previousUrl === undefined) {
-      this.previousUrl = window.location.href;
-    }
-    if (this.cache) {
-      this.addStaticRoute(this.previousUrl, state.exportState(), true);
-    }
-
     var handled = false;
 
     var resolve = function() {
       if (handled) {
-        that.previousUrl = options.url;
         that.isClickEvent = true === isClickEvent;
         that.addToHistory = addToHistory;
         state.transitionTo(options.paths, options.transitions);
@@ -172,7 +161,7 @@ var Router = Kern.EventManager.extend({
       if (this.isClickEvent) {
         window.history.pushState({}, "", options.url);
       } else {
-        window.history.replaceState({}, "", options.url);        
+        window.history.replaceState({}, "", options.url);
       }
     }
     this.isClickEvent = false;
