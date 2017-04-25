@@ -97,18 +97,24 @@ var State = Kern.EventManager.extend({
   exportState: function(minimise) {
     minimise = minimise || false;
     var state = [];
-    for (var i = 0; i < this.layers.length; i++) {
-      var layer = this.views[this.layers[i]].view;
+    var that = this;
+
+    this.layers.map(function(layerId){
+      return  that.views[layerId].view.outerEl;
+    }).sort($.comparePosition)
+    .forEach(function(layerOuterEl){
+      var layer = layerOuterEl._ljView;
       if (layer.currentFrame) {
-        state.push(this.views[layer.currentFrame.id()].path);
+        state.push(that.views[layer.currentFrame.id()].path);
         if (true === minimise && (layer.noUrl() || layer.currentFrame.name() === layer.defaultFrame() ||
             (null === layer.defaultFrame() && null === layer.currentFrame.outerEl.previousSibling))) {
           state.pop();
         }
       } else if (true !== minimise) {
-        state.push(this.views[layer.id()].path + ".!none");
+        state.push(that.views[layer.id()].path + ".!none");
       }
-    }
+    });
+
     return state;
   },
   /**
