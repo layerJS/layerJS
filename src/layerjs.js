@@ -22,7 +22,7 @@ require("./framework/defaults.js");
 require("./framework/layerview.js");
 require("./framework/frameview.js");
 require("./framework/stageview.js");
-var href = window.location.href
+var href = window.location.href;
 var FileRouter = require("./framework/router/filerouter.js");
 var HashRouter = require("./framework/router/hashrouter.js");
 
