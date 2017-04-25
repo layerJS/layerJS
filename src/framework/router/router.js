@@ -114,7 +114,7 @@ var Router = Kern.EventManager.extend({
         that.isClickEvent = true === isClickEvent;
         that.addToHistory = addToHistory;
         if (initial === true) {
-          state.showstate(options.paths);
+          state.showState(options.paths);
         } else {
           state.transitionTo(options.paths, options.transitions);
         }
