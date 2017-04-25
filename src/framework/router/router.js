@@ -80,6 +80,17 @@ var Router = Kern.EventManager.extend({
   /**
    * When the router can navigate to the url, it will do this.
    * @param {string} Url where to navigate
+   * @param {LayerView} LayerView where the click event originated
+   * @param {boolean} noHistory When true, the url will not be added to the browser history
+   * @param {boolean} isLink Indicates if the navigate should react as a link click
+   * @return {boolean} Indicates if the router could do the navigation to the url
+   */
+  navigate: function(href, layerView, noHistory, isLink) {
+    return this._navigate(href, !noHistory, !(isLink === false), layerView)
+  },
+  /**
+   * When the router can navigate to the url, it will do this.
+   * @param {string} Url where to navigate
    * @param {boolean} Indicate if the url needs to be added to the history
    * @param {boolean} Indicate if it is a click event
    * @param {LayerView} LayerView where the click event originated
