@@ -3,18 +3,19 @@ var Kern = require('../../kern/Kern.js');
 var parseManager = require("../parsemanager.js");
 var urlHelper = require('../urlhelper.js');
 var $ = require('../domhelpers.js');
+var StaticRouter = require('./staticrouter.js');
 
-var FileRouter = Kern.EventManager.extend({
+var FileRouter = StaticRouter.extend({
   constructor: function(options) {
     options = options || {};
 
-    this._cache = {};
     this._state = layerJS.getState();
+    StaticRouter.call(this, options);
 
     if (options.cacheCurrent) {
       // remove layerJS parameters from the url before caching it the fist time
       var parsed = urlHelper.parseQueryString(window.location.href.split('#')[0]);
-      this._cache[parsed.url] = this._state.exportState();
+      this.addRoute(parsed.url, this._state.exportState());
     }
   },
   /**
@@ -41,13 +42,14 @@ var FileRouter = Kern.EventManager.extend({
     }
 
     // url has been handled before, read the state from the cache
-    if (canHandle && this._cache.hasOwnProperty(urlNoHash)) {
+    if (canHandle && this.hasRoute(urlNoHash)) {
       canHandle = false;
-      var framesToTransitionTo = this._cache[urlNoHash];
-      promise.resolve({
-        stop: false,
-        handled: true,
-        paths: framesToTransitionTo
+      StaticRouter.prototype.handle.call(this, urlNoHash).then(function(result) {
+        promise.resolve({
+          stop: false,
+          handled: true,
+          paths: result.paths
+        });
       });
     }
 
@@ -103,7 +105,7 @@ var FileRouter = Kern.EventManager.extend({
           }
         }
 
-        that._cache[urlNoHash] = framesToTransitionTo;
+        that.addRoute(urlNoHash,framesToTransitionTo);
 
         if (framesToTransitionTo.length > 0) {
           $.postAnimationFrame(function() {
@@ -164,37 +166,6 @@ var FileRouter = Kern.EventManager.extend({
     }
 
     return p;
-  },
-  /**
-   * Will try to resolve an url based on it's cached states
-   *
-   * @param {Object} options - contains a url and a state (array)
-   * @returns {Promise} a promise that will return the HTML document
-   */
-  buildUrl: function(options) {
-    var foundPathsLength = 0; // max found common paths within a previous cached url
-    var foundPaths = [];
-    var find = function(path) {
-      return options.state.indexOf(path) !== -1;
-    };
-
-    // look in the cache to find a url that has a state that is closest to the current state (changed)
-    for (var url in this._cache) {
-      if (this._cache.hasOwnProperty(url) && this._cache[url].length > foundPathsLength) {
-        var found = this._cache[url].filter(find);
-        var count = found.length;
-        if (count > foundPathsLength) {
-          foundPaths = found;
-          foundPathsLength = count;
-          options.url = url;
-        }
-      }
-    }
-
-    // remove the found paths from the passed in options(.state)
-    foundPaths.forEach(function(path) {
-      options.state.splice(options.state.indexOf(path), 1);
-    });
   }
 });
 

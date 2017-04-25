@@ -172,8 +172,8 @@ describe('Filerouter', function() {
     scope.done();
 
     promise.then(function(result) {
-      expect(fileRouter._cache['/somePage.html']).toBeDefined();
-      expect(fileRouter._cache['/somePage.html']).toEqual(result.paths);
+      expect(fileRouter.routes['/somePage.html']).toBeDefined();
+      expect(fileRouter.routes['/somePage.html']).toEqual(result.paths);
       done();
     });
   }, 5000);
@@ -202,7 +202,7 @@ describe('Filerouter', function() {
     var layerView = document.getElementById('contentlayer')._ljView;
 
     var fileRouter = new FileRouter();
-    fileRouter._cache['/somePage.html'] = ['contentstage.contentlayer.frame2'];
+    fileRouter.routes['/somePage.html'] = ['contentstage.contentlayer.frame2'];
     var promise = fileRouter.handle('/somePage.html');
 
     promise.then(function(result) {
@@ -222,14 +222,14 @@ describe('Filerouter', function() {
     var fileRouter = new FileRouter({
       cacheCurrent: true
     });
-    expect(fileRouter._cache['http://localhost/']).toEqual(state.exportState());
+    expect(fileRouter.routes['http://localhost/']).toEqual(state.exportState());
   });
 
   it('can build an url based on it\'s cached states', function() {
     var fileRouter = new FileRouter();
 
-    fileRouter._cache['/index.html?id=1&a=4'] = ['stage1.layer1.frame1', 'stage1.layer2.frame2', 'stage1.layer3.frame3'];
-    fileRouter._cache['/index2.html'] = ['stage1.layer1.frame1', 'stage1.layer2.frame3'];
+    fileRouter.routes['/index.html?id=1&a=4'] = ['stage1.layer1.frame1', 'stage1.layer2.frame2', 'stage1.layer3.frame3'];
+    fileRouter.routes['/index2.html'] = ['stage1.layer1.frame1', 'stage1.layer2.frame3'];
 
     var options = {
       url: '',
