@@ -17,6 +17,8 @@ var State = Kern.EventManager.extend({
     this.views = {}; // contains view and path; indexed by id
     this.layers = []; // list of all layers (ids)
     this.paths = {}; // lookup by path (and all path endings) for all ids
+    this._transitionGroupId = 0;
+    this._transitionGroup = {};
 
     Kern.EventManager.call(this);
   },
@@ -52,9 +54,17 @@ var State = Kern.EventManager.extend({
       }, {
         context: this
       });
-      view.on('transitionStarted', function() {
-        // FIXME: need to wait for multi transition
-        this.trigger("stateChanged", this.exportState(true));
+      view.on('transitionStarted', function(frameName, transition) {
+        var trigger = true;
+        // when a transitiongroup is defined, only call stateChanged when all layers in group have invoked 'transitionStarted'
+        if (transition && transition.hasOwnProperty('groupId') && this._transitionGroup.hasOwnProperty(transition.groupId)) {
+          this._transitionGroup[transition.groupId]--;
+          trigger = this._transitionGroup[transition.groupId] === 0;
+        }
+        if (trigger) {
+          // FIXME: need to wait for multi transition
+          this.trigger("stateChanged", this.exportState(true));
+        }
       }, {
         context: this
       });
@@ -99,21 +109,21 @@ var State = Kern.EventManager.extend({
     var state = [];
     var that = this;
 
-    this.layers.map(function(layerId){
-      return  that.views[layerId].view.outerEl;
-    }).sort($.comparePosition)
-    .forEach(function(layerOuterEl){
-      var layer = layerOuterEl._ljView;
-      if (layer.currentFrame) {
-        state.push(that.views[layer.currentFrame.id()].path);
-        if (true === minimise && (layer.noUrl() || layer.currentFrame.name() === layer.defaultFrame() ||
-            (null === layer.defaultFrame() && null === layer.currentFrame.outerEl.previousSibling))) {
-          state.pop();
+    this.layers.map(function(layerId) {
+        return that.views[layerId].view.outerEl;
+      }).sort($.comparePosition)
+      .forEach(function(layerOuterEl) {
+        var layer = layerOuterEl._ljView;
+        if (layer.currentFrame) {
+          state.push(that.views[layer.currentFrame.id()].path);
+          if (true === minimise && (layer.noUrl() || layer.currentFrame.name() === layer.defaultFrame() ||
+              (null === layer.defaultFrame() && null === layer.currentFrame.outerEl.previousSibling))) {
+            state.pop();
+          }
+        } else if (true !== minimise) {
+          state.push(that.views[layer.id()].path + ".!none");
         }
-      } else if (true !== minimise) {
-        state.push(that.views[layer.id()].path + ".!none");
-      }
-    });
+      });
 
     return state;
   },
@@ -160,8 +170,11 @@ var State = Kern.EventManager.extend({
 
     paths = reduced;
     var semaphore = new Kern.Semaphore(paths.length); // semaphore is necessary to let all transition run in sync
+    this._transitionGroupId++;
+    this._transitionGroup[this._transitionGroupId] = paths.length;
     for (var i = 0; i < paths.length; i++) { // FIXME: this will trigger possibly a lot of non-necessary transitions
       paths[i].transition.semaphore = semaphore;
+      paths[i].transition.groupId = this._transitionGroupId;
       paths[i].layer.transitionTo(paths[i].frameName, paths[i].transition); // run the transition on the corresponding layer
     }
     return paths.length > 0;
@@ -172,7 +185,6 @@ var State = Kern.EventManager.extend({
    * @param {array} states State paths to transition to
    */
   showState: function(states) {
-    transitions = Array.isArray(transitions) && transitions || [transitions || {}];
     var that = this;
 
     // build an array that contains all layer/frame combinations that need to transition including their transitions records

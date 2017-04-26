@@ -509,7 +509,7 @@ var LayerView = BaseView.extend({
       if (that.currentFrame === frame && that.currentFrameTransformData === targetFrameTransformData) {
         // don't do a transition, just execute Promise
         var p = new Kern.Promise();
-        that.trigger('transitionStarted', framename);
+        that.trigger('transitionStarted', framename, transition);
         transition.semaphore.sync().then(function() { // we need to call sync in case there are other transitions waiting.
           if (targetFrameTransformData.scrollX !== currentScroll.scrollX || targetFrameTransformData.scrollY !== currentScroll.scrollY) {
             that.scrollTo(targetFrameTransformData.scrollX, targetFrameTransformData.scrollY, transition).then(function() {
@@ -549,7 +549,7 @@ var LayerView = BaseView.extend({
       that.currentFrameTransformData = targetFrameTransformData;
       that.currentFrame = frame;
       that.currentTransform = targetTransform;
-      that.trigger('transitionStarted', framename);
+      that.trigger('transitionStarted', framename, transition);
 
       return layoutPromise;
     });
