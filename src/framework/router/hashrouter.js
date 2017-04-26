@@ -35,30 +35,28 @@ var HashRouter = Kern.EventManager.extend({
           // only proceed when an element is found and if that element is visible
           if (anchor && window.getComputedStyle(anchor).display !== 'none') {
             var frameView = $.findParentViewOfType(anchor, 'frame');
-
+            // parent of the element has to be a frame
             if (undefined !== frameView) {
+              var transition;
               var path = state.buildPath(frameView.outerEl, false);
               var index = options.paths.indexOf(path);
-              var transition;
+              // check if there is already a transition path for this frame
               if (index !== -1) {
+                // path found, reuse transition record
                 transition = options.transions[index];
               } else if (frameView.parent.currentFrame === frameView) {
+                // if frame is active, add path and transition record
                 paths.push(state.buildPath(frameView.outerEl, false));
-
-                if (options.paths.length > 0) {
-                  transition = {};
-                  options.transitions.push(transition);
-                } else {
-                  transition = options.transitions[0];
-                }
-
-                var clientRect = anchor.getBoundingClientRect(),
-                  bodyRect = document.body.getBoundingClientRect();
-                transition.scrollY = clientRect.top - bodyRect.top;
-                transition.scrollX = clientRect.left - bodyRect.left;
-
-                continue;
+                transition = Kern._extend({}, options.globalTransition);
+                options.transitions.push(transition);
               }
+
+              var clientRect = anchor.getBoundingClientRect(),
+                bodyRect = document.body.getBoundingClientRect();
+              transition.scrollY = clientRect.top - bodyRect.top;
+              transition.scrollX = clientRect.left - bodyRect.left;
+
+              continue;
             }
           }
         }
@@ -73,10 +71,9 @@ var HashRouter = Kern.EventManager.extend({
             // push layer path and frameName ( can't use directly the view because !right will not resolve in a view)
             paths.push(state.buildPath(resolvedPath.layer.outerEl, false) + '.' + resolvedPath.frameName);
             var parsed = urlHelper.parseStringForTransitions(hashPaths[x]);
-            options.transitions.push(parsed.transition);
+             options.transitions.push(Kern._extend(options.globalTransition, parsed.transition));
           }
         }
-
 
         if (undefined === resolvedPaths || resolvedPaths.length === 0) {
           hash = hash + ((hash !== '#') ? ';' : '') + hashPaths[x];

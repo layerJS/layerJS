@@ -86,7 +86,7 @@ var Router = Kern.EventManager.extend({
    * @return {boolean} Indicates if the router could do the navigation to the url
    */
   navigate: function(href, layerView, noHistory, isLink) {
-    return this._navigate(href, !noHistory, !(isLink === false), layerView)
+    return this._navigate(href, !noHistory, (isLink !== false), layerView);
   },
   /**
    * When the router can navigate to the url, it will do this.
@@ -104,13 +104,10 @@ var Router = Kern.EventManager.extend({
       url: parsed.url,
       transitions: [],
       context: layerView,
-      paths: []
+      paths: [],
+      globalTransition : parsed.transition || {} // global transition will be used to merge with other transitions that will be added by other routers
     };
 
-    if (undefined !== parsed.transition) {
-      options.transitions.push(parsed.transition);
-    }
-    //var url = options.url;
     var count = this.routers.length;
     var that = this;
     var promise = new Kern.Promise();
@@ -122,11 +119,14 @@ var Router = Kern.EventManager.extend({
 
     var resolve = function() {
       if (handled) {
+        // determine is it was a clickevent and if we need to add this to the history
         that.isClickEvent = true === isClickEvent;
         that.addToHistory = addToHistory;
         if (initial === true) {
+          // this is the initial navigation ( page just loaded) so we should do a show
           state.showState(options.paths);
         } else {
+          // do a transition          
           state.transitionTo(options.paths, options.transitions);
         }
       }
@@ -134,20 +134,25 @@ var Router = Kern.EventManager.extend({
       promise.resolve(handled);
     };
 
+    // iterate all routers
     var callRouter = function() {
       if (index < count) {
         that.routers[index].handle(options.url, options).then(function(result) {
           if (result.handled) {
+            // the router handled the url -> add newly found paths to the options
             handled = result.handled;
             Array.prototype.push.apply(options.paths, result.paths);
           }
           if ((result.handled && !result.stop) || (!result.handled)) {
+            // when the router couldn't handle the url or when the router indecated that we should try other routers, call other routers
             index++;
             callRouter();
           } else
+            // end iteration
             resolve();
         });
       } else {
+        // end iteration
         resolve();
       }
     };

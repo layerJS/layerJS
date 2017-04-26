@@ -48,13 +48,22 @@ describe('Filerouter', function() {
     var layerView = document.getElementById('contentlayer')._ljView;
 
     var fileRouter = new FileRouter();
-    var promise = fileRouter.handle('http://localhost/somePage.html');
+    var options = {
+      transitions: [],
+      globalTransition: {
+        type: 'left'
+      }
+    };
+
+    var promise = fileRouter.handle('http://localhost/somePage.html', options);
     scope.done();
 
     promise.then(function(result) {
       expect(result.handled).toBeTruthy();
       expect(result.stop).toBeFalsy();
       expect(result.paths).toEqual(['contentstage.contentlayer.frame2']);
+      expect(options.transitions.length).toBe(1);
+      expect(options.transitions[0].type).toBe(options.globalTransition.type);
       done();
     });
 
@@ -75,13 +84,18 @@ describe('Filerouter', function() {
     var layerView = document.getElementById('contentlayer')._ljView;
 
     var fileRouter = new FileRouter();
-    var promise = fileRouter.handle('http://localhost/somePage.html');
+    var options = {
+      transitions: [],
+      globalTransition: {}
+    };
+    var promise = fileRouter.handle('http://localhost/somePage.html', options);
     scope.done();
 
     promise.then(function(result) {
       expect(result.handled).toBeTruthy();
       expect(result.stop).toBeFalsy();
       expect(result.paths).toEqual(['contentstage.contentlayer.!none']);
+      expect(options.transitions.length).toBe(1);
       done();
     });
 
@@ -104,7 +118,10 @@ describe('Filerouter', function() {
     var layerView = document.getElementById('contentlayer')._ljView;
 
     var fileRouter = new FileRouter();
-    var promise = fileRouter.handle('/somePage.html');
+    var promise = fileRouter.handle('/somePage.html', {
+      transitions: [],
+      globalTransition: {}
+    });
     scope.done();
 
     promise.then(function(result) {
@@ -145,7 +162,10 @@ describe('Filerouter', function() {
     });
 
     var fileRouter = new FileRouter();
-    var promise = fileRouter.handle('/somePage.html');
+    var promise = fileRouter.handle('/somePage.html', {
+      transitions: [],
+      globalTransition: {}
+    });
 
     promise.then(function(result) {
       expect(result.handled).toBe(false);
@@ -167,13 +187,19 @@ describe('Filerouter', function() {
       type: 'left'
     };
 
+    var options = {
+      transitions: [],
+      globalTransition: transitionOptions
+    };
+
     var fileRouter = new FileRouter();
-    var promise = fileRouter.handle('/somePage.html');
+    var promise = fileRouter.handle('/somePage.html', options);
     scope.done();
 
     promise.then(function(result) {
       expect(fileRouter.routes['/somePage.html']).toBeDefined();
       expect(fileRouter.routes['/somePage.html']).toEqual(result.paths);
+      expect(options.transitions.length).toBe(1);
       done();
     });
   }, 5000);
@@ -203,12 +229,17 @@ describe('Filerouter', function() {
 
     var fileRouter = new FileRouter();
     fileRouter.routes['/somePage.html'] = ['contentstage.contentlayer.frame2'];
-    var promise = fileRouter.handle('/somePage.html');
+    var options = {
+      transitions: [],
+      globalTransition: transitionOptions
+    };
+    var promise = fileRouter.handle('/somePage.html', options);
 
     promise.then(function(result) {
       expect(result.handled).toBeTruthy();
       expect(result.stop).toBeFalsy();
       expect(result.paths).toEqual(['contentstage.contentlayer.frame2']);
+      expect(options.transitions.length).toBe(1);
       done();
     });
   });

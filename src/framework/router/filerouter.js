@@ -20,10 +20,11 @@ var FileRouter = StaticRouter.extend({
   },
   /**
    * Will do the actual navigation to the url
-   * @param {url} an url
+   * @param {string} url an url
+   * @param {object} options contains url, paths, transitions, globalTransition, context
    * @return {boolean} True if the router handled the url
    */
-  handle: function(url) {
+  handle: function(url, options) {
     var that = this;
     var promise = new Kern.Promise();
     var canHandle = true;
@@ -44,7 +45,7 @@ var FileRouter = StaticRouter.extend({
     // url has been handled before, read the state from the cache
     if (canHandle && this.hasRoute(urlNoHash)) {
       canHandle = false;
-      StaticRouter.prototype.handle.call(this, urlNoHash).then(function(result) {
+      StaticRouter.prototype.handle.call(this, urlNoHash, options).then(function(result) {
         promise.resolve({
           stop: false,
           handled: true,
@@ -102,10 +103,12 @@ var FileRouter = StaticRouter.extend({
           if (!(globalStructureHash[framesToTransitionTo[i]] || addedHash[framesToTransitionTo[i]] || isSpecial)) {
             framesToTransitionTo.splice(i, 1);
             i--;
+          } else {
+            options.transitions.push(Kern._extend({}, options.globalTransition));
           }
         }
 
-        that.addRoute(urlNoHash,framesToTransitionTo);
+        that.addRoute(urlNoHash, framesToTransitionTo);
 
         if (framesToTransitionTo.length > 0) {
           $.postAnimationFrame(function() {

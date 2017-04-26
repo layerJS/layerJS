@@ -29,16 +29,20 @@ var StaticRouter = Kern.EventManager.extend({
   },
   /**
    * Will do the actual navigation to the url
-   * @param {string} an url
+   * @param {string} url an url
+   * @param {object} options contains url, paths, transitions, globalTransition, context
    * @return {void}
    */
-  handle: function(url) {
+  handle: function(url, options) {
     var result = this.routes.hasOwnProperty(url);
     var promise = new Kern.Promise();
     var activeFrames = [];
 
     if (result) {
       activeFrames = this.routes[url];
+      activeFrames.forEach(function() {
+        options.transitions.push(Kern._extend({}, options.globalTransition));
+      });
     }
 
     promise.resolve({

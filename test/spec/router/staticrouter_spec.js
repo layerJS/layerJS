@@ -25,7 +25,9 @@ describe('staticRouter', function() {
     var url = '/test.html';
     var options = {
       url: url,
-      transitions: []
+      transitions: [],
+      paths:[],
+      globalTransition: {}
     };
     var paths = ['stage1.layer1.frame2'];
     staticRouter.addRoute(url, paths);
@@ -43,13 +45,14 @@ describe('staticRouter', function() {
       el: document.getElementById('stage1')
     });
 
-    var promise = staticRouter.handle(url);
+    var promise = staticRouter.handle(url, options);
 
     promise.then(function(result) {
       setTimeout(function() {
         expect(result.handled).toBeTruthy();
         expect(result.stop).toBeTruthy();
         expect(result.paths).toEqual(paths);
+        expect(options.transitions.length).toBe(1);
         done();
       }, 500);
     });

@@ -28,7 +28,10 @@ describe('HashRouter', function() {
     });
     var options = {
       url: url,
-      transitions: []
+      transitions: [],
+      globalTransition: {
+        type: 'left'
+      }
     };
     var promise = hashRouter.handle(options.url, options);
 
@@ -38,6 +41,8 @@ describe('HashRouter', function() {
         expect(result.stop).toBeTruthy();
         expect(result.paths).toEqual(['stage1.layer1.frame2']);
         expect(options.url).toBe(window.location.href + '#');
+        expect(options.transitions.length).toBe(1);
+        expect(options.transitions[0]).toEqual(options.globalTransition);
         done();
       }, 500);
     });
@@ -67,10 +72,10 @@ describe('HashRouter', function() {
       utilities.setHtml("<div data-lj-type='stage' id='stage1'>" +
         "<div data-lj-type='layer' id='layer1' data-lj-default-frame='frame1'>" +
         "<div data-lj-type='frame' id='frame1' data-lj-name='frame1'></div>" +
-        "</div>"+
+        "</div>" +
         "<div data-lj-type='layer' id='layer2' data-lj-default-frame='frame2'>" +
         "<div data-lj-type='frame' id='frame2' data-lj-name='frame2'></div>" +
-        "</div>"+
+        "</div>" +
         "</div>");
 
       var stageView = new StageView({
