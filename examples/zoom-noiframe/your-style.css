@@ -74,14 +74,14 @@ body {
 #contentlayer [lj-type="frame"] {
   background-color: white;
   box-shadow: 0px 0px 15px 0px black;
-  //filter: contrast(1) sepia(100%) hue-rotate(116deg) brightness(1.4) saturate(0.28);
-  filter: saturate(0);
+  /*filter: contrast(1) sepia(100%) hue-rotate(116deg) brightness(1.4) saturate(0.28);*/
+  filter: saturate(50%);
 }
 #zoomin.lj-active #contentlayer [lj-type="frame"].lj-active {
-  filter: saturate(0.5);
+  filter: saturate(100%);
 }
 #contentlayer [lj-type="frame"]:hover {
-  filter: saturate(0.5);
+  filter: saturate(0%);
 }
 
 #frame1 {}
@@ -130,4 +130,407 @@ body {
 a {
   text-decoration: none;
   color: #60C694;
+}
+
+/* frame1 */
+#frame1 {
+  font-family: Average, sans-serif;
+  color: #424242;
+  font-size: 18px;
+  line-height: 1.5em;
+}
+
+#frame1 h1 {
+  display: block;
+  max-width: 700px;
+  margin: 0px auto;
+  font-family: 'Fjalla One', sans-serif;
+  font-size: 24px;
+  line-height: 50px;
+  font-weight: 400;
+}
+
+#frame1 h2 {
+  margin-top: 50px;
+  margin-bottom: 10px;
+  font-family: 'Fjalla One', sans-serif;
+  font-size: 2em;
+  line-height: 36px;
+  font-weight: 700;
+}
+
+#frame1 p {
+  display: block;
+  max-width: 740px;
+  margin: 2em auto;
+  padding-right: 20px;
+  padding-left: 20px;
+}
+
+#frame1 .header {
+  height: 50px;
+  background-color: #000;
+  color: #fff;
+}
+
+#frame1 .link {
+  color: #039be5;
+  text-decoration: none;
+}
+
+#frame1 .author {
+  color: #aaa;
+  font-size: 12px;
+  letter-spacing: 1px;
+}
+
+#frame1 .heading {
+  display: block;
+  max-width: 740px;
+  margin-right: auto;
+  margin-left: auto;
+  padding-right: 20px;
+  padding-left: 20px;
+}
+
+#frame1 .image {
+  padding-top: 30%;
+  padding-bottom: 30%;
+  background-image: url('images/fish-ipsum.jpg');
+  background-position: 50% 50%;
+  background-size: cover;
+}
+
+#frame1 .image.jallyfish {
+  background-image: url('images/jellyfish-ipsum.jpg');
+}
+
+ @media (max-width: 479px) {
+#frame1 p {
+    font-size: 16px;
+  }
+}
+
+/*frame2*/
+
+
+#frame2 {
+  background-color: #f4f4f4;
+  font-family: Lora, sans-serif;
+  color: #594433;
+  font-size: 18px;
+  line-height: 1.5em;
+}
+
+#frame2 h1 {
+  margin-top: 0px;
+  margin-bottom: 0px;
+}
+
+#frame2 h2 {
+  margin-top: 50px;
+  margin-bottom: 10px;
+  font-family: 'Josefin Sans', sans-serif;
+  color: #1d1d1d;
+  font-size: 2em;
+  line-height: 36px;
+  font-weight: 700;
+}
+
+#frame2 p {
+  display: block;
+  margin-top: 1em;
+}
+
+#frame2 a {
+  color: #0e7fac;
+  text-decoration: none;
+}
+
+#frame2 figcaption {
+  margin-top: 5px;
+  font-family: Lato, sans-serif;
+  color: #aaa;
+  font-size: 12px;
+  text-align: center;
+}
+
+#frame2 .header {
+  height: 50px;
+  background-color: #cac6c2;
+  text-align: center;
+}
+
+#frame2 .link {
+  color: #0e7fac;
+}
+
+#frame2 .author {
+  font-family: 'Josefin Sans', sans-serif;
+  color: #aaa;
+  font-size: 16px;
+  letter-spacing: 1px;
+}
+
+#frame2 .container {
+  display: block;
+  max-width: 740px;
+  margin-right: auto;
+  margin-left: auto;
+  padding-right: 20px;
+  padding-left: 20px;
+}
+
+#frame2 .image {
+  padding-top: 400px;
+  padding-bottom: 100px;
+  background-image: url('images/mass-hipsteria.jpg');
+  background-position: 50% 50%;
+  background-size: cover;
+}
+
+#frame2 .name {
+  display: inline-block;
+  font-family: Lora, sans-serif;
+  color: #fff;
+  font-size: 40px;
+  line-height: 50px;
+  font-weight: 400;
+}
+
+#frame2 .image-2 {
+  width: 40px;
+  height: 40px;
+  margin-top: 5px;
+}
+
+#frame2 .heading-2 {
+  color: #1d1d1d;
+}
+
+#frame2 .heading {
+  display: block;
+  width: 120px;
+  height: 60px;
+  margin-right: auto;
+  margin-left: auto;
+  border-bottom-left-radius: 30px;
+  border-bottom-right-radius: 30px;
+  background-color: #000;
+}
+
+#frame2 .header-wrap {
+  position: fixed;
+  left: 0px;
+  top: 0px;
+  right: 0px;
+  z-index: 1;
+  display: block;
+  max-width: 700px;
+  margin-right: auto;
+  margin-left: auto;
+}
+
+@media (max-width: 479px) {
+#frame2 {
+    font-size: 14px;
+  }
+}
+
+/*frame3*/
+
+#frame3 {
+  font-family: 'EB Garamond', sans-serif;
+  color: #424242;
+  font-size: 18px;
+  line-height: 1.5em;
+}
+
+#frame3 h1 {
+  display: block;
+  max-width: 700px;
+  margin: 0px auto;
+  font-family: Oswald, sans-serif;
+  font-size: 24px;
+  line-height: 50px;
+  font-weight: 400;
+}
+
+#frame3 h2 {
+  margin-top: 50px;
+  margin-bottom: 10px;
+  font-family: Raleway, sans-serif;
+  font-size: 2em;
+  line-height: 36px;
+  font-weight: 700;
+}
+
+#frame3 p {
+  display: block;
+  max-width: 740px;
+  margin: 2em auto;
+  padding-right: 20px;
+  padding-left: 20px;
+}
+
+#frame3 .header {
+  position: fixed;
+  left: 0px;
+  top: 0px;
+  right: 0px;
+  z-index: 1;
+  height: 50px;
+  background-color: #3f51b5;
+  color: #fff;
+}
+
+#frame3 .link {
+  color: #2196f3;
+  text-decoration: none;
+}
+
+#frame3 .author {
+  font-family: Oswald, sans-serif;
+  color: #aaa;
+  font-size: 12px;
+  letter-spacing: 1px;
+}
+
+#frame3 .heading {
+  display: block;
+  max-width: 740px;
+  margin-right: auto;
+  margin-left: auto;
+  padding-right: 20px;
+  padding-left: 20px;
+}
+
+#frame3 .bg {
+  padding-top: 10px;
+  padding-bottom: 10px;
+  background-color: #ec407a;
+  font-family: Raleway, sans-serif;
+  color: #fff;
+  font-size: 1.5em;
+  line-height: 1.3em;
+}
+
+#frame3 .bg.purple {
+  background-color: #7b1fa2;
+}
+
+#frame3 .image {
+  display: block;
+  width: 100%;
+  max-width: 700px;
+  margin-right: auto;
+  margin-left: auto;
+}
+
+@media (max-width: 479px) {
+#frame3 p {
+    font-size: 16px;
+  }
+}
+
+/*frame4*/
+
+
+
+
+#frame4 {
+  font-family: 'Roboto Mono', sans-serif;
+  color: #424242;
+  font-size: 18px;
+  line-height: 1.5em;
+  font-weight: 300;
+}
+
+#frame4 h1 {
+  display: block;
+  max-width: 700px;
+  margin: 0px auto;
+  font-family: UnifrakturCook, sans-serif;
+  font-size: 28px;
+  line-height: 50px;
+  font-weight: 400;
+}
+
+#frame4 h2 {
+  margin-top: 50px;
+  margin-bottom: 10px;
+  font-family: Rubik, sans-serif;
+  font-size: 4.4em;
+  line-height: 1em;
+  font-weight: 700;
+}
+
+#frame4 p {
+  display: block;
+  max-width: 740px;
+  margin: 2em auto;
+  padding-right: 20px;
+  padding-left: 20px;
+}
+
+#frame4 .header {
+  position: fixed;
+  left: 0px;
+  top: 0px;
+  right: 0px;
+  height: 50px;
+  background-color: #475d6b;
+  color: #fff;
+}
+
+#frame4 .link {
+  color: #039be5;
+  text-decoration: none;
+}
+
+#frame4 .author {
+  color: #aaa;
+  font-size: 12px;
+  letter-spacing: 1px;
+}
+
+#frame4 .heading {
+  display: block;
+  max-width: 740px;
+  margin-right: auto;
+  margin-left: auto;
+  padding-right: 20px;
+  padding-left: 20px;
+}
+
+#frame4 .image {
+  padding-top: 25%;
+  padding-bottom: 25%;
+  background-image: url('images/skate-fun.jpg');
+  background-position: 50% 50%;
+  background-size: cover;
+  color: #fff;
+}
+
+#frame4 .image.ramps {
+  background-image: url('images/skate-fun-ride.jpg');
+}
+
+#frame4 .image.jump {
+  background-image: url('images/skate-fun-jump.jpg');
+}
+
+#frame4 .heading-2 {
+  font-family: Rubik, sans-serif;
+}
+
+@media (max-width: 479px) {
+#frame4 h2 {
+    font-size: 3em;
+  }
+#frame4 p {
+    font-size: 16px;
+  }
+}
+
 }
