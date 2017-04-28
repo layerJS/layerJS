@@ -668,7 +668,7 @@ describe('state', function() {
     }, 500);
   });
 
-  it('stateChanged is triggered after all layers have invoked \'transitionStarted\' event', function(done) {
+  it('stateChanged is triggered after all layers have invoked \'transitionStarted\' event (transitionTo)', function(done) {
     var html = "<div data-lj-type='stage' id='stage1'>" +
       "<div data-lj-type='layer' id='layer1' data-lj-default-frame='frame1'>" +
       "<div data-lj-type='frame' id='frame1' data-lj-name='frame1'>" +
@@ -701,6 +701,42 @@ describe('state', function() {
     }, {
       duration: '1s'
     }]);
+
+    setTimeout(function() {
+      expect(invoked).toBe(1);
+      done();
+    }, 1000);
+  });
+
+  it('stateChanged is triggered after all layers have invoked \'transitionStarted\' event (showState)', function(done) {
+    var html = "<div data-lj-type='stage' id='stage1'>" +
+      "<div data-lj-type='layer' id='layer1' data-lj-default-frame='frame1'>" +
+      "<div data-lj-type='frame' id='frame1' data-lj-name='frame1'>" +
+      "</div>" +
+      "<div data-lj-type='frame' id='frame2' data-lj-name='frame2'>" +
+      "</div>" +
+      "</div>" +
+      "<div data-lj-type='layer' id='layer2' data-lj-default-frame='frame3'>" +
+      "<div data-lj-type='frame' id='frame3' data-lj-name='frame3'>" +
+      "</div>" +
+      "<div data-lj-type='frame' id='frame4' data-lj-name='frame4'>" +
+      "</div>" +
+      "</div>" +
+      "</div>";
+
+    utilities.setHtml(html);
+
+    var stageView = new StageView({
+      el: document.getElementById('stage1')
+    });
+
+    var state = layerJS.getState();
+    var invoked = 0;
+    state.on('stateChanged', function() {
+      invoked++;
+    });
+
+    state.showState(['stage1.layer1.frame2', 'stage1.layer2.frame4']);
 
     setTimeout(function() {
       expect(invoked).toBe(1);

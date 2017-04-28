@@ -395,6 +395,10 @@ var LayerView = BaseView.extend({
     if (null !== frame) {
       framename = frame.name();
     }
+    // create a dummy semaphore if there isn't any
+    if (!scrollData.semaphore) {
+      scrollData.semaphore = (new Kern.Semaphore()).register();
+    }
 
     that.trigger('beforeTransition', framename);
 
@@ -405,12 +409,14 @@ var LayerView = BaseView.extend({
       that.currentTransform = that._transformer.getScrollTransform(tfd, scrollData.scrollX || (tfd.isScrollX && tfd.scrollX) || 0, scrollData.scrollY || (tfd.isScrollY && tfd.scrollY) || 0);
       that.currentFrame = frame;
 
-      that.trigger('transitionStarted', framename);
-      that._layout.showFrame(frame, tfd, that.currentTransform);
-      that.inPreparation(false);
-      that.inTransition(false); // we stop all transitions if we do a showframe
-      that.currentFrame = frame;
-      that.trigger('transitionFinished', framename);
+      that.trigger('transitionStarted', framename, scrollData);
+      scrollData.semaphore.sync().then(function() {
+        that._layout.showFrame(frame, tfd, that.currentTransform);
+        that.inPreparation(false);
+        that.inTransition(false); // we stop all transitions if we do a showframe
+        that.currentFrame = frame;
+        that.trigger('transitionFinished', framename);
+      });
     });
   },
   noFrameTransformdata: function(transitionStartPosition) {

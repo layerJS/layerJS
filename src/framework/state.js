@@ -170,11 +170,11 @@ var State = Kern.EventManager.extend({
 
     paths = reduced;
     var semaphore = new Kern.Semaphore(paths.length); // semaphore is necessary to let all transition run in sync
-    this._transitionGroupId++;
-    this._transitionGroup[this._transitionGroupId] = paths.length;
-    for (var i = 0; i < paths.length; i++) { // FIXME: this will trigger possibly a lot of non-necessary transitions
+    var groupId = ++this._transitionGroupId;
+    this._transitionGroup[groupId] = paths.length;
+    for (var i = 0; i < paths.length; i++) {
       paths[i].transition.semaphore = semaphore;
-      paths[i].transition.groupId = this._transitionGroupId;
+      paths[i].transition.groupId = groupId;
       paths[i].layer.transitionTo(paths[i].frameName, paths[i].transition); // run the transition on the corresponding layer
     }
     return paths.length > 0;
@@ -186,22 +186,30 @@ var State = Kern.EventManager.extend({
    */
   showState: function(states) {
     var that = this;
-
     // build an array that contains all layer/frame combinations that need to transition including their transitions records
     var transitions = [];
+
     states.map(function(state) {
       return that.resolvePath(state);
     }).reduce(function(collection, layerframe) {
       for (var i = 0; i < layerframe.length; i++) {
-        if (!layerframe[i].active) collection.push({ // ignore currently active frames
+        if (!layerframe[i].active) transitions.push({ // ignore currently active frames
           layer: layerframe[i].layer,
           frameName: layerframe[i].frameName
         });
       }
-    }, transitions);
-    // switch all layers
-    for (var i = 0; i < transitions.length; i++) { // FIXME: this will trigger possibly a lot of non-necessary transitions
-      transitions[i].layer.showFrame(transitions[i].frameName); // switch to frame
+    }, []);
+
+    // semaphore is necessary to let all transition run in sync
+    var groupId = ++this._transitionGroupId;
+    this._transitionGroup[groupId] = transitions.length;
+    var transition = {
+      semaphore: new Kern.Semaphore(transitions.length),
+      groupId: groupId
+    };
+
+    for (var i = 0; i < transitions.length; i++) {
+      transitions[i].layer.showFrame(transitions[i].frameName, transition); // switch to frame
     }
     return transitions.length > 0;
   },
