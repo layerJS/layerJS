@@ -744,6 +744,47 @@ describe('state', function() {
     }, 1000);
   });
 
+  it('stateChanged will only be trigger when the state really has changed', function(done) {
+    var html = "<div data-lj-type='stage' id='stage1'>" +
+      "<div data-lj-type='layer' id='layer1' data-lj-default-frame='frame1'>" +
+      "<div data-lj-type='frame' id='frame1' data-lj-name='frame1'>" +
+      "</div>" +
+      "<div data-lj-type='frame' id='frame2' data-lj-name='frame2'>" +
+      "</div>" +
+      "</div>" +
+      "<div data-lj-type='layer' id='layer2' data-lj-default-frame='frame3'>" +
+      "<div data-lj-type='frame' id='frame3' data-lj-name='frame3'>" +
+      "</div>" +
+      "<div data-lj-type='frame' id='frame4' data-lj-name='frame4'>" +
+      "</div>" +
+      "</div>" +
+      "</div>";
+
+    utilities.setHtml(html);
+
+    var stageView = new StageView({
+      el: document.getElementById('stage1')
+    });
+
+    var state = layerJS.getState();
+    var invoked = 0;
+    state.on('stateChanged', function() {
+      invoked++;
+    });
+
+    state.showState(['stage1.layer1.frame2', 'stage1.layer2.frame4']);
+
+    setTimeout(function() {
+      expect(invoked).toBe(1);
+      state.showState(['stage1.layer1.frame2', 'stage1.layer2.frame4']);
+      setTimeout(function() {
+        expect(invoked).toBe(1);
+        done();
+      }, 1000);
+    }, 1000);
+  });
+
+
   describe('can minimise the returned state paths', function() {
     it('when the current frame is the default frame', function() {
       utilities.setHtml("<div data-lj-type='stage' id='stage1'>" +

@@ -21,6 +21,7 @@ var State = Kern.EventManager.extend({
     this._transitionGroup = {};
 
     Kern.EventManager.call(this);
+    this.previousState = [];
   },
   /**
    * Will register a View with the state
@@ -62,8 +63,27 @@ var State = Kern.EventManager.extend({
           trigger = this._transitionGroup[transition.groupId] === 0;
         }
         if (trigger) {
-          // FIXME: need to wait for multi transition
-          this.trigger("stateChanged", this.exportState(true));
+          // check if the state really changed
+          trigger = false;
+          var state = this.exportState(true);
+          if (this.previousState) {
+            if (this.previousState.length !== state.length) {
+              trigger = true; // state has changed
+            } else {
+              for (var i = 0; i < this.previousState.length; i++) {
+                if (this.previousState[i] !== state[i]) {
+                  trigger = true; // state has changed
+                  break;
+                }
+              }
+            }
+          }
+
+          if (trigger) {
+            // trigger the event and keep a copy of the new state to compare it to next time
+            this.previousState = state;
+            this.trigger("stateChanged", state);
+          }
         }
       }, {
         context: this
