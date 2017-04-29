@@ -3,7 +3,7 @@
 var Kern = require('../kern/Kern.js');
 var layerJS = require('./layerjs.js');
 var $ = require('./domhelpers.js');
-
+var defaults = require('./defaults.js');
 /**
  *  class that will contain the state off all the stages, layers, frames
  *
@@ -120,7 +120,7 @@ var State = Kern.EventManager.extend({
     });
   },
   /**
-   * Will return all paths to active frames
+   * Will return all paths to active frames. Will be sorted in DOM order
    * @param {boolean} minimise When true, minimise the returned paths
    * @returns {array} An array of strings pointing to active frames within the document
    */
@@ -130,15 +130,20 @@ var State = Kern.EventManager.extend({
     var that = this;
 
     this.layers.map(function(layerId) {
-        return that.views[layerId].view.outerEl;
-      }).sort($.comparePosition)
+        return that.views[layerId].view.outerEl; // get the a list of the layer dom element
+      }).sort($.comparePosition) // sort in DOM order
       .forEach(function(layerOuterEl) {
         var layer = layerOuterEl._ljView;
         if (layer.currentFrame) {
           state.push(that.views[layer.currentFrame.id()].path);
-          if (true === minimise && (layer.noUrl() || layer.currentFrame.name() === layer.defaultFrame() ||
-              (null === layer.defaultFrame() && null === layer.currentFrame.outerEl.previousSibling))) {
-            state.pop();
+          if (true === minimise) {
+            if (layer.noUrl()) {
+              state.pop();
+            } else if (layer.currentFrame.name() === layer.defaultFrame() ||
+              (null === layer.defaultFrame() && null === layer.currentFrame.outerEl.previousElementSibling)) {
+              var path = state.pop();
+              state.push(path + '.!default');// add !default to default frame of the layer
+            }
           }
         } else if (true !== minimise) {
           state.push(that.views[layer.id()].path + ".!none");

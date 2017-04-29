@@ -796,7 +796,7 @@ describe('state', function() {
         el: document.getElementById('stage1')
       });
       var state = layerJS.getState();
-      expect(state.exportState(true)).toEqual([]);
+      expect(state.exportState(true)).toEqual(['stage1.layer1.frame1.!default']);
     });
 
     it('when the current frame is the first element and no default frame is specified', function() {
@@ -809,7 +809,7 @@ describe('state', function() {
         el: document.getElementById('stage1')
       });
       var state = layerJS.getState();
-      expect(state.exportState(true)).toEqual([]);
+      expect(state.exportState(true)).toEqual(['stage1.layer1.frame1.!default']);
     });
 
     it('when the default frame is a none frame', function() {
