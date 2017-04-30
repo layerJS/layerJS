@@ -142,7 +142,7 @@ var State = Kern.EventManager.extend({
             } else if (layer.currentFrame.name() === layer.defaultFrame() ||
               (null === layer.defaultFrame() && null === layer.currentFrame.outerEl.previousElementSibling)) {
               var path = state.pop();
-              state.push(path + defaults.specialFrames.default); // add !default to default frame of the layer
+              state.push(path + '.' + defaults.specialFrames.default); // add !default to default frame of the layer
             }
           }
         } else if (true !== minimise) {

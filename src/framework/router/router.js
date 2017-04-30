@@ -5,7 +5,6 @@ var Kern = require('../../kern/kern.js');
 var StaticRouter = require('./staticrouter.js');
 var domhelpers = require('../domhelpers.js');
 var urlHelper = require('../urlhelper.js');
-var defaults = require('../defaults.js');
 
 var Router = Kern.EventManager.extend({
   constructor: function(rootEl) {
@@ -171,9 +170,6 @@ var Router = Kern.EventManager.extend({
 
     newState = newState || [];
     var parsed = urlHelper.splitUrl(window.location.href);
-    newState = newState.filter(function(state){
-      return !state.endsWith(defaults.specialFrames.default);
-    });
 
     var options = {
       state: newState,

@@ -2,6 +2,7 @@
 var Kern = require('../../kern/Kern.js');
 var urlHelper = require('../urlhelper.js');
 var $ = require('../domhelpers.js');
+var defaults = require('../defaults.js');
 
 var HashRouter = Kern.EventManager.extend({
   /**
@@ -71,7 +72,7 @@ var HashRouter = Kern.EventManager.extend({
             // push layer path and frameName ( can't use directly the view because !right will not resolve in a view)
             paths.push(state.buildPath(resolvedPath.layer.outerEl, false) + '.' + resolvedPath.frameName);
             var parsed = urlHelper.parseStringForTransitions(hashPaths[x]);
-             options.transitions.push(Kern._extend(options.globalTransition, parsed.transition));
+            options.transitions.push(Kern._extend(options.globalTransition, parsed.transition));
           }
         }
 
@@ -104,6 +105,12 @@ var HashRouter = Kern.EventManager.extend({
     var paths = [];
 
     for (var i = 0; i < options.state.length; i++) {
+      if (options.state[i].endsWith(defaults.specialFrames.default)) {
+        // default frames should not be in the hash
+        continue;
+      }
+
+      // try to make the hash path as small as possible (hench state.resolvePath should just return 1 path )
       var splittedPath = options.state[i].split('.');
       var path = undefined;
       var ok = false;

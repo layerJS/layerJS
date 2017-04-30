@@ -262,9 +262,9 @@ describe('router', function() {
     expect(handled).toBe(true);
   });
 
-  it('will use the replace state after a transition that started with a click', function(done) {
+  it('will use the pushState after a transition that started with a click', function(done) {
     var newUrl;
-    window.history.replaceState = function(param1, param2, url) {
+    window.history.pushState = function(param1, param2, url) {
       newUrl = url;
     };
 
@@ -288,7 +288,7 @@ describe('router', function() {
     document.getElementById('link').click();
 
     setTimeout(function() {
-      expect(newUrl).toBe('http://localhost/');
+      expect(newUrl).toBe('http://localhost/#frame2');
       done();
     }, 2000);
   });

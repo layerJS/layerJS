@@ -1,5 +1,6 @@
 'use strict';
 var Kern = require('../../kern/kern.js');
+var defaults = require('../defaults.js');
 
 var StaticRouter = Kern.EventManager.extend({
   constructor: function() {
@@ -60,15 +61,17 @@ var StaticRouter = Kern.EventManager.extend({
    * @returns {Promise} a promise that will return the HTML document
    */
   buildUrl: function(options) {
+    var that = this;
     var foundPathsLength = 0;
     var foundPaths = [];
+    var url;
     var find = function(path) {
-      return options.state.indexOf(path) !== -1;
+      return that.routes[url].indexOf(path) !== -1 || (path.endsWith(defaults.specialFrames.default) && that.routes[url].indexOf(path.replace('.' + defaults.specialFrames.default)) !== -1);
     };
 
-    for (var url in this.routes) {
+    for (url in this.routes) {
       if (this.routes.hasOwnProperty(url) && this.routes[url].length > foundPathsLength) {
-        var found = this.routes[url].filter(find);
+        var found = options.state.filter(find);
         var count = found.length;
         if (count > foundPathsLength) {
           foundPaths = found;
