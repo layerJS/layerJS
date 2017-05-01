@@ -1,6 +1,5 @@
 'use strict';
 var Kern = require('../../kern/Kern.js');
-var urlHelper = require('../urlhelper.js');
 var $ = require('../domhelpers.js');
 var defaults = require('../defaults.js');
 
@@ -13,7 +12,7 @@ var HashRouter = Kern.EventManager.extend({
   handle: function(url, options) {
 
     var promise = new Kern.Promise();
-    var urlInfo = urlHelper.splitUrl(url);
+    var urlInfo = $.splitUrl(url);
 
     if (urlInfo.hash === undefined || urlInfo.hash === '#' || urlInfo.hash === '') {
       // not the same file or no hash in href
@@ -71,7 +70,7 @@ var HashRouter = Kern.EventManager.extend({
           if (resolvedPath.hasOwnProperty('frameName') && resolvedPath.hasOwnProperty('layer')) {
             // push layer path and frameName ( can't use directly the view because !right will not resolve in a view)
             paths.push(state.buildPath(resolvedPath.layer.outerEl, false) + '.' + resolvedPath.frameName);
-            var parsed = urlHelper.parseStringForTransitions(hashPaths[x]);
+            var parsed = $.parseStringForTransitions(hashPaths[x]);
             options.transitions.push(Kern._extend(options.globalTransition, parsed.transition));
           }
         }
@@ -129,7 +128,7 @@ var HashRouter = Kern.EventManager.extend({
 
     if (paths.length > 0) {
       hash = paths.join(';');
-      var parsedUrl = urlHelper.splitUrl(options.url);
+      var parsedUrl = $.splitUrl(options.url);
       parsedUrl.hash = '#' + hash;
       options.url = parsedUrl.location + parsedUrl.queryString + parsedUrl.hash;
     }

@@ -4,7 +4,6 @@ var $ = require('../domhelpers.js');
 var Kern = require('../../kern/kern.js');
 var StaticRouter = require('./staticrouter.js');
 var domhelpers = require('../domhelpers.js');
-var urlHelper = require('../urlhelper.js');
 
 var Router = Kern.EventManager.extend({
   constructor: function(rootEl) {
@@ -99,7 +98,7 @@ var Router = Kern.EventManager.extend({
    */
   _navigate: function(href, addToHistory, isClickEvent, layerView, initial) {
 
-    var parsed = urlHelper.parseQueryString(href);
+    var parsed = domhelpers.parseQueryString(href);
     var options = {
       url: parsed.url,
       transitions: [],
@@ -169,7 +168,7 @@ var Router = Kern.EventManager.extend({
   _stateChanged: function(newState) {
 
     newState = newState || [];
-    var parsed = urlHelper.splitUrl(window.location.href);
+    var parsed = domhelpers.splitUrl(window.location.href);
 
     var options = {
       state: newState,

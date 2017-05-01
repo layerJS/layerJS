@@ -1,7 +1,7 @@
-describe('ulrHelper', function() {
+describe('DomHelpers', function() {
 
   var defaults = require('../../src/framework/defaults.js');
-  var urlHelper = require('../../src/framework/urlhelper.js');
+  var domHelpers = require('../../src/framework/domhelpers.js');
 
   afterEach(function() {
     defaults.transitionParameters.type = 'p';
@@ -10,7 +10,7 @@ describe('ulrHelper', function() {
 
   it('can parse the queryString for transitionParameters', function() {
     var url = window.location.origin + '/index.html?id=1&t=100s&p=left&cat=p';
-    var result = urlHelper.parseQueryString(url);
+    var result = domHelpers.parseQueryString(url);
 
     expect(result.url).toEqual(window.location.origin + '/index.html?id=1&cat=p');
     expect(result.transition).toEqual({
@@ -21,7 +21,7 @@ describe('ulrHelper', function() {
 
   it('can parse the queryString for transitionParameters and not remove the transition parameters', function() {
     var url = window.location.origin + '/index.html?id=1&t=100s&p=left&cat=p';
-    var result = urlHelper.parseQueryString(url, true);
+    var result = domHelpers.parseQueryString(url, true);
 
     expect(result.url).toEqual(window.location.origin + '/index.html?id=1&t=100s&p=left&cat=p');
     expect(result.transition).toEqual({
@@ -43,7 +43,7 @@ describe('ulrHelper', function() {
       defaults.transitionParameters.duration = duration;
 
       var url = window.location.origin + '/index.html?id=1&' + duration + '=100s&' + type + '=left&cat=p';
-      var result = urlHelper.parseQueryString(url);
+      var result = domHelpers.parseQueryString(url);
 
       expect(result.url).toEqual(window.location.origin + '/index.html?id=1&cat=p');
       expect(result.transition).toEqual({
@@ -55,7 +55,7 @@ describe('ulrHelper', function() {
 
   it('will resolve relative paths', function() {
     var url = '/dir1/dir2/../index.html';
-    var result = urlHelper.getAbsoluteUrl(url);
+    var result = domHelpers.getAbsoluteUrl(url);
 
     expect(result).toBe('/dir1/index.html');
   });
@@ -63,7 +63,7 @@ describe('ulrHelper', function() {
   it('will resolve ~/ paths', function() {
     var url = '~/index.html';
 
-    var result = urlHelper.getAbsoluteUrl(url);
+    var result = domHelpers.getAbsoluteUrl(url);
 
     expect(result).toBe('/index.html');
   });
@@ -71,7 +71,7 @@ describe('ulrHelper', function() {
   it('will resolve /~/ paths', function() {
     var url = 'test/~/index.html';
 
-    var result = urlHelper.getAbsoluteUrl(url);
+    var result = domHelpers.getAbsoluteUrl(url);
 
     expect(result).toBe('/index.html');
   });
@@ -79,7 +79,7 @@ describe('ulrHelper', function() {
   it('will make paths absolute from the same domain', function() {
     var url = window.location.origin + '/dir/../index.html';
 
-    var result = urlHelper.getAbsoluteUrl(url);
+    var result = domHelpers.getAbsoluteUrl(url);
 
     expect(result).toBe('/index.html');
   });
@@ -87,7 +87,7 @@ describe('ulrHelper', function() {
   it('will not resolve paths from other domains', function() {
     var url = 'http://layerjs.org/dir/../index.html';
 
-    var result =urlHelper.getAbsoluteUrl(url);
+    var result =domHelpers.getAbsoluteUrl(url);
 
     expect(result).toBe('http://layerjs.org/dir/../index.html');
   });

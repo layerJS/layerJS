@@ -1,7 +1,6 @@
 'use strict';
 var Kern = require('../../kern/Kern.js');
 var parseManager = require("../parsemanager.js");
-var urlHelper = require('../urlhelper.js');
 var $ = require('../domhelpers.js');
 var StaticRouter = require('./staticrouter.js');
 
@@ -14,7 +13,7 @@ var FileRouter = StaticRouter.extend({
 
     if (options.cacheCurrent) {
       // remove layerJS parameters from the url before caching it the fist time
-      var parsed = urlHelper.parseQueryString(window.location.href.split('#')[0]);
+      var parsed = $.parseQueryString(window.location.href.split('#')[0]);
       this.addRoute(parsed.url, this._state.exportState());
     }
   },
