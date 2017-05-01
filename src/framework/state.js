@@ -137,9 +137,7 @@ var State = Kern.EventManager.extend({
         if (layer.currentFrame) {
           state.push(that.views[layer.currentFrame.id()].path);
           if (true === minimise) {
-            if (layer.noUrl()) {
-              state.pop();
-            } else if (layer.currentFrame.name() === layer.defaultFrame() ||
+            if (layer.noUrl() || layer.currentFrame.name() === layer.defaultFrame() ||
               (null === layer.defaultFrame() && null === layer.currentFrame.outerEl.previousElementSibling)) {
               var path = state.pop();
               state.push(path + '.' + defaults.specialFrames.default); // add !default to default frame of the layer
