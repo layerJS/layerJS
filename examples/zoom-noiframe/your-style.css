@@ -131,7 +131,22 @@ a {
   text-decoration: none;
   color: #60C694;
 }
+img {
+  max-width: 100%;
+  vertical-align: middle;
+  display: inline-block;
+}
 
+.w-richtext figure img {
+  width: 100%;
+}
+
+.w-richtext figure.w-richtext-align-fullwidth {
+  width: 100%;
+  max-width: 100%;
+  text-align: center;
+  margin: 0px;
+}
 /* frame1 */
 #frame1 {
   font-family: Average, sans-serif;
