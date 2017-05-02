@@ -98,15 +98,15 @@ describe('state', function() {
     var customDocument1State = layerJS.getState(customDocument1);
     var customDocument2State = layerJS.getState(customDocument2);
 
-    expect(customDocument1State.exportState()).toEqual(['stage1.layer1.frame1']);
-    expect(customDocument2State.exportState()).toEqual(['stage1.layer1.frame2']);
+    expect(customDocument1State.exportState().state).toEqual(['stage1.layer1.frame1']);
+    expect(customDocument2State.exportState().state).toEqual(['stage1.layer1.frame2']);
   });
 
   it('can export the state as an array of strings with only active frames', function() {
     setHtmlForExport();
 
     var stageView1 = document.getElementById('stage1')._ljView;
-    var activePaths = state.exportState();
+    var activePaths = state.exportState().state;
     expect(activePaths.length).toBe(2);
     expect(activePaths[0]).toBe('stage1.layer1.frame1');
     expect(activePaths[1]).toBe('stage1.layer1.frame1.stage2.layer2.frame2');
@@ -161,7 +161,7 @@ describe('state', function() {
     });
 
     setTimeout(function() {
-      expect(state.exportState()).toEqual(['stage1.layer1.frame2']);
+      expect(state.exportState().state).toEqual(['stage1.layer1.frame2']);
       done();
     }, 800);
   });
@@ -184,7 +184,7 @@ describe('state', function() {
     layerView1.showFrame('frame2');
 
     setTimeout(function() {
-      expect(state.exportState()).toEqual(['stage1.layer1.frame2']);
+      expect(state.exportState().state).toEqual(['stage1.layer1.frame2']);
       done();
     }, 500);
 
@@ -206,7 +206,7 @@ describe('state', function() {
       } else {
         expect(layerView1.currentFrame.name()).toBe('frame2');
       }
-      expect(state.exportState()).toEqual(expectedState);
+      expect(state.exportState().state).toEqual(expectedState);
       done();
     }, 100);
   }
@@ -304,7 +304,7 @@ describe('state', function() {
       } else {
         expect(layerView1.currentFrame.name()).toBe(expectedFrameName);
       }
-      expect(state.exportState()).toEqual(expectedState);
+      expect(state.exportState().state).toEqual(expectedState);
       done();
     }, 100);
   }
@@ -796,7 +796,9 @@ describe('state', function() {
         el: document.getElementById('stage1')
       });
       var state = layerJS.getState();
-      expect(state.exportState(true)).toEqual(['stage1.layer1.frame1.!default']);
+      var exportedState = state.exportState(true);
+      expect(exportedState.state).toEqual([]);
+      expect(exportedState.ommittedState).toEqual(['stage1.layer1.frame1']);
     });
 
     it('when the current frame is the first element and no default frame is specified', function() {
@@ -809,7 +811,9 @@ describe('state', function() {
         el: document.getElementById('stage1')
       });
       var state = layerJS.getState();
-      expect(state.exportState(true)).toEqual(['stage1.layer1.frame1.!default']);
+      var exportedState = state.exportState(true);
+      expect(exportedState.state).toEqual([]);
+      expect(exportedState.ommittedState).toEqual(['stage1.layer1.frame1']);
     });
 
     it('when the default frame is a none frame', function() {
@@ -822,7 +826,10 @@ describe('state', function() {
         el: document.getElementById('stage1')
       });
       var state = layerJS.getState();
-      expect(state.exportState(true)).toEqual([]);
+      var state = layerJS.getState();
+      var exportedState = state.exportState(true);
+      expect(exportedState.state).toEqual([]);
+      expect(exportedState.ommittedState).toEqual(['stage1.layer1.!none']);
     });
   });
 });

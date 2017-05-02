@@ -14,7 +14,7 @@ var FileRouter = StaticRouter.extend({
     if (options.cacheCurrent) {
       // remove layerJS parameters from the url before caching it the fist time
       var parsed = $.parseQueryString(window.location.href.split('#')[0]);
-      this.addRoute(parsed.url, this._state.exportState());
+      this.addRoute(parsed.url, this._state.exportState().state);
     }
   },
   /**
@@ -95,7 +95,7 @@ var FileRouter = StaticRouter.extend({
           }
         });
 
-        var framesToTransitionTo = fileState.exportState();
+        var framesToTransitionTo = fileState.exportState().state;
         for (var i = 0; i < framesToTransitionTo.length; i++) {
           var isSpecial = framesToTransitionTo[i].split('.').pop()[0] === '!';
           // only transition to frames the already existed or just have been added

@@ -3,7 +3,6 @@
 var Kern = require('../kern/Kern.js');
 var layerJS = require('./layerjs.js');
 var $ = require('./domhelpers.js');
-var defaults = require('./defaults.js');
 /**
  *  class that will contain the state off all the stages, layers, frames
  *
@@ -21,7 +20,7 @@ var State = Kern.EventManager.extend({
     this._transitionGroup = {};
 
     Kern.EventManager.call(this);
-    this.previousState = [];
+    this.previousState = undefined;
   },
   /**
    * Will register a View with the state
@@ -64,14 +63,22 @@ var State = Kern.EventManager.extend({
         }
         if (trigger) {
           // check if the state really changed
-          trigger = false;
-          var state = this.exportState(true);
+          var exportedState = this.exportState(true);
           if (this.previousState) {
-            if (this.previousState.length !== state.length) {
+            trigger = false;
+            if (this.previousState.state.length !== exportedState.state.length || this.previousState.ommittedState.length !== exportedState.ommittedState.length) {
               trigger = true; // state has changed
             } else {
-              for (var i = 0; i < this.previousState.length; i++) {
-                if (this.previousState[i] !== state[i]) {
+              // check if there is a difference in the state
+              for (var i = 0; i < this.previousState.state.length; i++) {
+                if (this.previousState.state[i] !== exportedState.state[i]) {
+                  trigger = true; // state has changed
+                  break;
+                }
+              }
+              // check if there is a difference in the ommitted state
+              for (var x = 0; !trigger && x < this.previousState.ommittedState.length; x++) {
+                if (this.previousState.ommittedState[x] !== exportedState.ommittedState[x]) {
                   trigger = true; // state has changed
                   break;
                 }
@@ -81,8 +88,8 @@ var State = Kern.EventManager.extend({
 
           if (trigger) {
             // trigger the event and keep a copy of the new state to compare it to next time
-            this.previousState = state;
-            this.trigger("stateChanged", state);
+            this.previousState = exportedState;
+            this.trigger("stateChanged", exportedState);
           }
         }
       }, {
@@ -122,11 +129,14 @@ var State = Kern.EventManager.extend({
   /**
    * Will return all paths to active frames. Will be sorted in DOM order
    * @param {boolean} minimise When true, minimise the returned paths
-   * @returns {array} An array of strings pointing to active frames within the document
+   * @returns {object} An object than contains an array of active states and an array of ommittedStates.
    */
   exportState: function(minimise) {
     minimise = minimise || false;
-    var state = [];
+    var result = {
+      state: [],
+      ommittedState: []
+    };
     var that = this;
 
     this.layers.map(function(layerId) {
@@ -135,20 +145,22 @@ var State = Kern.EventManager.extend({
       .forEach(function(layerOuterEl) {
         var layer = layerOuterEl._ljView;
         if (layer.currentFrame) {
-          state.push(that.views[layer.currentFrame.id()].path);
+          result.state.push(that.views[layer.currentFrame.id()].path);
           if (true === minimise) {
             if (layer.noUrl() || layer.currentFrame.name() === layer.defaultFrame() ||
               (null === layer.defaultFrame() && null === layer.currentFrame.outerEl.previousElementSibling)) {
-              var path = state.pop();
-              state.push(path + '.' + defaults.specialFrames.default); // add !default to default frame of the layer
+              var path = result.state.pop();
+              result.ommittedState.push(path);
             }
           }
         } else if (true !== minimise) {
-          state.push(that.views[layer.id()].path + ".!none");
+          result.state.push(that.views[layer.id()].path + ".!none");
+        } else {
+          result.ommittedState.push(that.views[layer.id()].path + ".!none");
         }
       });
 
-    return state;
+    return result;
   },
   /**
    * Will return all paths to frames, layers and stages. Will be sorted in DOM order

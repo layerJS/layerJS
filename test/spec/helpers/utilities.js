@@ -57,8 +57,8 @@ utilities.afterEach = function() {
   state.views = {};
   state.layers = [];
   state.paths = {};
+  state.previousState = undefined;
   layerJS.router.clearRouters();
-  layerJS.router.previousUrl = undefined;
 
   var sizeObserver = require("../../../src/framework/observer/sizeobserver.js");
   sizeObserver.views = {};

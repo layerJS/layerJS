@@ -167,11 +167,16 @@ var Router = Kern.EventManager.extend({
    */
   _stateChanged: function(newState) {
 
-    newState = newState || [];
+    newState = newState || {
+      state: [],
+      ommittedState: []
+    };
+
     var parsed = domhelpers.splitUrl(window.location.href);
 
     var options = {
-      state: newState,
+      state: newState.state,
+      ommittedState: newState.ommittedState,
       url: parsed.location + parsed.queryString
     };
 

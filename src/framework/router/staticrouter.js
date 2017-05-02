@@ -1,6 +1,5 @@
 'use strict';
 var Kern = require('../../kern/kern.js');
-var defaults = require('../defaults.js');
 
 var StaticRouter = Kern.EventManager.extend({
   constructor: function() {
@@ -61,17 +60,18 @@ var StaticRouter = Kern.EventManager.extend({
    * @returns {Promise} a promise that will return the HTML document
    */
   buildUrl: function(options) {
+    var state = options.state.concat(options.ommittedState);
     var that = this;
     var foundPathsLength = 0;
     var foundPaths = [];
     var url;
     var find = function(path) {
-      return that.routes[url].indexOf(path) !== -1 || (path.endsWith(defaults.specialFrames.default) && that.routes[url].indexOf(path.replace('.' + defaults.specialFrames.default)) !== -1);
+      return that.routes[url].indexOf(path) !== -1;
     };
 
     for (url in this.routes) {
       if (this.routes.hasOwnProperty(url) && this.routes[url].length > foundPathsLength) {
-        var found = options.state.filter(find);
+        var found = state.filter(find);
         var count = found.length;
         if (count > foundPathsLength) {
           foundPaths = found;
@@ -82,7 +82,12 @@ var StaticRouter = Kern.EventManager.extend({
     }
 
     foundPaths.forEach(function(path) {
-      options.state.splice(options.state.indexOf(path), 1);
+      var index = options.state.indexOf(path);
+      if (index !== -1) {
+        options.state.splice(index, 1);
+      } else {
+        options.ommittedState.splice(options.ommittedState.indexOf(path), 1);
+      }
     });
   }
 });
