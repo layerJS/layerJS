@@ -70,17 +70,15 @@ var State = Kern.EventManager.extend({
               trigger = true; // state has changed
             } else {
               // check if there is a difference in the state
-              for (var i = 0; i < this.previousState.state.length; i++) {
+              for (var i = 0; !trigger && i < this.previousState.state.length; i++) {
                 if (this.previousState.state[i] !== exportedState.state[i]) {
                   trigger = true; // state has changed
-                  break;
                 }
               }
               // check if there is a difference in the ommitted state
               for (var x = 0; !trigger && x < this.previousState.ommittedState.length; x++) {
                 if (this.previousState.ommittedState[x] !== exportedState.ommittedState[x]) {
                   trigger = true; // state has changed
-                  break;
                 }
               }
             }
@@ -172,7 +170,7 @@ var State = Kern.EventManager.extend({
       return that.views[key].view.outerEl;
     }).sort($.comparePosition).map(function(element) {
       return that.views[element._ljView.id()].path;
-    }); // FIXME
+    });
   },
   /**
    * Will transition to a state
