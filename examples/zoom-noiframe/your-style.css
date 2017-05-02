@@ -196,13 +196,13 @@ a {
 #frame1 .image {
   padding-top: 30%;
   padding-bottom: 30%;
-  background-image: url('images/fish-ipsum.jpg');
+  background-image: url('images/fish-ipsum-p-800.jpeg');
   background-position: 50% 50%;
   background-size: cover;
 }
 
 #frame1 .image.jallyfish {
-  background-image: url('images/jellyfish-ipsum.jpg');
+  background-image: url('images/jellyfish-ipsum-p-800.jpeg');
 }
 
  @media (max-width: 479px) {
@@ -284,7 +284,7 @@ a {
 #frame2 .image {
   padding-top: 400px;
   padding-bottom: 100px;
-  background-image: url('images/mass-hipsteria.jpg');
+  background-image: url('images/mass-hipsteria-p-800.jpeg');
   background-position: 50% 50%;
   background-size: cover;
 }
@@ -506,18 +506,18 @@ a {
 #frame4 .image {
   padding-top: 25%;
   padding-bottom: 25%;
-  background-image: url('images/skate-fun.jpg');
+  background-image: url('images/skate-fun-p-800.jpeg');
   background-position: 50% 50%;
   background-size: cover;
   color: #fff;
 }
 
 #frame4 .image.ramps {
-  background-image: url('images/skate-fun-ride.jpg');
+  background-image: url('images/skate-fun-ride-p-800.jpeg');
 }
 
 #frame4 .image.jump {
-  background-image: url('images/skate-fun-jump.jpg');
+  background-image: url('images/skate-fun-jump-p-800.jpeg');
 }
 
 #frame4 .heading-2 {
