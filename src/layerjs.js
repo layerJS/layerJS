@@ -35,7 +35,7 @@ layerJS.init = function() {
 
 
   // disable cache completely until we find a solution for wrongly stored stages (see issue #45)
-  layerJS.router._navigate(href, false, false, undefined, true).then(function() {
+  layerJS.router._navigate(href, true, false, undefined, true).then(function() {
     // layerJS.router.cache = true;
   });
 };

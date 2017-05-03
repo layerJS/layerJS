@@ -180,7 +180,7 @@ var Router = Kern.EventManager.extend({
       url: parsed.location + parsed.queryString
     };
 
-    for (var i = 0; i < this.routers.length && options.state.length > 0; i++) {
+    for (var i = 0; i < this.routers.length; i++) {
       this.routers[i].buildUrl(options);
     }
     if (window.history && this.addToHistory) {
