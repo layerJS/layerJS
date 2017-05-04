@@ -36,10 +36,13 @@ var FileRouter = StaticRouter.extend({
 
     var splitted = url.split('#');
     var urlNoHash = splitted[0];
+
+    /*
+    not needed anymore. if the current url is the same as the passed in url, it will look in the cache
     if (canHandle && window.location.href.indexOf(urlNoHash) !== -1 && splitted.length > 1) {
       // same file and with a hash
       canHandle = false;
-    }
+    }*/
 
     // url has been handled before, read the state from the cache
     if (canHandle && this.hasRoute(urlNoHash)) {

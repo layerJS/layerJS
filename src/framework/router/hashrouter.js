@@ -43,7 +43,7 @@ var HashRouter = Kern.EventManager.extend({
               // check if there is already a transition path for this frame
               if (index !== -1) {
                 // path found, reuse transition record
-                transition = options.transions[index];
+                transition = options.transitions[index];
               } else if (frameView.parent.currentFrame === frameView) {
                 // if frame is active, add path and transition record
                 paths.push(state.buildPath(frameView.outerEl, false));
@@ -53,8 +53,8 @@ var HashRouter = Kern.EventManager.extend({
 
               var clientRect = anchor.getBoundingClientRect(),
                 bodyRect = document.body.getBoundingClientRect();
-              transition.scrollY = clientRect.top - bodyRect.top;
-              transition.scrollX = clientRect.left - bodyRect.left;
+              transition.scrollY = anchor.offsetTop;
+              transition.scrollX = anchor.offsetLeft;
 
               continue;
             }
