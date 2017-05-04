@@ -13,8 +13,10 @@ var FileRouter = StaticRouter.extend({
 
     if (options.cacheCurrent) {
       // remove layerJS parameters from the url before caching it the fist time
-      var parsed = $.parseQueryString(window.location.href.split('#')[0]);
-      this.addRoute(parsed.url, this._state.exportState().state);
+      var parsed = $.splitUrl(window.location.href);
+      parsed.queryString = $.parseStringForTransitions(parsed.queryString, true).string;
+      // FIXME: this need to wait for state.initialized
+      this.addRoute(parsed.location + parsed.queryString, this._state.exportState().state);
     }
   },
   /**
@@ -23,119 +25,80 @@ var FileRouter = StaticRouter.extend({
    * @param {object} options contains url, paths, transitions, globalTransition, context
    * @return {boolean} True if the router handled the url
    */
-  handle: function(url, options) {
+  handle: function(options) {
     var that = this;
     var promise = new Kern.Promise();
     var canHandle = true;
-    var paths = [];
 
-    // check it the passed in url is in the same domain
-    if (url.match(/^\w+:/) && !url.match(new RegExp('^' + window.location.origin))) {
-      canHandle = false;
-    }
+    // check static router if we have cached this url
 
-    var splitted = url.split('#');
-    var urlNoHash = splitted[0];
+    StaticRouter.prototype.handle.call(this, options).then(function(result) {
+      if (result.handled) {
+        promise.resolve(result);
+      } else {
+        this._loadHTML(options.location + options.queryString).then(function(doc) {
+            parseManager.parseDocument(doc);
+            var globalStructureHash = {};
 
-    /*
-    not needed anymore. if the current url is the same as the passed in url, it will look in the cache
-    if (canHandle && window.location.href.indexOf(urlNoHash) !== -1 && splitted.length > 1) {
-      // same file and with a hash
-      canHandle = false;
-    }*/
+            var state = that._state;
+            // create a hash that contains all paths for the current document
+            state.exportStructure().forEach(function(path) {
+              globalStructureHash[path] = {};
+            });
 
-    // url has been handled before, read the state from the cache
-    if (canHandle && this.hasRoute(urlNoHash)) {
-      canHandle = false;
-      StaticRouter.prototype.handle.call(this, urlNoHash, options).then(function(result) {
-        promise.resolve({
-          stop: false,
-          handled: true,
-          paths: result.paths
-        });
-      });
-    }
+            var fileState = layerJS.getState(doc);
+            var addedHash = [];
 
-    if (!canHandle) {
-      promise.resolve({
-        handled: false,
-        stop: false,
-        paths: paths
-      });
-    } else {
-      this._loadHTML(url).then(function(doc) {
-        parseManager.parseDocument(doc);
-        var globalStructureHash = {};
+            fileState.exportStructure().forEach(function(path) {
+              // check if new path exists in current state
+              if (!globalStructureHash[path]) {
+                // check if the parent is already added in this run
+                var found = addedHash.filter(function(addedPath) {
+                  return path.startsWith(addedPath);
+                }).length > 0;
 
-        var state = that._state;
-        // create a hash that contains all paths for the current document
-        state.exportStructure().forEach(function(path) {
-          globalStructureHash[path] = {};
-        });
-
-        var fileState = layerJS.getState(doc);
-        var addedHash = {};
-
-        fileState.exportStructure().forEach(function(path) {
-          // check if new path exists in current state
-          if (!globalStructureHash[path]) {
-            // check if the parent is already added
-            var found = Object.keys(addedHash).filter(function(addedPath) {
-              return path.startsWith(addedPath);
-            }).length > 0;
-
-            if (!found) {
-              // Path not yet added, get parent path
-              var parentPath = path.replace(/\.[^\.]*$/, '');
-              // only add the new path if the parent exists in current state
-              if (globalStructureHash[parentPath]) {
-                var html = fileState.getViewByPath(path).outerEl.outerHTML;
-                var parentView = state.getViewByPath(parentPath);
-                parentView.innerEl.insertAdjacentHTML('beforeend', html);
-                addedHash[path] = {};
+                if (!found) {
+                  // Path not yet added, get parent path
+                  var parentPath = path.replace(/\.[^\.]*$/, '');
+                  // only add the new path if the parent exists in current state
+                  if (globalStructureHash[parentPath]) {
+                    var html = fileState.resolvePath(path)[0].view.outerEl.outerHTML; // this should always resolve to a single view
+                    var parentView = state.resolvePath(parentPath)[0].view;
+                    parentView.innerEl.insertAdjacentHTML('beforeend', html);
+                    addedHash.push(path);
+                  }
+                }
               }
-            }
-          }
-        });
+            });
 
-        var framesToTransitionTo = fileState.exportState().state;
-        for (var i = 0; i < framesToTransitionTo.length; i++) {
-          var isSpecial = framesToTransitionTo[i].split('.').pop()[0] === '!';
-          // only transition to frames the already existed or just have been added
-          if (!(globalStructureHash[framesToTransitionTo[i]] || addedHash[framesToTransitionTo[i]] || isSpecial)) {
-            framesToTransitionTo.splice(i, 1);
-            i--;
-          } else {
-            options.transitions.push(Kern._extend({}, options.globalTransition));
-          }
-        }
+            var framesToTransitionTo = fileState.exportState().state;
+            // create a transition record for each frame path.
+            var transitions = framesToTransitionTo.map(function() {
+              return Kern._extend({}, options.globalTransition);
+            });
+            // cache the new state so that we don't need to request the same page again.
+            that.addRoute(options.location + options.queryString, framesToTransitionTo);
 
-        that.addRoute(urlNoHash, framesToTransitionTo);
-
-        if (framesToTransitionTo.length > 0) {
-          $.postAnimationFrame(function() {
+            // we modified HTML. need to wait for rerender and mutation observers
+            $.postAnimationFrame(function() {
+              promise.resolve({
+                stop: false,
+                handled: true,
+                paths: framesToTransitionTo,
+                transitions: transitions
+              });
+            });
+          },
+          function() { // if load failed resolve with handled false
             promise.resolve({
               stop: false,
-              handled: true,
-              paths: framesToTransitionTo
+              handled: false,
+              paths: [],
+              transitions: []
             });
           });
-        } else {
-          promise.resolve({
-            stop: false,
-            handled: true,
-            paths: []
-          });
-        }
-      }, function() {
-        promise.resolve({
-          stop: false,
-          handled: false,
-          paths: []
-        });
-      });
-    }
-
+      }
+    });
 
     return promise;
   },

@@ -56,39 +56,16 @@ var State = Kern.EventManager.extend({
       });
       view.on('transitionStarted', function(frameName, transition) {
         var trigger = true;
+        // check if state really changed
+        if (frameName === transition.lastFrame) return;
         // when a transitiongroup is defined, only call stateChanged when all layers in group have invoked 'transitionStarted'
         if (transition && transition.hasOwnProperty('groupId') && this._transitionGroup.hasOwnProperty(transition.groupId)) {
           this._transitionGroup[transition.groupId]--;
           trigger = this._transitionGroup[transition.groupId] === 0;
         }
         if (trigger) {
-          // check if the state really changed
-          var exportedState = this.exportState(true);
-          if (this.previousState) {
-            trigger = false;
-            if (this.previousState.state.length !== exportedState.state.length || this.previousState.ommittedState.length !== exportedState.ommittedState.length) {
-              trigger = true; // state has changed
-            } else {
-              // check if there is a difference in the state
-              for (var i = 0; !trigger && i < this.previousState.state.length; i++) {
-                if (this.previousState.state[i] !== exportedState.state[i]) {
-                  trigger = true; // state has changed
-                }
-              }
-              // check if there is a difference in the ommitted state
-              for (var x = 0; !trigger && x < this.previousState.ommittedState.length; x++) {
-                if (this.previousState.ommittedState[x] !== exportedState.ommittedState[x]) {
-                  trigger = true; // state has changed
-                }
-              }
-            }
-          }
-
-          if (trigger) {
-            // trigger the event and keep a copy of the new state to compare it to next time
-            this.previousState = exportedState;
-            this.trigger("stateChanged", exportedState);
-          }
+          // trigger the event and keep a copy of the new state to compare it to next time
+          this.trigger("stateChanged", this.exportState(true));
         }
       }, {
         context: this
@@ -143,13 +120,11 @@ var State = Kern.EventManager.extend({
       .forEach(function(layerOuterEl) {
         var layer = layerOuterEl._ljView;
         if (layer.currentFrame) {
-          result.state.push(that.views[layer.currentFrame.id()].path);
-          if (true === minimise) {
-            if (layer.noUrl() || layer.currentFrame.name() === layer.defaultFrame() ||
-              (null === layer.defaultFrame() && null === layer.currentFrame.outerEl.previousElementSibling)) {
-              var path = result.state.pop();
-              result.ommittedState.push(path);
-            }
+          if ((true === minimise) && (layer.noUrl() || layer.currentFrame.name() === layer.defaultFrame() ||
+              (null === layer.defaultFrame() && null === layer.currentFrame.outerEl.previousElementSibling))) {
+            result.ommittedstate.push(that.views[layer.currentFrame.id()].path);
+          } else {
+            result.state.push(that.views[layer.currentFrame.id()].path);
           }
         } else if (true !== minimise) {
           result.state.push(that.views[layer.id()].path + ".!none");
@@ -179,70 +154,55 @@ var State = Kern.EventManager.extend({
    * @param {object} transitions Array of transition records, one per state path, or a single transition record for all paths. Can be undefined in which case a default transition is triggered
    */
   transitionTo: function(states, transitions) {
-    transitions = Array.isArray(transitions) && transitions || [transitions || {}];
-    var that = this;
-    // build an array that contains all layer/frame combinations that need to transition including their transitions records
-    var paths = states.map(function(state) {
-      return that.resolvePath(state);
-    });
-
-    var reduced = [];
-
-    paths.reduce(function(collection, layerframe, index) {
-      for (var i = 0; i < layerframe.length; i++) {
-        if (!layerframe[i].active || states.indexOf(layerframe[i].path) !== -1) {
-          // for some reason the collection parameter is undefined the second pass ( solution use the reduced collection directly)
-          reduced.push({ // ignore currently active frames
-            layer: layerframe[i].layer,
-            frameName: layerframe[i].frameName,
-            transition: transitions[Math.min(index, transitions.length - 1)] || {}
-          });
-        }
-      }
-    }, reduced);
-
-    paths = reduced;
-    var semaphore = new Kern.Semaphore(paths.length); // semaphore is necessary to let all transition run in sync
-    var groupId = ++this._transitionGroupId;
-    this._transitionGroup[groupId] = paths.length;
-    for (var i = 0; i < paths.length; i++) {
-      paths[i].transition.semaphore = semaphore;
-      paths[i].transition.groupId = groupId;
-      paths[i].layer.transitionTo(paths[i].frameName, paths[i].transition); // run the transition on the corresponding layer
-    }
-    return paths.length > 0;
+    this._transitionTo(false, states, transitions);
   },
   /**
-   * Will transition to a state without animation
+   * Will transition to a state without with showframe or transitionTo
    *
    * @param {array} states State paths to transition to
    */
-  showState: function(states) {
+  showFrame: function(states) {
+    return this._transitionTo(true, states);
+  },
+  /**
+   * Will transition to a state without with showframe or transitionTo
+   *
+   * @param {boolean} showframe use showFrame? transitionTo otherwise
+   * @param {array} states State paths to transition to
+   * @param {object} transitions Array of transition records, one per state path, or a single transition record for all
+   */
+  _transitionTo: function(showFrame, states, transitions) {
     var that = this;
-    // build an array that contains all layer/frame combinations that need to transition including their transitions records
-    var transitions = [];
-
-    states.map(function(state) {
-      return that.resolvePath(state);
-    }).reduce(function(collection, layerframe) {
-      for (var i = 0; i < layerframe.length; i++) {
-        if (!layerframe[i].active) transitions.push({ // ignore currently active frames
-          layer: layerframe[i].layer,
-          frameName: layerframe[i].frameName
-        });
-      }
-    }, []);
-
-    // semaphore is necessary to let all transition run in sync
+    transitions = transitions || [];
+    // group transitions to fire only one stateChanged event for all transitions triggered in this call
     var groupId = ++this._transitionGroupId;
     this._transitionGroup[groupId] = transitions.length;
-    var transition = {
-      semaphore: new Kern.Semaphore(transitions.length),
-      groupId: groupId
-    };
+    // semaphore is necessary to let all transition run in sync
+    var semaphore = new Kern.Semaphore(transitions.length);
 
-    for (var i = 0; i < transitions.length; i++) {
-      transitions[i].layer.showFrame(transitions[i].frameName, transition); // switch to frame
+    // map the given state (list of (reduced) paths) into a list of fully specified paths (may be more paths than in states list)
+    var paths = []; // path to transition to
+    states.map(function(state) {
+      return that.resolvePath(state);
+    }).forEach(function(layerframe, index) {
+      for (var i = 0; i < layerframe.length; i++) {
+        if (!layerframe[i].active) paths.push({ // ignore currently active frames
+          layer: layerframe[i].layer,
+          frameName: layerframe[i].frameName,
+          transition: transitions[Math.min(index, transitions.length - 1)] || {}
+        });
+      }
+    });
+
+    // execute transition
+    for (var i = 0; i < paths.length; i++) {
+      paths[i].transition.semaphore = semaphore;
+      paths[i].transition.groupId = groupId;
+      if (showFrame) {
+        paths[i].layer.showFrame(paths[i].frameName, paths[i].transition); // switch to frame
+      } else {
+        paths[i].layer.transitionTo(paths[i].frameName, paths[i].transition); // switch to frame
+      }
     }
     return transitions.length > 0;
   },
@@ -310,11 +270,13 @@ var State = Kern.EventManager.extend({
     var result = [];
     for (i = 0; i < candidates.length; i++) {
       var view = this.views[candidates[i]].view;
+      var fullPath = this.views[candidates[i]].path;
       if (isSpecial) {
         if (view.type() !== 'layer') throw "state: expected layer name in front of '" + frameName + "'";
         result.push({
           layer: view,
-          frameName: frameName
+          frameName: frameName,
+          path: fullPath + "." + frameName
         });
       } else {
         if (view.type() === 'frame') { // for frames return a bit more information which is helpful to trigger the transition
@@ -322,12 +284,13 @@ var State = Kern.EventManager.extend({
             layer: view.parent,
             view: view,
             frameName: frameName,
-            path: this.buildPath(view.outerEl, false),
+            path: fullPath,
             active: (undefined !== view.parent.currentFrame && null !== view.parent.currentFrame) ? view.parent.currentFrame.name() === frameName : false
           });
         } else {
           result.push({
-            view: view
+            view: view,
+            path: fullPath
           });
         }
       }
@@ -354,19 +317,19 @@ var State = Kern.EventManager.extend({
    * @param {string} path document who's state will be exported
    * @returns {Object} A view
    */
-  getViewByPath: function(path) {
-    var result;
-    if (undefined !== this.paths[path]) {
-      for (var i = 0; i < this.paths[path].length; i++) {
-        var id = this.paths[path][i];
-        if (this.views[id].path === path) {
-          result = this.views[id].view;
-        }
-      }
-    }
-
-    return result;
-  }
+  // getViewByPath: function(path) { // FIXME, shouldn't resolvePath be used for this? This may be faster, but then we could integrate this shortcut into resolvePath
+  //   var result;
+  //   if (undefined !== this.paths[path]) {
+  //     for (var i = 0; i < this.paths[path].length; i++) {
+  //       var id = this.paths[path][i];
+  //       if (this.views[id].path === path) {
+  //         result = this.views[id].view;
+  //       }
+  //     }
+  //   }
+  //
+  //   return result;
+  // }
 }, {
   /**
    * Resolves the state for a specific document

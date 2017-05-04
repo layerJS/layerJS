@@ -286,26 +286,21 @@ var DomHelpers = {
    * @returns {Object} An object that contains the location, queryString and hash based on the provided url
    */
   splitUrl: function(url) {
-    var splitted = url.split('?');
-    var before = splitted[0];
-    var queryString = '';
-    var hash = '';
-
-    if (splitted.length > 1) {
-      splitted = splitted[1].split('#');
-      queryString = '?' + splitted[0];
-      hash = splitted.length > 1 ? splitted[1] : '';
-    } else {
-      splitted = splitted[0].split('#');
-      before = splitted[0];
-      hash = splitted.length > 1 ? ('#' + splitted[1]) : '';
-    }
-
+    var match = url.match(/^([^?#]*)?(?:\?([^#]*))?(?:#(.*))?$/);
     return {
-      location: before,
-      queryString: queryString,
-      hash: hash
+      location: match[0],
+      queryString: match[1],
+      hash: match[2]
     };
+  },
+  /**
+   * take splitted url an rejoin
+   *
+   * @param {Object} splitted - the splitted url
+   * @returns {string} url
+   */
+  joinUrl: function(splitted) {
+    return splitted.location + (splitted.queryString && "?" + splitted.queryString) + (splitted.hash && "#" + splitted.hash);
   },
   /**
    * Will parse a string for transition parameters
@@ -342,15 +337,15 @@ var DomHelpers = {
    * @param {boolean} keepParameters - If true, the transitionParameters will not be removed from the string
    * @returns {Object} An object that contains a url and a transition object
    */
-  parseQueryString: function(url, keepParameters) {
-    var parsedUrl = this.splitUrl(url);
-    var parsed = this.parseStringForTransitions(parsedUrl.queryString, keepParameters);
-
-    return {
-      transition: parsed.transition,
-      url: parsedUrl.location + (parsed.string.length > 0 ? (parsed.string) : '') + (parsedUrl.hash.length > 0 ? (parsedUrl.hash) : '')
-    };
-  },
+  // parseQueryString: function(url, keepParameters) {
+  //   var parsedUrl = this.splitUrl(url);
+  //   var parsed = this.parseStringForTransitions(parsedUrl.queryString, keepParameters);
+  //
+  //   return {
+  //     transition: parsed.transition,
+  //     url: parsedUrl.location + (parsed.string.length > 0 ? (parsed.string) : '') + (parsedUrl.hash.length > 0 ? (parsedUrl.hash) : '')
+  //   };
+  // },
   /**
    *  Will transform a relative url to an absolute url
    * https://developer.mozilla.org/en-US/docs/Web/API/document/cookie#Using_relative_URLs_in_the_path_parameter

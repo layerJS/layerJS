@@ -6,15 +6,14 @@ var defaults = require('../defaults.js');
 var HashRouter = Kern.EventManager.extend({
   /**
    * Will do the actual navigation to a hash
-   * @param {UrlData} an url
+   * @param {Object} options
    * @return {boolean} True if the router handled the url
    */
-  handle: function(url, options) {
+  handle: function(options) {
 
     var promise = new Kern.Promise();
-    var urlInfo = $.splitUrl(url);
 
-    if (urlInfo.hash === undefined || urlInfo.hash === '#' || urlInfo.hash === '') {
+    if (options.hash === undefined || options.hash === '#' || options.hash === '') {
       // not the same file or no hash in href
       promise.resolve({
         handled: false,
@@ -22,16 +21,33 @@ var HashRouter = Kern.EventManager.extend({
         paths: []
       });
     } else {
-      var hashPaths = (urlInfo.hash.startsWith('#') ? urlInfo.hash.substr(1) : urlInfo.hash).split(';');
-      var hash = '#';
+      // split hash part by ";". This allows different transitions at the same time "#frame1&t=1s&p=left;menu&t=0.5"
+      var hashPaths = (options.hash.startsWith('#') ? options.hash.substr(1) : options.hash).split(';');
       var paths = [];
+      var transitions = [];
       var state = layerJS.getState();
 
       for (var i = 0; i < hashPaths.length; i++) {
-        if (0 === i) {
+        var frameName = hashPaths[i].split('&')[0];
+        var parsed = $.parseStringForTransitions(hashPaths[i]);
+        var resolvedPaths = state.resolvePath(frameName);
+
+        for (var x = 0; x < resolvedPaths.length; x++) {
+          var resolvedPath = resolvedPaths[x];
+          // if a frame and layer is found, add it to the list
+          if (resolvedPath.hasOwnProperty('frameName') && resolvedPath.hasOwnProperty('layer')) {
+            // push layer path and frameName ( can't use directly the view because !right will not resolve in a view)
+            paths.push(resolvedPath.path);
+
+            transitions.push(Kern._extend(options.globalTransition, parsed.transition));
+          }
+        }
+
+        // if we didn't find any frame try to find a matching anchor element
+        if (resolvedPaths.length === 0) {
           // an anchorId will be the first one in the list
           // check if it is an anchor element
-          var anchor = document.getElementById(hashPaths[i]);
+          var anchor = document.getElementById(frameName);
           // only proceed when an element is found and if that element is visible
           if (anchor && window.getComputedStyle(anchor).display !== 'none') {
             var frameView = $.findParentViewOfType(anchor, 'frame');
@@ -41,52 +57,29 @@ var HashRouter = Kern.EventManager.extend({
               var path = state.buildPath(frameView.outerEl, false);
               var index = options.paths.indexOf(path);
               // check if there is already a transition path for this frame
+              // FIXME: this only works if that path has been found already in this hashrouter run
               if (index !== -1) {
                 // path found, reuse transition record
-                transition = options.transitions[index];
+                transition = transitions[index];
               } else if (frameView.parent.currentFrame === frameView) {
                 // if frame is active, add path and transition record
                 paths.push(state.buildPath(frameView.outerEl, false));
-                transition = Kern._extend({}, options.globalTransition);
-                options.transitions.push(transition);
+                transition = Kern._extend({}, options.globalTransition, parsed.transition);
+                transitions.push(transition);
               }
-
-              var clientRect = anchor.getBoundingClientRect(),
-                bodyRect = document.body.getBoundingClientRect();
+              // add scroll position of anchor to the transition record
               transition.scrollY = anchor.offsetTop;
               transition.scrollX = anchor.offsetLeft;
-
-              continue;
             }
           }
         }
-
-        var frameName = hashPaths[i].split('?')[0].split('&')[0];
-        var resolvedPaths = state.resolvePath(frameName);
-
-        for (var x = 0; x < resolvedPaths.length; x++) {
-          var resolvedPath = resolvedPaths[x];
-          // if a frame and layer is found, add it to the list
-          if (resolvedPath.hasOwnProperty('frameName') && resolvedPath.hasOwnProperty('layer')) {
-            // push layer path and frameName ( can't use directly the view because !right will not resolve in a view)
-            paths.push(state.buildPath(resolvedPath.layer.outerEl, false) + '.' + resolvedPath.frameName);
-            var parsed = $.parseStringForTransitions(hashPaths[x]);
-            options.transitions.push(Kern._extend(options.globalTransition, parsed.transition));
-          }
-        }
-
-        if (undefined === resolvedPaths || resolvedPaths.length === 0) {
-          hash = hash + ((hash !== '#') ? ';' : '') + hashPaths[x];
-        }
       }
 
-      // remove the resolved paths from the hash
-      options.url = urlInfo.location + ((urlInfo.queryString.length > 0) ? '?' : '') + urlInfo.queryString + hash;
-
       promise.resolve({
-        stop: true,
-        handled: true,
-        paths: paths
+        stop: false,
+        handled: paths.length > 0,
+        paths: paths,
+        transitions: transitions
       });
     }
 
@@ -104,12 +97,7 @@ var HashRouter = Kern.EventManager.extend({
     var paths = [];
 
     for (var i = 0; i < options.state.length; i++) {
-      if (options.state[i].endsWith(defaults.specialFrames.default)) {
-        // default frames should not be in the hash
-        continue;
-      }
-
-      // try to make the hash path as small as possible (hench state.resolvePath should just return 1 path )
+      // try to make the hash path as small as possible (still state.resolvePath should just return 1 path )
       var splittedPath = options.state[i].split('.');
       var path = undefined;
       var ok = false;
@@ -127,10 +115,7 @@ var HashRouter = Kern.EventManager.extend({
     }
 
     if (paths.length > 0) {
-      hash = paths.join(';');
-      var parsedUrl = $.splitUrl(options.url);
-      parsedUrl.hash = '#' + hash;
-      options.url = parsedUrl.location + parsedUrl.queryString + parsedUrl.hash;
+      options.hash = paths.join(';');
     }
   }
 });

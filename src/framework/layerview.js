@@ -385,6 +385,7 @@ var LayerView = BaseView.extend({
       return;
     }
     scrollData = scrollData || {};
+    scrollData.lastFrame = this.currentFrame || "!none";
     var that = this;
     var frame = null;
 
@@ -414,7 +415,6 @@ var LayerView = BaseView.extend({
         that._layout.showFrame(frame, tfd, that.currentTransform);
         that.inPreparation(false);
         that.inTransition(false); // we stop all transitions if we do a showframe
-        that.currentFrame = frame;
         that.trigger('transitionFinished', framename);
       });
     });
@@ -473,6 +473,7 @@ var LayerView = BaseView.extend({
       duration: '1s'
       // FIXME: add more default values like timing
     }, transition || {});
+    transition.lastFrame = this.currentFrame || "!none";
     // check for reverse transition; remove "r:"/"reverse:" indicator and set transition.reverse instead
     if (transition.type && transition.type.match(/^(?:r:|reverse:)/i)) {
       transition.type = transition.type.replace(/^(?:r:|reverse:)/i, '');
