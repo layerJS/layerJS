@@ -323,10 +323,10 @@ var DomHelpers = {
    * @returns {string} url
    */
   joinUrl: function(splitted, noHash) {
-    var result = splitted.location + (splitted.queryString && "?" + splitted.queryString);
+    var result = splitted.location + (splitted.queryString ? "?" + splitted.queryString : "");
 
     if (noHash !== true)
-      result += splitted.hash && "#" + splitted.hash;
+      result += splitted.hash ? "#" + splitted.hash : "";
 
     return result;
   },

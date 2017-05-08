@@ -91,7 +91,6 @@ var HashRouter = Kern.EventManager.extend({
    * @returns {Promise} a promise that will return the HTML document
    */
   buildUrl: function(options) {
-    //var hash = '';
     var state = layerJS.getState();
     var paths = [];
 
@@ -102,7 +101,7 @@ var HashRouter = Kern.EventManager.extend({
       var ok = false;
       do {
         path = splittedPath.pop() + (path ? '.' + path : '');
-        ok = state.resolvePath(path).length === 1;
+        ok = state.resolvePath(path).length === 1; // if this returns 1 then the path is unique
       }
       while (!ok && splittedPath.length > 0);
 
@@ -113,9 +112,8 @@ var HashRouter = Kern.EventManager.extend({
       }
     }
 
-    if (paths.length > 0) {
-      options.hash = paths.join(';');
-    }
+    // NOTE: reset hash part; removes als all non-layerjs parts; not sure this is good or not.
+    options.hash = paths.join(';');
   }
 });
 

@@ -57,7 +57,7 @@ var State = Kern.EventManager.extend({
       view.on('transitionStarted', function(frameName, transition) {
         var trigger = true;
         // check if state really changed
-        if (transition && transition.lastFrame && ((frameName === '!none' && transition.lastFrame === frameName) || (frameName !== '!none' && transition.lastFrame === '!none' && frameName === transition.lastFrame.name()))) return;
+        if (transition && transition.lastFrameName === frameName) return;
         // when a transitiongroup is defined, only call stateChanged when all layers in group have invoked 'transitionStarted'
       //  console.log(transition);
         if (transition && transition.hasOwnProperty('groupId') && this._transitionGroup.hasOwnProperty(transition.groupId)) {

@@ -92,7 +92,7 @@ var StaticRouter = Kern.EventManager.extend({
     // update URL to be shown later on
     foundUrl = $.splitUrl(foundUrl);
     options.location = foundUrl.location;
-    options.queryString = foundUrl.queryString;
+    options.queryString = foundUrl.queryString; // NOTE: this removes all other query params, not sure this is good or not.
 
     // remove paths from state that are already explained by the cached URL
     foundPaths.forEach(function(path) {

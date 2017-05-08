@@ -385,7 +385,7 @@ var LayerView = BaseView.extend({
       return;
     }
     scrollData = scrollData || {};
-    scrollData.lastFrame = this.currentFrame || "!none";
+    scrollData.lastFrame = (this.currentFrame && this.currentFrame.name()) || "!none";
     var that = this;
     var frame = null;
 
@@ -473,7 +473,7 @@ var LayerView = BaseView.extend({
       duration: '1s'
       // FIXME: add more default values like timing
     }, transition || {});
-    transition.lastFrame = this.currentFrame || "!none";
+    transition.lastFrameName = (this.currentFrame && this.currentFrame.name()) || "!none";
     // check for reverse transition; remove "r:"/"reverse:" indicator and set transition.reverse instead
     if (transition.type && transition.type.match(/^(?:r:|reverse:)/i)) {
       transition.type = transition.type.replace(/^(?:r:|reverse:)/i, '');
