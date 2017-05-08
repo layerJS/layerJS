@@ -286,7 +286,7 @@ describe('state', function() {
     });
     var layerView1 = document.querySelector("[data-lj-type='layer']")._ljView;
 
-    state.showFrame(states);
+    state.showState(states);
 
     setTimeout(function() {
       if (expectedFrameName === '!none') {
@@ -726,7 +726,7 @@ describe('state', function() {
       invoked++;
     });
 
-    state.showFrame(['stage1.layer1.frame2', 'stage1.layer2.frame4']);
+    state.showState(['stage1.layer1.frame2', 'stage1.layer2.frame4']);
 
     setTimeout(function() {
       expect(invoked).toBe(1);
@@ -762,11 +762,11 @@ describe('state', function() {
       invoked++;
     });
 
-    state.showFrame(['stage1.layer1.frame2', 'stage1.layer2.frame4']);
+    state.showState(['stage1.layer1.frame2', 'stage1.layer2.frame4']);
 
     setTimeout(function() {
       expect(invoked).toBe(1);
-      state.showFrame(['stage1.layer1.frame2', 'stage1.layer2.frame4']);
+      state.showState(['stage1.layer1.frame2', 'stage1.layer2.frame4']);
       setTimeout(function() {
         expect(invoked).toBe(1);
         done();

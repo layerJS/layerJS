@@ -163,7 +163,7 @@ var State = Kern.EventManager.extend({
    *
    * @param {array} states State paths to transition to
    */
-  showFrame: function(states) {
+  showState: function(states) {
     return this._transitionTo(true, states);
   },
   /**
