@@ -36,9 +36,16 @@ var StaticRouter = Kern.EventManager.extend({
    * @return {void}
    */
   handle: function(options) {
+    var result;
     var url = $.joinUrl(options, true); // we need to include the queryString as this may refer to different files if filerouter is used.
-    // check if the passed in url is in the routes list
-    var result = this.hasRoute(url);
+    var currentUrl = $.joinUrl($.splitUrl(window.location.href), true);
+    if (currentUrl === url) {
+      // this is a no-op for the static router, we should not reinitialize default state of this url; this navigate() call probalby is for the hashrouter
+      result = false;
+    } else {
+      // check if the passed in url is in the routes list
+      result = this.hasRoute(url);
+    }
     var promise = new Kern.Promise();
     var activeFrames = [];
     var transitions = [];
