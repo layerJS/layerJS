@@ -59,9 +59,9 @@ var State = Kern.EventManager.extend({
         // check if state really changed
         if (transition && transition.lastFrameName === frameName) return;
         // when a transitiongroup is defined, only call stateChanged when all layers in group have invoked 'transitionStarted'
-      //  console.log(transition);
+        //  console.log(transition);
         if (transition && transition.hasOwnProperty('groupId') && this._transitionGroup.hasOwnProperty(transition.groupId)) {
-        //  console.log(this._transitionGroup);
+          //  console.log(this._transitionGroup);
           this._transitionGroup[transition.groupId]--;
           trigger = this._transitionGroup[transition.groupId] === 0;
         }
@@ -179,15 +179,23 @@ var State = Kern.EventManager.extend({
 
     // map the given state (list of (reduced) paths) into a list of fully specified paths (may be more paths than in states list)
     var paths = []; // path to transition to
+    var seenPaths = {}; // for deduplicating paths
     states.map(function(state) {
       return that.resolvePath(state);
     }).forEach(function(layerframe, index) {
       for (var i = 0; i < layerframe.length; i++) {
-        if (!layerframe[i].active) paths.push({ // ignore currently active frames
-          layer: layerframe[i].layer,
-          frameName: layerframe[i].frameName,
-          transition: transitions[Math.min(index, transitions.length - 1)] || {}
-        });
+        if (!layerframe[i].active) {
+          if (seenPaths.hasOwnProperty(layerframe[i].path)) {
+            Kern._extend(paths[seenPaths[layerframe[i].path]].transition, transitions[Math.min(index, transitions.length - 1)] || {});
+          } else {
+            paths.push({ // ignore currently active frames
+              layer: layerframe[i].layer,
+              frameName: layerframe[i].frameName,
+              transition: transitions[Math.min(index, transitions.length - 1)] || {}
+            });
+            seenPaths[layerframe[i].path] = paths.length - 1;
+          }
+        }
       }
     });
 
