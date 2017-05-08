@@ -35,7 +35,7 @@ var FileRouter = StaticRouter.extend({
       if (result.handled) {
         promise.resolve(result);
       } else {
-        that._loadHTML(options.location + options.queryString).then(function(doc) {
+        that._loadHTML($.joinUrl(options, true)).then(function(doc) {
             parseManager.parseDocument(doc);
             var globalStructureHash = {};
 
