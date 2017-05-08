@@ -12,7 +12,7 @@ describe('HashRouter', function() {
   });
 
   it('can handle a hashed url', function(done) {
-    var url = window.location.href + '#stage1.layer1.frame2';
+    var url = 'http://localhost/#stage1.layer1.frame2';
 
     var html = "<div data-lj-type='stage' id='stage1'>" +
       "<div data-lj-type='layer' id='layer1' data-lj-default-frame='frame1'>" +
@@ -28,21 +28,22 @@ describe('HashRouter', function() {
     });
     var options = {
       url: url,
+      location : 'http://localhost/',
+      hash : 'stage1.layer1.frame2',
       transitions: [],
       globalTransition: {
         type: 'left'
       }
     };
-    var promise = hashRouter.handle(options.url, options);
+    var promise = hashRouter.handle(options);
 
     promise.then(function(result) {
       setTimeout(function() {
         expect(result.handled).toBeTruthy();
-        expect(result.stop).toBeTruthy();
+        expect(result.stop).toBeFalsy();
         expect(result.paths).toEqual(['stage1.layer1.frame2']);
-        expect(options.url).toBe(window.location.href + '#');
-        expect(options.transitions.length).toBe(1);
-        expect(options.transitions[0]).toEqual(options.globalTransition);
+        expect(result.transitions.length).toBe(1);
+        expect(result.transitions[0]).toEqual(options.globalTransition);
         done();
       }, 500);
     });
@@ -83,13 +84,14 @@ describe('HashRouter', function() {
       });
 
       var options = {
-        url: '/index.html',
+        location: 'http://localhost/index.html',
         state: ['stage1.layer1.frame1', 'stage1.layer2.frame2']
       };
 
       hashRouter.buildUrl(options);
       expect(options.state).toEqual([]);
-      expect(options.url).toBe('/index.html#frame1;frame2');
+      expect(options.location).toBe('http://localhost/index.html');
+      expect(options.hash).toBe('frame1;frame2');
     });
 
     it('just the frame name if this one is unique', function() {
@@ -103,13 +105,14 @@ describe('HashRouter', function() {
       });
 
       var options = {
-        url: '/index.html',
+        location: 'http://localhost/index.html',
         state: ['stage1.layer1.frame1']
       };
 
       hashRouter.buildUrl(options);
       expect(options.state).toEqual([]);
-      expect(options.url).toBe('/index.html#frame1');
+      expect(options.location).toBe('http://localhost/index.html');
+      expect(options.hash).toBe('frame1');
     });
 
     it('when a frame name is found multiple times, the parent fragment is added', function() {
@@ -125,13 +128,14 @@ describe('HashRouter', function() {
       });
 
       var options = {
-        url: '/index.html',
+        location: 'http://localhost/index.html',
         state: ['stage1.layer1.frame1']
       };
 
       hashRouter.buildUrl(options);
       expect(options.state).toEqual([]);
-      expect(options.url).toBe('/index.html#layer1.frame1');
+      expect(options.location).toBe('http://localhost/index.html');
+      expect(options.hash).toBe('layer1.frame1');
     });
 
     it('when a hash part already exists, it will be replaced', function() {
@@ -145,13 +149,15 @@ describe('HashRouter', function() {
       });
 
       var options = {
-        url: '/index.html#something',
+        location: 'http://localhost/index.html',
+        hash: 'something',
         state: ['stage1.layer1.frame1']
       };
 
       hashRouter.buildUrl(options);
       expect(options.state).toEqual([]);
-      expect(options.url).toBe('/index.html#frame1');
+      expect(options.location).toBe('http://localhost/index.html');
+      expect(options.hash).toBe('frame1');
     });
   });
 

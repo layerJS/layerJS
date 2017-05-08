@@ -57,9 +57,11 @@ var State = Kern.EventManager.extend({
       view.on('transitionStarted', function(frameName, transition) {
         var trigger = true;
         // check if state really changed
-        if (frameName === transition.lastFrame) return;
+        if (transition && transition.lastFrame && ((frameName === '!none' && transition.lastFrame === frameName) || (frameName !== '!none' && transition.lastFrame === '!none' && frameName === transition.lastFrame.name()))) return;
         // when a transitiongroup is defined, only call stateChanged when all layers in group have invoked 'transitionStarted'
+      //  console.log(transition);
         if (transition && transition.hasOwnProperty('groupId') && this._transitionGroup.hasOwnProperty(transition.groupId)) {
+        //  console.log(this._transitionGroup);
           this._transitionGroup[transition.groupId]--;
           trigger = this._transitionGroup[transition.groupId] === 0;
         }
@@ -122,7 +124,7 @@ var State = Kern.EventManager.extend({
         if (layer.currentFrame) {
           if ((true === minimise) && (layer.noUrl() || layer.currentFrame.name() === layer.defaultFrame() ||
               (null === layer.defaultFrame() && null === layer.currentFrame.outerEl.previousElementSibling))) {
-            result.ommittedstate.push(that.views[layer.currentFrame.id()].path);
+            result.ommittedState.push(that.views[layer.currentFrame.id()].path);
           } else {
             result.state.push(that.views[layer.currentFrame.id()].path);
           }
@@ -174,11 +176,6 @@ var State = Kern.EventManager.extend({
   _transitionTo: function(showFrame, states, transitions) {
     var that = this;
     transitions = transitions || [];
-    // group transitions to fire only one stateChanged event for all transitions triggered in this call
-    var groupId = ++this._transitionGroupId;
-    this._transitionGroup[groupId] = transitions.length;
-    // semaphore is necessary to let all transition run in sync
-    var semaphore = new Kern.Semaphore(transitions.length);
 
     // map the given state (list of (reduced) paths) into a list of fully specified paths (may be more paths than in states list)
     var paths = []; // path to transition to
@@ -193,6 +190,12 @@ var State = Kern.EventManager.extend({
         });
       }
     });
+
+    // semaphore is necessary to let all transition run in sync
+    var semaphore = new Kern.Semaphore(paths.length);
+    // group transitions to fire only one stateChanged event for all transitions triggered in this call
+    var groupId = ++this._transitionGroupId;
+    this._transitionGroup[groupId] = paths.length;
 
     // execute transition
     for (var i = 0; i < paths.length; i++) {

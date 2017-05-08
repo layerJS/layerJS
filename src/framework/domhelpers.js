@@ -286,21 +286,49 @@ var DomHelpers = {
    * @returns {Object} An object that contains the location, queryString and hash based on the provided url
    */
   splitUrl: function(url) {
+    // this regular expression does not always works
     var match = url.match(/^([^?#]*)?(?:\?([^#]*))?(?:#(.*))?$/);
     return {
-      location: match[0],
-      queryString: match[1],
-      hash: match[2]
+      location: match[1],
+      queryString: match[2],
+      hash: match[3]
     };
+    /*
+        var splitted = url.split('?');
+        var before = splitted[0];
+        var queryString = '';
+        var hash = '';
+
+        if (splitted.length > 1) {
+          splitted = splitted[1].split('#');
+          queryString = splitted[0];
+          hash = splitted.length > 1 ? splitted[1] : '';
+        } else {
+          splitted = splitted[0].split('#');
+          before = splitted[0];
+          hash = splitted.length > 1 ? (splitted[1]) : '';
+        }
+
+        return {
+          location: before,
+          queryString: queryString,
+          hash: hash
+        };*/
   },
   /**
    * take splitted url an rejoin
    *
    * @param {Object} splitted - the splitted url
+   * @param {bool} noHash - when true, the hash will be ommitted
    * @returns {string} url
    */
-  joinUrl: function(splitted) {
-    return splitted.location + (splitted.queryString && "?" + splitted.queryString) + (splitted.hash && "#" + splitted.hash);
+  joinUrl: function(splitted, noHash) {
+    var result = splitted.location + (splitted.queryString && "?" + splitted.queryString);
+
+    if (noHash !== true)
+      result += splitted.hash && "#" + splitted.hash;
+
+    return result;
   },
   /**
    * Will parse a string for transition parameters
@@ -311,15 +339,18 @@ var DomHelpers = {
    */
   parseStringForTransitions: function(string, keepParameters) {
     var transition = {};
-    for (var parameter in defaults.transitionParameters) {
-      if (defaults.transitionParameters.hasOwnProperty(parameter)) {
-        var parameterName = defaults.transitionParameters[parameter];
-        var regEx = new RegExp("[?&]" + parameterName + "=([^&]+)");
-        var match = string.match(regEx);
-        if (match) {
-          transition[parameter] = match[1];
-          if (true !== keepParameters) {
-            string = string.replace(regEx, '');
+
+    if (string) {
+      for (var parameter in defaults.transitionParameters) {
+        if (defaults.transitionParameters.hasOwnProperty(parameter)) {
+          var parameterName = defaults.transitionParameters[parameter];
+          var regEx = new RegExp("[?&]" + parameterName + "=([^&]+)");
+          var match = string.match(regEx);
+          if (match) {
+            transition[parameter] = match[1];
+            if (true !== keepParameters) {
+              string = string.replace(regEx, '');
+            }
           }
         }
       }
@@ -353,6 +384,7 @@ var DomHelpers = {
    * @return {string} an absolute url
    */
   getAbsoluteUrl: function(url) {
+    var hostFound = url.indexOf(window.location.origin) !== -1;
     url = url.replace(window.location.origin, '');
     var result = url,
       pattern = /^((http|https):\/\/)/;
@@ -370,6 +402,10 @@ var DomHelpers = {
         }
         result = sDir + sPath.substr(nStart);
       }
+    }
+
+    if (hostFound || !pattern.test(url)) {
+      result = window.location.origin + result;
     }
 
     return result;

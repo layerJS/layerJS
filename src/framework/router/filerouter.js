@@ -13,10 +13,10 @@ var FileRouter = StaticRouter.extend({
 
     if (options.cacheCurrent) {
       // remove layerJS parameters from the url before caching it the fist time
-      var parsed = $.splitUrl(window.location.href);
+      var parsed = $.splitUrl($.getAbsoluteUrl(window.location.href));
       parsed.queryString = $.parseStringForTransitions(parsed.queryString, true).string;
       // FIXME: this need to wait for state.initialized
-      this.addRoute(parsed.location + parsed.queryString, this._state.exportState().state);
+      this.addRoute($.joinUrl(parsed, true), this._state.exportState().state);
     }
   },
   /**
@@ -28,7 +28,6 @@ var FileRouter = StaticRouter.extend({
   handle: function(options) {
     var that = this;
     var promise = new Kern.Promise();
-    var canHandle = true;
 
     // check static router if we have cached this url
 
@@ -36,7 +35,7 @@ var FileRouter = StaticRouter.extend({
       if (result.handled) {
         promise.resolve(result);
       } else {
-        this._loadHTML(options.location + options.queryString).then(function(doc) {
+        that._loadHTML(options.location + options.queryString).then(function(doc) {
             parseManager.parseDocument(doc);
             var globalStructureHash = {};
 

@@ -49,7 +49,7 @@ describe('state', function() {
     expect(customDocument2._ljState).toBe(state2);
   });
 
-  xit('can pass in a custom document that will be used to build the tree', function() {
+  it('can pass in a custom document that will be used to build the tree', function() {
     var customDocument = jsdom.jsdom("<html><head></head><body>" +
       "<div data-lj-type='stage' id='stage1'>" +
       "<div data-lj-type='layer' id='layer1' data-lj-default-frame='frame1'>" +
@@ -66,7 +66,7 @@ describe('state', function() {
 
     var customState = layerJS.getState(customDocument);
 
-    expect(customState.exportState()).toEqual(['stage1.layer1.frame1']);
+    expect(customState.exportState().state).toEqual(['stage1.layer1.frame1']);
   });
 
   it('can have a tree per document object', function() {
@@ -130,16 +130,6 @@ describe('state', function() {
     expect(structure[7]).toBe('stage1.layer1.frame4');
   });
 
-  xit('can get a path to a view', function() {
-    setHtmlForExport();
-
-    var stageView1 = document.getElementById('stage1')._ljView;
-
-    var frameView = document.getElementById('frame2')._ljView;
-    var path = state.getPathForView(frameView);
-    expect(path).toBe('stage1.layer1.frame1.stage2.layer2.frame2');
-  });
-
   it('can detect a new frame transition', function(done) {
     var html = "<div data-lj-type='stage' id='stage1'>" +
       "<div data-lj-type='layer' id='layer1' data-lj-default-frame='frame1'>" +
@@ -157,13 +147,13 @@ describe('state', function() {
     var layerView1 = document.getElementById('layer1')._ljView;
 
     layerView1.transitionTo('frame2', {
-      duration: '0s'
+      duration: '1s'
     });
 
     setTimeout(function() {
       expect(state.exportState().state).toEqual(['stage1.layer1.frame2']);
       done();
-    }, 800);
+    }, 1200);
   });
 
   it('can detect a direct show frame', function(done) {
@@ -296,7 +286,7 @@ describe('state', function() {
     });
     var layerView1 = document.querySelector("[data-lj-type='layer']")._ljView;
 
-    state.showState(states);
+    state.showFrame(states);
 
     setTimeout(function() {
       if (expectedFrameName === '!none') {
@@ -736,7 +726,7 @@ describe('state', function() {
       invoked++;
     });
 
-    state.showState(['stage1.layer1.frame2', 'stage1.layer2.frame4']);
+    state.showFrame(['stage1.layer1.frame2', 'stage1.layer2.frame4']);
 
     setTimeout(function() {
       expect(invoked).toBe(1);
@@ -772,11 +762,11 @@ describe('state', function() {
       invoked++;
     });
 
-    state.showState(['stage1.layer1.frame2', 'stage1.layer2.frame4']);
+    state.showFrame(['stage1.layer1.frame2', 'stage1.layer2.frame4']);
 
     setTimeout(function() {
       expect(invoked).toBe(1);
-      state.showState(['stage1.layer1.frame2', 'stage1.layer2.frame4']);
+      state.showFrame(['stage1.layer1.frame2', 'stage1.layer2.frame4']);
       setTimeout(function() {
         expect(invoked).toBe(1);
         done();

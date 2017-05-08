@@ -57,6 +57,8 @@ utilities.afterEach = function() {
   state.views = {};
   state.layers = [];
   state.paths = {};
+  state._transitionGroup = {};
+  state._transitionGroupId = 0;
   state.previousState = undefined;
   layerJS.router.clearRouters();
 

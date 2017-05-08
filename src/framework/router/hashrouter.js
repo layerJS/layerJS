@@ -1,7 +1,6 @@
 'use strict';
 var Kern = require('../../kern/Kern.js');
 var $ = require('../domhelpers.js');
-var defaults = require('../defaults.js');
 
 var HashRouter = Kern.EventManager.extend({
   /**
@@ -92,7 +91,7 @@ var HashRouter = Kern.EventManager.extend({
    * @returns {Promise} a promise that will return the HTML document
    */
   buildUrl: function(options) {
-    var hash = '';
+    //var hash = '';
     var state = layerJS.getState();
     var paths = [];
 

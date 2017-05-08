@@ -10,9 +10,9 @@ describe('DomHelpers', function() {
 
   it('can parse the queryString for transitionParameters', function() {
     var url = window.location.origin + '/index.html?id=1&t=100s&p=left&cat=p';
-    var result = domHelpers.parseQueryString(url);
+    var result = domHelpers.parseStringForTransitions(url);
 
-    expect(result.url).toEqual(window.location.origin + '/index.html?id=1&cat=p');
+    expect(result.string).toEqual(window.location.origin + '/index.html?id=1&cat=p');
     expect(result.transition).toEqual({
       duration: '100s',
       type: 'left'
@@ -21,9 +21,9 @@ describe('DomHelpers', function() {
 
   it('can parse the queryString for transitionParameters and not remove the transition parameters', function() {
     var url = window.location.origin + '/index.html?id=1&t=100s&p=left&cat=p';
-    var result = domHelpers.parseQueryString(url, true);
+    var result = domHelpers.parseStringForTransitions(url, true);
 
-    expect(result.url).toEqual(window.location.origin + '/index.html?id=1&t=100s&p=left&cat=p');
+    expect(result.string).toEqual(window.location.origin + '/index.html?id=1&t=100s&p=left&cat=p');
     expect(result.transition).toEqual({
       duration: '100s',
       type: 'left'
@@ -43,9 +43,9 @@ describe('DomHelpers', function() {
       defaults.transitionParameters.duration = duration;
 
       var url = window.location.origin + '/index.html?id=1&' + duration + '=100s&' + type + '=left&cat=p';
-      var result = domHelpers.parseQueryString(url);
+      var result = domHelpers.parseStringForTransitions(url);
 
-      expect(result.url).toEqual(window.location.origin + '/index.html?id=1&cat=p');
+      expect(result.string).toEqual(window.location.origin + '/index.html?id=1&cat=p');
       expect(result.transition).toEqual({
         duration: '100s',
         type: 'left'
@@ -57,7 +57,7 @@ describe('DomHelpers', function() {
     var url = '/dir1/dir2/../index.html';
     var result = domHelpers.getAbsoluteUrl(url);
 
-    expect(result).toBe('/dir1/index.html');
+    expect(result).toBe('http://localhost/dir1/index.html');
   });
 
   it('will resolve ~/ paths', function() {
@@ -65,7 +65,7 @@ describe('DomHelpers', function() {
 
     var result = domHelpers.getAbsoluteUrl(url);
 
-    expect(result).toBe('/index.html');
+    expect(result).toBe('http://localhost/index.html');
   });
 
   it('will resolve /~/ paths', function() {
@@ -73,7 +73,7 @@ describe('DomHelpers', function() {
 
     var result = domHelpers.getAbsoluteUrl(url);
 
-    expect(result).toBe('/index.html');
+    expect(result).toBe('http://localhost/index.html');
   });
 
   it('will make paths absolute from the same domain', function() {
@@ -81,7 +81,7 @@ describe('DomHelpers', function() {
 
     var result = domHelpers.getAbsoluteUrl(url);
 
-    expect(result).toBe('/index.html');
+    expect(result).toBe('http://localhost/index.html');
   });
 
   it('will not resolve paths from other domains', function() {

@@ -13,18 +13,20 @@ describe('staticRouter', function() {
 
   it('can define states for an url', function() {
     var url = '/index.html';
+    var fullUrl = 'http://localhost' + url;
     var states = ['stage1.layer1.frame1', 'stage1.layer1.frame1.layer2.frame2'];
 
     staticRouter.addRoute(url, states);
 
-    expect(staticRouter.routes.hasOwnProperty(url)).toBeTruthy();
-    expect(staticRouter.routes[url]).toBe(states);
+    expect(staticRouter.routes.hasOwnProperty(fullUrl)).toBeTruthy();
+    expect(staticRouter.routes[fullUrl]).toBe(states);
   })
 
   it('can handle a predefined route', function(done) {
-    var url = '/test.html';
+    var url = 'http://localhost/test.html';
     var options = {
-      url: url,
+      location: url,
+      queryString : '',
       transitions: [],
       paths:[],
       globalTransition: {}
@@ -45,14 +47,14 @@ describe('staticRouter', function() {
       el: document.getElementById('stage1')
     });
 
-    var promise = staticRouter.handle(url, options);
+    var promise = staticRouter.handle(options);
 
     promise.then(function(result) {
       setTimeout(function() {
         expect(result.handled).toBeTruthy();
-        expect(result.stop).toBeTruthy();
+        expect(result.stop).toBe(false);
         expect(result.paths).toEqual(paths);
-        expect(options.transitions.length).toBe(1);
+        expect(result.transitions.length).toBe(1);
         done();
       }, 500);
     });
@@ -69,7 +71,8 @@ describe('staticRouter', function() {
     };
 
     staticRouter.buildUrl(options);
-    expect(options.url).toBe('/index.html?id=1&a=4');
+    expect(options.location).toBe('http://localhost/index.html');
+    expect(options.queryString).toBe('id=1&a=4');
     expect(options.state).toEqual(['stage1.layer4.frame2']);
   });
 
@@ -85,7 +88,8 @@ describe('staticRouter', function() {
     };
 
     staticRouter.buildUrl(options);
-    expect(options.url).toBe('/index.html?id=1&a=4');
+    expect(options.location).toBe('http://localhost/index.html');
+    expect(options.queryString).toBe('id=1&a=4');
     expect(options.state).toEqual([]);
   });
 

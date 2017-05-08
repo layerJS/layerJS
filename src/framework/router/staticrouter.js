@@ -36,15 +36,15 @@ var StaticRouter = Kern.EventManager.extend({
    * @return {void}
    */
   handle: function(options) {
-    var url = options.location + options.queryString; // we need to include the queryString as this may refer to different files if filerouter is used.
+    var url = $.joinUrl(options, true); // we need to include the queryString as this may refer to different files if filerouter is used.
     // check if the passed in url is in the routes list
-    var result = options.location && this.routes.hasOwnProperty(url);
+    var result = this.hasRoute(url);
     var promise = new Kern.Promise();
     var activeFrames = [];
     var transitions = [];
 
     if (result) {
-      activeFrames = this.routes[url];
+      activeFrames = this.routes[$.getAbsoluteUrl(url)];
       activeFrames.forEach(function() {
         transitions.push(Kern._extend({}, options.globalTransition)); // we need to add a transition record for each path, otherwise we get in trouble if other routers will add paths and transitions as well
       });
@@ -69,7 +69,8 @@ var StaticRouter = Kern.EventManager.extend({
     var state = options.state.concat(options.ommittedState);
     var that = this;
     var foundUrl;
-    var url = foundUrl = options.location + options.queryString;
+    var url = $.joinUrl(options, true);
+    foundUrl = url;
     var find = function(path) {
       return that.routes[url] && that.routes[url].indexOf(path) !== -1;
     };
