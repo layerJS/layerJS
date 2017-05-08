@@ -61,7 +61,7 @@ var Router = Kern.EventManager.extend({
     $.addDelegtedListener(this.rootElement, 'click', 'a', function(event) {
 
       if (this.href !== '') {
-        var href = this.href;
+        var href = this.getAttribute('href'); // get the explicitly given href (that is not extended) to see the intention of the user
 
         event.preventDefault(); // prevent default action, i.e. going to link target
         // do not stop propagation; other libraries may listen to link clicks
@@ -147,7 +147,7 @@ var Router = Kern.EventManager.extend({
       }
     };
     // if url is not of same domain as current document do not handle
-    if (options.location.match(/^\w+:/) && !options.location.match(new RegExp('^' + window.location.origin))) {
+    if (options.location && options.location.match(/^\w+:/) && !options.location.match(new RegExp('^' + window.location.origin))) {
       promise.resolve(false);
     } else {
       callRouter(0);

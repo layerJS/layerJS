@@ -38,20 +38,15 @@ var StaticRouter = Kern.EventManager.extend({
   handle: function(options) {
     var result;
     var url = $.joinUrl(options, true); // we need to include the queryString as this may refer to different files if filerouter is used.
-    var currentUrl = $.joinUrl($.splitUrl(window.location.href), true);
-    if (currentUrl === url) {
-      // this is a no-op for the static router, we should not reinitialize default state of this url; this navigate() call probalby is for the hashrouter
-      result = false;
-    } else {
-      // check if the passed in url is in the routes list
-      result = this.hasRoute(url);
-    }
+    // if currentl url equals new url and the url was not explicitly given in navigate() we should ignore the static router cache
+    var optout = !url || (!options.explLoc && ($.joinUrl($.splitUrl(window.location.href), true) === url));
+    result = optout ? false : this.hasRoute(url);
     var promise = new Kern.Promise();
     var activeFrames = [];
     var transitions = [];
 
     if (result) {
-      activeFrames = this.routes[$.getAbsoluteUrl(url)];
+      activeFrames = this.routes[url];
       activeFrames.forEach(function() {
         transitions.push(Kern._extend({}, options.globalTransition)); // we need to add a transition record for each path, otherwise we get in trouble if other routers will add paths and transitions as well
       });
@@ -61,6 +56,7 @@ var StaticRouter = Kern.EventManager.extend({
       stop: false,
       handled: result,
       transitions: transitions,
+      optout: optout,
       paths: activeFrames
     });
 

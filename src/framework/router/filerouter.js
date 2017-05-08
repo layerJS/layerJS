@@ -32,7 +32,7 @@ var FileRouter = StaticRouter.extend({
     // check static router if we have cached this url
 
     StaticRouter.prototype.handle.call(this, options).then(function(result) {
-      if (result.handled) {
+      if (result.handled || result.optout) {
         promise.resolve(result);
       } else {
         that._loadHTML($.joinUrl(options, true)).then(function(doc) {
