@@ -54,7 +54,7 @@ var Router = Kern.EventManager.extend({
 
     // listen to history buttons
     window.onpopstate = function() {
-      that.navigate(document.location.href, true);
+      that.navigate(document.location.href, null, true);
     };
 
     // register link listener
@@ -177,7 +177,7 @@ var Router = Kern.EventManager.extend({
 
     var url = $.joinUrl(options);
 
-    if (window.history && this.addToHistory) {
+    if (window.history && this.addToHistory && window.location.href !== url) {
       window.history.pushState({}, "", url);
     }
     this.addToHistory = true;

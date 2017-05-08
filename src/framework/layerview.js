@@ -385,7 +385,7 @@ var LayerView = BaseView.extend({
       return;
     }
     scrollData = scrollData || {};
-    scrollData.lastFrame = (this.currentFrame && this.currentFrame.name()) || "!none";
+    scrollData.lastFrameName = (this.currentFrame && this.currentFrame.name()) || "!none";
     var that = this;
     var frame = null;
 
