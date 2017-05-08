@@ -13,7 +13,7 @@ var FileRouter = StaticRouter.extend({
 
     if (options.cacheCurrent) {
       // remove layerJS parameters from the url before caching it the fist time
-      var parsed = $.splitUrl($.getAbsoluteUrl(window.location.href));
+      var parsed = $.splitUrl(window.location.href);
       parsed.queryString = $.parseStringForTransitions(parsed.queryString, true).string;
       // FIXME: this need to wait for state.initialized
       this.addRoute($.joinUrl(parsed, true), this._state.exportState().state);

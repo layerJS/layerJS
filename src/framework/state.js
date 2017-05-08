@@ -56,18 +56,20 @@ var State = Kern.EventManager.extend({
       });
       view.on('transitionStarted', function(frameName, transition) {
         var trigger = true;
+        var payload = {};
         // check if state really changed
         if (transition && transition.lastFrameName === frameName) return;
         // when a transitiongroup is defined, only call stateChanged when all layers in group have invoked 'transitionStarted'
         //  console.log(transition);
         if (transition && transition.hasOwnProperty('groupId') && this._transitionGroup.hasOwnProperty(transition.groupId)) {
           //  console.log(this._transitionGroup);
-          this._transitionGroup[transition.groupId]--;
-          trigger = this._transitionGroup[transition.groupId] === 0;
+          this._transitionGroup[transition.groupId].length--;
+          trigger = this._transitionGroup[transition.groupId].length === 0;
+          payload = this._transitionGroup[transition.groupId].payload;
         }
         if (trigger) {
           // trigger the event and keep a copy of the new state to compare it to next time
-          this.trigger("stateChanged", this.exportState(true));
+          this.trigger("stateChanged", this.exportState(true), payload);
         }
       }, {
         context: this
@@ -155,16 +157,16 @@ var State = Kern.EventManager.extend({
    * @param {array} states State paths to transition to
    * @param {object} transitions Array of transition records, one per state path, or a single transition record for all paths. Can be undefined in which case a default transition is triggered
    */
-  transitionTo: function(states, transitions) {
-    this._transitionTo(false, states, transitions);
+  transitionTo: function(states, transitions, payload) {
+    this._transitionTo(false, states, transitions, payload);
   },
   /**
    * Will transition to a state without with showframe or transitionTo
    *
    * @param {array} states State paths to transition to
    */
-  showState: function(states) {
-    return this._transitionTo(true, states);
+  showState: function(states, transitions, payload) {
+    return this._transitionTo(true, states, transitions, payload);
   },
   /**
    * Will transition to a state without with showframe or transitionTo
@@ -172,8 +174,9 @@ var State = Kern.EventManager.extend({
    * @param {boolean} showframe use showFrame? transitionTo otherwise
    * @param {array} states State paths to transition to
    * @param {object} transitions Array of transition records, one per state path, or a single transition record for all
+   * @param {object} payload data object that will be passed on to the stateChanged handler
    */
-  _transitionTo: function(showFrame, states, transitions) {
+  _transitionTo: function(showFrame, states, transitions, payload) {
     var that = this;
     transitions = transitions || [];
 
@@ -184,17 +187,16 @@ var State = Kern.EventManager.extend({
       return that.resolvePath(state);
     }).forEach(function(layerframe, index) {
       for (var i = 0; i < layerframe.length; i++) {
-        if (!layerframe[i].active) {
-          if (seenPaths.hasOwnProperty(layerframe[i].path)) {
-            Kern._extend(paths[seenPaths[layerframe[i].path]].transition, transitions[Math.min(index, transitions.length - 1)] || {});
-          } else {
-            paths.push({ // ignore currently active frames
-              layer: layerframe[i].layer,
-              frameName: layerframe[i].frameName,
-              transition: transitions[Math.min(index, transitions.length - 1)] || {}
-            });
-            seenPaths[layerframe[i].path] = paths.length - 1;
-          }
+        if (seenPaths.hasOwnProperty(layerframe[i].layerPath)) {
+          Kern._extend(paths[seenPaths[layerframe[i].layerPath]].transition, transitions[Math.min(index, transitions.length - 1)] || {});
+          paths[seenPaths[layerframe[i].layerPath]].frameName = layerframe[i].frameName;
+        } else {
+          paths.push({ // ignore currently active frames
+            layer: layerframe[i].layer,
+            frameName: layerframe[i].frameName,
+            transition: transitions[Math.min(index, transitions.length - 1)] || {}
+          });
+          seenPaths[layerframe[i].layerPath] = paths.length - 1;
         }
       }
     });
@@ -203,7 +205,10 @@ var State = Kern.EventManager.extend({
     var semaphore = new Kern.Semaphore(paths.length);
     // group transitions to fire only one stateChanged event for all transitions triggered in this call
     var groupId = ++this._transitionGroupId;
-    this._transitionGroup[groupId] = paths.length;
+    this._transitionGroup[groupId] = {
+      length: paths.length,
+      payload: payload
+    };
 
     // execute transition
     for (var i = 0; i < paths.length; i++) {
@@ -286,6 +291,7 @@ var State = Kern.EventManager.extend({
         if (view.type() !== 'layer') throw "state: expected layer name in front of '" + frameName + "'";
         result.push({
           layer: view,
+          layerPath: fullPath,
           frameName: frameName,
           path: fullPath + "." + frameName
         });
@@ -293,6 +299,7 @@ var State = Kern.EventManager.extend({
         if (view.type() === 'frame') { // for frames return a bit more information which is helpful to trigger the transition
           result.push({
             layer: view.parent,
+            layerPath: this.views[view.parent.id()].path,
             view: view,
             frameName: frameName,
             path: fullPath,

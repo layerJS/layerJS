@@ -94,7 +94,8 @@ var Router = Kern.EventManager.extend({
     });
     // make sure if location is given that it is a fully qualified url (not a relative)
     if (options.location || options.queryString) {
-      Kern._extend(options, $.getAbsoluteUrl(href));
+      options.explLoc = true; // indicate that location was given
+      Kern._extend(options, $.splitUrl($.getAbsoluteUrl(href)));
     }
     // check if there are layerjs params in the querystring
     var qsljparams = options.queryString && $.parseStringForTransitions(options.queryString, true);
@@ -111,13 +112,16 @@ var Router = Kern.EventManager.extend({
     var resolve = function() {
       if (handled) {
         // determine is it was a clickevent and if we need to add this to the history
-        that.addToHistory = !noHistory;
         if (initial === true) {
           // this is the initial navigation ( page just loaded) so we should do a show
-          that.state.showState(options.paths);
+          that.state.showState(options.paths, {}, {
+            noHistory: noHistory
+          });
         } else {
           // do a transition
-          that.state.transitionTo(options.paths, options.transitions);
+          that.state.transitionTo(options.paths, options.transitions, {
+            noHistory: noHistory
+          });
         }
       }
 
@@ -159,7 +163,7 @@ var Router = Kern.EventManager.extend({
    * Will create a url to represent the current (changed) state.
    * @param {Array} newState the minimised (changed) state
    */
-  _stateChanged: function(newState) {
+  _stateChanged: function(newState, payload) {
 
     newState = newState || {
       state: [],
@@ -177,10 +181,9 @@ var Router = Kern.EventManager.extend({
 
     var url = $.joinUrl(options);
 
-    if (window.history && this.addToHistory && window.location.href !== url) {
+    if (window.history && (!payload || !payload.noHistory) && window.location.href !== url) {
       window.history.pushState({}, "", url);
     }
-    this.addToHistory = true;
   }
 });
 
