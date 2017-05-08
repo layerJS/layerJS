@@ -21,11 +21,11 @@
     <div lj-type="layer" lj-name="menulayer" lj-native-scroll="false"> <!-- The layer for the menu on top of the main content -->
       <div lj-type="frame" lj-name="hmenu" class="nav" lj-fit-to="responsive-width" lj-transition="fade"> <!-- The frame for the menu in the closed state -->
           <div class="nav-hor">
-          <a href="#menu?t=0.5s">&#x2630; Menu</a> <!-- Link to open state with parameters that control the animation type and the timing. -->
+          <a href="#menu&t=0.5s">&#x2630; Menu</a> <!-- Link to open state with parameters that control the animation type and the timing. -->
           </div>
         </div>
       <div lj-type="frame" lj-name="menu" class="nav menu" lj-fit-to="responsive-height" lj-neighbors.r="hmenu" lj-transition="slideOverRight"> <!-- The frame for the menu in the open state. The "neighbors" attribute allows swipe gestures to close the menu. -->
-        <a href="#hmenu?t=0.5s" class="close">&#x2573;</a> <!-- The close button with a link to the closed state. -->
+        <a href="#hmenu&t=0.5s" class="close">&#x2573;</a> <!-- The close button with a link to the closed state. -->
           <ul class="nav-list">
             <li class="nav-item">
               Menu 1
