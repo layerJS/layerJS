@@ -28,8 +28,8 @@ describe('HashRouter', function() {
     });
     var options = {
       url: url,
-      location : 'http://localhost/',
-      hash : 'stage1.layer1.frame2',
+      location: 'http://localhost/',
+      hash: 'stage1.layer1.frame2',
       transitions: [],
       globalTransition: {
         type: 'left'
@@ -58,8 +58,11 @@ describe('HashRouter', function() {
     });
   });
 
-  xit('can only handle an url with a hash that is the same as the current url', function(done) {
-    var promise = hashRouter.handle('http://localhost/test.html#stage1.layer1.frame2');
+  it('can only handle an url with a hash that is the same as the current url', function(done) {
+    var promise = hashRouter.handle({
+      location: 'http://localhost/test.html',
+      hash: 'stage1.layer1.frame2'
+    });
 
     promise.then(function(result) {
       expect(result.handled).toBeFalsy();

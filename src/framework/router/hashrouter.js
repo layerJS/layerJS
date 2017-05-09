@@ -11,8 +11,9 @@ var HashRouter = Kern.EventManager.extend({
   handle: function(options) {
 
     var promise = new Kern.Promise();
+    var currentUrl = $.splitUrl(window.location.href);
 
-    if (options.hash === undefined || options.hash === '#' || options.hash === '') {
+    if (options.hash === undefined || options.hash === '#' || options.hash === '' || options.location !== currentUrl.location ) {
       // not the same file or no hash in href
       promise.resolve({
         handled: false,
