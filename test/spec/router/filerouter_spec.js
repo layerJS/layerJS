@@ -106,7 +106,7 @@ describe('Filerouter', function() {
 
   }, 5000);
 
-  xit('when no matching path is found, the current frame stays', function(done) {
+  it('when no matching path is found, the current frame stays', function(done) {
     var scope = nock('http://localhost')
       .get('/somePage.html')
       .reply(200, '<div data-lj-type="stage" id="contentstage1">' +

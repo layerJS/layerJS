@@ -49,6 +49,7 @@ var FileRouter = StaticRouter.extend({
             var addedHash = [];
 
             fileState.exportStructure().forEach(function(path) {
+
               // check if new path exists in current state
               if (!globalStructureHash[path]) {
                 // check if the parent is already added in this run
@@ -66,11 +67,28 @@ var FileRouter = StaticRouter.extend({
                     parentView.innerEl.insertAdjacentHTML('beforeend', html);
                     addedHash.push(path);
                   }
+                } else {
+                  addedHash.push(path);
                 }
               }
             });
 
-            var framesToTransitionTo = fileState.exportState().state;
+            var exportedState = fileState.exportState();
+            var framesToTransitionTo = exportedState.state;
+            Array.prototype.push.apply(framesToTransitionTo, exportedState.ommittedState);
+
+            // only transition is to paths that already existed or where just added
+            framesToTransitionTo = framesToTransitionTo.filter(function(path) {
+              var isSpecial = path.split('.').pop().startsWith('!');
+              var pathToFind = path;
+              // if it is a special frame, check if parent exists or was added
+              if (isSpecial) {
+                pathToFind = path.replace(/\.[^\.]*$/, '');
+              }
+
+              return globalStructureHash.hasOwnProperty(pathToFind) || addedHash.indexOf(pathToFind) !== -1;
+            });
+
             // create a transition record for each frame path.
             var transitions = framesToTransitionTo.map(function() {
               return Kern._extend({}, options.globalTransition);
