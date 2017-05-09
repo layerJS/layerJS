@@ -7,6 +7,7 @@ describe('router', function() {
   var Kern = require('../../../src/kern/kern.js');
   var FileRouter = require('../../../src/framework/router/filerouter.js');
   var HashRouter = require('../../../src/framework/router/hashrouter.js');
+  var StaticRouter = require('../../../src/framework/router/staticrouter.js');
 
   beforeEach(function() {
     layerJS = require('../../../src/framework/layerjs.js');
@@ -28,22 +29,14 @@ describe('router', function() {
     expect(layerJS.router).toBeDefined();
   });
 
-  //TODO: StaticRouter not added, ask Thomas why.
-  xit('will add the a StaticRouter at the beginning of the router pipline', function() {
-    var dummyRouter = {
-      handle: function(url) {
-        var promise = new Kern.Promise();
-        promise.resolve({
-          handled: false,
-          stop: false
-        });
-        return promise;
-      }
-    };
 
-    layerJS.router.addRouter(dummyRouter);
-    expect(layerJS.router.routers.length).toBe(2);
+  it('will mark the staticrouter', function() {
+    var staticRouter = new StaticRouter();
+
+    layerJS.router.addRouter(staticRouter);
+    expect(layerJS.router.routers.length).toBe(1);
     expect(layerJS.router.routers[0] instanceof StaticRouter).toBeTruthy();
+    expect(layerJS.router.staticRouter).toBe(staticRouter);
   });
 
   it('will detect a link click event', function() {
@@ -227,7 +220,7 @@ describe('router', function() {
     expect(handled).toBe(true);
   });
 
-//TODO: Look at more detail
+  //TODO: Look at more detail
   it('will use the pushState after a transition that started with a click', function(done) {
     var newUrl;
     window.history.pushState = function(param1, param2, url) {
@@ -236,7 +229,7 @@ describe('router', function() {
 
     layerJS.router.addRouter(new FileRouter());
     layerJS.router.addRouter(new HashRouter());
-    
+
     var html = "<div data-lj-type='stage' id='stage1'>" +
       "<div data-lj-type='layer' id='layer1' data-lj-default-frame='frame1'>" +
       "<div data-lj-type='frame' id='frame1' data-lj-name='frame1'>" +
