@@ -23,7 +23,7 @@ describe('router', function() {
     layerJS.router.addRouter(new HashRouter());
     window.location.href = "http://localhost/";
   });
-  
+
   it('can be created', function() {
     expect(layerJS.router).toBeDefined();
   });
@@ -144,44 +144,6 @@ describe('router', function() {
     window.history.pushState.and.callThrough();
   });
 
-  //TODO: This can be deleted, no more cache on router
-  xit('will add the exiting state to the StaticRouter when a new navigation is done', function(done) {
-    var url = window.location.origin + '/index.html';
-    var dummyRouter = {
-      handle: function(url) {
-        var promise = new Kern.Promise();
-        promise.resolve({
-          handled: true,
-          stop: true,
-          paths: []
-        });
-        return promise;
-      }
-    };
-
-    var html = "<div data-lj-type='stage' id='stage1'>" +
-      "<div data-lj-type='layer' id='layer1' data-lj-default-frame='frame1'>" +
-      "<div data-lj-type='frame' id='frame1' data-lj-name='frame1'></div>" +
-      "<div data-lj-type='frame' id='frame2' data-lj-name='frame2'></div>" +
-      "</div>" +
-      "</div>";
-
-    utilities.setHtml(html);
-
-    window.history.pushState = function(param1, param2, url) {};
-
-    new StageView({
-      el: document.getElementById('stage1')
-    });
-
-    layerJS.router.addRouter(dummyRouter);
-    layerJS.router.navigate(url, true).then(function() {
-      expect(layerJS.router.routers[0].routes.hasOwnProperty('http://localhost/')).toBeTruthy();
-      expect(layerJS.router.routers[0].routes['http://localhost/']).toEqual(['stage1.layer1.frame1']);
-      done();
-    });
-  });
-
   it('will stop iterating routers when a router return stop == true', function() {
     var url = window.location.origin + '/index.html';
     var handled = false;
@@ -266,12 +228,15 @@ describe('router', function() {
   });
 
 //TODO: Look at more detail
-  xit('will use the pushState after a transition that started with a click', function(done) {
+  it('will use the pushState after a transition that started with a click', function(done) {
     var newUrl;
     window.history.pushState = function(param1, param2, url) {
       newUrl = url;
     };
 
+    layerJS.router.addRouter(new FileRouter());
+    layerJS.router.addRouter(new HashRouter());
+    
     var html = "<div data-lj-type='stage' id='stage1'>" +
       "<div data-lj-type='layer' id='layer1' data-lj-default-frame='frame1'>" +
       "<div data-lj-type='frame' id='frame1' data-lj-name='frame1'>" +
@@ -287,8 +252,7 @@ describe('router', function() {
       el: document.getElementById('stage1')
     });
 
-    layerJS.router.addRouter(new FileRouter());
-    layerJS.router.addRouter(new HashRouter());
+
     document.getElementById('link').click();
 
     setTimeout(function() {

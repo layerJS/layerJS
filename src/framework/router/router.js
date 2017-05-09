@@ -65,7 +65,6 @@ var Router = Kern.EventManager.extend({
 
         event.preventDefault(); // prevent default action, i.e. going to link target
         // do not stop propagation; other libraries may listen to link clicks
-
         that.navigate(href, $.findParentViewOfType(this, 'layer')).then(function(result) {
           if (!result) {
             setTimeout(function() { // why do we have to get at the end of the queue?
