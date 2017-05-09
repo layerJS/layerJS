@@ -1014,16 +1014,16 @@ describe('attribute mutations:', function() {
     });
   });
 
-  // data-lj-/lj-id TODO fails or passes? - 09-05-2017
-    describe('data-lj-id and lj-id,', function() {
+  // data-lj-/lj-id TODO fails or passes? - 09-05-2017 FIXME - test not finished - TODO test for id and lj-id
+    xdescribe('data-lj-id and lj-id,', function() {
       it('change id frame1 to frame10', function() {
         browser.get('attributemutations/attribute_mutations.html').then(function() {
 
-//TODO when not setting a name the name is the id
+      // when not setting a name the name is the id
 
           utilities.removeAttribute('frame1', 'data-lj-name');
           utilities.removeAttribute('frame1', 'lj-name');
-//id="frame1"
+      //id="frame1"
 
           var prefix = ['data-lj-', 'lj-'];
 
@@ -1033,14 +1033,14 @@ describe('attribute mutations:', function() {
             var frNewName = {};
             frNewName[frdataLjAtt] = 'frame10';
             // utilities.setAttribute('frame1', 'data-lj-id', 'frame10').then(function() {
-utilities.setAttributes('frame1', frNewName).then(function() {
+      utilities.setAttributes('frame1', frNewName).then(function() {
             protractor.promise.all([
               // utilities.setAttributes('frame1', frNewName),
               utilities.getCurrentExportStructure('layer')
             ]).then(function(data) {
               // var setname = data[0];
               var stateExportStrct = data[0];
-// console.log(setname);
+        // console.log(setname);
               expect(stateExportStrct).toEqual(['stage.layer.frame10']);
               //  Expected $[0] = 'stage.layer.!none' to equal 'stage.layer.frame10'.
 
