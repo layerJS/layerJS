@@ -1,0 +1,43 @@
+<html>
+
+<head>
+    <title>html page for rigorously test for attribute mutations</title>
+    <link rel="stylesheet" type="text/css" href="../../../src/css/layerjs.css">
+</head>
+<style>
+  body {
+    margin: 0;
+  }
+
+  #stage {
+      margin: 0;
+  }
+
+  #frame1 {
+      background-color: #3a63a5;
+  }
+</style>
+
+<body id="body">
+    <div id="stage" data-lj-type="stage" style="width:500px; height:600px">
+        <img src="pixel1200x1000pxWithMarksOn900_800_600_400.png">
+        <div id="layer" data-lj-type="layer" data-lj-default-frame="frame1" data-lj-native-scroll="true">
+
+            <div id="frame1" data-lj-type="frame" data-lj-start-position="left" data-lj-name="frame1" data-lj-fit-to="height" lj-fit-to='height' style="width:200px; height:200px" lj-neighbors.r="frame2">
+              <h1>FRAME  1</h1>
+            </div>
+
+            <div id="frame2" data-lj-type="frame" data-lj-start-position="left" data-lj-name="frame2" data-lj-fit-to="height" lj-fit-to='height' style="width:200px; height:200px">
+              <h1>FRAME  2</h1>
+            </div>
+
+        </div>
+    </div>
+
+    <script src="../../../dist/layerjs.js"></script>
+    <script>
+        layerJS.init();
+    </script>
+</body>
+
+</html>

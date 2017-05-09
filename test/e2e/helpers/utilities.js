@@ -18,10 +18,18 @@ utilities.transitionTo = function(layerId, frameName, transition, waitTime) {
     }
   }, layerId, frameName, transition, waitTime);
 };
+
 utilities.getCurrentFrame = function(layerId) {
   return browser.driver.executeAsyncScript(function(layerId, callBack) {
     var layer = layerJS.select('#' + layerId);
     callBack(layer.currentFrame ? layer.currentFrame.name() : "!none");
+  }, layerId);
+};
+
+utilities.getCurrentExportStructure = function(layerId) {
+  return browser.driver.executeAsyncScript(function(layerId, callBack) {
+    var ExportStructure = layerJS.state.exportStructure();
+    callBack(ExportStructure);
   }, layerId);
 };
 
@@ -146,6 +154,13 @@ utilities.getAttribute = function(elementId, attribute) {
   }, elementId, attribute);
 };
 
+utilities.removeAttribute = function(elementId, attribute) {
+  return browser.driver.executeAsyncScript(function(elementId, attribute, callBack) {
+    var el = window.document.getElementById(elementId);
+    callBack(el.removeAttribute(attribute));
+  }, elementId, attribute);
+};
+
 utilities.getStyle = function(elementId, cssAttribtue) {
   return browser.driver.executeAsyncScript(function(elementId, cssAttribtue, callBack) {
     var el = window.document.getElementById(elementId);
@@ -154,8 +169,6 @@ utilities.getStyle = function(elementId, cssAttribtue) {
     callBack(style.getPropertyValue(cssAttribtue));
   }, elementId, cssAttribtue);
 };
-
-
 
 utilities.setAttributes = function(elementId, attributes) {
   return browser.driver.executeAsyncScript(function(elementId, attributes, callBack) {

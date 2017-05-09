@@ -29,7 +29,7 @@ describe("CanvasLayout", function() {
         var layer1 = element(by.id('layer1'));
         var f1 = element(by.id('main'));
         var f2 = element(by.id('second'));
-        var f3 = element(by.id('thirth'));
+        var f3 = element(by.id('thirth')); //should be "third"
 
         expect(f1.getCssValue('display')).toBe('block');
         expect(f2.getCssValue('display')).toBe('block');
