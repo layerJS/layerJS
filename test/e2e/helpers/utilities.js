@@ -33,6 +33,13 @@ utilities.getCurrentExportStructure = function(layerId) {
   }, layerId);
 };
 
+utilities.childHasAttribute = function(elementId, attribute) {
+  return browser.driver.executeAsyncScript(function(elementId, attribute, callBack) {
+    var el = window.document.getElementById(elementId);
+    callBack(el._ljView.innerEl.hasAttribute(attribute));
+  }, elementId, attribute);
+};
+
 utilities.scrollTo = function(layerId, scrollX, scrollY, transition, waitTime) {
   waitTime = waitTime || 3000;
 

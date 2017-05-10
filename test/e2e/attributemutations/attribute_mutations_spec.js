@@ -10,7 +10,7 @@ describe('attribute mutations:', function() {
   });
 
   // data-lj-/lj-width fails for now 27-04-2017
-  xdescribe('data-lj-width and lj-width,', function() {
+  describe('data-lj-width and lj-width,', function() {
 
     it('800 to 600 on active frame', function() {
       browser.get('attributemutations/attribute_mutations.html').then(function() {
@@ -78,7 +78,7 @@ describe('attribute mutations:', function() {
   });
 
   // data-lj-/lj-height fails for now 27-04-2017
-  xdescribe('data-lj-height and lj-height,', function() {
+  describe('data-lj-height and lj-height,', function() {
 
     it('600 to 400 on active frame', function() {
       browser.get('attributemutations/attribute_mutations.html').then(function() {
@@ -137,7 +137,7 @@ describe('attribute mutations:', function() {
   });
 
   // data-lj-/lj-x fails for now 27-04-2017
-  xdescribe('data-lj-x and lj-x,', function() {
+  describe('data-lj-x and lj-x,', function() {
 
     it('0 to 600 on active frame', function() {
       browser.get('attributemutations/attribute_mutations_canvaslayout.html').then(function() {
@@ -210,7 +210,7 @@ describe('attribute mutations:', function() {
   });
 
   // data-lj-/lj-y fails for now 27-04-2017
-  xdescribe('data-lj-y and lj-y,', function() {
+  describe('data-lj-y and lj-y,', function() {
 
     it('0 to 400 on active frame', function() {
       browser.get('attributemutations/attribute_mutations_canvaslayout.html').then(function() {
@@ -281,7 +281,7 @@ describe('attribute mutations:', function() {
   });
 
   // data-lj-/lj-scale-x passes 08-05-2017
-  xdescribe('data-lj-scale-x and lj-scale-x,', function() {
+  describe('data-lj-scale-x and lj-scale-x,', function() {
 
     it('1 to 0.5 on active frame', function() {
       browser.get('attributemutations/attribute_mutations_canvaslayout.html').then(function() {
@@ -342,7 +342,7 @@ describe('attribute mutations:', function() {
   });
 
   // data-lj-/lj-scale-y passes 08-05-2017
-  xdescribe('data-lj-scale-y and lj-scale-y,', function() {
+  describe('data-lj-scale-y and lj-scale-y,', function() {
 
     it('1 to 0.5 on active frame', function() {
       browser.get('attributemutations/attribute_mutations_canvaslayout_vertical.html').then(function() {
@@ -403,7 +403,7 @@ describe('attribute mutations:', function() {
   });
 
   // data-lj-/lj-fit-to passed with active frame and failed for inactive frame after transition - 08-05-2017
-  xdescribe('data-lj-fit-to and lj-fit-to,', function() {
+  describe('data-lj-fit-to and lj-fit-to,', function() {
     it('fixed to elastic-width with elastic-left and elastic-right on active frame', function() {
       browser.get('attributemutations/attribute_mutations_elastic_width.html').then(function() {
 
@@ -634,7 +634,7 @@ describe('attribute mutations:', function() {
   });
 
   // data-lj-/lj-start-position passed - 02-05-2017
-  xdescribe('data-lj-start-position and lj-start-position,', function() {
+  describe('data-lj-start-position and lj-start-position,', function() {
 
     it('left to right with fit-to=height on active frame', function() {
       browser.get('attributemutations/attribute_mutations_start_position.html').then(function() {
@@ -705,7 +705,7 @@ describe('attribute mutations:', function() {
   });
 
   // data-lj-/lj-neighbors passed - 03-05-2017 //1 spec, 0 failures
-  xdescribe('data-lj-neighbors and lj-neighbors,', function() {
+  describe('data-lj-neighbors and lj-neighbors,', function() {
     it('move left then up(top) then right then down(bottom)', function() {
       browser.get('attributemutations/attribute_mutations_neighbors.html').then(function() {
 
@@ -846,7 +846,7 @@ describe('attribute mutations:', function() {
   });
 
   // data-lj-/lj-rotation  fails for now - 03-04-05-2017
-  xdescribe('data-lj-rotation and lj-rotation,', function() {
+  describe('data-lj-rotation and lj-rotation,', function() {
     it('0 to 40 - for active and inactive frames in canvas layout', function() {
       browser.get('attributemutations/attribute_mutations_rotation.html').then(function() {
 
@@ -889,7 +889,7 @@ describe('attribute mutations:', function() {
   });
 
   // data-lj-/lj-no-scrolling fails - 03-05-2017 -- doesn't seem to set the attribute
-  xdescribe('data-lj-no-scrolling and lj-no-scrolling,', function() {
+  describe('data-lj-no-scrolling and lj-no-scrolling,', function() {
     it('not set to true and then to false with native-scroll false and true', function() {
       browser.get('attributemutations/attribute_mutations_no_scrolling.html').then(function() {
 
@@ -925,13 +925,7 @@ describe('attribute mutations:', function() {
             noScrollAttr[frdataLjAtt] = true;
 
             utilities.setAttributes('frame1', noScrollAttr);
-            // console.log('true');
-            // utilities.getAttribute('frame1', 'data-lj-no-scrolling').then(function(att){
-            // console.log('should be true  and second time null: '+att);
-            // });
-            // utilities.getAttribute('frame1', 'lj-no-scrolling').then(function(att){
-            // console.log('first time null second time should be true: '+att);
-            // });
+
             utilities.scrollDown('layer', 2).then(function() {
               protractor.promise.all([
                 utilities.getScroll('layer')
@@ -951,13 +945,6 @@ describe('attribute mutations:', function() {
 
             utilities.setAttributes('frame1', noScrollAttr);
 
-            // console.log('false');
-            // utilities.getAttribute('frame1', 'data-lj-no-scrolling').then(function(att){
-            // console.log('should be false and second time null: '+att);
-            // });
-            // utilities.getAttribute('frame1', 'lj-no-scrolling').then(function(att){
-            // console.log('first time null second time should be false: '+att);
-            // });
             utilities.scrollDown('layer', 2).then(function() {
               protractor.promise.all([
                 utilities.getBoundingClientRect('layer'),
@@ -984,7 +971,7 @@ describe('attribute mutations:', function() {
   });
 
   // data-lj-/lj-name passed - 08-05-2017
-  xdescribe('data-lj-name and lj-name,', function() {
+  describe('data-lj-name and lj-name,', function() {
     it('change name frame1 to frame10', function() {
       browser.get('attributemutations/attribute_mutations.html').then(function() {
 
@@ -1014,45 +1001,306 @@ describe('attribute mutations:', function() {
     });
   });
 
-  // data-lj-/lj-id TODO fails or passes? - 09-05-2017 FIXME - test not finished - TODO test for id and lj-id
-    xdescribe('data-lj-id and lj-id,', function() {
-      it('change id frame1 to frame10', function() {
-        browser.get('attributemutations/attribute_mutations.html').then(function() {
+  // data-lj-/lj-id failed, id and lj-name passed 09-05-2017
+  describe('data-lj-id and lj-id and lj-name changes according to id,', function() {
+    //failed
+    it('change data-lj/lj-id frame1 to frame10 and check that lj-name gets the new lj-id as a name', function() {
+      browser.get('attributemutations/attribute_mutations_id.html').then(function() {
 
-      // when not setting a name the name is the id
+        // when not setting a name the name is the id and if data-lj/lj-id is set then name should be that.
 
-          utilities.removeAttribute('frame1', 'data-lj-name');
-          utilities.removeAttribute('frame1', 'lj-name');
-      //id="frame1"
+        // defining id different than frame1 to be able to tell apart id and lj-id
+        utilities.setAttribute('frame1', 'id', 'frameIdToIgnore');
 
-          var prefix = ['data-lj-', 'lj-'];
+        var prefix = ['data-lj-', 'lj-'];
 
-          for (var i = 0; i < prefix.length; i++) {
+        for (var i = 0; i < prefix.length; i++) {
 
-            var frdataLjAtt = prefix[i] + 'id'; //once data-lj-, once lj-
-            var frNewName = {};
-            frNewName[frdataLjAtt] = 'frame10';
-            // utilities.setAttribute('frame1', 'data-lj-id', 'frame10').then(function() {
-      utilities.setAttributes('frame1', frNewName).then(function() {
+          var frdataLjAtt = prefix[i] + 'id'; //once data-lj-, once lj-
+          var frNewLjId = {};
+          frNewLjId[frdataLjAtt] = 'frame1';
+
+          utilities.setAttributes('frameIdToIgnore', frNewLjId).then(function() {
             protractor.promise.all([
-              // utilities.setAttributes('frame1', frNewName),
               utilities.getCurrentExportStructure('layer')
             ]).then(function(data) {
-              // var setname = data[0];
               var stateExportStrct = data[0];
-        // console.log(setname);
-              expect(stateExportStrct).toEqual(['stage.layer.frame10']);
-              //  Expected $[0] = 'stage.layer.!none' to equal 'stage.layer.frame10'.
+              expect(stateExportStrct).toEqual(['stage.layer.frame1']); // Expected $[0] = 'stage.layer.frameIdToIgnore' to equal 'stage.layer.frame1'.
 
-              // reset for next iteration in the for loop
-              frNewName[frdataLjAtt] = 'frame1';
-              utilities.setAttributes('frame1', frNewName);
+              // test after changing data-lj/lj-id if data-lj-name changes to new lj-id value.
+              frNewLjId[frdataLjAtt] = 'frame10';
+
+              utilities.setAttributes('frameIdToIgnore', frNewLjId).then(function() {
+                protractor.promise.all([
+                  utilities.getCurrentExportStructure('layer')
+                ]).then(function(data) {
+                  var stateExportStrct = data[0];
+                  expect(stateExportStrct).toEqual(['stage.layer.frame10']); //  Expected $[0] = 'stage.layer.frameIdToIgnore' to equal 'stage.layer.frame10'.
+
+                  // remove the attributes to allow a reset for next iteration in the for loop
+                  utilities.removeAttribute('frameIdToIgnore', 'data-lj-id');
+                  utilities.removeAttribute('frameIdToIgnore', 'lj-id');
+                });
+              });
             });
-            // });
-            });
-          }
+          });
+        }
+      });
+    });
+
+    // passed. 09-05-2017
+    it('change id frame1 to frame10 and check that lj-name gets the new id as a name', function() {
+      browser.get('attributemutations/attribute_mutations_id.html').then(function() {
+
+        // when not setting a name the name is the id
+
+        // test undefined lj-name has the id as name.
+        protractor.promise.all([
+          utilities.getCurrentExportStructure('layer')
+        ]).then(function(data) {
+          var stateExportStrct = data[0];
+          expect(stateExportStrct).toEqual(['stage.layer.frame1']); // passed. 09-05-2017
+
+          utilities.setAttribute('frame1', 'id', 'frame10');
+
+          // test if lj-name that got it's name from the id will change when the id is changed.
+          protractor.promise.all([
+            utilities.getCurrentExportStructure('layer')
+          ]).then(function(data) {
+            var stateExportStrct = data[0];
+            expect(stateExportStrct).toEqual(['stage.layer.frame10']); // passed. 09-05-2017
+          });
         });
       });
     });
+
+  });
+
+
+  // TODO check with utilities.setLayout(elementId, layout) TODO FIXME TODO FIXME TODO FIXME
+  // data-lj-/lj-layout-type FIXME failed OR passed? 09-05-2017 // implemented but has an issue with getting the css display value of the inactive frame in canvas layout.
+  describe('data-lj-layout-type and lj-layout-type,', function() {
+
+    it('change undefined layout-type to canvas', function() {
+      browser.get('attributemutations/attribute_mutations_layout_type.html').then(function() {
+
+        // TODO ? add test for default as slide type?
+
+        // var f2 = element(by.id('frame2')); // unsuccessfully, tried, after the change to canvas, to get the css display value(that is suppose to be block)
+
+        var prefix = ['data-lj-', 'lj-'];
+
+        for (var i = 0; i < prefix.length; i++) {
+
+          var frdataLjAtt = prefix[i] + 'layout-type'; //once data-lj-, once lj-
+          var layoutType = {};
+          // expect(f2.getCssValue('display')).toBe('none');
+
+          // switch to canvas
+          layoutType[frdataLjAtt] = 'canvas';
+          utilities.setAttributes('layer', layoutType);
+
+          // test that layout-type has changed (if for data-lj- or lj-) //passed
+          if (i == 0) {
+            protractor.promise.all([
+              utilities.getAttribute('layer', 'data-lj-layout-type')
+            ]).then(function(data) {
+              var att = data[0];
+
+              expect(att).toEqual('canvas'); // passed 09-05-2017
+            });
+          } else {
+            protractor.promise.all([
+              utilities.getAttribute('layer', 'lj-layout-type')
+            ]).then(function(data) {
+              var att = data[0];
+
+              expect(att).toEqual('canvas'); // passed 09-05-2017
+            });
+          }
+
+          // expect(f2.getCssValue('display')).toBe('block');
+
+          // show inactive frames at right position
+          protractor.promise.all([
+            utilities.getBoundingClientRect('frame2'),
+            // f2.getCssValue('display')
+            // utilities.getStyle('frame2', 'display'),
+            // utilities.getStyle('frame1', 'display')
+          ]).then(function(data) {
+            var inactive_frame_dimensions = data[0];
+            // var f2_display = data[1];
+
+            //FIXME not sure if to check dimensions if the change is on the display value and not the positioning
+            expect(inactive_frame_dimensions.top).toBe(300);
+            expect(inactive_frame_dimensions.left).toBe(300);
+            expect(inactive_frame_dimensions.right).toBe(inactive_frame_dimensions.left + inactive_frame_dimensions.width);
+            expect(inactive_frame_dimensions.bottom).toBe(inactive_frame_dimensions.top + inactive_frame_dimensions.height);
+            expect(inactive_frame_dimensions.width).toBe(200);
+            expect(inactive_frame_dimensions.height).toBe(200);
+
+            // console.log(f2_display);
+            // expect(f2_display).toBe('block'); // Expected 'none' to be 'block'.
+
+            // remove the attributes to allow a reset for next iteration in the for loop
+            utilities.removeAttribute('layer', 'data-lj-layout-type');
+            utilities.removeAttribute('layer', 'lj-layout-type');
+          });
+        }
+      });
+    });
+
+    it('change layout-type canvas to slide', function() {
+      browser.get('attributemutations/attribute_mutations_layout_type.html').then(function() {
+
+        var f2 = element(by.id('frame2'));
+
+        var prefix = ['data-lj-', 'lj-'];
+
+        for (var i = 0; i < prefix.length; i++) {
+
+          var frdataLjAtt = prefix[i] + 'layout-type'; //once data-lj-, once lj-
+          var layoutType = {};
+
+          // set layout-type to canvas
+          layoutType[frdataLjAtt] = 'canvas';
+          utilities.setAttributes('layer', layoutType);
+
+          // test that layout-type has changed to canvas(if for data-lj- or lj-) //passed
+          if (i == 0) {
+            protractor.promise.all([
+              utilities.getAttribute('layer', 'data-lj-layout-type')
+            ]).then(function(data) {
+              var att = data[0];
+
+              expect(att).toEqual('canvas'); // TODO DID IT passed 09-05-2017
+            });
+          } else {
+            protractor.promise.all([
+              utilities.getAttribute('layer', 'lj-layout-type')
+            ]).then(function(data) {
+              var att = data[0];
+
+              expect(att).toEqual('canvas'); //  TODO DID IT passed 09-05-2017
+            });
+          }
+
+          expect(f2.getCssValue('display')).toBe('block'); // in canvas layout // Expected 'none' to be 'block'. - same fail as in previous test of canvas layout - failed 10-05-2017
+
+          // switch to slide (is default when layout-type is not defined is slide)
+          layoutType = {};
+          layoutType[frdataLjAtt] = 'slide';
+          utilities.setAttributes('layer', layoutType);
+
+          // test that layout-type has changed to slide(if for data-lj- or lj-) //passed  - 10-05-2017
+          if (i == 0) {
+            protractor.promise.all([
+              utilities.getAttribute('layer', 'data-lj-layout-type')
+            ]).then(function(data) {
+              var att = data[0];
+
+              expect(att).toEqual('slide'); // passed 10-05-2017
+            });
+          } else {
+            protractor.promise.all([
+              utilities.getAttribute('layer', 'lj-layout-type')
+            ]).then(function(data) {
+              var att = data[0];
+
+              expect(att).toEqual('slide'); // passed 10-05-2017
+            });
+          }
+
+          // test that the display for the inactive frame changed from block in canvas layout to none in slide laoyout.
+          expect(f2.getCssValue('display')).toBe('none'); // passed in slide layout - 10-05-2017 // but if wansn't 'block' in canvas, nothing has changed.
+
+          // show inactive frames at right position
+          protractor.promise.all([
+            utilities.getBoundingClientRect('frame2'),
+            f2.getCssValue('display')
+            // utilities.getStyle('frame2', 'display')
+            // utilities.getStyle('frame1', 'display')
+          ]).then(function(data) {
+            var inactive_frame_dimensions = data[0];
+            var f2_display = data[1];
+
+            expect(f2_display).toBe('none'); // passed in slide layout - 10-05-2017
+
+            //FIXME not sure if to check dimensions if the change is on the display value and not the positioning
+            // expect(inactive_frame_dimensions.top).toBe(300);
+            // expect(inactive_frame_dimensions.left).toBe(300);
+            // expect(inactive_frame_dimensions.right).toBe(inactive_frame_dimensions.left + inactive_frame_dimensions.width);
+            // expect(inactive_frame_dimensions.bottom).toBe(inactive_frame_dimensions.top + inactive_frame_dimensions.height);
+            // expect(inactive_frame_dimensions.width).toBe(200);
+            // expect(inactive_frame_dimensions.height).toBe(200);
+
+            // console.log(f2_display);
+            // expect(f2_display).toBe('block'); // Expected 'none' to be 'block'.
+
+            // remove the attributes to allow a reset for next iteration in the for loop
+            utilities.removeAttribute('layer', 'data-lj-layout-type');
+            utilities.removeAttribute('layer', 'lj-layout-type');
+          });
+        }
+      });
+    });
+
+  });
+
+  // data-lj-/lj-native-scroll failed 10-05-2017 - TODO try another way to implement - suggestion at end of 'it'
+  describe('data-lj-native-scroll and lj-native-scroll,', function() {
+
+    it('change data-lj/lj-native-scroll', function() {
+      browser.get('attributemutations/attribute_mutations_native_scroll.html').then(function() {
+
+        var prefix = ['data-lj-', 'lj-'];
+
+        for (var i = 0; i < prefix.length; i++) {
+
+          var frdataLjAtt = prefix[i] + 'native-scroll'; //once data-lj-, once lj-
+          var nativeScroll = {};
+
+          nativeScroll[frdataLjAtt] = true;
+          utilities.setAttributes('layer', nativeScroll);
+
+          // test that 'layer' has 'lj-helper' child element
+          protractor.promise.all([
+            utilities.childHasAttribute('layer', 'lj-helper')
+          ]).then(function(data) {
+            var hasHelper = data[0];
+
+            expect(hasHelper).toBe(true); // passed. 10-05-2017 - but as default, when no native-scroll is the defined, it is defined as native-scroll='true' and so will have the lj-helper even when native-scroll is not defined manually.
+
+            nativeScroll[frdataLjAtt] = false;
+            utilities.setAttributes('layer', nativeScroll).then(function() {
+
+              // test that 'layer' doesn't have a 'lj-helper' child element
+              protractor.promise.all([
+                utilities.childHasAttribute('layer', 'lj-helper')
+              ]).then(function(data) {
+                var hasHelper = data[0];
+
+                expect(hasHelper).toBe(false); //  failed 10-05-2017 - result: Expected true to be false.
+
+                // remove the attributes to allow a reset for next iteration in the for loop
+                utilities.removeAttribute('layer', 'data-lj-native-scroll');
+                utilities.removeAttribute('layer', 'lj-native-scroll');
+
+                //another way to try changing the native scroll: from layerjs.js:
+                /**
+                 * Will toggle native and non-native scrolling
+                 *
+                 * @param {boolean} nativeScrolling
+                 */
+                // utilities.switchScrolling('layer', nativeScrolling);
+                // maybe need to do inside a  protractor.promise.all
+              });
+            });
+          });
+        }
+      });
+    });
+
+  });
 
 });
