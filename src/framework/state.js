@@ -182,21 +182,22 @@ var State = Kern.EventManager.extend({
 
     // map the given state (list of (reduced) paths) into a list of fully specified paths (may be more paths than in states list)
     var paths = []; // path to transition to
-    var seenPaths = {}; // for deduplicating paths
+    var seenLayers = {}; // for deduplicating paths
     states.map(function(state) {
       return that.resolvePath(state);
     }).forEach(function(layerframe, index) {
       for (var i = 0; i < layerframe.length; i++) {
-        if (seenPaths.hasOwnProperty(layerframe[i].layerPath)) {
-          Kern._extend(paths[seenPaths[layerframe[i].layerPath]].transition, transitions[Math.min(index, transitions.length - 1)] || {});
-          paths[seenPaths[layerframe[i].layerPath]].frameName = layerframe[i].frameName;
+        var layer = layerframe[i].layer.id();
+        if (seenLayers.hasOwnProperty(layer)) {
+          Kern._extend(paths[seenLayers[layer]].transition, transitions[Math.min(index, transitions.length - 1)] || {});
+          paths[seenLayers[layer]].frameName = layerframe[i].frameName;
         } else {
           paths.push({ // ignore currently active frames
             layer: layerframe[i].layer,
             frameName: layerframe[i].frameName,
             transition: transitions[Math.min(index, transitions.length - 1)] || {}
           });
-          seenPaths[layerframe[i].layerPath] = paths.length - 1;
+          seenLayers[layer] = paths.length - 1;
         }
       }
     });
@@ -291,7 +292,6 @@ var State = Kern.EventManager.extend({
         if (view.type() !== 'layer') throw "state: expected layer name in front of '" + frameName + "'";
         result.push({
           layer: view,
-          layerPath: fullPath,
           frameName: frameName,
           path: fullPath + "." + frameName
         });
@@ -299,7 +299,6 @@ var State = Kern.EventManager.extend({
         if (view.type() === 'frame') { // for frames return a bit more information which is helpful to trigger the transition
           result.push({
             layer: view.parent,
-            layerPath: this.views[view.parent.id()].path,
             view: view,
             frameName: frameName,
             path: fullPath,
