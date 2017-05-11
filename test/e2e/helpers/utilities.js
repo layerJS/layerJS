@@ -500,7 +500,7 @@ utilities.addElement = function(parentId, elementHTML) {
 
 utilities.navigate = function(url, contextElementId) {
   return browser.driver.executeAsyncScript(function(url, contextElementId, callBack) {
-    layerJS.router._navigate(url, true, document.getElementById(contextElementId));
+    layerJS.router.navigate(url, document.getElementById(contextElementId));
     callBack();
   }, url, contextElementId);
 }
