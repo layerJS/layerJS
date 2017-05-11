@@ -160,13 +160,13 @@ var Router = Kern.EventManager.extend({
   /**
    * Will be called when the state is changed (stateChanged event).
    * Will create a url to represent the current (changed) state.
-   * @param {Array} newState the minimised (changed) state
+   * @param {Array} newState the minimized (changed) state
    */
-  _stateChanged: function(newState, payload) {
+  _stateChanged: function(state, payload) {
 
-    newState = newState || {
+    var newState = (state && state.exportMinimizedState()) || {
       state: [],
-      ommittedState: []
+      omittedState: []
     };
     // prepare data for the routers
     var options = Kern._extend($.splitUrl(window.location.href), newState);

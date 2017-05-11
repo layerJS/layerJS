@@ -243,7 +243,7 @@ describe('Filerouter', function() {
       cacheCurrent: true
     });
     console.log(fileRouter.routes);
-    expect(fileRouter.routes['http://localhost/']).toEqual(state.exportState().state);
+    expect(fileRouter.routes['http://localhost/']).toEqual(state.exportState());
   });
 
   it('can build an url based on it\'s cached states', function() {
@@ -263,7 +263,7 @@ describe('Filerouter', function() {
     expect(options.state).toEqual(['stage1.layer4.frame2']);
   });
 
-it('can build an url based on it\'s cached states (and will take ommittedStates into account)', function() {
+it('can build an url based on it\'s cached states (and will take omittedStates into account)', function() {
     var fileRouter = new FileRouter();
 
     fileRouter.routes['http://localhost/index.html?id=1&a=4'] = ['stage1.layer1.frame1', 'stage1.layer2.frame2', 'stage1.layer3.frame3'];
@@ -272,7 +272,7 @@ it('can build an url based on it\'s cached states (and will take ommittedStates 
     var options = {
       url: '',
       state: ['stage1.layer1.frame1', 'stage1.layer4.frame2'],
-      ommittedStates : ['stage1.layer2.frame2']
+      omittedStates : ['stage1.layer2.frame2']
     };
 
     fileRouter.buildUrl(options);

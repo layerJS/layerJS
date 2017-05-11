@@ -70,7 +70,7 @@ var State = Kern.EventManager.extend({
         }
         if (trigger) {
           // trigger the event and keep a copy of the new state to compare it to next time
-          this.trigger("stateChanged", this.exportState(true), payload);
+          this.trigger("stateChanged", this, payload);
         }
       }, {
         context: this
@@ -108,14 +108,28 @@ var State = Kern.EventManager.extend({
   },
   /**
    * Will return all paths to active frames. Will be sorted in DOM order
-   * @param {boolean} minimise When true, minimise the returned paths
-   * @returns {object} An object than contains an array of active states and an array of ommittedStates.
+   * @returns {array} An array than contains the paths of the active frames
    */
-  exportState: function(minimise) {
-    minimise = minimise || false;
+  exportState: function(){
+    return this._exportState().state;
+  },
+  /**
+   * Will return all paths to active frames. Will be sorted in DOM order. layers at default frame or with noURL will be given in "omittedStates", all relevant active frames are retunred in "state"
+   * @returns {object} An object than contains an array of active states and an array of omittedStates.
+   */
+  exportMinimizedState: function(){
+    return this._exportState(true);
+  },
+  /**
+   * Will return all paths to active frames. Will be sorted in DOM order
+   * @param {boolean} minimize When true, minimize the returned paths
+   * @returns {object} An object than contains an array of active states and an array of omittedStates.
+   */
+  _exportState: function(minimize) {
+    minimize = minimize || false;
     var result = {
       state: [],
-      ommittedState: []
+      omittedState: []
     };
     var that = this;
 
@@ -125,14 +139,14 @@ var State = Kern.EventManager.extend({
       .forEach(function(layerOuterEl) {
         var layer = layerOuterEl._ljView;
         if (layer.currentFrame) {
-          if ((true === minimise) && (layer.noUrl() || layer.currentFrame.name() === layer.defaultFrame() ||
+          if ((true === minimize) && (layer.noUrl() || layer.currentFrame.name() === layer.defaultFrame() ||
               (null === layer.defaultFrame() && null === layer.currentFrame.outerEl.previousElementSibling))) {
-            result.ommittedState.push(that.views[layer.currentFrame.id()].path);
+            result.omittedState.push(that.views[layer.currentFrame.id()].path);
           } else {
             result.state.push(that.views[layer.currentFrame.id()].path);
           }
-        } else if (true === minimise && layer.defaultFrame() === '!none') {
-          result.ommittedState.push(that.views[layer.id()].path + ".!none");
+        } else if (true === minimize && layer.defaultFrame() === '!none') {
+          result.omittedState.push(that.views[layer.id()].path + ".!none");
         } else {
           result.state.push(that.views[layer.id()].path + ".!none");
         }

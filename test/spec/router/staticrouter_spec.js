@@ -84,7 +84,7 @@ describe('staticRouter', function() {
     var options = {
       url: '',
       state: ['stage1.layer1.frame1'],
-      ommittedState : ['stage1.layer2.frame2']
+      omittedState : ['stage1.layer2.frame2']
     };
 
     staticRouter.buildUrl(options);

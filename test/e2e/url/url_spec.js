@@ -38,7 +38,7 @@ describe('url', function() {
   it('will deterime initial state of the page', function() {
     browser.get('url/index.html#frameY').then(function() {
       utilities.exportState().then(function(exportedState) {
-        expect(exportedState.state).toEqual(['stage1.layer1.frame1', 'stage2.layer2.frameY']);
+        expect(exportedState).toEqual(['stage1.layer1.frame1', 'stage2.layer2.frameY']);
         expect(element(by.id('frame1')).isDisplayed()).toBeTruthy();
         expect(element(by.id('frame2')).isDisplayed()).toBeFalsy();
         expect(element(by.id('frameY')).isDisplayed()).toBeTruthy();
@@ -54,7 +54,7 @@ describe('url', function() {
   it('will remove transition parameters', function() {
     browser.get('url/index.html#frameY?t=1s&p=left').then(function() {
       utilities.exportState().then(function(exportedState) {
-        expect(exportedState.state).toEqual(['stage1.layer1.frame1', 'stage2.layer2.frameY']);
+        expect(exportedState).toEqual(['stage1.layer1.frame1', 'stage2.layer2.frameY']);
         expect(element(by.id('frame1')).isDisplayed()).toBeTruthy();
         expect(element(by.id('frame2')).isDisplayed()).toBeFalsy();
         expect(element(by.id('frameY')).isDisplayed()).toBeTruthy();

@@ -16,7 +16,7 @@ var FileRouter = StaticRouter.extend({
       var parsed = $.splitUrl(window.location.href);
       parsed.queryString = $.parseStringForTransitions(parsed.queryString, true).string;
       // FIXME: this need to wait for state.initialized
-      this.addRoute($.joinUrl(parsed, true), this._state.exportState().state);
+      this.addRoute($.joinUrl(parsed, true), this._state.exportState());
     }
   },
   /**
@@ -80,11 +80,9 @@ var FileRouter = StaticRouter.extend({
               console.warn("layerJS: filerouter: loaded new document '" + $.joinUrl(options, true) + "' but didn't add any new content. You should give the frame that should be added a different name or id.");
             }
             var exportedState = fileState.exportState();
-            var framesToTransitionTo = exportedState.state;
-            Array.prototype.push.apply(framesToTransitionTo, exportedState.ommittedState);
 
             // only transition is to paths that already existed or where just added
-            framesToTransitionTo = framesToTransitionTo.filter(function(path) {
+            var framesToTransitionTo = exportedState.filter(function(path) {
               var isSpecial = path.split('.').pop().startsWith('!');
               var pathToFind = path;
               // if it is a special frame, check if parent exists or was added
@@ -100,7 +98,7 @@ var FileRouter = StaticRouter.extend({
               return Kern._extend({}, options.globalTransition);
             });
             // cache the new state so that we don't need to request the same page again.
-            that.addRoute($.joinUrl(options, true), exportedState.state);
+            that.addRoute($.joinUrl(options, true), exportedState);
 
             // we modified HTML. need to wait for rerender and mutation observers
             $.postAnimationFrame(function() {
