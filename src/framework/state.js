@@ -131,10 +131,10 @@ var State = Kern.EventManager.extend({
           } else {
             result.state.push(that.views[layer.currentFrame.id()].path);
           }
-        } else if (true !== minimise) {
-          result.state.push(that.views[layer.id()].path + ".!none");
-        } else {
+        } else if (true === minimise && layer.defaultFrame() === '!none') {
           result.ommittedState.push(that.views[layer.id()].path + ".!none");
+        } else {
+          result.state.push(that.views[layer.id()].path + ".!none");
         }
       });
 
