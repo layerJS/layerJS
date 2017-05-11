@@ -424,7 +424,8 @@ var LayerView = BaseView.extend({
     });
   },
   noFrameTransformdata: function(transitionStartPosition) {
-    var d = {};
+    if (this._noframetd && this._noframetd.startPosition===transitionStartPosition) return this._noframetd;
+    var d = this._noframetd = {};
     d.stage = this.stage;
     d.scale = 1;
     d.width = d.frameWidth = this.stage.width();
