@@ -1,120 +1,125 @@
 'use strict';
 var Kern = require('../../kern/Kern.js');
 var parseManager = require("../parsemanager.js");
-var state = require("../state.js");
 var $ = require('../domhelpers.js');
-var defaults = require('../defaults.js');
+var StaticRouter = require('./staticrouter.js');
 
-var FileRouter = Kern.EventManager.extend({
+var FileRouter = StaticRouter.extend({
   constructor: function(options) {
     options = options || {};
 
-    this._cache = {};
+    this._state = layerJS.getState();
+    StaticRouter.call(this, options);
 
     if (options.cacheCurrent) {
-      var url = window.location.href.split('#')[0].replace(window.location.origin,'');
-      this._cache[url] = state.exportState();
+      // remove layerJS parameters from the url before caching it the fist time
+      var parsed = $.splitUrl(window.location.href);
+      parsed.queryString = $.parseStringForTransitions(parsed.queryString, true).string;
+      // FIXME: this need to wait for state.initialized
+      this.addRoute($.joinUrl(parsed, true), this._state.exportState());
     }
   },
   /**
    * Will do the actual navigation to the url
-   * @param {UrlData} an url
+   * @param {string} url an url
+   * @param {object} options contains url, paths, transitions, globalTransition, context
    * @return {boolean} True if the router handled the url
    */
-  handle: function(urlData) {
+  handle: function(options) {
     var that = this;
     var promise = new Kern.Promise();
-    var canHandle = true;
 
-    if (urlData.url.match(/^\w+:/)) { // absolute URL
-      if (!urlData.url.match(new RegExp('^' + window.location.origin))) {
-        canHandle = false;
-        promise.resolve({
-          handled: false,
-          stop: false
-        });
-      }
-    }
+    // check static router if we have cached this url
 
-    var splitted = urlData.url.split('#');
-    if (canHandle && window.location.href.indexOf(urlData.pathname) !== -1 && splitted.length > 1) {
-      // same file and with a hash
-      canHandle = false;
-      promise.resolve({
-        handled: false,
-        stop: false
-      });
-    }
+    StaticRouter.prototype.handle.call(this, options).then(function(result) {
+      if (result.handled || result.optout) {
+        promise.resolve(result);
+      } else {
+        that._loadHTML($.joinUrl(options, true)).then(function(doc) {
+            parseManager.parseDocument(doc);
+            var globalStructureHash = {};
 
-    if (canHandle && this._cache.hasOwnProperty(urlData.pathname)) {
-      canHandle = false;
-      var framesToTransitionTo = this._cache[urlData.pathname];
-      state.transitionTo(framesToTransitionTo, urlData.transition);
-      promise.resolve({
-        stop: false,
-        handled: true
-      });
-    }
+            var state = that._state;
+            // create a hash that contains all paths for the current document
+            state.exportStructure().forEach(function(path) {
+              globalStructureHash[path] = {};
+            });
 
-    if (canHandle) {
-      this._loadHTML(urlData.url).then(function(doc) {
-        parseManager.parseDocument(doc);
-        var loadedFrames = state.exportStructure(doc);
-        var toParseChildren = {};
-        var alreadyImported = {};
+            var fileState = layerJS.getState(doc);
+            var addedHash = [];
 
-        for (var x = 0; x < loadedFrames.length; x++) {
-          var orginalView = state.getViewForPath(loadedFrames[x], document);
-          if (undefined !== orginalView || loadedFrames[x].endsWith('.' + defaults.specialFrames.none)) {
-            // already imported or null frame
-            continue;
-          }
+            fileState.exportStructure().forEach(function(path) {
 
-          var parentView;
-          var parentPath = loadedFrames[x];
-          var pathToImport;
+              // check if new path exists in current state
+              if (!globalStructureHash[path]) {
+                // check if the parent is already added in this run
+                var found = addedHash.filter(function(addedPath) {
+                  return path.startsWith(addedPath);
+                }).length > 0;
 
-          while (undefined === parentView && parentPath.indexOf('.') > 0 && !alreadyImported.hasOwnProperty(parentPath)) {
-            pathToImport = parentPath;
-            parentPath = pathToImport.replace(/\.[^\.]*$/, "");
-            parentView = state.getViewForPath(parentPath, document);
-            // find parent in existing document or check if it has just been added
-          }
+                if (!found) {
+                  // Path not yet added
+                  var isRoot = !(path.match(/\./)); // is the new path a root path (a root stage)?
+                  // get parent path
+                  var parentPath = path.replace(/\.[^\.]*$/, '');
+                  // only add the new path if the parent exists in current state
+                  if (globalStructureHash[parentPath] || isRoot) {
+                    var html = fileState.resolvePath(path)[0].view.outerEl.outerHTML; // this should always resolve to a single view
+                    var parentHTML = isRoot ? document.body : state.resolvePath(parentPath)[0].view.innerEl;
+                    parentHTML.insertAdjacentHTML('beforeend', html);
+                    addedHash.push(path);
+                  } else {
+                    // this should never happen because structure is tranversered in DOM order
+                    throw "filerouter: didn't find '" + parentPath + "' in current document to add new '" + path + "'";
+                  }
+                }
+              }
+            });
 
-          if (undefined !== parentView && !alreadyImported.hasOwnProperty[parentPath]) {
-            // parent found and not yet imported, add it's child (pathToImport) to it
-            var stateToImport = state.getStateForPath(pathToImport, doc);
-            stateToImport.view.outerEl.style.opacity = 0;
-            parentView.innerEl.insertAdjacentHTML('beforeend', stateToImport.view.outerEl.outerHTML);
-            toParseChildren[parentPath] = true;
-            alreadyImported[pathToImport] = true;
-          }
-        }
+            if (addedHash.length === 0) {
+              console.warn("layerJS: filerouter: loaded new document '" + $.joinUrl(options, true) + "' but didn't add any new content. You should give the frame that should be added a different name or id.");
+            }
+            var exportedState = fileState.exportState();
 
-        var framesToTransitionTo = state.exportState(doc);
-        that._cache[urlData.url] = framesToTransitionTo;
+            // only transition is to paths that already existed or where just added
+            var framesToTransitionTo = exportedState.filter(function(path) {
+              var isSpecial = path.split('.').pop().startsWith('!');
+              var pathToFind = path;
+              // if it is a special frame, check if parent exists or was added
+              if (isSpecial) {
+                pathToFind = path.replace(/\.[^\.]*$/, '');
+              }
+              // only transition to a path if it was added directly (not through a parent) or if it was present before
+              return globalStructureHash.hasOwnProperty(pathToFind) || addedHash.indexOf(pathToFind) !== -1;
+            });
 
-        if (framesToTransitionTo.length > 0) {
-          $.postAnimationFrame(function() {
-            state.transitionTo(framesToTransitionTo, urlData.transition);
+            // create a transition record for each frame path.
+            var transitions = framesToTransitionTo.map(function() {
+              return Kern._extend({}, options.globalTransition);
+            });
+            // cache the new state so that we don't need to request the same page again.
+            that.addRoute($.joinUrl(options, true), exportedState);
+
+            // we modified HTML. need to wait for rerender and mutation observers
+            $.postAnimationFrame(function() {
+              promise.resolve({
+                stop: false,
+                handled: true,
+                paths: framesToTransitionTo,
+                transitions: transitions
+              });
+            });
+          },
+          function() { // if load failed resolve with handled false
             promise.resolve({
               stop: false,
-              handled: true
+              handled: false,
+              paths: [],
+              transitions: []
             });
           });
-        } else {
-          promise.resolve({
-            stop: false,
-            handled: true
-          });
-        }
-      }, function() {
-        promise.resolve({
-          stop: false,
-          handled: false
-        });
-      });
-    }
+      }
+    });
 
     return promise;
   },
@@ -133,10 +138,14 @@ var FileRouter = Kern.EventManager.extend({
         p.reject();
       };
       xhr.onload = function() {
-        var doc = document.implementation.createHTMLDocument("framedoc");
-        doc.documentElement.innerHTML = xhr.responseText;
 
-        p.resolve(doc);
+        if (xhr.status === 200) {
+          var doc = document.implementation.createHTMLDocument("framedoc");
+          doc.documentElement.innerHTML = xhr.responseText;
+          p.resolve(doc);
+        } else {
+          p.reject();
+        }
       };
       xhr.open("GET", URL);
       xhr.responseType = "text";

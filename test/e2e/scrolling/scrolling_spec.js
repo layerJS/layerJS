@@ -203,6 +203,22 @@ describe('scrolling', function() {
         });
       });
     });
+
+    it('clicking on an anchor will scroll the frame to the specific tag', function() {
+      browser.get('scrolling/native_scrolling_anchor.html').then(function() {
+        utilities.getBoundingClientRect('test').then(function(tag_bounding_before) {
+          var link = element(by.css('a[href*="#test"]'))
+          link.click().then(function() {
+            utilities.wait(2000);
+            utilities.getBoundingClientRect('test').then(function(tag_bounding_after) {
+              utilities.getScroll('layer').then(function(layer_scroll_after) {
+                expect(tag_bounding_before.top).toBe(tag_bounding_after.top + layer_scroll_after.scrollTop);
+              });
+            });
+          });
+        });
+      });
+    });
   });
 
   describe('a transition can pass in a startPosition', function() {
@@ -688,6 +704,22 @@ describe('scrolling', function() {
                 utilities.getBoundingClientRect('frame1').then(function(frame_dimensions_after) {
                   expect(frame_dimensions_after.top).toBe(0);
                 });
+              });
+            });
+          });
+        });
+      });
+    });
+
+    it('clicking on an anchor will scroll the frame to the specific tag', function() {
+      browser.get('scrolling/non_native_scrolling_anchor.html').then(function() {
+        utilities.getBoundingClientRect('test').then(function(tag_bounding_before) {
+          var link = element(by.css('a[href*="#test"]'))
+          link.click().then(function() {
+            utilities.wait(2000);
+            utilities.getBoundingClientRect('test').then(function(tag_bounding_after) {
+              utilities.getBoundingClientRect('frame1').then(function(layer_scroll_after) {
+                expect(tag_bounding_after.top).toBe(tag_bounding_before.top + layer_scroll_after.top);
               });
             });
           });

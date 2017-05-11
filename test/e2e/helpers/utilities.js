@@ -504,5 +504,19 @@ utilities.navigate = function(url, contextElementId) {
     callBack();
   }, url, contextElementId);
 }
+utilities.showState = function(states, transitions, payload) {
+  return browser.driver.executeAsyncScript(function(states, transitions, payload, callBack) {
+    layerJS.getState().showState(states, transitions, payload);
+    callBack();
+  }, states, transitions, payload);
+};
+
+utilities.exportState = function(){
+  return browser.driver.executeAsyncScript(function(callBack){
+    var exportedState = layerJS.getState().exportState();
+    callBack(exportedState);
+  });
+};
+
 
 module.exports = utilities;

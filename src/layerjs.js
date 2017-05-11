@@ -1,6 +1,8 @@
 'use strict';
+
 require("./kern/kern.js");
 require("./framework/layerjs.js");
+require("./framework/state.js");
 
 /* others*/
 require("./framework/pluginmanager.js");
@@ -11,7 +13,6 @@ require("./framework/layouts/slidelayout.js");
 require("./framework/layouts/canvaslayout.js");
 require("./framework/gestures/gesturemanager.js");
 require("./framework/router/router.js");
-require("./framework/state.js");
 
 /* data objects*/
 require("./framework/defaults.js");
@@ -21,7 +22,7 @@ require("./framework/defaults.js");
 require("./framework/layerview.js");
 require("./framework/frameview.js");
 require("./framework/stageview.js");
-
+var href = window.location.href;
 var FileRouter = require("./framework/router/filerouter.js");
 var HashRouter = require("./framework/router/hashrouter.js");
 
@@ -32,9 +33,9 @@ layerJS.init = function() {
   }));
   layerJS.router.addRouter(new HashRouter());
 
-  layerJS.router.cache = false;
+
   // disable cache completely until we find a solution for wrongly stored stages (see issue #45)
-  layerJS.router._navigate(window.location.href, false).then(function() {
+  layerJS.router.navigate(href, null, true, true).then(function() {
     // layerJS.router.cache = true;
   });
 };

@@ -180,16 +180,18 @@
        * unregister event handler.
        * @param {string} event the event name
        * @param {Function} callback the callback
+       * @param {Object} context the object that registered the listener (if given as options.context when binding)
        * @return {Object} this object
        */
-      off: function(event, callback) {
-        var i;
+      off: function(event, callback, context) {
+        var i, listeners;
         if (event) {
-          if (callback) {
-            // remove specific call back for given event
-            for (i = 0; i < this.__listeners__[event].length; i++) {
-              if (this.__listeners__[event][i].callback === callback) {
-                this.__listeners__[event].splice(i, 1);
+          if (callback || context) {
+            // remove specific callback / context for given event
+            listeners = this.__listeners__[event];
+            for (i = 0; i < listeners.length; i++) {
+              if ((!callback || listeners[i].callback === callback) && (!context || listeners[i].options.context === context)) {
+                listeners.splice(i, 1);
               }
             }
           } else {
@@ -197,13 +199,14 @@
             delete this.__listeners__[event];
           }
         } else {
-          if (callback) {
+          if (callback || context) {
             // remove specific callback in all event
             for (var ev in this.__listeners__) {
               if (this.__listeners__.hasOwnProperty(ev)) {
-                for (i = 0; i < this.__listeners__[ev].length; i++) {
-                  if (this.__listeners__[ev][i].callback === callback) {
-                    this.__listeners__[ev].splice(i, 1);
+                listeners = this.__listeners__[ev];
+                for (i = 0; i < listeners.length; i++) {
+                  if ((!callback || listeners[i].callback === callback) && (!context || listeners[i].options.context === context)) {
+                    listeners.splice(i, 1);
                   }
                 }
               }
@@ -234,7 +237,8 @@
               args[j] = arguments[j + 1];
             }
             // call the callback
-            this.__listeners__[event][i].callback.apply(this, args);
+            var listener = this.__listeners__[event][i];
+            listener.callback.apply(listener.options.context || this, args);
           }
         }
         return this;
@@ -263,40 +267,12 @@
               args[j] = arguments[j + 2];
             }
             // call the callback
-            this.__listeners__[event][i].callback.apply(this, args);
+            var listener = this.__listeners__[event][i];
+            listener.callback.apply(listener.options.context || this, args);
           }
         }
         return this;
       },
-      /**
-       * return a functions that calls callback function with "this" set to context and
-       * further argements supplied in bind and supplied to the returned function
-       *
-       * @param {function} callback the function to be called
-       * @param {Object} context this context of the function to be called
-       * @param {arguments} arguments further arguments supplied to the callback on each call
-       * @return {Function} a function that can be called anywhere (eg as an event handler)
-       */
-      bindContext: function(callback, context) { // WARN: this method seems to introduce an extreme performance hit!
-        var length = arguments.length;
-        var args = new Array(length - 2);
-        for (var j = 0; j < length - 2; j++) {
-          args[j] = arguments[j + 2];
-        }
-        return function() {
-          var length = args.length;
-          var length2 = arguments.length;
-          var args2 = new Array(length + length2);
-          var j;
-          for (j = 0; j < length; j++) {
-            args2[j] = args[j];
-          }
-          for (j = 0; j < length2; j++) {
-            args2[j + length] = arguments[j];
-          }
-          callback.apply(context, args2);
-        };
-      }
     });
 
     /**
@@ -378,7 +354,7 @@
               that.nextPromise.resolve(result);
             }
           } catch (e) {
-            console.log("in Promise handler:", e.stack);
+            console.log("in Promise handler:", e);
             this.nextPromise.reject(e);
           }
         } else if (this.state === false) {
@@ -448,7 +424,46 @@
         return p;
       }
     });
-
+    /**
+     * Simple queue which makes sure entries are executed one after each other. Add a new entry with myQueue.add() which returns a promise. Do whatever has to be done with this entry within the promise's then() part and afterwards call myQueue.continue() to start triggering the next entry.
+     *
+     */
+    var Queue = Kern.Queue = Base.extend({
+      constructor: function() {
+        this.q = []; // a queue of promises which will be fullfilled one after each other
+        this.waiting = false; // are we waiting for a queue entry to complete (NOTE: this could be true even if q[] is empty)
+      },
+      /**
+       * add an entry to the queue. A new promise is returned that will resolve when all previous entries have finished
+       *
+       * @param {Type} Name - Description
+       * @returns {Type} Description
+       */
+      add: function() {
+        var p = new Kern.Promise();
+        if (!this.waiting) {
+          p.resolve();
+          this.waiting = true;
+        } else {
+          this.q.push(p);
+        }
+        return p;
+      },
+      /**
+       * indicate that the execution of the current entry has finished and that the next entry can resolve (if any)
+       *
+       * @param {Type} Name - Description
+       * @returns {Type} Description
+       */
+      continue: function() {
+        if (this.q.length) {
+          var p = this.q.shift();
+          p.resolve();
+        } else {
+          this.waiting = false;
+        }
+      }
+    });
     return Kern;
   };
 

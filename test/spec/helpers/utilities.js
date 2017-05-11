@@ -22,6 +22,7 @@ utilities._beforeAll = function() {
   style.innerHTML = "";
 
   this.setHtml("");
+  layerJS.getState(document);
 }
 
 utilities._beforeEachNodeJS = function() {
@@ -52,9 +53,14 @@ utilities.beforeEach = function() {
 }
 
 utilities.afterEach = function() {
-  layerJS.state.tree = {};
+  var state = layerJS.getState();
+  state.views = {};
+  state.layers = [];
+  state.paths = {};
+  state._transitionGroup = {};
+  state._transitionGroupId = 0;
+  state.previousState = undefined;
   layerJS.router.clearRouters();
-  layerJS.router.previousUrl = undefined;
 
   var sizeObserver = require("../../../src/framework/observer/sizeobserver.js");
   sizeObserver.views = {};

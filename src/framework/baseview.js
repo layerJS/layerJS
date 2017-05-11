@@ -1,5 +1,4 @@
 'use strict';
-var state = require('./state.js');
 var $ = require('./domhelpers.js');
 var pluginManager = require('./pluginmanager.js');
 var parseManager = require('./parsemanager.js');
@@ -31,11 +30,12 @@ var BaseView = DOMObserver.extend({
     this.outerEl = this.outerEl || options.el || this.innerEl;
     this.outerEl._ljView = this;
 
-    state.registerView(this);
-
     if (!this.parent && this.outerEl._state && this.outerEl._state.view) {
       this.parent = this.outerEl._state.parent.view;
     }
+
+    var state = layerJS.getState(this.document);
+    state.registerView(this);
 
     this._parseChildren();
     this.registerEventHandlers();
@@ -66,11 +66,12 @@ var BaseView = DOMObserver.extend({
   },
   /**
    * Will parse the current DOM Element it's children.
-   * @param {object} options - optional: includes addedNodes
+   * Will trigger childAdded and/or childRemoved.
+   * @param {object} options - optional: includes addedNodes, removedNodes
    */
   _parseChildren: function(options) {
     options = options || {};
-
+    var that = this;
     this._cache.children = [];
     this._cache.childNames = {};
     this._cache.childIDs = {};
@@ -84,6 +85,7 @@ var BaseView = DOMObserver.extend({
             document: this.document
           });
           this._renderChildPosition(child._ljView);
+          this.trigger('childAdded', child._ljView);
         }
         if (child._ljView && child._ljView.type() === this.childType) {
           var cv = child._ljView;
@@ -98,10 +100,24 @@ var BaseView = DOMObserver.extend({
       for (var x = 0; x < length; x++) {
         // check if added nodes don't already have a view defined.
         if (!options.addedNodes[x]._ljView) {
-          parseManager.parseElement(options.addedNodes[x].parentNode);
+          parseManager.parseElement(options.addedNodes[x].parentNode, {
+            parent: this
+          });
+        }
+        if (options.addedNodes[x]._ljView) {
+          this.trigger('childAdded', options.addedNodes[x]._ljView);
         }
       }
     }
+
+    if (options.removedNodes && options.removedNodes.length > 0) {
+      options.removedNodes.forEach(function(removedNode) {
+        if (removedNode._ljView) {
+          that.trigger('childRemoved', removedNode._ljView);
+        }
+      });
+    }
+
   },
   /**
    * Will return a childview by a specific name
@@ -227,22 +243,18 @@ var BaseView = DOMObserver.extend({
     return this.outerEl && this.outerEl.nodeType;
   },
   /**
-   * Will return the width of the view (including the margins)
+   * Will return the width of the view
    *
    * @return {Number} the width of the view
    */
   width: function() {
-
-    var margin = this.getMargin();
-    var marginToAdd = margin.left + margin.right;
-
     var width = this.getAttributeLJ('width') || this.getAttribute('width'); // prefer explicit width
     if (width !== null) {
-      this.setWidth(width + marginToAdd); // if we had an explicit width we need to apply this.
+      this.setWidth(width); // if we had an explicit width we need to apply this.
     } else {
       width = this.outerEl.offsetWidth || this.outerEl.style.width || 0; // else take width of element
     }
-    return $.parseDimension(width, this.outerEl) + marginToAdd; // we always return width incl. margin to also fit margin into stage
+    return $.parseDimension(width, this.outerEl);
   },
   /**
    * Will return the height of the view (including the margins)
@@ -250,17 +262,13 @@ var BaseView = DOMObserver.extend({
    * @return {Number} the height of the view
    */
   height: function() {
-
-    var margin = this.getMargin();
-    var marginToAdd = margin.top + margin.bottom;
-
     var height = this.getAttributeLJ('height') || this.getAttribute('height'); // prefer explicit height
     if (height !== null) {
-      this.setHeight(height + marginToAdd); // if we had an explicit height we need to apply this.
+      this.setHeight(height); // if we had an explicit height we need to apply this.
     } else {
       height = this.outerEl.offsetHeight || this.outerEl.style.height || 0; // else take height of element
     }
-    return $.parseDimension(height, this.outerEl) + marginToAdd; // we always return height incl. margin to also fit margin into stage
+    return $.parseDimension(height, this.outerEl);
   },
   /**
    * Will set the width of the view (excluding the margins)
@@ -490,7 +498,15 @@ var BaseView = DOMObserver.extend({
   timer: function() {
     return this.getAttributeLJ('timer');
   },
-
+  /**
+   * Will return if the layer allows dragging
+   *
+   * @return {Boolean} the value of the lj-draggable attribute
+   */
+  draggable: function() {
+    var draggable = this.getAttributeLJ('draggable');
+    return draggable === 'true' ? true : false;
+  },
   /**
    * ##destroy
    * This element was requested to be deleted completly; before the delete happens

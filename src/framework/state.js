@@ -3,114 +3,24 @@
 var Kern = require('../kern/Kern.js');
 var layerJS = require('./layerjs.js');
 var $ = require('./domhelpers.js');
-var defaults = require('./defaults.js');
-
 /**
  *  class that will contain the state off all the stages, layers, frames
  *
- * @extends Kern.Base
+ * @extends Kern.EventManager
  */
-var State = Kern.Base.extend({
-  constructor: function() {
+var State = Kern.EventManager.extend({
+  constructor: function(doc) {
+    this.document = doc || document;
+    this.document._ljState = this;
     this.viewTypes = ['stage', 'layer', 'frame'];
-  },
-  updateChildren: function(view, addedNodes, removedNodes) {
+    this.views = {}; // contains view and path; indexed by id
+    this.layers = []; // list of all layers (ids)
+    this.paths = {}; // lookup by path (and all path endings) for all ids
+    this._transitionGroupId = 0;
+    this._transitionGroup = {};
 
-    var viewState = view.outerEl._state;
-    var i;
-
-    if (undefined === viewState) {
-      return;
-    }
-
-    if (undefined !== addedNodes && addedNodes.length > 0) {
-      for (i = 0; i < addedNodes.length; i++) {
-        if (addedNodes[i]._ljView && -1 !== this.viewTypes.indexOf(addedNodes[i]._ljView.type())) {
-          this.buildParent(addedNodes[i], view.document);
-        }
-      }
-    }
-    if (undefined !== removedNodes && removedNodes.length > 0) {
-      for (i = 0; i < removedNodes.length; i++) {
-        if (removedNodes[i]._ljView && -1 !== this.viewTypes.indexOf(removedNodes[i]._ljView.type())) {
-          for (var childName in viewState.children) {
-            if (viewState.children.hasOwnProperty(childName)) {
-              if (viewState.children[childName].view === removedNodes[i]._ljView) {
-                delete viewState.children[childName];
-              }
-            }
-          }
-        }
-      }
-    }
-  },
-  buildParent: function(parentNode, ownerDocument) {
-    var currentState = {};
-
-    if (null === parentNode) {
-      // if we are at the root of the DOM return the state structure of the document
-      currentState = this._getTree(ownerDocument);
-    } else if (parentNode._state) {
-      // is the state of the element already present?
-      return parentNode._state;
-    } else {
-
-      // get the state of the parent layer,stage or frame node
-      currentState = this.buildParent(parentNode.parentElement, ownerDocument);
-      // layer helper divs are special; ignore them; ignoring means to pass the parent state as current state
-      if (parentNode._ljView && !$.hasAttributeLJ(parentNode, 'helper')) {
-        var view = parentNode._ljView;
-        // ignore everything except frames, layers and stages; ignoring means to pass the parent state as current state
-        if (view && -1 !== (this.viewTypes.indexOf(view.type()))) {
-          var name = view.name();
-          // layerJS object already added
-          if (!currentState.children.hasOwnProperty(name)) {
-            // create the actual current state datastructure as a child of the parent's state structure
-            currentState.children[name] = {
-              view: view,
-              children: {},
-              parent: currentState
-            };
-            if (view.type() === 'frame') {
-              currentState.children[name].active = false;
-              // check if the current frame is the active frame
-              if (currentState.view && currentState.view.currentFrame) {
-                currentState.children[name].active = currentState.view.currentFrame.name() === view.name();
-              }
-            } else if (view.type() === 'layer') {
-              // listen to state changes; state changes when transitions happen in layers
-              view.on('transitionStarted', this._transitionToEvent(currentState.children[name]));
-            }
-
-            view.on('childrenChanged', this._childrenChangedEvent(view));
-            view.on('attributesChanged', this._attributesChangedEvent(view));
-          }
-
-          // currentState did contain the parent's state; assing actual current state
-          currentState = currentState.children[name];
-
-          parentNode._state = currentState;
-        }
-      }
-    }
-
-    return currentState;
-  },
-  /**
-   * Will return all paths to active frames
-   * @param {object} the document who's state will be exported
-   * @returns {array} An array of strings pointing to active frames within the document
-   */
-  exportState: function(ownerDocument) {
-    return this._getPath(this._getTree(ownerDocument), '', true);
-  },
-  /**
-   * Will return all paths to frames
-   * @param {object} the document who's state will be exported
-   * @returns {array} An array of strings pointing to alle frames within the document
-   */
-  exportStructure: function(ownerDocument) {
-    return this._getPath(this._getTree(ownerDocument), '', false);
+    Kern.EventManager.call(this);
+    this.previousState = undefined;
   },
   /**
    * Will register a View with the state
@@ -119,228 +29,305 @@ var State = Kern.Base.extend({
   registerView: function(view) {
     // only add to state structure if the frame is really shown (attached to DOM)
     if (view.document.body.contains(view.outerEl)) {
-      this.buildParent(view.outerEl, view.document);
-      view.innerEl._state = view.outerEl._state;
-    }
-  },
-  /**
-   * Will return the state linked to a path
-   * @param {Object} a state
-   */
-  getStateForPath: function(path, ownerDocument) {
-    ownerDocument = ownerDocument || document;
-    var tree = this._getTree(ownerDocument);
-
-    var pathArray = path.split('.');
-    var currentState = tree;
-
-    for (var i = 0; i < pathArray.length; i++) {
-      if (currentState.children.hasOwnProperty(pathArray[i])) {
-        currentState = currentState.children[pathArray[i]];
-      } else {
-        currentState = undefined;
-        break;
+      var id = view.id();
+      if (this.views[id]) {
+        if (this.views[id].view !== view) throw "state.registerView: duplicate HTML id '" + id + "'";
+        return; // already registered;
       }
+      var path = this.buildPath(view.outerEl); // get full path of view
+      this.views[id] = {
+        view: view,
+        path: path
+      };
+      var that = this;
+      this.getTrailingPaths(path).forEach(function(tp) { // add paths index for all path endings
+        (that.paths[tp] = that.paths[tp] || []).push(id);
+      });
+      if (view.type() === 'layer') this.layers.push(id);
+      view.on('childAdded', function(child) {
+        that.registerView(child);
+      }, {
+        context: this
+      });
+      view.on('childRemoved', function(child) {
+        that.unregisterView(child);
+      }, {
+        context: this
+      });
+      view.on('transitionStarted', function(frameName, transition) {
+        var trigger = true;
+        var payload = {};
+        // check if state really changed
+        if (transition && transition.lastFrameName === frameName && !transition.hasOwnProperty('groupId')) return;
+        // when a transitiongroup is defined, only call stateChanged when all layers in group have invoked 'transitionStarted'
+        //  console.log(transition);
+        if (transition && transition.hasOwnProperty('groupId') && this._transitionGroup.hasOwnProperty(transition.groupId)) {
+          //  console.log(this._transitionGroup);
+          this._transitionGroup[transition.groupId].length--;
+          if (transition.lastFrameName !== frameName) this._transitionGroup[transition.groupId].changed = true; // remember if any of the transitions in this group really changed the state
+          trigger = this._transitionGroup[transition.groupId].length === 0 && this._transitionGroup[transition.groupId].changed;
+          payload = this._transitionGroup[transition.groupId].payload;
+        }
+        if (trigger) {
+          // trigger the event and keep a copy of the new state to compare it to next time
+          this.trigger("stateChanged", this, payload);
+        }
+      }, {
+        context: this
+      });
+      view.on('attributesChanged', this._attributesChangedEvent(view), {
+        context: this
+      });
     }
-
-    return currentState;
   },
   /**
-   * Will return the view linked to a path
-   * @param {Object} a layerJS View
+   * unregisters a view
+   *
+   * @param {Type} Name - Description
+   * @returns {Type} Description
    */
-  getViewForPath: function(path, ownerDocument) {
-    var state = this.getStateForPath(path, ownerDocument);
+  unregisterView: function(view) {
+    var i,
+      id = view.id(),
+      that = this;
+    this.getTrailingPaths(this.views[id].path).forEach(function(tp) {
+      var i = that.paths[tp].indexOf(id);
+      that.paths[tp].splice(i, 1);
+      if (that.paths[tp].length === 0) delete that.paths[tp];
+    });
+    if (view.type() === 'layer') {
+      i = this.layers.indexOf(view);
+      this.layers.splice(i, 1);
+    }
+    delete this.views[id]; // remove from views hash
+    view.off(undefined, undefined, this);
 
-    return state !== undefined ? state.view : undefined;
+    view.getChildViews().forEach(function(v) {
+      that.unregisterView(v);
+    });
+  },
+  /**
+   * Will return all paths to active frames. Will be sorted in DOM order
+   * @returns {array} An array than contains the paths of the active frames
+   */
+  exportState: function(){
+    return this._exportState().state;
+  },
+  /**
+   * Will return all paths to active frames. Will be sorted in DOM order. layers at default frame or with noURL will be given in "omittedStates", all relevant active frames are retunred in "state"
+   * @returns {object} An object than contains an array of active states and an array of omittedStates.
+   */
+  exportMinimizedState: function(){
+    return this._exportState(true);
+  },
+  /**
+   * Will return all paths to active frames. Will be sorted in DOM order
+   * @param {boolean} minimize When true, minimize the returned paths
+   * @returns {object} An object than contains an array of active states and an array of omittedStates.
+   */
+  _exportState: function(minimize) {
+    minimize = minimize || false;
+    var result = {
+      state: [],
+      omittedState: []
+    };
+    var that = this;
+
+    this.layers.map(function(layerId) {
+        return that.views[layerId].view.outerEl; // get the a list of the layer dom element
+      }).sort($.comparePosition) // sort in DOM order
+      .forEach(function(layerOuterEl) {
+        var layer = layerOuterEl._ljView;
+        if (layer.currentFrame) {
+          if ((true === minimize) && (layer.noUrl() || layer.currentFrame.name() === layer.defaultFrame() ||
+              (null === layer.defaultFrame() && null === layer.currentFrame.outerEl.previousElementSibling))) {
+            result.omittedState.push(that.views[layer.currentFrame.id()].path);
+          } else {
+            result.state.push(that.views[layer.currentFrame.id()].path);
+          }
+        } else if (true === minimize && layer.defaultFrame() === '!none') {
+          result.omittedState.push(that.views[layer.id()].path + ".!none");
+        } else {
+          result.state.push(that.views[layer.id()].path + ".!none");
+        }
+      });
+
+    return result;
+  },
+  /**
+   * Will return all paths to frames, layers and stages. Will be sorted in DOM order
+   * @returns {array} An array of strings pointing to alle frames within the document
+   */
+  exportStructure: function() {
+    var that = this;
+    return Object.keys(this.views).map(function(key) {
+      return that.views[key].view.outerEl;
+    }).sort($.comparePosition).map(function(element) {
+      return that.views[element._ljView.id()].path;
+    });
   },
   /**
    * Will transition to a state
    *
-   * @param {array} states States to transition to
-   * @param {object} transitions Transition properties
+   * @param {array} states State paths to transition to
+   * @param {object} transitions Array of transition records, one per state path, or a single transition record for all paths. Can be undefined in which case a default transition is triggered
    */
-  transitionTo: function(states, transitions) {
-    var triggerID = $.uniqueID("trigger");
-    transitions = Array.isArray(transitions) && transitions || [transitions || {}];
-    var pathsToTransition = this._determineTransitionPaths(states);
-    var semaphore = new Kern.Semaphore(pathsToTransition.length); // semaphore is necessary to let all transition run in sync
-
-    for (var i = 0; i < pathsToTransition.length; i++) { // FIXME: this will trigger possibly a lot of non-necessary transitions
-      var path = pathsToTransition[i];
-      var layerView = this.getViewForPath(path.replace(/\.[^\.]*$/, ""));
-      var frameName = path.substr(path.lastIndexOf(".") + 1);
-      var pathTransition = transitions[Math.min(i, transitions.length - 1)];
-      pathTransition.semaphore = semaphore;
-      pathTransition.triggerID = triggerID;
-      layerView.transitionTo(frameName, pathTransition);
-    }
-
-    return pathsToTransition.length > 0;
+  transitionTo: function(states, transitions, payload) {
+    this._transitionTo(false, states, transitions, payload);
   },
   /**
-   * Will show the state without a transition
+   * Will transition to a state without with showframe or transitionTo
    *
-   * @param {array} states States to transition to
+   * @param {array} states State paths to transition to
    */
-  showState: function(states) {
-    var pathsToTransition = this._determineTransitionPaths(states);
-    for (var i = 0; i < pathsToTransition.length; i++) {
-      var path = pathsToTransition[i];
-      var layerView = this.getViewForPath(path.replace(/\.[^\.]*$/, ""));
-      var frameName = path.substr(path.lastIndexOf(".") + 1);
-      layerView.showFrame(frameName);
-    }
+  showState: function(states, transitions, payload) {
+    return this._transitionTo(true, states, transitions, payload);
   },
   /**
-   * Will build the up the path to the frames
+   * Will transition to a state without with showframe or transitionTo
    *
-   * @param {object} Represents the parent
-   * @param {string} A string that represents to path of the parent object
-   * @param {boolean} When true, only the path of active frames are returned
-   * @return {array} An array of strings to the frames
+   * @param {boolean} showframe use showFrame? transitionTo otherwise
+   * @param {array} states State paths to transition to
+   * @param {object} transitions Array of transition records, one per state path, or a single transition record for all
+   * @param {object} payload data object that will be passed on to the stateChanged handler
    */
-  getPathForView: function(view) {
-    var paths = [];
+  _transitionTo: function(showFrame, states, transitions, payload) {
+    var that = this;
+    transitions = transitions || [];
 
-    if (view.outerEl._state) {
-      var state = view.outerEl._state;
-      var parentState = state.parent;
-
-      while (parentState) {
-        var found = false;
-        for (var childName in parentState.children) {
-          if (parentState.children[childName] === state) {
-            paths.push(childName);
-            state = parentState;
-            parentState = state.parent;
-            found = true;
-          }
-        }
-        if (!found)
-          parentState = undefined;
-      }
-    }
-
-    return paths.reverse().join('.');
-  },
-
-  /**
-   * Will return the paths where needs to be transitioned to based on specific states
-   *
-   * @param {array} states States to transition to
-   * @return {array} pathsToTransition
-   */
-  _determineTransitionPaths: function(states) {
-    var length = states.length;
-    var currentStructure = this.exportStructure();
-    var pathsToTransition = [];
-
-    for (var i = 0; i < length; i++) {
-      for (var x = 0; x < currentStructure.length; x++) {
-        var tempStructure = currentStructure[x].replace(new RegExp(this._escapeRegex(states[i]) + '$'), '');
-        if ('' === tempStructure || (currentStructure[x] !== tempStructure && tempStructure.endsWith('.'))) {
-          if (-1 === pathsToTransition.indexOf(currentStructure[x])) {
-            pathsToTransition.push(currentStructure[x]);
-          }
-        } else if (this._pathHasSpecialFrameName(states[i])) {
-          var tempState = states[i].substr(0, states[i].lastIndexOf("."));
-          var tempStructureNoFrame = currentStructure[x].substr(0, currentStructure[x].lastIndexOf("."));
-          tempStructure = tempStructureNoFrame.replace(new RegExp(this._escapeRegex(tempState) + '$'), '');
-          if ('' === tempStructure || (currentStructure[x] !== tempStructure && tempStructure.endsWith('.'))) {
-            var specialFrameName = states[i].substr(states[i].lastIndexOf(".") + 1);
-            if (-1 === pathsToTransition.indexOf(tempStructureNoFrame + '.' + specialFrameName)) {
-              pathsToTransition.push(tempStructureNoFrame + '.' + specialFrameName);
-            }
-          }
+    // map the given state (list of (reduced) paths) into a list of fully specified paths (may be more paths than in states list)
+    var paths = []; // path to transition to
+    var seenLayers = {}; // for deduplicating paths
+    states.map(function(state) {
+      return that.resolvePath(state);
+    }).forEach(function(layerframe, index) {
+      for (var i = 0; i < layerframe.length; i++) {
+        var layer = layerframe[i].layer.id();
+        if (seenLayers.hasOwnProperty(layer)) {
+          Kern._extend(paths[seenLayers[layer]].transition, transitions[Math.min(index, transitions.length - 1)] || {});
+          paths[seenLayers[layer]].frameName = layerframe[i].frameName;
+        } else {
+          paths.push({ // ignore currently active frames
+            layer: layerframe[i].layer,
+            frameName: layerframe[i].frameName,
+            transition: transitions[Math.min(index, transitions.length - 1)] || {}
+          });
+          seenLayers[layer] = paths.length - 1;
         }
       }
-    }
+    });
 
-    return pathsToTransition;
-  },
+    // semaphore is necessary to let all transition run in sync
+    var semaphore = new Kern.Semaphore(paths.length);
+    // group transitions to fire only one stateChanged event for all transitions triggered in this call
+    var groupId = ++this._transitionGroupId;
+    this._transitionGroup[groupId] = {
+      length: paths.length,
+      payload: payload
+    };
 
-  /**
-   * Will check if a path has special frame name
-   *
-   * @param {string} path
-   * @return {boolean}
-   */
-  _pathHasSpecialFrameName: function(path) {
-    var hasSpecialFrameName = false;
-    for (var specialFrame in defaults.specialFrames) {
-      if (defaults.specialFrames.hasOwnProperty(specialFrame)) {
-        if (path.endsWith(defaults.specialFrames[specialFrame])) {
-          hasSpecialFrameName = true;
-          break;
-        }
+    // execute transition
+    for (var i = 0; i < paths.length; i++) {
+      paths[i].transition.semaphore = semaphore;
+      paths[i].transition.groupId = groupId;
+      if (showFrame) {
+        paths[i].layer.showFrame(paths[i].frameName, paths[i].transition); // switch to frame
+      } else {
+        paths[i].layer.transitionTo(paths[i].frameName, paths[i].transition); // switch to frame
       }
     }
-
-    return hasSpecialFrameName;
+    return transitions.length > 0;
   },
-
   /**
-   * Will build the up the path to the frames
+   * create the path of a particular view
    *
-   * @param {object} Represents the parent
-   * @param {string} A string that represents to path of the parent object
-   * @param {boolean} When true, only the path of active frames are returned
-   * @return {array} An array of strings to the frames
+   * @param {HTMLElement} node - the HTML node for which the layerJS path should be build
+   * @param {boolean} reCalculate - if true, no lookups will be used
+   * @returns {string} the path
    */
-  _getPath: function(parent, rootpath, active) {
-    var paths = [];
-    var hasActiveChildren = false;
-    for (var element in parent.children) {
-      if (parent.children.hasOwnProperty(element) && parent.children[element].hasOwnProperty('view')) {
-        var path = rootpath;
-        if (parent.children[element].view.type() === 'frame' && (parent.children[element].active || !active)) {
-          if (parent.children[element].active) {
-            hasActiveChildren = true;
-          }
-          path = rootpath + element;
-          paths.push(path);
-          paths = paths.concat(this._getPath(parent.children[element], path + '.', active));
-        } else if (parent.children[element].view.type() !== 'frame') {
-          path += element;
-          paths = paths.concat(this._getPath(parent.children[element], path + '.', active));
-        }
-      }
-    }
+  buildPath: function(node, reCalculate) {
+    if (!node) return "";
 
-    if (parent.view && parent.view.type() === 'layer' && !hasActiveChildren) {
-      paths.push(rootpath + defaults.specialFrames.none);
-    }
+    if (!node._ljView)
+      return this.buildPath(node.parentNode);
 
+    var parentView = node._ljView.parent;
+
+    var parentPath = (!reCalculate && parentView) ? this.views[parentView.id()].path : this.buildPath(node.parentNode);
+
+    if (parentPath !== '')
+      parentPath += '.';
+
+    return parentPath + node._ljView.name();
+  },
+  /**
+   * calculate all different endings of a path
+   *
+   * @param {string} path - the full path
+   * @returns {Array} array of path endings
+   */
+  getTrailingPaths: function(path) {
+    var paths = [path];
+    while ((path = path.replace(/^[^\.]*\.?/, ''))) {
+      paths.push(path);
+    }
     return paths;
   },
   /**
-   * Will return the handler for a transitionTo event
+   * Resolves the layer that will execute the transition for a given path and the frame name (could be a special name)
    *
-   * @param {object} representation of the state of a layer
-   * @returns {function} function that will be called when transitionFinished event is invoked
+   * @param {string} path - a path of the state
+   * @param {HTMLElement} context - the HTML context where the name should be resolved (e.g. where the link was located)
+   * @returns {Array} Array of layerViews and the frameNames;
    */
-  _transitionToEvent: function(layerState) {
-    return function(frameName) {
-      for (var name in layerState.children) {
-        // set new active frame; set all other frames to inactive
-        if (layerState.children.hasOwnProperty(name) && layerState.children[name].hasOwnProperty('active')) {
-          layerState.children[name].active = layerState.children[name].view.name() === frameName;
+  resolvePath: function(path, context) {
+    var i, contextpath = context && this.buildPath(context),
+      segments = path.split('.'),
+      frameName = segments.pop(),
+      isSpecial = (frameName[0] === '!'),
+      layerpath = segments.join('.'),
+      candidates = (isSpecial ? (layerpath ? this.paths[layerpath] : this.layers) : this.paths[path]); // if special frame name, only search for layer
+
+    if (!candidates || candidates.length === 0) throw "state: could not resolve path '" + path + "'";
+    if (candidates.length > 1 && contextpath) { // check whether we can reduce list of candidates be resolving relative to the context path
+      var reduced = [];
+      while (reduced.length === 0 && contextpath) { // if we don't find any frames in context, move context path one up and try again
+        for (i = 0; i < candidates.length; i++) {
+          if (this.views[candidates[i]].path.startsWith(contextpath)) reduced.push(candidates[i]);
+        }
+        contextpath = contextpath.replace(/\.?[^\.]$/, '');
+      }
+      candidates = (reduced.length ? reduced : candidates); // take original candidates if context didn't contain any
+    }
+    var result = [];
+    for (i = 0; i < candidates.length; i++) {
+      var view = this.views[candidates[i]].view;
+      var fullPath = this.views[candidates[i]].path;
+      if (isSpecial) {
+        if (view.type() !== 'layer') throw "state: expected layer name in front of '" + frameName + "'";
+        result.push({
+          layer: view,
+          frameName: frameName,
+          path: fullPath + "." + frameName
+        });
+      } else {
+        if (view.type() === 'frame') { // for frames return a bit more information which is helpful to trigger the transition
+          result.push({
+            layer: view.parent,
+            view: view,
+            frameName: frameName,
+            path: fullPath,
+            active: (undefined !== view.parent.currentFrame && null !== view.parent.currentFrame) ? view.parent.currentFrame.name() === frameName : false
+          });
+        } else {
+          result.push({
+            view: view,
+            path: fullPath
+          });
         }
       }
-    };
-  },
-  /**
-   * Will return the handler for a childrenChanged event
-   *
-   * @param {object}  a view
-   * @returns {function} function that will be called when childrenChanged event is invoked
-   */
-  _childrenChangedEvent: function(view) {
-    var that = this;
-    return function(result) {
-      that.updateChildren(view, result.addedNodes, result.removedNodes);
-    };
+    }
+    return result;
   },
   /**
    * Will return the handler for an attributesChanged event
@@ -349,43 +336,44 @@ var State = Kern.Base.extend({
    * @returns {function} function that will be called when an attributesChanged event is invoked
    */
   _attributesChangedEvent: function(view) {
+    var that = this;
     return function(attributes) {
       if (attributes['lj-name'] || attributes['data-lj-name'] || attributes.id) {
-        var state = view.outerEl._state;
-        var parent = state.parent;
-        parent.children[view.name()] = state;
-        delete parent.children[(attributes['lj-name'] && attributes['lj-name'].oldValue) || (attributes['data-lj-name'] && attributes['data-lj-name'].oldValue) || (attributes.id && attributes.id.oldValue)];
+        that.unregisterView(view);
+        that.registerView(view);
       }
     };
   },
   /**
-   * Will return the generated state tree for a document
-   *
-   * @param {object} a document object
-   * @returns {object} a state tree
+   * Will return a view based on the path
+   * @param {string} path document who's state will be exported
+   * @returns {Object} A view
    */
-  _getTree: function(ownerDocument) {
-    var doc = ownerDocument || document;
-    var key = '_ljStateTree';
-
-    if (!doc.hasOwnProperty(key)) {
-      doc[key] = {
-        children: {}
-      };
-    }
-
-    return doc[key];
-  },
+  // getViewByPath: function(path) { // FIXME, shouldn't resolvePath be used for this? This may be faster, but then we could integrate this shortcut into resolvePath
+  //   var result;
+  //   if (undefined !== this.paths[path]) {
+  //     for (var i = 0; i < this.paths[path].length; i++) {
+  //       var id = this.paths[path][i];
+  //       if (this.views[id].path === path) {
+  //         result = this.views[id].view;
+  //       }
+  //     }
+  //   }
+  //
+  //   return result;
+  // }
+}, {
   /**
-   * Will escape the brackets in the regex string
+   * Resolves the state for a specific document
    *
-   * @param {string} regex string to escape
-   * @returns {string} an escaped regex string
+   * @param {object} doc - A document where the state needs to be retrieved, if undefined the global document will be used
+   * @returns {object} The current state object for the document
    */
-  _escapeRegex: function(str) {
-    return str.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, "\\$&");
+  getState: function(doc) {
+    doc = doc || document;
+    return doc._ljState || new State(doc);
   }
-
 });
 
-module.exports = layerJS.state = new State();
+layerJS.getState = State.getState;
+module.exports = State;

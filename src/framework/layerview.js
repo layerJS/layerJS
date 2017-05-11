@@ -42,7 +42,7 @@ var LayerView = BaseView.extend({
     // register for gestures
     gestureManager.register(this.outerEl, this.gestureListener.bind(this), {
       dragging: true,
-      mouseDragging: false
+      mouseDragging: this.draggable()
     });
 
     var that = this;
@@ -79,14 +79,18 @@ var LayerView = BaseView.extend({
     })
     */
 
-    if (this.defaultFrame()) {
-      this.currentFrame = this._getFrame(this.defaultFrame());
-    } else {
-      this.currentFrame = this._getFrame(defaults.specialFrames.next);
-    }
-
     // set the initial frame if possible
-    if (!this.currentFrame || null === this.currentFrame) {
+    var defaultFrame = this.defaultFrame();
+    if (defaultFrame && defaultFrame !== '!none') {
+      this.currentFrame = this._getFrame(defaultFrame) || null;
+      if (!this.currentFrame) console.warn("layerJS: layer '" + this.name() + "': could not find defaultframe: '" + defaultFrame + "'");
+    }
+    // set first frame if possible
+    if (!this.currentFrame && defaultFrame !== '!none') {
+      this.currentFrame = this._getFrame(defaults.specialFrames.next) || null;
+    }
+    // set none otherwise
+    if (!this.currentFrame) {
       this.showFrame(defaults.specialFrames.none);
     } else {
       this.showFrame(this.currentFrame.name());
@@ -407,6 +411,7 @@ var LayerView = BaseView.extend({
       return;
     }
     scrollData = scrollData || {};
+    scrollData.lastFrameName = (this.currentFrame && this.currentFrame.name()) || "!none";
     var that = this;
     var frame = null;
 
@@ -416,6 +421,10 @@ var LayerView = BaseView.extend({
 
     if (null !== frame) {
       framename = frame.name();
+    }
+    // create a dummy semaphore if there isn't any
+    if (!scrollData.semaphore) {
+      scrollData.semaphore = (new Kern.Semaphore()).register();
     }
 
     that.trigger('beforeTransition', framename);
@@ -428,15 +437,18 @@ var LayerView = BaseView.extend({
 
       that.updateClasses(frame);
       that.currentFrame = frame;
-      that.trigger('transitionStarted', framename);
-      that._layout.showFrame(frame, tfd, that.currentTransform);
-      that.inPreparation(false);
-      that.inTransition(false); // we stop all transitions if we do a showframe
-      that.trigger('transitionFinished', framename);
+      that.trigger('transitionStarted', framename, scrollData);
+      scrollData.semaphore.sync().then(function() {
+        that._layout.showFrame(frame, tfd, that.currentTransform);
+        that.inPreparation(false);
+        that.inTransition(false); // we stop all transitions if we do a showframe
+        that.trigger('transitionFinished', framename);
+      });
     });
   },
   noFrameTransformdata: function(transitionStartPosition) {
-    var d = {};
+    if (this._noframetd && this._noframetd.startPosition===transitionStartPosition) return this._noframetd;
+    var d = this._noframetd = {};
     d.stage = this.stage;
     d.scale = 1;
     d.width = d.frameWidth = this.stage.width();
@@ -489,6 +501,7 @@ var LayerView = BaseView.extend({
       duration: '1s'
       // FIXME: add more default values like timing
     }, transition || {});
+    transition.lastFrameName = (this.currentFrame && this.currentFrame.name()) || "!none";
     // check for reverse transition; remove "r:"/"reverse:" indicator and set transition.reverse instead
     if (transition.type && transition.type.match(/^(?:r:|reverse:)/i)) {
       transition.type = transition.type.replace(/^(?:r:|reverse:)/i, '');
@@ -546,7 +559,7 @@ var LayerView = BaseView.extend({
       if (that.currentFrame === frame && that.currentFrameTransformData === targetFrameTransformData) {
         // don't do a transition, just execute Promise
         var p = new Kern.Promise();
-        that.trigger('transitionStarted', framename);
+        that.trigger('transitionStarted', framename, transition);
         transition.semaphore.sync().then(function() { // we need to call sync in case there are other transitions waiting.
           if (targetFrameTransformData.scrollX !== currentScroll.scrollX || targetFrameTransformData.scrollY !== currentScroll.scrollY) {
             that.scrollTo(targetFrameTransformData.scrollX, targetFrameTransformData.scrollY, transition).then(function() {
@@ -586,7 +599,7 @@ var LayerView = BaseView.extend({
       that.currentFrameTransformData = targetFrameTransformData;
       that.currentFrame = frame;
       that.currentTransform = targetTransform;
-      that.trigger('transitionStarted', framename);
+      that.trigger('transitionStarted', framename, transition);
 
       return layoutPromise;
     });

@@ -4,8 +4,10 @@ describe('router', function() {
   var utilities = require('../helpers/utilities.js');
   var StageView = require('../../../src/framework/stageview.js');
   var state = require('../../../src/framework/state.js');
-  var UrlData = require('../../../src/framework/url/urldata.js')
   var Kern = require('../../../src/kern/kern.js');
+  var FileRouter = require('../../../src/framework/router/filerouter.js');
+  var HashRouter = require('../../../src/framework/router/hashrouter.js');
+  var StaticRouter = require('../../../src/framework/router/staticrouter.js');
 
   beforeEach(function() {
     layerJS = require('../../../src/framework/layerjs.js');
@@ -18,8 +20,8 @@ describe('router', function() {
     defaults.transitionParameters.type = 'p';
     defaults.transitionParameters.duration = 't';
     layerJS.router.clearRouters();
-    layerJS.router.addRouter(require('../../../src/framework/router/filerouter.js'));
-    layerJS.router.addRouter(require('../../../src/framework/router/hashrouter.js'));
+    layerJS.router.addRouter(new FileRouter());
+    layerJS.router.addRouter(new HashRouter());
     window.location.href = "http://localhost/";
   });
 
@@ -27,43 +29,36 @@ describe('router', function() {
     expect(layerJS.router).toBeDefined();
   });
 
-  it('will add the a StaticRouter at the beginning of the router pipline', function() {
-    var dummyRouter = {
-      handle: function(urlData) {
-        var promise = new Kern.Promise();
-        promise.resolve({
-          handled: false,
-          stop: false
-        });
-        return promise;
-      }
-    };
 
-    layerJS.router.addRouter(dummyRouter);
-    expect(layerJS.router.routers.length).toBe(2);
+  it('will mark the staticrouter', function() {
+    var staticRouter = new StaticRouter();
+
+    layerJS.router.addRouter(staticRouter);
+    expect(layerJS.router.routers.length).toBe(1);
     expect(layerJS.router.routers[0] instanceof StaticRouter).toBeTruthy();
+    expect(layerJS.router.staticRouter).toBe(staticRouter);
   });
 
   it('will detect a link click event', function() {
-    var navigate = layerJS.router._navigate;
+    var navigate = layerJS.router.navigate;
 
     var element = document.createElement('a');
     element.href = '#';
 
     document.body.appendChild(element);
 
-    spyOn(layerJS.router, '_navigate');
+    spyOn(layerJS.router, 'navigate');
     element.click();
 
-    expect(layerJS.router._navigate).toHaveBeenCalled();
+    expect(layerJS.router.navigate).toHaveBeenCalled();
 
-    layerJS.router._navigate.and.callThrough();
+    layerJS.router.navigate.and.callThrough();
   });
 
   it('will let the current router can handle the url', function() {
     var called = false;
     var dummyRouter = {
-      handle: function(urlData) {
+      handle: function(url) {
         var promise = new Kern.Promise();
         promise.resolve({
           handled: true,
@@ -83,37 +78,10 @@ describe('router', function() {
     expect(called).toBeTruthy();
   });
 
-  it('will add a new entry to the history when url is handled', function() {
+
+  it('will not add a new entry to the history when url can not be handled', function(done) {
     var dummyRouter = {
-      handle: function(urlData) {
-        var promise = new Kern.Promise();
-        promise.resolve({
-          handled: true,
-          stop: true
-        });
-        return promise;
-      }
-    };
-
-    var history = window.history;
-
-    window.history.pushState = function() {};
-    spyOn(window.history, 'pushState');
-
-    layerJS.router.addRouter(dummyRouter);
-    var element = document.createElement('a');
-    element.href = '#';
-    document.body.appendChild(element);
-    element.click();
-
-    expect(window.history.pushState).toHaveBeenCalled();
-
-    window.history.pushState.and.callThrough();
-  });
-
-  it('will not add a new entry to the history when url can not be handled', function() {
-    var dummyRouter = {
-      handle: function(urlData) {
+      handle: function(url) {
         var promise = new Kern.Promise();
         promise.resolve({
           handled: false,
@@ -124,9 +92,11 @@ describe('router', function() {
     };
 
     var history = window.history;
+    var called = false;
+    window.history.pushState = function() {
+      called = true
+    };
 
-    window.history.pushState = function() {};
-    spyOn(window.history, 'pushState');
 
     layerJS.router.addRouter(dummyRouter);
     var element = document.createElement('a');
@@ -134,14 +104,16 @@ describe('router', function() {
     document.body.appendChild(element);
     element.click();
 
-    expect(window.history.pushState).not.toHaveBeenCalled();
-
-    window.history.pushState.and.callThrough();
+    setTimeout(function() {
+      expect(called).toBe(false);
+      delete window.history.replaceState;
+      done();
+    }, 1000);
   });
 
   it('the window.popState will call the navigate method on the router and won\'t add an entry to the history', function() {
     var dummyRouter = {
-      handle: function(urlData) {
+      handle: function(url) {
         var promise = new Kern.Promise();
         promise.resolve({
           handled: true,
@@ -151,92 +123,25 @@ describe('router', function() {
       }
     };
 
-    spyOn(layerJS.router, '_navigate');
+    spyOn(layerJS.router, 'navigate');
     window.history.pushState = function() {};
     spyOn(window.history, 'pushState');
 
     layerJS.router.addRouter(dummyRouter);
     window.onpopstate();
 
-    expect(layerJS.router._navigate).toHaveBeenCalled();
+    expect(layerJS.router.navigate).toHaveBeenCalled();
     expect(window.history.pushState).not.toHaveBeenCalled();
 
-    layerJS.router._navigate.and.callThrough();
+    layerJS.router.navigate.and.callThrough();
     window.history.pushState.and.callThrough();
-  });
-
-  it('will pass the transition options to the current router and will add a cleaned up url to the history', function() {
-    var transitionOptions, urlHistory;
-
-    var dummyRouter = {
-      handle: function(urlData) {
-        transitionOptions = urlData.transition;
-
-        var promise = new Kern.Promise();
-        promise.resolve({
-          handled: true,
-          stop: true
-        });
-        return promise;
-      }
-    };
-
-    window.history.pushState = function(param1, param2, url) {
-      urlHistory = url;
-    };
-
-    layerJS.router.addRouter(dummyRouter);
-    layerJS.router._navigate(window.location.origin + '/index.aspx/?1&test=2&t=10s&p=top&a=3', true);
-
-    expect(urlHistory).toBe('/index.aspx/?1&test=2&a=3');
-    expect(transitionOptions).toEqual({
-      duration: '10s',
-      type: 'top'
-    });
-  });
-
-  it('will add the exiting state to the StaticRouter when a new navigation is done', function(done) {
-    var routerCache = layerJS.router.cache;
-    var url = window.location.origin + '/index.html';
-    var dummyRouter = {
-      handle: function(urlData) {
-        var promise = new Kern.Promise();
-        promise.resolve({
-          handled: true,
-          stop: true
-        });
-        return promise;
-      }
-    };
-
-    var html = "<div data-lj-type='stage' id='stage1'>" +
-      "<div data-lj-type='layer' id='layer1' data-lj-default-frame='frame1'>" +
-      "<div data-lj-type='frame' id='frame1' data-lj-name='frame1'></div>" +
-      "<div data-lj-type='frame' id='frame2' data-lj-name='frame2'></div>" +
-      "</div>" +
-      "</div>";
-
-    utilities.setHtml(html);
-
-    window.history.pushState = function(param1, param2, url) {};
-
-    new StageView({
-      el: document.getElementById('stage1')
-    });
-
-    layerJS.router.addRouter(dummyRouter);
-    layerJS.router._navigate(url, true).then(function() {
-      expect(layerJS.router.routers[0].routes.hasOwnProperty('http://localhost/')).toBeTruthy();
-      expect(layerJS.router.routers[0].routes['http://localhost/']).toEqual(['stage1.layer1.frame1']);
-      done();
-    });
   });
 
   it('will stop iterating routers when a router return stop == true', function() {
     var url = window.location.origin + '/index.html';
     var handled = false;
     var dummyRouter = {
-      handle: function(urlData) {
+      handle: function(url) {
         var promise = new Kern.Promise();
         promise.resolve({
           handled: true,
@@ -247,7 +152,7 @@ describe('router', function() {
     };
 
     var dummyRouter2 = {
-      handle: function(urlData) {
+      handle: function(url) {
         handled = true;
         var promise = new Kern.Promise();
         promise.resolve({
@@ -276,7 +181,7 @@ describe('router', function() {
     layerJS.router.addRouter(dummyRouter);
     layerJS.router.addRouter(dummyRouter2);
 
-    layerJS.router._navigate(url, true);
+    layerJS.router.navigate(url, true);
     expect(handled).toBe(false);
   });
 
@@ -284,59 +189,122 @@ describe('router', function() {
     var url = window.location.origin + '/index.html';
     var handled = false;
     var dummyRouter = {
-      handle: function(urlData) {
+      handle: function(url) {
         var promise = new Kern.Promise();
         promise.resolve({
           handled: true,
-          stop: false
+          stop: false,
+          paths: []
         });
         return promise;
       }
     };
 
     var dummyRouter2 = {
-      handle: function(urlData) {
+      handle: function(url) {
         handled = true;
         var promise = new Kern.Promise();
         promise.resolve({
           handled: true,
-          stop: true
+          stop: true,
+          paths: []
         });
         return promise;
       }
     };
 
+
+    layerJS.router.addRouter(dummyRouter);
+    layerJS.router.addRouter(dummyRouter2);
+    layerJS.router.navigate(url, true);
+    expect(handled).toBe(true);
+  });
+
+  //TODO: Look at more detail
+  it('will use the pushState after a transition that started with a click', function(done) {
+    var newUrl;
+    window.history.pushState = function(param1, param2, url) {
+      newUrl = url;
+    };
+
+    layerJS.router.addRouter(new FileRouter());
+    layerJS.router.addRouter(new HashRouter());
+
     var html = "<div data-lj-type='stage' id='stage1'>" +
       "<div data-lj-type='layer' id='layer1' data-lj-default-frame='frame1'>" +
-      "<div data-lj-type='frame' id='frame1' data-lj-name='frame1'></div>" +
+      "<div data-lj-type='frame' id='frame1' data-lj-name='frame1'>" +
+      "<a href='/#frame2' id='link'>click me </a>" +
+      "</div>" +
       "<div data-lj-type='frame' id='frame2' data-lj-name='frame2'></div>" +
       "</div>" +
       "</div>";
 
     utilities.setHtml(html);
 
-    window.history.pushState = function(param1, param2, url) {};
-
     new StageView({
       el: document.getElementById('stage1')
     });
 
-    layerJS.router.addRouter(dummyRouter);
-    layerJS.router.addRouter(dummyRouter2);
-    layerJS.router._navigate(url, true);
-    expect(handled).toBe(true);
+
+    document.getElementById('link').click();
+
+    setTimeout(function() {
+      expect(newUrl).toBe('http://localhost/#frame2');
+      done();
+    }, 2000);
   });
 
   it('layerJS.init() will call the navigate function', function() {
     var promise = new Kern.Promise();
     promise.resolve(true);
-    spyOn(layerJS.router, '_navigate').and.returnValue(promise);
+    spyOn(layerJS.router, 'navigate').and.returnValue(promise);
 
     layerJS.init();
 
-    expect(layerJS.router._navigate).toHaveBeenCalled();
+    expect(layerJS.router.navigate).toHaveBeenCalled();
 
-    layerJS.router._navigate.and.callThrough();
+    layerJS.router.navigate.and.callThrough();
+  });
+
+  it('will use the paths from the routers to transition', function() {
+    var dummyRouter1 = {
+      handle: function() {
+        var promise = new Kern.Promise();
+        promise.resolve({
+          handled: true,
+          stop: false,
+          paths: ['contentStage1.contentLayer1.frame1']
+        });
+        return promise;
+      }
+    };
+
+    var dummyRouter2 = {
+      handle: function() {
+        var promise = new Kern.Promise();
+        promise.resolve({
+          handled: true,
+          stop: false,
+          paths: ['contentStage2.contentLayer1.frame1']
+        });
+        return promise;
+      }
+    };
+
+    layerJS.router.addRouter(dummyRouter1);
+    layerJS.router.addRouter(dummyRouter2);
+    var state = layerJS.getState();
+    var paths;
+    spyOn(state, 'transitionTo').and.callFake(function(states) {
+      paths = states;
+    });
+
+    var promise = layerJS.router.navigate(window.location.origin + '/index.html', false);
+
+    promise.then(function() {
+      expect(state.transitionTo).toHaveBeenCalled();
+      expect(paths).toEqual(['contentStage1.contentLayer1.frame1', 'contentStage2.contentLayer1.frame1']);
+    });
   });
 
 });

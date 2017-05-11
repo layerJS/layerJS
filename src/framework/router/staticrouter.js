@@ -1,6 +1,6 @@
 'use strict';
 var Kern = require('../../kern/kern.js');
-var state = require('../state.js');
+var $ = require('../domhelpers.js');
 
 var StaticRouter = Kern.EventManager.extend({
   constructor: function() {
@@ -15,6 +15,7 @@ var StaticRouter = Kern.EventManager.extend({
    * @returns {Type} Description
    */
   addRoute: function(url, state, nomodify) {
+    url = $.getAbsoluteUrl(url); // make url absolute
     if (!nomodify || !this.routes.hasOwnProperty(url)) {
       this.routes[url] = state;
     }
@@ -26,28 +27,85 @@ var StaticRouter = Kern.EventManager.extend({
    * @returns {Type} Description
    */
   hasRoute: function(url) {
+    url = $.getAbsoluteUrl(url); // make url absolute
     return this.routes.hasOwnProperty(url);
   },
   /**
    * Will do the actual navigation to the url
-   * @param {string} an url
+   * @param {object} options contains url parts, paths, transitions, globalTransition, context
    * @return {void}
    */
-  handle: function(urlData) {
-    var result = this.routes.hasOwnProperty(urlData.baseUrl);
+  handle: function(options) {
+    var result;
+    var url = $.joinUrl(options, true); // we need to include the queryString as this may refer to different files if filerouter is used.
+    // if currentl url equals new url and the url was not explicitly given in navigate() we should ignore the static router cache
+    var optout = !url || (!options.explLoc && ($.joinUrl($.splitUrl(window.location.href), true) === url));
+    result = optout ? false : this.hasRoute(url);
     var promise = new Kern.Promise();
+    var activeFrames = [];
+    var transitions = [];
 
     if (result) {
-      var activeFrames = this.routes[urlData.baseUrl];
-      state.transitionTo(activeFrames, urlData.transition);
+      activeFrames = this.routes[url];
+      activeFrames.forEach(function() {
+        transitions.push(Kern._extend({}, options.globalTransition)); // we need to add a transition record for each path, otherwise we get in trouble if other routers will add paths and transitions as well
+      });
     }
 
     promise.resolve({
-      stop: result,
-      handled: result
+      stop: false,
+      handled: result,
+      transitions: transitions,
+      optout: optout,
+      paths: activeFrames
     });
 
     return promise;
+  },
+  /**
+   * Will try to resolve an url based on it's cached states
+   *
+   * @param {Object} options - contains a url and a state (array)
+   * @returns {Promise} a promise that will return the HTML document
+   */
+  buildUrl: function(options) {
+    var state = options.state.concat(options.omittedState);
+    var that = this;
+    var foundUrl;
+    var url = $.joinUrl(options, true);
+    foundUrl = url;
+    var find = function(path) {
+      return that.routes[url] && that.routes[url].indexOf(path) !== -1;
+    };
+    // check how many state paths can be explained by the current url (we need to prefer the current url over other urls)
+    var foundPaths = state.filter(find);
+    var foundPathsLength = foundPaths.length;
+    // search how many of the current state's paths can be explained by the state stored for each url in the routes hash
+    for (url in this.routes) {
+      if (this.routes.hasOwnProperty(url) && this.routes[url].length > foundPathsLength) {
+        var found = state.filter(find);
+        var count = found.length;
+        if (count > foundPathsLength) {
+          foundPaths = found;
+          foundPathsLength = count;
+          foundUrl = url;
+        }
+      }
+    }
+    // update URL to be shown later on
+    foundUrl = $.splitUrl(foundUrl);
+    options.location = foundUrl.location;
+    options.queryString = foundUrl.queryString; // NOTE: this removes all other query params, not sure this is good or not.
+
+    // remove paths from state that are already explained by the cached URL
+    foundPaths.forEach(function(path) {
+      var index = options.state.indexOf(path);
+      if (index !== -1) {
+        options.state.splice(index, 1);
+      } else {
+        options.omittedState.splice(options.omittedState.indexOf(path), 1);
+      }
+    });
   }
 });
 

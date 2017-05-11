@@ -5,10 +5,10 @@ describe('Filerouter', function() {
   beforeEach(function() {
     nock = require('nock');
     FileRouter = require('../../../src/framework/router/filerouter.js');
-    UrlData = require('../../../src/framework/url/urldata.js');
     utilities = require('../helpers/utilities.js');
     StageView = require('../../../src/framework/stageview.js');
-    state = require('../../../src/framework/state.js');
+    state = require('../../../src/framework/state.js').getState();
+//    window.location.href = "http://localhost/";
 
     utilities.setHtml('<div data-lj-type="stage" id="contentstage">' +
       '<div data-lj-type="layer" id="contentlayer" data-lj-default-frame="frame1">' +
@@ -49,13 +49,24 @@ describe('Filerouter', function() {
     var layerView = document.getElementById('contentlayer')._ljView;
 
     var fileRouter = new FileRouter();
-    var promise = fileRouter.handle(new UrlData('http://localhost/somePage.html'));
+    var options = {
+      location: 'http://localhost/somePage.html',
+      queryString : '',
+      transitions: [],
+      globalTransition: {
+        type: 'left'
+      }
+    };
+
+    var promise = fileRouter.handle(options);
     scope.done();
 
     promise.then(function(result) {
       expect(result.handled).toBeTruthy();
       expect(result.stop).toBeFalsy();
-      expect(layerView.currentFrame.name()).toBe('frame2');
+      expect(result.paths).toEqual(['contentstage.contentlayer.frame2']);
+      expect(result.transitions.length).toBe(1);
+      expect(result.transitions[0].type).toBe(options.globalTransition.type);
       done();
     });
 
@@ -76,13 +87,20 @@ describe('Filerouter', function() {
     var layerView = document.getElementById('contentlayer')._ljView;
 
     var fileRouter = new FileRouter();
-    var promise = fileRouter.handle(new UrlData('http://localhost/somePage.html'));
+    var options = {
+      location: 'http://localhost/somePage.html',
+      queryString: '',
+      transitions: [],
+      globalTransition: {}
+    };
+    var promise = fileRouter.handle(options);
     scope.done();
 
     promise.then(function(result) {
       expect(result.handled).toBeTruthy();
       expect(result.stop).toBeFalsy();
-      expect(layerView.currentFrame).toBe(null);
+      expect(result.paths).toEqual(['contentstage.contentlayer.!none']);
+      expect(result.transitions.length).toBe(1);
       done();
     });
 
@@ -105,39 +123,20 @@ describe('Filerouter', function() {
     var layerView = document.getElementById('contentlayer')._ljView;
 
     var fileRouter = new FileRouter();
-    var promise = fileRouter.handle(new UrlData('/somePage.html'));
+    var promise = fileRouter.handle({
+      location: 'http://localhost/somePage.html',
+      queryString : '',
+      transitions: [],
+      globalTransition: {}
+    });
     scope.done();
 
-    promise.then(function() {
-      expect(layerView.currentFrame.name()).toBe('frame1');
+    promise.then(function(result) {
+      expect(result.paths).toEqual([]);
+      expect(result.transitions.length).toBe(0);
       done();
     });
   });
-
-  it('will pass transition options to the layer when navigating to a frame', function(done) {
-    var scope = prepareSomePage();
-    new StageView({
-      el: document.getElementById('contentstage')
-    });
-
-    var layerView = document.getElementById('contentlayer')._ljView;
-    spyOn(layerView, 'transitionTo');
-
-    var transitionOptions = {
-      duration: '2s',
-      type: 'left'
-    };
-
-    var fileRouter = new FileRouter();
-    var urlData = new UrlData('/somePage.html?t=2s&p=left');
-    var promise = fileRouter.handle(urlData);
-    scope.done();
-
-    promise.then(function() {
-      expect(layerView.transitionTo).toHaveBeenCalledWith('frame2', urlData.transition);
-      done();
-    });
-  }, 5000);
 
   it('will return false when an error occured', function(done) {
     new StageView({
@@ -145,7 +144,11 @@ describe('Filerouter', function() {
     });
 
     var fileRouter = new FileRouter();
-    var promise = fileRouter.handle(new UrlData('/somePage.html'));
+    var promise = fileRouter.handle({
+      location: 'http://localhost/somePage.html',
+      transitions: [],
+      globalTransition: {}
+    });
 
     promise.then(function(result) {
       expect(result.handled).toBe(false);
@@ -167,13 +170,21 @@ describe('Filerouter', function() {
       type: 'left'
     };
 
+    var options = {
+      location: 'http://localhost/somePage.html',
+      queryString : '',
+      transitions: [],
+      globalTransition: transitionOptions
+    };
+
     var fileRouter = new FileRouter();
-    var promise = fileRouter.handle(new UrlData('/somePage.html'));
+    var promise = fileRouter.handle(options);
     scope.done();
 
     promise.then(function(result) {
-      expect(fileRouter._cache['/somePage.html']).toBeDefined();
-      expect(fileRouter._cache['/somePage.html']).toEqual(state.exportState());
+      expect(fileRouter.routes['http://localhost/somePage.html']).toBeDefined();
+      expect(fileRouter.routes['http://localhost/somePage.html']).toEqual(result.paths);
+      expect(result.transitions.length).toBe(1);
       done();
     });
   }, 5000);
@@ -202,18 +213,27 @@ describe('Filerouter', function() {
     var layerView = document.getElementById('contentlayer')._ljView;
 
     var fileRouter = new FileRouter();
-    fileRouter._cache['/somePage.html'] = ['contentstage.contentlayer.frame2'];
-    var promise = fileRouter.handle(new UrlData('/somePage.html'));
+    fileRouter.routes['http://localhost/somePage.html'] = ['contentstage.contentlayer.frame2'];
+    var options = {
+      location: 'http://localhost/somePage.html',
+      queryString: '',
+      transitions: [],
+      globalTransition: transitionOptions
+    };
+    var promise = fileRouter.handle(options);
 
     promise.then(function(result) {
       expect(result.handled).toBeTruthy();
       expect(result.stop).toBeFalsy();
-      expect(layerView.currentFrame.name()).toBe('frame2');
+      expect(result.paths).toEqual(['contentstage.contentlayer.frame2']);
+      expect(result.transitions.length).toBe(1);
       done();
     });
   });
 
-  it('can cache current page', function() {
+  xit('can cache current page', function() {
+    //window.location.href = "http://localhost/";
+    //console.log('jasmine:' + window.location.href);
     new StageView({
       el: document.getElementById('contentstage')
     });
@@ -222,6 +242,42 @@ describe('Filerouter', function() {
     var fileRouter = new FileRouter({
       cacheCurrent: true
     });
-    expect(fileRouter._cache['/']).toEqual(state.exportState());
+    console.log(fileRouter.routes);
+    expect(fileRouter.routes['http://localhost/']).toEqual(state.exportState());
+  });
+
+  it('can build an url based on it\'s cached states', function() {
+    var fileRouter = new FileRouter();
+
+    fileRouter.routes['http://localhost/index.html?id=1&a=4'] = ['stage1.layer1.frame1', 'stage1.layer2.frame2', 'stage1.layer3.frame3'];
+    fileRouter.routes['http://localhost/index2.html'] = ['stage1.layer1.frame1', 'stage1.layer2.frame3'];
+
+    var options = {
+      url: '',
+      state: ['stage1.layer1.frame1', 'stage1.layer2.frame2', 'stage1.layer4.frame2']
+    };
+
+    fileRouter.buildUrl(options);
+    expect(options.location).toBe('http://localhost/index.html');
+    expect(options.queryString).toBe('id=1&a=4');
+    expect(options.state).toEqual(['stage1.layer4.frame2']);
+  });
+
+it('can build an url based on it\'s cached states (and will take omittedStates into account)', function() {
+    var fileRouter = new FileRouter();
+
+    fileRouter.routes['http://localhost/index.html?id=1&a=4'] = ['stage1.layer1.frame1', 'stage1.layer2.frame2', 'stage1.layer3.frame3'];
+    fileRouter.routes['http://localhost/index2.html'] = ['stage1.layer1.frame1', 'stage1.layer2.frame3'];
+
+    var options = {
+      url: '',
+      state: ['stage1.layer1.frame1', 'stage1.layer4.frame2'],
+      omittedStates : ['stage1.layer2.frame2']
+    };
+
+    fileRouter.buildUrl(options);
+    expect(options.location).toBe('http://localhost/index.html');
+    expect(options.queryString).toBe('id=1&a=4');
+    expect(options.state).toEqual(['stage1.layer4.frame2']);
   });
 });
