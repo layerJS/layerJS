@@ -73,6 +73,9 @@ var FileRouter = StaticRouter.extend({
               }
             });
 
+            if (addedHash.length === 0) {
+              console.warn("layerJS: filerouter: loaded new document '" + $.joinUrl(options, true) + "' but didn't add any new content. You should give the frame that should be added a different name or id.");
+            }
             var exportedState = fileState.exportState();
             var framesToTransitionTo = exportedState.state;
             Array.prototype.push.apply(framesToTransitionTo, exportedState.ommittedState);
