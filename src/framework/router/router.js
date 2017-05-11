@@ -97,7 +97,7 @@ var Router = Kern.EventManager.extend({
       Kern._extend(options, $.splitUrl($.getAbsoluteUrl(href)));
     }
     // check if there are layerjs params in the querystring
-    var qsljparams = options.queryString && $.parseStringForTransitions(options.queryString, true);
+    var qsljparams = options.queryString && $.parseStringForTransitions(options.queryString, false);
     if (qsljparams) {
       options.globalTransition = qsljparams.transition; // transition will be used to merge with other transitions that will be added by other routers
       options.queryString = qsljparams.string; // remove layerJS params from queryString
@@ -172,7 +172,7 @@ var Router = Kern.EventManager.extend({
     var options = Kern._extend($.splitUrl(window.location.href), newState);
 
     // remove layerjs params from queryString
-    options.queryString = $.parseStringForTransitions(options.queryString, true).string;
+    options.queryString = $.parseStringForTransitions(options.queryString, false).string;
 
     for (var i = 0; i < this.routers.length; i++) {
       this.routers[i].buildUrl(options);
