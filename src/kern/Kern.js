@@ -203,7 +203,7 @@
             // remove specific callback in all event
             for (var ev in this.__listeners__) {
               if (this.__listeners__.hasOwnProperty(ev)) {
-                listeners = this.__listeners__[ev] ;
+                listeners = this.__listeners__[ev];
                 for (i = 0; i < listeners.length; i++) {
                   if ((!callback || listeners[i].callback === callback) && (!context || listeners[i].options.context === context)) {
                     listeners.splice(i, 1);
@@ -237,7 +237,7 @@
               args[j] = arguments[j + 1];
             }
             // call the callback
-            var listener=this.__listeners__[event][i];
+            var listener = this.__listeners__[event][i];
             listener.callback.apply(listener.options.context || this, args);
           }
         }
@@ -267,7 +267,7 @@
               args[j] = arguments[j + 2];
             }
             // call the callback
-            var listener=this.__listeners__[event][i];
+            var listener = this.__listeners__[event][i];
             listener.callback.apply(listener.options.context || this, args);
           }
         }
@@ -411,7 +411,46 @@
         return p;
       }
     });
-
+    /**
+     * Simple queue which makes sure entries are executed one after each other. Add a new entry with myQueue.add() which returns a promise. Do whatever has to be done with this entry within the promise's then() part and afterwards call myQueue.continue() to start triggering the next entry.
+     *
+     */
+    var Queue = Kern.Queue = Base.extend({
+      constructor: function() {
+        this.q = []; // a queue of promises which will be fullfilled one after each other
+        this.waiting = false; // are we waiting for a queue entry to complete (NOTE: this could be true even if q[] is empty)
+      },
+      /**
+       * add an entry to the queue. A new promise is returned that will resolve when all previous entries have finished
+       *
+       * @param {Type} Name - Description
+       * @returns {Type} Description
+       */
+      add: function() {
+        var p = new Kern.Promise();
+        if (!this.waiting) {
+          p.resolve();
+          this.waiting = true;
+        } else {
+          this.q.push(p);
+        }
+        return p;
+      },
+      /**
+       * indicate that the execution of the current entry has finished and that the next entry can resolve (if any)
+       *
+       * @param {Type} Name - Description
+       * @returns {Type} Description
+       */
+      continue: function() {
+        if (this.q.length) {
+          var p = this.q.shift();
+          p.resolve();
+        } else {
+          this.waiting = false;
+        }
+      }
+    });
     return Kern;
   };
 
