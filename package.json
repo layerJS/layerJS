@@ -21,7 +21,8 @@
     "nock": "latest",
     "scripty" : "latest",
     "uglifyjs" : "latest",
-    "istanbul" : "latest"
+    "istanbul" : "latest",
+    "lite-server": "latest"
   },
   "scripts": {
     "clean": "rimraf build/* dist/*",
@@ -35,6 +36,7 @@
     "build:compressed": "scripty && npm run package",
     "package": "scripty",
     "zip": "scripty",
+    "lite": "lite-server",
 
     "buildExamples": "scripty",
 
