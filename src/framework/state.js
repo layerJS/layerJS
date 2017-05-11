@@ -16,7 +16,6 @@ var State = Kern.EventManager.extend({
     this.views = {}; // contains view and path; indexed by id
     this.layers = []; // list of all layers (ids)
     this.paths = {}; // lookup by path (and all path endings) for all ids
-    this._transitionGroupId = 0;
     this._transitionGroup = {};
 
     Kern.EventManager.call(this);
@@ -58,7 +57,7 @@ var State = Kern.EventManager.extend({
         var trigger = true;
         var payload = {};
         // check if state really changed
-        if (transition && transition.lastFrameName === frameName && !transition.hasOwnProperty('groupId')) return;
+        if (transition && transition.lastFrameName === frameName && !(transition.hasOwnProperty('groupId') && this._transitionGroup.hasOwnProperty(transition.groupId))) return;
         // when a transitiongroup is defined, only call stateChanged when all layers in group have invoked 'transitionStarted'
         //  console.log(transition);
         if (transition && transition.hasOwnProperty('groupId') && this._transitionGroup.hasOwnProperty(transition.groupId)) {
@@ -110,14 +109,14 @@ var State = Kern.EventManager.extend({
    * Will return all paths to active frames. Will be sorted in DOM order
    * @returns {array} An array than contains the paths of the active frames
    */
-  exportState: function(){
+  exportState: function() {
     return this._exportState().state;
   },
   /**
    * Will return all paths to active frames. Will be sorted in DOM order. layers at default frame or with noURL will be given in "omittedStates", all relevant active frames are retunred in "state"
    * @returns {object} An object than contains an array of active states and an array of omittedStates.
    */
-  exportMinimizedState: function(){
+  exportMinimizedState: function() {
     return this._exportState(true);
   },
   /**
@@ -220,7 +219,7 @@ var State = Kern.EventManager.extend({
     // semaphore is necessary to let all transition run in sync
     var semaphore = new Kern.Semaphore(paths.length);
     // group transitions to fire only one stateChanged event for all transitions triggered in this call
-    var groupId = ++this._transitionGroupId;
+    var groupId = $.uniqueID('group');
     this._transitionGroup[groupId] = {
       length: paths.length,
       payload: payload

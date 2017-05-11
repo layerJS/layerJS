@@ -159,7 +159,7 @@ var LayerView = BaseView.extend({
     var timerRoute = this.timer();
     if (timerRoute) {
       if (timerRoute.match(/^[0-9]/)) timerRoute = "#!next&d=" + timerRoute; // interprete tie values (e.g. 2s) as #!next&d=2s
-      layerJS.router._navigate(timerRoute, true, this);
+      layerJS.router.navigate(timerRoute, this);
     }
   },
   /**
@@ -521,11 +521,11 @@ var LayerView = BaseView.extend({
       if (num > 0) that.trigger('transitionPrepared'); // notify listeners about prepared state. (unless all have skipped, e.g. delayed transitions)
     });
 
-    this.lastTriggerID = transition.triggerID || (transition.triggerID = $.uniqueID('trigger'));
+    this.lastgroupId = transition.groupId || (transition.groupId = $.uniqueID('group'));
     if (transition.delay) { // handle delayed transition
       transition.semaphore.skip();
       setTimeout(function() {
-        if (transition.triggerID !== that.lastTriggerID) return; // skip if there was another transition triggered in between
+        if (transition.groupId !== that.lastgroupId) return; // skip if there was another transition triggered in between
         delete transition.semaphore;
         delete transition.delay;
         delete transition.transitionID;

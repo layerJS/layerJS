@@ -158,7 +158,7 @@ describe('delay', function() {
       });
     });
   });
-  it('delayed and immidiate transitions can be triggered after each other with same triggerID', function() {
+  it('delayed and immidiate transitions can be triggered after each other with same groupId', function() {
     browser.get('delay/delay.html').then(function() {
       utilities.wait(300); // time for loading everything
       utilities.getBoundingClientRect('stage').then(function(stage_dimensions) {
@@ -168,12 +168,12 @@ describe('delay', function() {
           duration: "500ms",
           delay: '1000ms',
           type: "left",
-          triggerID: 't1'
+          groupId: 't1'
         }, 1).then(function() {
           utilities.transitionTo('layer', 'frame3', {
             duration: "500ms",
             type: "left",
-            triggerID: 't1'
+            groupId: 't1'
           }, 1).then(function() {
             utilities.wait(510); // wait. there should be the 2nd transition finished
             utilities.getCurrentFrame('layer').then(function(frameName1) {
