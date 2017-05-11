@@ -97,7 +97,7 @@ var FileRouter = StaticRouter.extend({
               return Kern._extend({}, options.globalTransition);
             });
             // cache the new state so that we don't need to request the same page again.
-            that.addRoute(options.location + options.queryString, framesToTransitionTo);
+            that.addRoute($.joinUrl(options, true), exportedState.state);
 
             // we modified HTML. need to wait for rerender and mutation observers
             $.postAnimationFrame(function() {
