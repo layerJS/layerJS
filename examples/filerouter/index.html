@@ -1,0 +1,49 @@
+<html>
+
+<head>
+  <meta name="description" content="lightbox example">
+  <script src="../../dist/layerjs.js"></script>
+  <link href="../../dist/layerjs.css" type="text/css" rel="stylesheet" />
+  <link href="your-style.css" type="text/css" rel="stylesheet" />
+</head>
+
+<body lj-type="stage"> <!-- Add a stage. -->
+  <div lj-type="layer" lj-default-frame="frame1"> <!-- The layer for the main content -->
+    <div lj-type="frame" lj-name="frame1" lj-fit-to="responsive-width"> <!-- The content frame -->
+      <h1> frame1 </h1>
+      <p>
+        <strong>Note, this example needs to be run with a HTTP server</strong>
+      </p>
+      <p>Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea
+        takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores
+        et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.
+      </p>
+      <a href="#box-layer.box1&p=fade&t=0.2s">click here ...</a> <!-- The link opening the lighbox including animation parameters -->
+      <p>Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea
+        takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores
+        et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.
+      </p>
+      <a href="./second.html?p=fade&t=2s">second page</a> <!-- The link to the scond page-->
+    </div>
+  </div>
+  <div lj-type="layer" lj-default-frame="!none" lj-name="box-layer" lj-native-scroll="false"> <!-- The layer for the lightbox. The initial frame is the special frame "!none" which repesents an empty layer. -->
+    <div lj-type="frame" lj-name="box1" lj-fit-to="responsive" class="modal"> <!-- The content of the modal. -->
+      <div class="modal-inner">
+        <div>
+          <a href="#box-layer.!none&t=0.2s&p=fade" class="close">&#x2573;</a> <!-- A Link as close button which resets the active frame of the lighbox layer to "!none" -->
+        </div>
+        <h1>A modal</h1>
+        <p>
+          Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat
+          <a href="./index.html?p=fade&t=2s">first page</a> <!-- The link to the scond page-->
+          <a href="./second.html?p=fade&t=2s">second page</a> <!-- The link to the scond page-->
+        </p>
+      </div>
+    </div>
+  </div>
+  <script>
+    layerJS.init(); // Initialize layerJS
+  </script>
+</body>
+
+</html>
