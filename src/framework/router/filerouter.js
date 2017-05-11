@@ -58,17 +58,20 @@ var FileRouter = StaticRouter.extend({
                 }).length > 0;
 
                 if (!found) {
-                  // Path not yet added, get parent path
+                  // Path not yet added
+                  var isRoot = !(path.match(/\./)); // is the new path a root path (a root stage)?
+                  // get parent path
                   var parentPath = path.replace(/\.[^\.]*$/, '');
                   // only add the new path if the parent exists in current state
-                  if (globalStructureHash[parentPath]) {
+                  if (globalStructureHash[parentPath] || isRoot) {
                     var html = fileState.resolvePath(path)[0].view.outerEl.outerHTML; // this should always resolve to a single view
-                    var parentView = state.resolvePath(parentPath)[0].view;
-                    parentView.innerEl.insertAdjacentHTML('beforeend', html);
+                    var parentHTML = isRoot ? document.body : state.resolvePath(parentPath)[0].view.innerEl;
+                    parentHTML.insertAdjacentHTML('beforeend', html);
                     addedHash.push(path);
+                  } else {
+                    // this should never happen because structure is tranversered in DOM order
+                    throw "filerouter: didn't find '" + parentPath + "' in current document to add new '" + path + "'";
                   }
-                } else {
-                  addedHash.push(path);
                 }
               }
             });
@@ -88,7 +91,7 @@ var FileRouter = StaticRouter.extend({
               if (isSpecial) {
                 pathToFind = path.replace(/\.[^\.]*$/, '');
               }
-
+              // only transition to a path if it was added directly (not through a parent) or if it was present before
               return globalStructureHash.hasOwnProperty(pathToFind) || addedHash.indexOf(pathToFind) !== -1;
             });
 
