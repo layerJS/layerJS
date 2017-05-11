@@ -80,14 +80,18 @@ var LayerView = BaseView.extend({
     })
     */
 
-    if (this.defaultFrame()) {
-      this.currentFrame = this._getFrame(this.defaultFrame());
-    } else {
-      this.currentFrame = this._getFrame(defaults.specialFrames.next);
-    }
-
     // set the initial frame if possible
-    if (!this.currentFrame || null === this.currentFrame) {
+    var defaultFrame = this.defaultFrame();
+    if (defaultFrame && defaultFrame !== '!none') {
+      this.currentFrame = this._getFrame(defaultFrame) || null;
+      if (!this.currentFrame) console.warn("layerJS: layer '" + this.name() + "': could not find defaultframe: '" + defaultFrame + "'");
+    }
+    // set first frame if possible
+    if (!this.currentFrame && defaultFrame !== '!none') {
+      this.currentFrame = this._getFrame(defaults.specialFrames.next) || null;
+    }
+    // set none otherwise
+    if (!this.currentFrame) {
       this.showFrame(defaults.specialFrames.none);
     } else {
       this.showFrame(this.currentFrame.name());
