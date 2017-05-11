@@ -344,7 +344,7 @@ var DomHelpers = {
       for (var parameter in defaults.transitionParameters) {
         if (defaults.transitionParameters.hasOwnProperty(parameter)) {
           var parameterName = defaults.transitionParameters[parameter];
-          var regEx = new RegExp("[?&]" + parameterName + "=([^&]+)");
+          var regEx = new RegExp("(?:^|[?&])" + parameterName + "=([^&]+)");
           var match = string.match(regEx);
           if (match) {
             transition[parameter] = match[1];
