@@ -316,7 +316,28 @@ var FrameView = BaseView.extend({
     d.initialScrollX = d.scrollX;
     d.initialScrollY = d.scrollY;
     return (this.transformData = d);
-  }
+  },
+  /**
+   * Will return the width of the view (including the margins)
+   *
+   * @return {Number} the width of the view
+   */
+  width: function() {
+    var margin = this.getMargin();
+    var marginToAdd = margin.left + margin.right;
+    return BaseView.prototype.width.call(this) + marginToAdd; // we always return width incl. margin to also fit margin into stage
+  },
+  /**
+   * Will return the height of the view (including the margins)
+   *
+   * @return {Number} the height of the view
+   */
+  height: function() {
+    var margin = this.getMargin();
+    var marginToAdd = margin.top + margin.bottom;
+    return BaseView.prototype.height.call(this) + marginToAdd; // we always return height incl. margin to also fit margin into stage
+  },
+
 }, {
   defaultProperties: {
     type: 'frame'
