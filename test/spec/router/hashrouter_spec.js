@@ -58,7 +58,7 @@ describe('HashRouter', function() {
     });
   });
 
-  it('can only handle an url with a hash that is the same as the current url', function(done) {
+  xit('can only handle an url with a hash that is the same as the current url', function(done) {
     var promise = hashRouter.handle({
       location: 'http://localhost/test.html',
       hash: 'stage1.layer1.frame2'
