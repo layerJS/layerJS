@@ -385,37 +385,17 @@ var DomHelpers = {
   // },
   /**
    *  Will transform a relative url to an absolute url
-   * https://developer.mozilla.org/en-US/docs/Web/API/document/cookie#Using_relative_URLs_in_the_path_parameter
+   * https://davidwalsh.name/get-absolute-url
    * @param {string} url to tranform to an absolute url
    * @return {string} an absolute url
    */
-  getAbsoluteUrl: function(url) {
-    var hostFound = url.indexOf(window.location.origin) !== -1;
-    url = url.replace(window.location.origin, '');
-    var result = url,
-      pattern = /^((http|https):\/\/)/;
-    if (!pattern.test(url) && (url.indexOf('~/') !== -1 || url.indexOf('./') !== -1 || url.indexOf('../') !== -1)) {
-      if (url.startsWith('~/')) {
-        result = url.substr(1);
-      } else if (url.indexOf('/~/') !== -1) {
-        result = url.substr(url.indexOf('/~/') + 2);
-      } else {
-        var nUpLn, sDir = "",
-          sPath = window.location.pathname.replace(/[^\/]*$/, url.replace(/(\/|^)(?:\.?\/+)+/g, "$1"));
-        for (var nEnd, nStart = 0; nEnd = sPath.indexOf("/../", nStart), nEnd > -1; nStart = nEnd + nUpLn) {
-          nUpLn = /^\/(?:\.\.\/)*/.exec(sPath.slice(nEnd))[0].length;
-          sDir = (sDir + sPath.substring(nStart, nEnd)).replace(new RegExp("(?:\\\/+[^\\\/]*){0," + ((nUpLn - 1) / 3) + "}$"), "/");
-        }
-        result = sDir + sPath.substr(nStart);
-      }
-    }
-
-    if (hostFound || !pattern.test(url)) {
-      result = window.location.origin + result;
-    }
-
-    return result;
-  }
+  getAbsoluteUrl: (function() {
+    var a = document.createElement('a');
+    return function(url) {
+      a.href = url;
+      return a.href;
+    };
+  })()
 };
 DomHelpers.detectBrowser();
 DomHelpers.calculatePrefixes(['transform', 'transform-origin']);
