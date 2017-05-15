@@ -31,7 +31,9 @@ describe("FrameView", function() {
     describe('sizeChanged', function() {
       it('will remove cached transformData and will trigger a renderRequired event', function(done) {
         var element = utilities.appendChildHTML(require('./htmlelements/simple_layer_1.js'));
-        var layerView = new LayerView({el : element});
+        var layerView = new LayerView({
+          el: element
+        });
         var frameView = layerView.getChildViews()[0];
 
         frameView.transformData = {};
@@ -136,10 +138,10 @@ describe("FrameView", function() {
     });
 
 
-    describe('renderRequired', function(){
-      it('will call the renderChildPosition and showFrame method of it\'s layer', function(done){
+    describe('renderRequired', function() {
+      it('will call the renderChildPosition and showFrame method of it\'s layer', function(done) {
         var layerView = new LayerView({
-          el : utilities.appendChildHTML(require('./htmlelements/simple_layer_1.js'))
+          el: utilities.appendChildHTML(require('./htmlelements/simple_layer_1.js'))
         });
 
         spyOn(layerView, '_renderChildPosition');
@@ -147,7 +149,7 @@ describe("FrameView", function() {
 
         var frameView = layerView.innerEl.children[0]._ljView;
 
-        frameView.on('renderRequired', function(){
+        frameView.on('renderRequired', function() {
           expect(layerView._renderChildPosition).toHaveBeenCalled();
           expect(layerView.showFrame).toHaveBeenCalled();
 
@@ -160,4 +162,62 @@ describe("FrameView", function() {
     });
   });
 
+  describe('dimensions', function() {
+    var sourceElement;
+
+    beforeEach(function() {
+      sourceElement = utilities.appendChildHTML(require('./htmlelements/simple_frame_1.js'));
+    });
+
+    it('will add the margin to the height', function() {
+      var view = new FrameView({
+        el: sourceElement
+      });
+      var element = view.outerEl;
+      element.style.height = '100px';
+
+      var height = view.height();
+      element.style.marginTop = '50px';
+      element.style.marginBottom = '20px';
+
+      expect(view.height()).toBe(height + 70);
+    });
+
+    it('will add the margin to the width', function() {
+      var view = new FrameView({
+        el: sourceElement
+      });
+      var element = view.outerEl;
+      element.style.width = '100px';
+
+      var width = view.width();
+      element.style.marginLeft = '50px';
+      element.style.marginRight = '20px';
+
+      expect(view.width()).toBe(width + 70);
+    });
+
+    it('will subtract the margin when setting the height', function() {
+      var view = new FrameView({
+        el: sourceElement
+      });
+      var element = view.outerEl;
+      element.style.marginTop = '50px';
+      element.style.marginBottom = '20px';
+      view.setHeight(170);
+      expect(element.style.height).toBe('100px');
+    });
+
+    it('will subtract the margin when setting the width', function() {
+      var view = new FrameView({
+        el: sourceElement
+      });
+      var element = view.outerEl;
+      element.style.marginLeft = '50px';
+      element.style.marginRight = '20px';
+      view.setWidth(170);
+      expect(element.style.width).toBe('100px');
+    });
+
+  });
 })

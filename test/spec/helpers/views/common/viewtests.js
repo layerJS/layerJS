@@ -104,55 +104,5 @@ module.exports = function(scenario, initFunction) {
       expect(ViewType.identify).toBeDefined();
       expect(typeof ViewType.identify).toBe('function');
     });
-
-    xit('will add the margin to the height', function() {
-      var view = new ViewType({
-        el: sourceElement
-      });
-      var element = view.outerEl;
-      element.style.height = '100px';
-
-      var height = view.height();
-      element.style.marginTop = '50px';
-      element.style.marginBottom = '20px';
-
-      expect(view.height()).toBe(height + 70);
-    });
-
-    xit('will add the margin to the width', function() {
-      var view = new ViewType({
-        el: sourceElement
-      });
-      var element = view.outerEl;
-      element.style.width = '100px';
-
-      var width = view.width();
-      element.style.marginLeft = '50px';
-      element.style.marginRight = '20px';
-
-      expect(view.width()).toBe(width + 70);
-    });
-
-    xit('will subtract the margin when setting the height', function() {
-      var view = new ViewType({
-        el: sourceElement
-      });
-      var element = view.outerEl;
-      element.style.marginTop = '50px';
-      element.style.marginBottom = '20px';
-      view.setHeight(170);
-      expect(element.style.height).toBe('100px');
-    });
-
-    xit('will subtract the margin when setting the width', function() {
-      var view = new ViewType({
-        el: sourceElement
-      });
-      var element = view.outerEl;
-      element.style.marginLeft = '50px';
-      element.style.marginRight = '20px';
-      view.setWidth(170);
-      expect(element.style.width).toBe('100px');
-    });
   });
 };
