@@ -1,6 +1,5 @@
 describe('router', function() {
 
-  var layerJS, defaults, StaticRouter;
   var utilities = require('../helpers/utilities.js');
   var StageView = require('../../../src/framework/stageview.js');
   var state = require('../../../src/framework/state.js');
@@ -8,11 +7,10 @@ describe('router', function() {
   var FileRouter = require('../../../src/framework/router/filerouter.js');
   var HashRouter = require('../../../src/framework/router/hashrouter.js');
   var StaticRouter = require('../../../src/framework/router/staticrouter.js');
+  var layerJS = require('../../../src/framework/layerjs.js');
+  var defaults = require('../../../src/framework/defaults.js');
 
   beforeEach(function() {
-    layerJS = require('../../../src/framework/layerjs.js');
-    defaults = require('../../../src/framework/defaults.js');
-    StaticRouter = require('../../../src/framework/router/staticrouter.js');
     layerJS.router.clearRouters();
   });
 

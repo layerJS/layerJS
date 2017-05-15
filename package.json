@@ -22,7 +22,9 @@
     "scripty" : "latest",
     "uglifyjs" : "latest",
     "istanbul" : "latest",
-    "lite-server": "latest"
+    "lite-server": "latest",
+    "jasmine-reporters" : "latest",
+    "jasmine-console-reporter" : "latest"
   },
   "scripts": {
     "clean": "rimraf build/* dist/*",
@@ -42,7 +44,7 @@
 
     "pretest": "npm run jshint",
 
-    "test": "jasmine JASMINE_CONFIG_PATH=./test/spec/support/jasmine.json",
+    "test": "node ./test/spec/support/jasmine.js",
     "debugtest": "node debug `which jasmine` JASMINE_CONFIG_PATH=./test/spec/support/jasmine.json",
     "browsertest" : "browserify ./test/specs.js > ./test/jasmine/lib/specs.js",
 

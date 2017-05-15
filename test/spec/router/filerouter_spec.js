@@ -1,12 +1,10 @@
 describe('Filerouter', function() {
-  var FileRouter, StageView, UrlData;
-  var utilities, nock;
+  var FileRouter= require('../../../src/framework/router/filerouter.js');
+  var nock = require('nock');
+  var utilities = require('../helpers/utilities.js');
+  var StageView = require('../../../src/framework/stageview.js');
 
   beforeEach(function() {
-    nock = require('nock');
-    FileRouter = require('../../../src/framework/router/filerouter.js');
-    utilities = require('../helpers/utilities.js');
-    StageView = require('../../../src/framework/stageview.js');
     state = require('../../../src/framework/state.js').getState();
 //    window.location.href = "http://localhost/";
 
