@@ -1,0 +1,20 @@
+@import url('https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,700');
+
+
+@font-face{
+    font-family: 'texgyreheros';
+    src: url('texgyreheros-regular-webfont.woff') format('woff'),
+         url('texgyreheros-regular-webfont.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+
+}
+
+@font-face{
+    font-family: 'texgyreheros';
+    src: url('texgyreheros-bold-webfont.woff') format('woff'),
+         url('texgyreheros-bold-webfont.ttf') format('truetype');
+    font-weight: bold;
+    font-style: normal;
+
+}

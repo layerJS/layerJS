@@ -1,0 +1,868 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="">
+  <meta name="author" content="">
+  <title>layerJS -
+    UI composition framework
+  </title>
+  <script
+  src="//d2wy8f7a9ursnm.cloudfront.net/bugsnag-3.min.js"
+  data-apikey="7ade43a65741ed827e5d137c59401484"></script>
+  <!-- Bootstrap core CSS -->
+  <link href="bootstrap/css/bootstrap.css" rel="stylesheet">
+  <!-- Custom styles for this template -->
+  <link href="style.css" rel="stylesheet">
+  <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+  <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+  <script src="assets/js/jquery.min.js"></script>
+  <script src="../../../dist/layerjs.js"></script>
+  <link href="https://cdn.layerjs.org/libs/layerjs/layerjs-0.4.1.css" type="text/css" rel="stylesheet" />
+  <link href="assets/font/stylesheet.css" type="text/css" rel="stylesheet" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.8.0/highlight.min.js" integrity="sha256-+mpyNVJsNt4rVXCw0F+pAOiB3YxmHgrbJsx4ecPuUaI=" crossorigin="anonymous" async></script>
+  <script src="assets/js/annotate.js" async></script>
+  <link rel="stylesheet" href="hljs.css" />
+  <!-- Google Tag Manager -->
+  <script>
+    (function(w, d, s, l, i) {
+      w[l] = w[l] || [];
+      w[l].push({
+        'gtm.start': new Date().getTime(),
+        event: 'gtm.js'
+      });
+      var f = d.getElementsByTagName(s)[0],
+        j = d.createElement(s),
+        dl = l != 'dataLayer' ? '&l=' + l : '';
+      j.async = true;
+      j.src =
+        'https://www.googletagmanager.com/gtm.js?id=' + i + dl;
+      f.parentNode.insertBefore(j, f);
+    })(window, document, 'script', 'dataLayer', 'GTM-5P4JV6H');
+  </script>
+  <!-- End Google Tag Manager -->
+</head>
+
+<body lj-type="stage">
+  <!-- Google Tag Manager (noscript) -->
+  <noscript>
+    <iframe src="https://www.googletagmanager.com/ns.html?id=GTM-5P4JV6H" height="0" width="0" style="display:none;visibility:hidden"></iframe>
+  </noscript>
+  <!-- End Google Tag Manager (noscript) -->
+  <!-- <div lj-type="layer" lj-name="footerlayer">
+    <div lj-type="frame" lj-name="footer" lj-start-position="bottom">
+      <footer>
+  <div class="row">
+    <div class="col-sm-6 col-lg-4 col-md-5 col-md-offset-1 col-lg-offset-2">
+      <ul>
+        <li>
+          <a href="https://github.com/layerJS/layerJS/">Github</a>
+        </li>
+        <li>
+          <a href="jobs.html">Jobs</a>
+        </li>
+        <li>
+          <a href="https://raw.githubusercontent.com/layerJS/layerJS/master/LICENSE">License</a>
+        </li>
+        <li>
+          <a href="https://github.com/layerJS/layerJS/wiki#how-to-contribute">How to contribute</a>
+        </li>
+        <li>
+          <a href="https://github.com/layerJS/layerJS/wiki">Documentation</a>
+        </li>
+        <li>
+          <a href="impressum.html">Impressum</a>
+        </li>
+      </ul>
+    </div>
+    <div class="col-md-4">
+      <ul>
+        <li>
+          &copy; 2016-2017 the layerJS team.
+        </li>
+        <li>
+          For questions or comments please contact us at
+          <a href="mailto:developers@layerjs.org">developers@layerjs.org</a>
+        </li>
+        <li>
+          Follow us on:
+        </li>
+        <li class="social-share">
+          <a href="https://fb.com/layerjs">
+            <img src="assets/img/facebook.svg">
+          </a>
+          <a href="https://twitter.com/layerjs">
+            <img src="assets/img/twitter.svg">
+          </a>
+          <a href="mailto:developers@layerjs.org">
+            <img src="assets/img/email.svg">
+          </a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</footer>
+
+    </div>
+  </div> -->
+  <div lj-type="layer" lj-name="contentlayer" lj-transition="left">
+    <div lj-type="frame" lj-name="contentframe" lj-fit-to="responsive-width">
+  <section id="hero">
+    <div class="container">
+      <div class="row">
+        <div class="col-md-6 text-right">
+          <h1><img src="assets/img/logo1.png" width="100">&nbsp;layerJS&nbsp;</h1>
+        </div>
+        <div class="col-md-6">
+          <h2 id="herotext"><br>UI composition &amp; animation library for websites and webapps<br><br></h2>
+        </div>
+        <a href="https://github.com/layerJS/layerJS" class="btn visible-xs mobile-github-btn btn-default">Find us on Github</a>
+
+      </div>
+    </div>
+  </section>
+  <section class="grey" style="height:100px;">
+    <a name="howitworks">&nbsp;</a>
+  </section>
+  <section class="grey">
+    <div class="container">
+      <h2> One concept - one library</h2>
+      <p>UX patterns like menus, sliders, layers &amp;&nbsp;lightboxes, parallax effects, page-swipes, zoom effects are really just interactive animated layers. layerJS provides <strong>one simple universal concept</strong>&nbsp; in&nbsp;<strong>one single Javascript library</strong>&nbsp;to
+        create such patterns in a most flexible way.&nbsp;<br></p><a href="#goto">test</a>
+      <p>layerJS is not a UI kit. It introduces <strong>frames</strong>, basically empty boxes, which you can fill with your content. Which frames are shown where on the website / app is defined by the <strong>state</strong> object. HTML links, gestures
+        or API calls can change this state, triggering animated transitions.</p>
+    </div>
+  </section>
+  <section>
+    <div class="container">
+      <h2>How layerJS works - Stages &amp; Frames</h2>
+      <div class="row howto-step">
+        <div class="col-xs-12 col-sm-4">
+          <img class="howto-step-img" src="assets/img/frames.svg" width="300" style="padding-top:30px;">
+        </div>
+        <div class="col-xs-12 col-sm-8">
+          <div class="row">
+            <div class="col-xs-2">
+              <h3 class="pull-right">1.</h3>
+            </div>
+            <div class="col-xs-10">
+              <h3>Organize content in Frames</h3>
+              <p>Instead of creating complete HTML pages with code for menues or sliders, simply design all parts of your site as separate static HTML &amp; CSS fragments, the Frames.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="row howto-step">
+        <div class="clearfix col-xs-12 col-sm-4">
+          <img class="howto-step-img" src="assets/img/stages.svg" width="200" style="padding-top:30px;">
+        </div>
+        <div class="col-xs-12 col-sm-8">
+          <div class="row">
+            <div class="col-xs-2">
+              <h3 class="pull-right">2.</h3>
+            </div>
+            <div class="col-xs-10">
+              <h3>Stages define positions</h3>
+              <p>Stages are rectangular areas which &nbsp;define where the Frames (page-content, menu-panes, lightbox content, slides) will be displayed dynamically in your final page.&nbsp;</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="row howto-step">
+        <div class="clearfix col-xs-12 col-sm-4">
+          <img class="howto-step-img" src="assets/img/transition.svg" width="300" style="padding-top:30px;">
+        </div>
+        <div class="col-xs-12 col-sm-8">
+          <div class="row">
+            <div class="col-xs-2">
+              <h3 class="pull-right">3.</h3>
+            </div>
+            <div class="col-xs-10">
+              <h3>UI composition &amp; state transitions</h3>
+              <p>Frames are dynamically fit into Stages to compose the final user interface. Upon user interaction, the state of the user interface changes by exchanging one or more Frames in one or more Stages using an animated transition.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+  <section>
+    <div class="container">
+      <h2> Why layerJS is different</h2>
+      <div class="row">
+        <div class="col-md-4">
+          <img src="assets/img/iconHTML.png" width="150" class="column-icon">
+          <h3 class="text-center">Just HTML</h3>
+          <p>With layerJS the full layout and interactivity can be defined by pure CSS and HTML</p>
+        </div>
+        <div class="col-md-4">
+          <img src="assets/img/iconstar.png" class="column-icon">
+          <h3 class="text-center">Full flexiblity</h3>
+          <p>layerJS does not provide a single effect with a given design but rather handles transitions of emtpy boxes that you can fill with your design.</p>
+        </div>
+        <div class="col-md-4">
+          <img src="assets/img/icongestures.png" class="column-icon">
+          <h3 class="text-center">A framework</h3>
+          <p>layerJS does not just provide transition effects but a full framework including gesture support, a router and an API.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+  <a name="gettingstarted">&nbsp;</a>
+  <section class="grey">
+    <div class="container">
+      <h2>Getting started</h2>
+      <p>To use layerJS you just need to define the stages and put all content in frames. The following list gives you minimal examples for common UX patterns. Feel free to combine them to your liking.</p>
+    </div>
+    <div class="container example-container">
+      <h3 class="text-center example-headline">Slider</h3>
+      <div class="row">
+        <div class="col-md-5 col-md-offset-1 col-sm-6 col-sm-offset-0">
+          <div class="whitebox">A slider needs a single stage, a layer and one frame for each slide. Controls can be placed on a second overlapping layer. Controls are regular links that link to specific frames or use special links like "#!next" or "#!prev"</div>
+          <div class="whitebox">
+            <h4 class="sample-header">Sample code</h4>
+            <pre>
+&lt;div lj-type=&quot;stage&quot;&gt;
+  &lt;div lj-type=&quot;layer&quot; lj-default-frame=&quot;frame1&quot;&gt;
+    &lt;div lj-type=&quot;frame&quot; lj-name=&quot;frame1&quot;&gt;
+      ... content of frame 1 ...
+    &lt;/div&gt;
+    &lt;div lj-type=&quot;frame&quot; lj-name=&quot;frame2&quot;&gt;
+      ... content of frame 2 ...
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+&lt;a href=&quot;#slider.!prev&quot;&gt;previous&lt;/a&gt;
+&lt;a href=&quot;#slider.!next&quot;&gt;next&lt;/a&gt;</pre>
+            <a class="btn btn-key hidden-xs" data-toggle="collapse" data-parent="#panels1" href="#collapse1" id="showCode" >show full example</a>
+          </div>
+        </div>
+        <div class="col-md-5 col-sm-6 trybox">
+          <h4 class="sample-header">Try below: swipe or click arrows</h4>
+          <iframe src="https://cdn.layerjs.org/examples/slider/index.html" width="100%" height="450px;" frameborder="0"></iframe>
+        </div>
+      </div>
+    </div>
+    <div class="row inset hidden-xs" style="margin: 0px;">
+      <div class="inset-box">
+      </div>
+      <div id="panels1">
+        <div>
+          <div id="collapse1" class="panel-collapse collapse">
+            <div id="example1" class="panel-body" style="padding: 0px;" data-annotate data-annotate-lang="html">
+              <div class="col-sm-3 col-sm-offset-1 annotation">
+              </div>
+              <div class="col-sm-1 anno-lines lines">
+              </div>
+              <div class="col-sm-6 anno-code clearfix">
+              </div>
+              <pre>
+    &lt;html&gt;
+
+    &lt;head&gt;
+    &lt;meta name=&quot;description&quot; content=&quot;simple slider; medium.com example&quot;&gt;
+    &lt;script src=&quot;../../../dist/layerjs.js&quot;&gt;&lt;/script&gt;
+    &lt;link href=&quot;https://cdn.layerjs.org/libs/layerjs/layerjs-0.4.1.css&quot; type=&quot;text/css&quot; rel=&quot;stylesheet&quot; /&gt;
+    &lt;link href=&quot;https://cdn.layerjs.org/examples/slider/your-style.css&quot; type=&quot;text/css&quot; rel=&quot;stylesheet&quot; /&gt;
+    &lt;/head&gt;
+
+    &lt;body&gt;
+    &lt;div lj-type=&quot;stage&quot;&gt; &lt;!--  Define a single stage.  --&gt;
+    &lt;!--  Define the layer &quot;slider&quot; for the slides.  --&gt;
+    &lt;!--  The default frame is &quot;frame1&quot; --&gt;
+    &lt;div lj-type=&quot;layer&quot; lj-name=&quot;slider&quot; lj-default-frame=&quot;frame1&quot; lj-native-scroll=&quot;false&quot;&gt;
+      &lt;!--  Define one frame per slide.  --&gt;
+      &lt;!--  lj-fit-to=&quot;cover&quot; will make sure that the stage will be fully filled with the frame.  --&gt;
+      &lt;!--  &quot;neighbors.l&quot;/&quot;r&quot; define which frames will be transitioned to upon left/right swipe gestures. --&gt;
+      &lt;div lj-type=&quot;frame&quot; lj-name=&quot;frame1&quot; lj-fit-to=&quot;cover&quot; lj-no-scrolling=&quot;true&quot; lj-start-position=&quot;center&quot; lj-neighbors.r=&quot;frame2&quot;&gt;
+        &lt;img src=&quot;https://cdn.layerjs.org/examples/slider/img/samples1a.png&quot;&gt;
+      &lt;/div&gt;
+      &lt;div lj-type=&quot;frame&quot; lj-name=&quot;frame2&quot; lj-fit-to=&quot;cover&quot; lj-no-scrolling=&quot;true&quot; lj-start-position=&quot;center&quot; lj-neighbors.l=&quot;frame1&quot; lj-neighbors.r=&quot;frame3&quot;&gt;
+        &lt;img src=&quot;https://cdn.layerjs.org/examples/slider/img/samples1b.png&quot;&gt;
+      &lt;/div&gt;
+      &lt;div lj-type=&quot;frame&quot; lj-name=&quot;frame3&quot; lj-fit-to=&quot;cover&quot; lj-no-scrolling=&quot;true&quot; lj-start-position=&quot;center&quot; lj-neighbors.l=&quot;frame2&quot;&gt;
+        &lt;img src=&quot;https://cdn.layerjs.org/examples/slider/img/samples1c.png&quot;&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+    &lt;!--  A second layer for the controls --&gt;
+    &lt;div lj-type=&quot;layer&quot; lj-native-scroll=&quot;false&quot; id=&quot;arrows&quot;&gt;
+      &lt;!--  The control frame. The frame will be centered in the stage. --&gt;
+      &lt;div lj-type=&quot;frame&quot; lj-fit-to=&quot;width&quot; lj-start-position=&quot;center&quot; lj-no-scrolling=&quot;true&quot;&gt;
+        &lt;!--  the link will trigger the transition to the previous frame of the currently active frame in layer &quot;slider&quot;. --&gt;
+        &lt;a class=&quot;btn-left btn&quot; href=&quot;#slider.!left?p=right&quot;&gt;&amp;lt;&lt;/a&gt;
+        &lt;a class=&quot;btn-right btn&quot; href=&quot;#slider.!right?p=left&quot;&gt;&amp;gt;&lt;/a&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+    &lt;script&gt;
+      layerJS.init(); // initialize layerJS
+    &lt;/script&gt;
+    &lt;/body&gt;
+
+    &lt;/html&gt;
+    </pre>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="inset-box clearfix">
+        </div>
+      </div>
+    <div class="container example-container" id="goto">
+      <h3 class="text-center example-headline">Zoom UI</h3>
+      <div class="row">
+        <div class="col-md-5 col-md-offset-1 col-sm-6 col-sm-offset-0">
+          <div class="whitebox">Zooming patterns, as often found in mobile apps, can be created with the "canvas" layout. Here, frames have fixed positions on the "canvas" and can be scaled or rotated. During transitions, the canvas is transformed (moved, scaled, rotated) such that the active frame fits into the stage.</div>
+          <div class="whitebox">
+            <h4 class="sample-header">Sample code</h4>
+            <pre>
+&lt;div lj-type=&quot;stage&quot;&gt;
+  &lt;div lj-type=&quot;layer&quot; lj-layout=&quot;canvas&quot;&gt;
+    &lt;div lj-type=&quot;frame&quot; lj-name=&quot;zoomout&quot;&gt;
+      ... Headline and intro ...
+    &lt;/div&gt;
+    &lt;div lj-type=&quot;frame&quot; lj-name=&quot;zoomin&quot;&gt;
+      &lt;div lj-type=&quot;stage&quot;&gt;
+        &lt;div lj-type=&quot;layer&quot; lj-layout=&quot;canvas&quot;&gt;
+          &lt;div lj-type=&quot;frame&quot; lj-name=&quot;frame1&quot;&gt;
+            ... content frame 1 ...
+          &lt;/div&gt;
+          &lt;div lj-type=&quot;frame&quot; lj-name=&quot;frame2&quot;&gt;
+            ... content frame 2 ...
+          &lt;/div&gt;
+          ...
+        &lt;/div&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</pre><a class="btn btn-key hidden-xs" data-toggle="collapse" data-parent="#panels12" href="#collapse12">show full example</a>
+          </div>
+        </div>
+        <div class="col-md-5 col-sm-6 trybox">
+          <h4 class="sample-header">Try below: swipe or click thumbs</h4>
+          <iframe src="https://cdn.layerjs.org/examples/zoom-noiframe/index.html" width="100%" height="500px;" frameborder="0"></iframe>
+        </div>
+      </div>
+    </div>
+    <div class="row inset hidden-xs" style="margin: 0px;">
+      <div class="inset-box">
+      </div>
+      <div id="panels12">
+        <div>
+          <div id="collapse12" class="panel-collapse collapse">
+            <div id="example12" class="panel-body" style="padding: 0px;" data-annotate data-annotate-lang="html">
+              <div class="col-sm-3 col-sm-offset-1 annotation">
+              </div>
+              <div class="col-sm-1 anno-lines lines">
+              </div>
+              <div class="col-sm-6 anno-code clearfix">
+              </div>
+              <pre>
+&lt;html&gt;
+
+&lt;head&gt;
+  &lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1.0&quot;&gt;
+  &lt;meta name=&quot;description&quot; content=&quot;zoomin interface&quot;&gt;
+  &lt;script src=&quot;https://cdn.layerjs.org/libs/layerjs/layerjs-0.4.2.js&quot;&gt;&lt;/script&gt;&lt;!-- link layerjs --&gt;
+  &lt;link href=&quot;https://cdn.layerjs.org/libs/layerjs/layerjs-0.4.2.css&quot; type=&quot;text/css&quot; rel=&quot;stylesheet&quot; /&gt;
+  &lt;link href=&quot;https://cdn.layerjs.org/examples/zoom/your-style.css&quot; type=&quot;text/css&quot; rel=&quot;stylesheet&quot; /&gt;&lt;!-- add styling to the content --&gt;
+&lt;/head&gt;
+
+&lt;!-- Add a main stage. --&gt;
+&lt;body lj-type=&quot;stage&quot; id=&quot;mainstage&quot;&gt;
+  &lt;!-- The layer for the zoom menu. By default the zoomed out state is shown. --&gt;
+  &lt;div lj-type=&quot;layer&quot; lj-default-frame=&quot;zoomout&quot; lj-layout=&quot;canvas&quot;&gt;
+    &lt;!-- The frame showing everything in the zoomed out state --&gt;
+    &lt;div lj-type=&quot;frame&quot; id=&quot;zoomout&quot; lj-fit-to=&quot;fixed&quot;&gt;
+      &lt;h1&gt;Abitrage Ipsum Momentum&lt;/h1&gt;
+      &lt;h2&gt;Beware of the Little White Rabbit&lt;/h2&gt;
+      &lt;p&gt;
+        Click on one of the content frames below to get the details. Swipe to switch between them. Use the menu icon in the frames to get back to the main menu.
+      &lt;/p&gt;
+    &lt;/div&gt;
+    &lt;!-- The zoomed in frame only showing the current content frame --&gt;
+    &lt;div lj-type=&quot;frame&quot; id=&quot;zoomin&quot; lj-fit-to=&quot;fixed&quot; lj-scale=&quot;0.25&quot;&gt;
+      &lt;!-- The stage that handles the transitions between the content frames --&gt;
+      &lt;div lj-type=&quot;stage&quot; id=&quot;contentstage&quot;&gt;
+        &lt;!-- The layer for the content frames --&gt;
+        &lt;div lj-type=&quot;layer&quot; id=&quot;contentlayer&quot; lj-layout=&quot;canvas&quot; lj-native-scroll=&quot;false&quot;&gt;
+          &lt;!-- 1st content frame. --&gt;
+          &lt;div lj-type=&quot;frame&quot; id=&quot;frame1&quot; lj-fit-to=&quot;responsive&quot; lj-neighbors.r=&quot;frame2&quot;&gt;
+            &lt;a class=&quot;coverlink&quot; href=&quot;#frame1;zoomin;minimenu.hamburger&quot;&gt;&lt;/a&gt;&lt;!-- an overlay linking to the zoomed in state of frame1 with the hamburger menu showing --&gt;
+            &lt;iframe width=&quot;100%&quot; height=&quot;100%&quot; frameborder=&quot;0&quot; src=&quot;https://techcrunch.com/2017/04/03/apple-gpu-tech/amp/&quot;&gt;&lt;/iframe&gt;&lt;!-- We use an external iframe to not clutter this example with content. --&gt;
+          &lt;/div&gt;
+          &lt;!-- the next content frame --&gt;
+          &lt;div lj-type=&quot;frame&quot; id=&quot;frame2&quot; lj-fit-to=&quot;responsive&quot; lj-neighbors.r=&quot;frame3&quot; lj-neighbors.l=&quot;frame1&quot;&gt;
+            &lt;a class=&quot;coverlink&quot; href=&quot;#frame2;zoomin;minimenu.hamburger&quot;&gt;&lt;/a&gt;
+            &lt;iframe width=&quot;100%&quot; height=&quot;100%&quot; frameborder=&quot;0&quot; src=&quot;https://www.wired.com/2017/03/yes-spider-man-can-jump-6-meters-onto-moving-ferry-physics-says/?amp=1&quot;&gt;&lt;/iframe&gt;
+          &lt;/div&gt;
+          &lt;div lj-type=&quot;frame&quot; id=&quot;frame3&quot; lj-fit-to=&quot;responsive&quot; lj-neighbors.r=&quot;frame4&quot; lj-neighbors.l=&quot;frame2&quot;&gt;
+            &lt;a class=&quot;coverlink&quot; href=&quot;#frame3;zoomin;minimenu.hamburger&quot;&gt;&lt;/a&gt;
+            &lt;iframe width=&quot;100%&quot; height=&quot;100%&quot; frameborder=&quot;0&quot; src=&quot;https://venturebeat.com/2017/04/02/understanding-the-limits-of-deep-learning/amp/&quot;&gt;&lt;/iframe&gt;
+          &lt;/div&gt;
+          &lt;div lj-type=&quot;frame&quot; id=&quot;frame4&quot; lj-fit-to=&quot;responsive&quot; lj-neighbors.l=&quot;frame3&quot;&gt;
+            &lt;a class=&quot;coverlink&quot; href=&quot;#frame4;zoomin;minimenu.hamburger&quot;&gt;&lt;/a&gt;
+            &lt;iframe width=&quot;100%&quot; height=&quot;100%&quot; frameborder=&quot;0&quot; src=&quot;https://techcrunch.com/2017/04/03/statcounter-android-windows/amp/&quot;&gt;&lt;/iframe&gt;
+          &lt;/div&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+  &lt;div lj-type=&quot;layer&quot; id=&quot;minimenu&quot; lj-default-frame=&quot;!none&quot; lj-native-scroll=&quot;false&quot;&gt; &lt;!-- the layer for the hamburger menu. It&#39;s not shown by default --&gt;
+    &lt;a href=&quot;#zoomout;frame1;minimenu.!none&quot; lj-type=&quot;frame&quot; id=&quot;hamburger&quot; lj-start-position=&quot;top&quot; lj-fit-to=&quot;fixed&quot; lj-transition=&quot;down&quot;&gt;&lt;!-- the &quot;hamburger&quot; linking to the zoomed out state with the hamburger not shown. --&gt;
+      &amp;#x2630;
+    &lt;/a&gt;
+  &lt;/div&gt;
+  &lt;script&gt;
+    layerJS.init(); // Initialize layerJS
+  &lt;/script&gt;
+&lt;/body&gt;
+
+&lt;/html&gt;</pre>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="inset-box clearfix">
+      </div>
+    </div>
+    <div class="container example-container">
+      <h3 class="text-center example-headline">Parallax</h3>
+      <div class="row">
+        <div class="col-md-5 col-md-offset-1 col-sm-6 col-sm-offset-0">
+          <div class="whitebox">Parallax effects can be created with two overlapping layers in a stage. If the frame in the upper layer is longer than the stage, it will scroll within the stage. Transparent areas in this frame will reveal the lower non-scrolling frame created
+            the parallax effect.
+          </div>
+          <div class="whitebox">
+            <h4 class="sample-header">Sample code</h4>
+            <pre>
+&lt;div lj-type=&quot;stage&quot;&gt;
+  &lt;div lj-type=&quot;layer&quot;&gt;
+    &lt;div lj-type=&quot;frame&quot; lj-fit-to=&quot;cover&quot;&gt;
+      &lt;img src=&quot;img/background.png&quot;&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+  &lt;div lj-type=&quot;layer&quot;&gt;
+    &lt;div lj-type=&quot;frame&quot;&gt;
+      ... content ...
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</pre>
+            <a class="btn btn-key hidden-xs" data-toggle="collapse" data-parent="#panels2" href="#collapse2">show full example<br></a>
+          </div>
+        </div>
+        <div class="col-md-5 col-sm-6 trybox">
+          <h4 class="sample-header">Try below: scroll to see the parallax</h4>
+          <iframe src="https://cdn.layerjs.org/examples/parallax/index.html" width="100%" height="450px;" frameborder="0"></iframe>
+        </div>
+      </div>
+    </div>
+    <div class="row inset hidden-xs" style="margin: 0px;">
+      <div class="inset-box">
+      </div>
+      <div id="panels2">
+        <div>
+          <div id="collapse2" class="panel-collapse collapse">
+            <div id="example2" class="panel-body" style="padding: 0px;" data-annotate data-annotate-lang="html">
+              <div class="col-sm-3 col-sm-offset-1 annotation">
+              </div>
+              <div class="col-sm-1 anno-lines lines">
+              </div>
+              <div class="col-sm-6 anno-code clearfix">
+              </div>
+              <pre>
+&lt;html&gt;
+
+&lt;head&gt;
+  &lt;meta name=&quot;description&quot; content=&quot;parallax effect&quot;&gt;
+  &lt;script src=&quot;../../../dist/layerjs.js&quot;&gt;&lt;/script&gt;
+  &lt;link href=&quot;https://cdn.layerjs.org/libs/layerjs/layerjs-0.4.1.css&quot; type=&quot;text/css&quot; rel=&quot;stylesheet&quot; /&gt;
+  &lt;link href=&quot;https://cdn.layerjs.org/examples/parallax/your-style.css&quot; type=&quot;text/css&quot; rel=&quot;stylesheet&quot; /&gt;
+&lt;/head&gt;
+
+&lt;body&gt;
+  &lt;div lj-type=&quot;stage&quot;&gt; &lt;!-- Add a stage. --&gt;
+    &lt;div lj-type=&quot;layer&quot;&gt; &lt;!-- Background layer. --&gt;
+      &lt;div lj-type=&quot;frame&quot; lj-name=&quot;bg&quot; lj-fit-to=&quot;cover&quot; lj-no-scrolling=&quot;true&quot;&gt; &lt;!-- Frame containing the background image that covers the full background. Can contain arbitrary content, not just an image. --&gt;
+        &lt;img src=&quot;https://cdn.layerjs.org/examples/parallax/img/prezi.png&quot;&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+    &lt;div lj-type=&quot;layer&quot;&gt; &lt;!-- Foreground layer. --&gt;
+      &lt;div lj-type=&quot;frame&quot;&gt; &lt;!-- Frame containing the actual content. If higher than the stage it will scroll. --&gt;
+        &lt;p class=&quot;p&quot;&gt;
+          Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren,
+        &lt;/p&gt;
+        &lt;div class=&quot;transparent&quot;&gt;
+        &lt;/div&gt;
+        &lt;p class=&quot;p&quot;&gt;
+          Li Europan lingues es membres del sam familie. Lor separat existentie es un myth. Por scientie, musica, sport etc, litot Europa usa li sam vocabular. Li lingues differe solmen in li grammatica, li pronunciation e li plu commun vocabules. Omnicos directe
+          al desirabilite de un nov lingua franca: On refusa continuar payar custosi traductores. At solmen va esser necessi far uniform grammatica, pronunciation e plu sommun paroles.
+        &lt;/p&gt;
+        &lt;div class=&quot;window&quot;&gt;
+        &lt;/div&gt;
+        &lt;p class=&quot;p&quot;&gt;
+          Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren.&amp;nbsp;
+        &lt;/p&gt;
+        &lt;p class=&quot;p&quot;&gt;
+          Li Europan lingues es membres del sam familie. Lor separat existentie es un myth. Por scientie, musica, sport etc, litot Europa usa li sam vocabular. Li lingues differe solmen in li grammatica, li pronunciation e li plu commun vocabules. Omnicos directe
+          al desirabilite de un nov lingua franca: On refusa continuar payar custosi traductores. At solmen va esser necessi far uniform grammatica, pronunciation e plu sommun paroles.
+        &lt;/p&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+  &lt;script&gt;
+    layerJS.init(); // initialize layerJS framework
+  &lt;/script&gt;
+&lt;/body&gt;
+
+&lt;/html&gt;
+</pre>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="inset-box clearfix">
+      </div>
+    </div>
+    <div class="container example-container">
+      <h3 class="text-center example-headline">Side menu</h3>
+      <div class="row">
+        <div class="col-md-5 col-md-offset-1 col-sm-6 col-sm-offset-0">
+          <div class="whitebox">A layer can be used to create a menu floating on top of the regular content. The menu can be opened and closed using layerJS transitions between two or more frames representing the open and closed state.</div>
+          <div class="whitebox">
+            <h4 class="sample-header">Sample code</h4>
+            <pre>
+&lt;div lj-type="stage"&gt;
+  &lt;div lj-type="layer" lj-default-frame="frame1"&gt;
+    &lt;div lj-type="frame" lj-name="frame1"&gt;
+      ... page content ...
+    &lt;/div&gt;
+  &lt;/div&gt;
+  &lt;div lj-type="layer" lj-name="menulayer"&gt;
+    &lt;div lj-type="frame" lj-name="menu-closed"&gt;
+      &lt;a href="#menu-open"&gt;Menu&lt;/a&gt;
+    &lt;/div&gt;
+    &lt;div lj-type="frame" lj-name="menu-open"&gt;
+      &lt;a href="#menu-closed"&gt;close&lt;/a&gt;
+      &lt;ul class="nav-list"&gt;
+        ... menu items ...
+      &lt;/ul&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</pre>
+            <a class="btn btn-key hidden-xs" data-toggle="collapse" data-parent="#panels3" href="#collapse3">show full example<br></a>
+          </div>
+        </div>
+        <div class="col-md-5 col-sm-6 trybox">
+          <h4 class="sample-header">Try below: click menu to open it</h4>
+          <iframe src="https://cdn.layerjs.org/examples/sidemenu/index.html" width="100%" height="450px;" frameborder="0"></iframe>
+        </div>
+      </div>
+    </div>
+    <div class="row inset hidden-xs" style="margin: 0px;">
+      <div class="inset-box">
+      </div>
+      <div id="panels3">
+        <div>
+          <div id="collapse3" class="panel-collapse collapse">
+            <div id="example3" class="panel-body" style="padding: 0px;" data-annotate data-annotate-lang="html">
+              <div class="col-sm-3 col-sm-offset-1 annotation">
+              </div>
+              <div class="col-sm-1 anno-lines lines">
+              </div>
+              <div class="col-sm-6 anno-code clearfix">
+              </div>
+              <pre>
+&lt;html&gt;
+&lt;head&gt;
+  &lt;meta name=&quot;description&quot; content=&quot;sidemenu 1 layer&quot;&gt;
+  &lt;script src=&quot;../../../dist/layerjs.js&quot;&gt;&lt;/script&gt;
+  &lt;link href=&quot;https://cdn.layerjs.org/libs/layerjs/layerjs-0.4.1.css&quot; type=&quot;text/css&quot; rel=&quot;stylesheet&quot; /&gt;
+  &lt;link href=&quot;https://cdn.layerjs.org/examples/sidemenu/your-style.css&quot; type=&quot;text/css&quot; rel=&quot;stylesheet&quot; /&gt;
+&lt;/head&gt;
+
+&lt;body&gt;
+&lt;div lj-type=&quot;stage&quot;&gt; &lt;!-- Add a stage. --&gt;
+  &lt;div lj-type=&quot;layer&quot; lj-default-frame=&quot;frame1&quot;&gt; &lt;!-- The layer for the main content --&gt;
+    &lt;div lj-type=&quot;frame&quot; lj-name=&quot;frame1&quot; class=&quot;content&quot; lj-fit-to=&quot;responsive-width&quot;&gt; &lt;!-- The content of the current page --&gt;
+      &lt;p&gt; Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no
+        sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo
+        duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.&lt;/p&gt;
+      &lt;p&gt; Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no
+        sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo
+        duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.&lt;/p&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+  &lt;div lj-type=&quot;layer&quot; lj-name=&quot;menulayer&quot; lj-native-scroll=&quot;false&quot;&gt; &lt;!-- The layer for the menu on top of the main content --&gt;
+    &lt;div lj-type=&quot;frame&quot; lj-name=&quot;hmenu&quot; class=&quot;nav&quot; lj-fit-to=&quot;responsive-width&quot; lj-transition=&quot;fade&quot;&gt; &lt;!-- The frame for the menu in the closed state --&gt;
+        &lt;div class=&quot;nav-hor&quot;&gt;
+        &lt;a href=&quot;#menu?t=0.5s&quot;&gt;&amp;#x2630; Menu&lt;/a&gt; &lt;!-- Link to open state with parameters that control the animation type and the timing. --&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+    &lt;div lj-type=&quot;frame&quot; lj-name=&quot;menu&quot; class=&quot;nav menu&quot; lj-fit-to=&quot;responsive-height&quot; lj-neighbors.r=&quot;hmenu&quot; lj-transition=&quot;slideOverRight&quot;&gt; &lt;!-- The frame for the menu in the open state. The &quot;neighbors&quot; attribute allows swipe gestures to close the menu. --&gt;
+      &lt;a href=&quot;#hmenu?t=0.5s&quot; class=&quot;close&quot;&gt;&amp;#x2573;&lt;/a&gt; &lt;!-- The close button with a link to the closed state. --&gt;
+        &lt;ul class=&quot;nav-list&quot;&gt;
+          &lt;li class=&quot;nav-item&quot;&gt;
+            Menu 1
+          &lt;/li&gt;
+          &lt;li class=&quot;nav-item&quot;&gt;
+            Menu 2
+          &lt;/li&gt;
+          &lt;li class=&quot;nav-item&quot;&gt;
+            Menu 3
+          &lt;/li&gt;
+          &lt;li class=&quot;nav-item&quot;&gt;
+            Menu 4
+          &lt;/li&gt;
+        &lt;/ul&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+  &lt;script&gt;
+  layerJS.init(); // initialize layerJS
+&lt;/script&gt;
+&lt;/body&gt;
+
+&lt;/html&gt;
+              </pre>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="inset-box clearfix">
+      </div>
+    </div>
+    <div class="container example-container">
+      <h3 class="text-center example-headline">Lightbox / Modal</h3>
+      <div class="row">
+        <div class="col-md-5 col-md-offset-1 col-sm-6 col-sm-offset-0">
+          <div class="whitebox">A lighbox, modal or pop-up can be easily created with a layer on top of the content which initially does not show a frame. This layer can be filled with a lightbox' content upon link click.</div>
+          <div class="whitebox">
+            <h4 class="sample-header">Sample code</h4>
+            <pre>
+&lt;div lj-type=&quot;stage&quot;&gt;
+  &lt;div lj-type=&quot;layer&quot; lj-default-frame=&quot;frame1&quot;&gt;
+    &lt;div lj-type=&quot;frame&quot; lj-name=&quot;frame1&quot;&gt;
+      ... page content ...
+      &lt;a href=&quot;#box-layer.box1&gt;click here ...&lt;/a&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+  &lt;div lj-type=&quot;layer&quot; lj-default-frame=&quot;!none&quot; lj-name=&quot;box-layer&quot;&gt;
+    &lt;div lj-type=&quot;frame&quot; lj-name=&quot;box1&quot;&gt;
+      ... modal content ...
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</pre>
+            <a class="btn btn-key hidden-xs" data-toggle="collapse" data-parent="#panels4" href="#collapse4">show full example<br></a>
+          </div>
+        </div>
+        <div class="col-md-5 col-sm-6 trybox">
+          <h4 class="sample-header">Try below: click link to open lightbox</h4>
+          <iframe src="https://cdn.layerjs.org/examples/lightbox/index.html" width="100%" height="450px;" frameborder="0"></iframe>
+        </div>
+      </div>
+    </div>
+    <div class="row inset hidden-xs" style="margin: 0px;">
+      <div class="inset-box">
+      </div>
+      <div id="panels4">
+        <div>
+          <div id="collapse4" class="panel-collapse collapse">
+            <div id="example4" class="panel-body" style="padding: 0px;" data-annotate data-annotate-lang="html">
+              <div class="col-sm-3 col-sm-offset-1 annotation">
+              </div>
+              <div class="col-sm-1 anno-lines lines">
+              </div>
+              <div class="col-sm-6 anno-code clearfix">
+              </div>
+              <pre>
+&lt;html&gt;
+
+&lt;head&gt;
+  &lt;meta name=&quot;description&quot; content=&quot;lightbox example&quot;&gt;
+  &lt;script src=&quot;../../../dist/layerjs.js&quot;&gt;&lt;/script&gt;
+  &lt;link href=&quot;https://cdn.layerjs.org/libs/layerjs/layerjs-0.4.1.css&quot; type=&quot;text/css&quot; rel=&quot;stylesheet&quot; /&gt;
+  &lt;link href=&quot;https://cdn.layerjs.org/examples/lightbox/your-style.css&quot; type=&quot;text/css&quot; rel=&quot;stylesheet&quot; /&gt;
+&lt;/head&gt;
+
+&lt;body lj-type=&quot;stage&quot;&gt; &lt;!-- Add a stage. --&gt;
+  &lt;div lj-type=&quot;layer&quot; lj-default-frame=&quot;frame1&quot;&gt; &lt;!-- The layer for the main content --&gt;
+    &lt;div lj-type=&quot;frame&quot; lj-name=&quot;frame1&quot; lj-fit-to=&quot;responsive-width&quot;&gt; &lt;!-- The content frame --&gt;
+      &lt;p&gt;Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea
+        takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores
+        et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.
+      &lt;/p&gt;
+      &lt;a href=&quot;#box-layer.box1?p=fade&amp;t=0.2s&quot;&gt;click here ...&lt;/a&gt; &lt;!-- The link opening the lighbox including animation parameters --&gt;
+      &lt;p&gt;Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea
+        takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores
+        et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.
+      &lt;/p&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+  &lt;div lj-type=&quot;layer&quot; lj-default-frame=&quot;!none&quot; lj-name=&quot;box-layer&quot; lj-native-scroll=&quot;false&quot;&gt; &lt;!-- The layer for the lightbox. The initial frame is the special frame &quot;!none&quot; which repesents an empty layer. --&gt;
+    &lt;div lj-type=&quot;frame&quot; lj-name=&quot;box1&quot; lj-fit-to=&quot;responsive&quot; class=&quot;modal&quot;&gt; &lt;!-- The content of the modal. --&gt;
+      &lt;div class=&quot;modal-inner&quot;&gt;
+        &lt;div&gt;
+          &lt;a href=&quot;#box-layer.!none?t=0.2s&amp;p=fade&quot; class=&quot;close&quot;&gt;&amp;#x2573;&lt;/a&gt; &lt;!-- A Link as close button which resets the active frame of the lighbox layer to &quot;!none&quot; --&gt;
+        &lt;/div&gt;
+        &lt;h1&gt;A modal&lt;/h1&gt;
+        &lt;p&gt;
+          Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat
+        &lt;/p&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+  &lt;script&gt;
+    layerJS.init(); // Initialize layerJS
+  &lt;/script&gt;
+&lt;/body&gt;
+
+&lt;/html&gt;
+              </pre>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="inset-box clearfix">
+      </div>
+    </div>
+  </section>
+  <a name="feedback">&nbsp;</a>
+  <section class="">
+    <div class="container">
+      <h2 style="">Feedback &amp; questions</h2>
+      <p style="">Your feedback is very welcome! If you have any questions or comments please use the below feedback form or contact us at <a href="mailto:developers@layerjs.org">developers@layerjs.org</a>. We are continiously improving layerJS so with your feedback you can help shaping the future development.</p>
+      <textarea id="feedback_text" class="form-control" rows="3" placeholder="Please enter your comments or questions."></textarea>
+      <a id="feedback_send" class="btn btn-key pull-right" href="#">Send<br></a>
+      <p>
+        Also please checkout our <a href="https://github.com/layerJS/layerJS/wiki">Wiki</a> for more detailed documentation of the layerJS functions.
+      </p>
+    </div>
+    <script>
+      $('#feedback_text').on('blur',function() {
+        if (!$(this).val()) return;
+        dataLayer=dataLayer||[];
+        dataLayer.push({
+          event:"feedback_blur",
+          data:$(this).val()
+        });
+      });
+      $('#feedback_send').on('click',function() {
+        if (!$('#feedback_text').val()) return;
+        dataLayer=dataLayer||[];
+        dataLayer.push({
+          event:"feedback_click",
+          data:$('#feedback_text').val()
+        });
+        $(this).html("Thank you!");
+      });
+    </script>
+  </section>
+  <footer>
+  <div class="row">
+    <div class="col-sm-6 col-lg-4 col-md-5 col-md-offset-1 col-lg-offset-2">
+      <ul>
+        <li>
+          <a href="https://github.com/layerJS/layerJS/">Github</a>
+        </li>
+        <li>
+          <a href="jobs.html">Jobs</a>
+        </li>
+        <li>
+          <a href="https://raw.githubusercontent.com/layerJS/layerJS/master/LICENSE">License</a>
+        </li>
+        <li>
+          <a href="https://github.com/layerJS/layerJS/wiki#how-to-contribute">How to contribute</a>
+        </li>
+        <li>
+          <a href="https://github.com/layerJS/layerJS/wiki">Documentation</a>
+        </li>
+        <li>
+          <a href="impressum.html">Impressum</a>
+        </li>
+      </ul>
+    </div>
+    <div class="col-md-4">
+      <ul>
+        <li>
+          &copy; 2016-2017 the layerJS team.
+        </li>
+        <li>
+          For questions or comments please contact us at
+          <a href="mailto:developers@layerjs.org">developers@layerjs.org</a>
+        </li>
+        <li>
+          Follow us on:
+        </li>
+        <li class="social-share">
+          <a href="https://fb.com/layerjs">
+            <img src="assets/img/facebook.svg">
+          </a>
+          <a href="https://twitter.com/layerjs">
+            <img src="assets/img/twitter.svg">
+          </a>
+          <a href="mailto:developers@layerjs.org">
+            <img src="assets/img/email.svg">
+          </a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</footer>
+
+</div>
+  </div>
+    <div lj-type="layer" lj-name="menulayer" lj-native-scroll="false" lj-default-frame="!none">
+  <nav lj-type="frame" lj-name="menuframe" lj-fit-to="responsive-width" style="list-style: none;" lj-transition="down">
+    <a href="/"><h1 class="pull-left"><img src="assets/img/logo1.png" width="50"><span class="hidden-xs">&nbsp;layerJS</span></h1></a>
+    <div class="pull-right nav-items">
+      <form action="https://layerjs.us13.list-manage.com/subscribe/post?u=8ad79651646c189c4b1e8780c&amp;id=81732fa6fd" method="post" id="mc-embedded-subscribe-form" name="mc-embedded-subscribe-form" class="validate" target="_blank" novalidate>
+        <input type="email" name="EMAIL" id="mce-EMAIL" class="form-control required email" placeholder="enter your email for news">
+        <button type="submit" class="btn btn-key" name="subscribe" id="mc-embedded-subscribe">Signup</button>
+      </form>
+      <a href="https://github.com/layerJS/layerJS" class="hidden-xs btn-default btn btn-key">find us on Github</a>
+    </div>
+  </nav>
+</div>
+
+    <div lj-type="layer" lj-name="helplayer" lj-native-scroll="false" lj-layout="canvas">
+  <div lj-type="frame" id="help" lj-fit-to="fixed" lj-no-scrolling="true" lj-start-position="right">
+    <a href="#feedback">HELP ?</a>
+  </div>
+  <!--<div lj-type="frame" id="helpopen" lj-fit-to="fixed" lj-no-scrolling="true" lj-start-position="right" lj-x="30" lj-neighbors.l="help">-->
+
+  </div>
+
+</div>
+
+      <!-- Bootstrap core JavaScript
+================================================== -->
+<!-- Placed at the end of the document so the pages load faster -->
+<script>
+layerJS.init();
+  jQuery('[lj-name="contentlayer"]').scroll(function(){
+                                            var mlayer=layerJS.select('[lj-name="menulayer"]');
+                                            if (this.scrollTop>400 && mlayer.currentFrame==null){
+                                              mlayer.transitionTo('menuframe',{type:'down'});
+                                            } else if (this.scrollTop<400 && mlayer!==null){
+                                              mlayer.transitionTo('!none',{type:'up'});
+                                            }
+  });
+</script>
+<script src="bootstrap/js/bootstrap.min.js"></script>
+<!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+<script src="assets/js/ie10-viewport-bug-workaround.js"></script>
+<!--<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.8.0/highlight.min.js" integrity="sha256-+mpyNVJsNt4rVXCw0F+pAOiB3YxmHgrbJsx4ecPuUaI=" crossorigin="anonymous"></script>
+    <script>
+hljs.initHighlightingOnLoad();
+</script>-->
+
+</body>
+
+</html>

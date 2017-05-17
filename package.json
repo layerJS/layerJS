@@ -21,8 +21,6 @@
     "nock": "latest",
     "scripty" : "latest",
     "uglifyjs" : "latest",
-    "istanbul" : "latest",
-    "lite-server": "latest",
     "jasmine-reporters" : "latest",
     "jasmine-console-reporter" : "latest"
   },
@@ -32,7 +30,7 @@
 
     "postinstall": "webdriver-manager update --standalone && webdriver-manager update --ie",
 
-    "prebuild": "npm run clean && npm run test",
+    "prebuild": "npm run clean",
     "build": "npm run build:scripts -s",
     "build:scripts": "scripty && npm run package",
     "build:compressed": "scripty && npm run package",

@@ -1,0 +1,413 @@
+
+
+h1
+{
+    font-weight: bold;
+    vertical-align: text-bottom;
+    font-size: 72px;
+}
+
+@media (max-width:767px)
+{
+    h1
+    {
+        font-size: 60px;
+        white-space: initial;
+        text-align: center;
+    }
+}
+
+#hero {
+    padding-top: 100px;
+    padding-bottom: 100px;
+    color: rgb(240,240,240);
+    height: 500px;
+    margin-bottom: -100px;
+    padding: 70px 0;
+    clip-path: polygon(0% 0%,100% 0%,100% 80%,0% 100%);
+    -webkit-clip-path: polygon(0% 0%,100% 0%,100% 80%,0% 100%);
+    /* border-bottom: 100px solid red; */
+    /* border-left: 50px solid transparent; */
+    background: -moz-linear-gradient(left, rgba(15,138,148,1) 0%, #b9f5b7 100%);
+    background: -webkit-linear-gradient(left, rgba(15,138,148,1) 0%,#b9f5b7 100%);
+    background: linear-gradient(to right, rgba(15,138,148,1) 0%,#b9f5b7 100%);
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#0f8a94', endColorstr='#b9f5b7',GradientType=1 )
+}
+
+@media (max-width:767px)
+{
+    #hero
+    {
+        height: 700px;
+        margin-bottom: -140px;
+        padding-top: 40px;
+        text-align: center;
+    }
+}
+
+h1 img
+{
+    vertical-align: baseline;
+}
+
+h2
+{
+    font-weight: normal;
+}
+
+section {
+  background-color: white;
+}
+section>div>h2
+{
+    text-align: center;
+    font-weight: 300;
+    font-family: Source Sans Pro;
+    font-size: 48px;
+    padding-bottom: 50px;
+    color: #60C694;
+    text-transform: uppercase;
+}
+
+*
+{
+    font-size: 18px;
+    box-sizing: border-box;
+}
+
+.container
+{
+    padding: 30px;
+}
+
+#herotext
+{
+    font-weight: 300;
+}
+
+.grey
+{
+    background-color: #eee;
+}
+
+.howto-step
+{
+    margin-bottom: 50px;
+}
+
+.howto-step-img
+{
+    margin-left: auto;
+    margin-right: auto;
+    display: block;
+    padding-top: 27px;
+}
+
+.whitebox
+{
+    background-color: white;
+    margin-bottom: 30px;
+    padding: 15px;
+}
+
+.sample-header
+{
+    background-color: #60C694;
+    margin: 0px;
+    padding: 10px;
+}
+
+.whitebox .sample-header
+{
+    margin: -15px;
+    margin-bottom: 0px;
+}
+
+.whitebox a
+{
+    position: absolute;
+    bottom: 50px;
+    right: 40px;
+}
+
+pre
+{
+    background-color: inherit;
+    border: none;
+    border-radius: 0px;
+    margin: 0px;
+}
+
+.shadow-down
+{
+    position: absolute;
+    width: 100%;
+    height: 0px;
+    box-shadow: 0px 0px 10px 1px black;
+    -webkit-clip-path: polygon(0px 0px,0px 20px, 100% 20px, 100% 0px);
+    -moz-clip-path: polygon(0px 0px,0px 20px, 100% 20px, 100% 0px);
+    clip-path: polygon(0px 0px,0px 20px, 100% 20px, 100% 0px);
+}
+
+.shadow-up
+{
+    position: absolute;
+    bottom: 0px;
+    width: 100%;
+    height: px;
+    box-shadow: 0px 0px 10px 1px black;
+    -webkit-clip-path: polygon(0px 0px,0px -20px, 100% -20px, 100% 0px);
+    -moz-clip-path: polygon(0px 0px,0px -20px, 100% -20px, 100% 0px);
+    clip-path: polygon(0px 0px,0px -20px, 100% -20px, 100% 0px);
+}
+
+.lines
+{
+    background-color: #60C694;
+    text-align: right;
+}
+
+.inset
+{
+    overflow: hidden;
+    background-color: white;
+}
+
+.inset-box
+{
+    position: relative;
+    z-index: 10;
+    height: 0px;
+    width: 100%;
+    box-shadow: 0px 0px 10px 1px black;
+}
+
+.btn-key
+{
+    background-color: #60C694;
+}
+
+.btn-key:hover
+{
+    background-color: #359364;
+}
+
+[data-annotate] pre
+{
+    padding: 0px;
+    font-size: 11px;
+    white-space: pre-wrap;
+}
+
+[data-annotate] .anno-code pre:nth-child(even)
+{
+    background-color: #f8f8f8;
+}
+
+[data-annotate]>div
+{
+    padding-top: 10px;
+    padding-bottom: 10px;
+    font-size: 11px;
+}
+
+[data-annotate] div, [data-annotate] pre, [data-annotate] code, [data-annotate] span
+{
+    font-size: 11px;
+}
+
+.example-headline
+{
+    padding-bottom: 20px;
+}
+
+.example-container:nth-child(4n+2)
+{
+    background-color: #f8f8f8;
+}
+
+html
+{
+    height: 100%;
+}
+
+body
+{
+    height: 100%;
+    font-family: source sans pro, texgyreheros, "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+[lj-type="frame"], [data-lj-type="frame"]
+{
+    width: 100%;
+    z-index: 0;
+}
+
+nav img
+{
+    display: inline-block;
+    vertical-align: baseline;
+}
+
+nav
+{
+    background-color: white;
+    line-height: 70px;
+    box-shadow: 0px 0px 10px 0px black;
+}
+
+nav a
+{
+    color: black;
+    text-decoration: none;
+}
+
+nav a:hover
+{
+}
+
+nav h1
+{
+    margin: 0px;
+    padding: 10px;
+}
+
+nav h1, nav h1 *
+{
+    font-size: 40px;
+}
+
+nav>.nav-items>*
+{
+    display: inline-block;
+    margin-right: 10px;
+}
+
+nav form .form-control
+{
+    display: inline-block;
+    width: 200px;
+}
+
+.column-icon
+{
+    display: block;
+    margin: auto;
+    width: 120px;
+    padding: 10px;
+}
+
+footer ul
+{
+    list-style: none;
+}
+
+footer a
+{
+    text-decoration: none;
+    color: inherit;
+}
+
+footer a:hover
+{
+    text-decoration: none;
+}
+
+a:hover
+{
+    color: inherit;
+}
+
+footer
+{
+    background-color: #58585A;
+    color: #eee;
+    padding: 30px;
+}
+
+footer *
+{
+    font-size: 14px;
+}
+
+/*[lj-name="contentlayer"] footer {
+  visibility: hidden;
+  pointer-events: none;
+}*/
+
+.social-share img
+{
+    width: 25px;
+    margin-top: 5px;
+    margin-right: 5px;
+}
+
+.mobile-github-btn
+{
+    margin: auto;
+    margin-top: 20px;
+    width: 190px;
+    font-size: 20px;
+}
+
+[lj-name="menulayer"]
+{
+    width: 100% !important;
+}
+[lj-name="menuframe"]
+{
+    display: none; /* only initally; will be overwritten by layerJS */
+}
+
+.trybox
+{
+    border: 3px solid #60C694;
+    padding: 0px !important;
+    margin: 0px 20px;
+}
+
+.jobs-cta
+{
+    width: 100%;
+}
+
+.jobs-cta a
+{
+    width: 300px;
+    font-size: 32px;
+    margin-left: auto;
+    margin-right: auto;
+    display: block;
+  margin-bottom: 30px;
+}
+#feedback_text {
+  margin-bottom: 15px;
+}
+#help {
+  display: none; /* initially only, will be overriden by layerJS */
+  background-color: #C66094;
+  border-top-left-radius: 0px;
+  border-bottom-left-radius: 0px;
+  box-shadow: 0px 0px 5px 0px gray;
+  width:30px;
+  height: 100px;
+  line-height:30px;
+}
+#help a{
+  text-decoration: none;
+  color: white;
+  display: block;
+  width:100px;
+  position:relative;
+  top: 100px;
+  text-align: center;
+  transform-origin: 0 0;
+  transform: rotate(-90deg);
+  -moz-transform: rotate(-90deg);
+  -webkit-transform: rotate(-90deg);
+  -ms-transform: rotate(-90deg);
+}
+#helpopen {
+  width:200px;
+  height:100px;
+}
