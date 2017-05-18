@@ -1,5 +1,18 @@
 # Release notes #
 
+## New in 0.4.2
+* Refactored how layerJS keeps track of it's internal state.
+* The page url gets calculated when the state of the page changes. Default frames will not be shown in the url.
+* Added a public method "navigate" on the router that can be used to navigate.
+* Refactored the caching mechanisme on the FileRouter.
+* The "stateChanged" event will only be triggered when there is a difference between the previous and current state and also when all layers have started the transition.
+* Showing multiple frames at once is done synchronized.
+* Fixed a bug that removed the hash part of the url when the page reloaded.
+* Will scroll smoothly to an anchor tag.
+* On startup the frames are just getting showed instead of transitioned.
+* UrlData has been removed.
+* Reduced the size of the layerJS code base.
+
 ## New in 0.4.1
 * allow specifying the default transition type on the frame or layer (HTML attribute lj-transition).
 * allow specifying the reverse transition by prepending "r:" to the transition type
