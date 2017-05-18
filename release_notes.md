@@ -11,6 +11,7 @@
 * Will scroll smoothly to an anchor tag.
 * On startup the frames are just getting showed instead of transitioned.
 * UrlData has been removed.
+* The width and height of a frame now includes the margin.
 * Reduced the size of the layerJS code base.
 
 ## New in 0.4.1
