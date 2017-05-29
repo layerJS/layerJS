@@ -7,6 +7,7 @@ var ScrollTransformer = require('./scrolltransformer.js');
 var gestureManager = require('./gestures/gesturemanager.js');
 var defaults = require('./defaults.js');
 var BaseView = require('./baseview.js');
+var State = require('./state.js');
 /**
  * A View which can have child views
  * @param {LayerData} dataModel
@@ -126,7 +127,7 @@ var LayerView = BaseView.extend({
       });
     }
 
-    this.on('transitionStarted',function(){
+    this.on('transitionStarted', function() {
       that.autoTrigger();
     });
   },
@@ -256,13 +257,13 @@ var LayerView = BaseView.extend({
         this.innerEl._ljView = this.outerEl._ljView;
         this.innerEl._state = this.outerEl._state;
       }
-      $.addClass(this.outerEl,'nativescroll');
+      $.addClass(this.outerEl, 'nativescroll');
     } else {
       if (hasScroller) {
         $.unwrapChildren(this.outerEl);
       }
       this.innerEl = this.outerEl;
-      $.removeClass(this.outerEl,'nativescroll');
+      $.removeClass(this.outerEl, 'nativescroll');
     }
 
     this._transformer = this._layout.getScrollTransformer() || new ScrollTransformer(this);
@@ -447,7 +448,7 @@ var LayerView = BaseView.extend({
     });
   },
   noFrameTransformdata: function(transitionStartPosition) {
-    if (this._noframetd && this._noframetd.startPosition===transitionStartPosition) return this._noframetd;
+    if (this._noframetd && this._noframetd.startPosition === transitionStartPosition) return this._noframetd;
     var d = this._noframetd = {};
     d.stage = this.stage;
     d.scale = 1;
@@ -486,6 +487,9 @@ var LayerView = BaseView.extend({
     if (frame && null !== frame) {
       framename = frame.name();
     }
+
+
+
     // dealing with transition.type
 
     // autotransitions are transition types automatically generated e.g. by swipe gestures. They are "suggested" and hence have to be dealt with lower priority
@@ -498,7 +502,9 @@ var LayerView = BaseView.extend({
     transition = Kern._extend({
       type: transition && transition.type ? 'default' : (frame && frame.defaultTransition()) || this.defaultTransition() || autotransition || 'default',
       previousType: transition && transition.type ? undefined : (this.currentFrame && this.currentFrame.defaultTransition()) || undefined,
-      duration: '1s'
+      duration: '1s',
+      interLayer: frame && frame.parent && frame.parent !== this
+
       // FIXME: add more default values like timing
     }, transition || {});
     transition.lastFrameName = (this.currentFrame && this.currentFrame.name()) || "!none";
@@ -589,6 +595,11 @@ var LayerView = BaseView.extend({
           // apply new transform (will be 0,0 in case of native scrolling)
           that.inTransition(false);
           that.setLayerTransform(that.currentTransform);
+        /*  if (transition.interLayer) {
+            frame.parent._parseChildren();
+            frame.parent = that;
+            frame.parent._parseChildren();
+          }*/
           $.postAnimationFrame(function() {
             that.trigger('transitionFinished', framename);
           });
@@ -652,7 +663,23 @@ var LayerView = BaseView.extend({
       frameName = this._getPreviousFrameName();
     }
 
-    return frameName === defaults.specialFrames.none ? null : this.getChildViewByName(frameName);
+    var frameView;
+    if (frameName === defaults.specialFrames.none) {
+      frameView = null;
+    } else {
+      frameView = this.getChildViewByName(frameName);
+
+      if (undefined === frameView) {
+        var paths = State.getState().resolvePath(frameName);
+
+        if (paths.length > 1) throw 'only 1 path should be expected';
+        if (paths.length > 0) {
+          frameView = paths[0].view;
+        }
+      }
+    }
+
+    return frameView;
   },
   /**
    * Will get the next framename based on the html order
@@ -719,10 +746,10 @@ var LayerView = BaseView.extend({
    */
   updateClasses: function(newFrame) {
     if (this.currentFrame) {
-      $.removeClass(this.currentFrame.outerEl,'lj-active');
+      $.removeClass(this.currentFrame.outerEl, 'lj-active');
     }
     if (null !== newFrame) {
-      $.addClass(newFrame.outerEl,'lj-active');
+      $.addClass(newFrame.outerEl, 'lj-active');
     }
   },
   /**

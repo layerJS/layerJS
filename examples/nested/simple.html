@@ -1,0 +1,140 @@
+<html>
+
+<head>
+  <title>Simple Example</title>
+  <meta name=viewport content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" type="text/css" href="../../dist/layerjs.css">
+  <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-T8Gy5hrqNKT+hzMclPo118YTQO6cYprQmhrYwIiQ/3axmI1hQomh7Ud2hPOy8SP1" crossorigin="anonymous">
+  <style>
+    @import url(https://fonts.googleapis.com/css?family=Oxygen:400);
+    body {
+      font-family: 'Oxygen', sans-serif;
+      width: : 100%;
+      height: 100%;
+      margin: 0;
+      background: #f6f6f6;
+    }
+
+    #slider {
+      background-color: #eee;
+    }
+
+    section {
+      font-size: 16px;
+      margin: 50px 15%;
+    }
+
+    .stage {
+      width: 60px;
+      height: 60px;
+    }
+
+    #stage_images {
+      height: 600px;
+    }
+
+    .frame {
+      width: 1440px;
+      padding-top: 60px;
+      padding-bottom: 80px;
+    }
+
+    .frame:nth-child(even) {
+      background: #ddd;
+    }
+
+    .menubox {
+      margin: 0px 15%;
+      cursor: pointer;
+    }
+
+    .menu {
+      font-size: 56px;
+      line-height: 76px;
+      text-align: center;
+      color: #555;
+    }
+
+    .menu div:hover {
+      color: black;
+    }
+
+    .menu .close {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      cursor: pointer;
+    }
+
+    #menu1,
+    #menu2 {
+      width: 1440px;
+    }
+
+    #menu1 {
+      background: rgba(0, 0, 0, .8);
+      color: white;
+      height: 50px;
+      line-height: 50px;
+    }
+
+    #menu2 {
+      background: white;
+      height: 400px;
+      line-height: 60px;
+    }
+
+    #prev,
+    #next {
+      text-align: center;
+    }
+
+    @media (max-width: 600px) {
+      .frame,
+      #menu1,
+      #menu2 {
+        width: 500px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+<!---  <table>
+    <tr>
+      <td> -->
+        <div data-lj-type="stage" class="stage">
+          <div class="static" id="layer1" data-lj-type="layer" data-lj-default-frame="frame1">
+
+            <div data-lj-type="frame" id="frame1" style="width:100px; height:100px; background:green;">
+              frame1
+            </div>
+
+          </div>
+        </div>
+<!---      </td>
+      <td> -->
+        <div data-lj-type="stage" class="stage">
+          <div class="static" id="layer2" data-lj-type="layer" data-lj-default-frame="frame2">
+            <div data-lj-type="frame" id="frame2" style="background:red;">
+                frame2
+            </div>
+          </div>
+          </div>
+<!--      </td>
+
+    </tr>
+  </table>-->
+
+
+
+
+
+  <script src="../../dist/layerjs.js"></script>
+  <script>
+    layerJS.init();
+    // API calls for slider left/right buttons
+  </script>
+</body>
+
+</html>

@@ -95,21 +95,8 @@ var BaseView = DOMObserver.extend({
         }
       }
     }
-    if (options.addedNodes && options.addedNodes.length > 0) {
-      var length = options.addedNodes.length;
-      for (var x = 0; x < length; x++) {
-        // check if added nodes don't already have a view defined.
-        if (!options.addedNodes[x]._ljView) {
-          parseManager.parseElement(options.addedNodes[x].parentNode, {
-            parent: this
-          });
-        }
-        if (options.addedNodes[x]._ljView) {
-          this.trigger('childAdded', options.addedNodes[x]._ljView);
-        }
-      }
-    }
 
+    // trigger remove nodes first. this is important for inter stage transitions
     if (options.removedNodes && options.removedNodes.length > 0) {
       options.removedNodes.forEach(function(removedNode) {
         if (removedNode._ljView) {
@@ -118,6 +105,23 @@ var BaseView = DOMObserver.extend({
       });
     }
 
+    if (options.addedNodes && options.addedNodes.length > 0) {
+      var length = options.addedNodes.length;
+      for (var x = 0; x < length; x++) {
+        // check if added nodes don't already have a view defined.
+        if (!options.addedNodes[x]._ljView) {
+          parseManager.parseElement(options.addedNodes[x].parentNode, {
+            parent: this
+          });
+        } else if (options.addedNodes[x]._ljView.parent !== this) {
+          // check if added node has the same parent
+          options.addedNodes[x]._ljView.parent = this;
+        }
+        if (options.addedNodes[x]._ljView) {
+          this.trigger('childAdded', options.addedNodes[x]._ljView);
+        }
+      }
+    }
   },
   /**
    * Will return a childview by a specific name
