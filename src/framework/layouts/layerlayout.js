@@ -51,13 +51,13 @@ var LayerLayout = Kern.EventManager.extend({
 
       // frame not in the layer
       if (frame.parent !== this.layer) {
-        var targetElement = this.layer.currentFrame && null !== this.layer.currentFrame ? this.layer.currentFrame.innerEl : this.layer.outerEl;
+        var targetElement = this.layer.outerEl;
         var commonParent = $.commonParent(frame.innerEl, targetElement);
 
-        var calculateMatrix = function(element, stopElement){
+        var calculateMatrix = function(element, stopElement) {
           var parentMatrix = new TMat();
 
-          if (element.parentNode !== stopElement){
+          if (element !== stopElement) {
             parentMatrix = calculateMatrix(element.parentNode, stopElement);
           }
 
@@ -68,44 +68,11 @@ var LayerLayout = Kern.EventManager.extend({
 
 
         var frameMatrix = calculateMatrix(frame.outerEl, commonParent);
-
-        /*var parent = frame.outerEl.parentNode;
-        var parentMatrix;
-        while (parent !== commonParent) {
-          parentMatrix = $.getMatrix(parent);
-          frameMatrix = parentMatrix.prod(frameMatrix);
-          parent = parent.parentNode;
-        }*/
-
-
-        var resultMatrix = frameMatrix;
-      /*  var coordinatesOldLayer = frame.parent.outerEl.getBoundingClientRect();
-        var coordinatesNewLayer = this.layer.outerEl.getBoundingClientRect();
-        var difference = TMat.Ttrans(coordinatesOldLayer.left - coordinatesNewLayer.left, coordinatesOldLayer.top - coordinatesNewLayer.top);
-        difference = difference.prod(TMat.Tscalexy(frameMatrix.a, frameMatrix.d));
-        console.log(difference);*/
-
-        //  resultMatrix = frameMatrix.prod(difference);
-
-        if (commonParent !== targetElement) {
-          var parent = targetElement === this.layer.outerEl ? targetElement : targetElement.parentNode /* is inside a frame*/;
-          var targetLayerMatrix = calculateMatrix(parent, commonParent);
-
-          /*
-          var targetLayerMatrix = TMat.Tscalexy(1, 1);
-          parent = targetElement === this.layer.outerEl ? targetElement : targetElement.parentNode;
-          while (parent !== commonParent) {
-            parentMatrix = $.getMatrix(parent);
-            targetLayerMatrix = parentMatrix.prod(targetLayerMatrix);
-            parent = parent.parentNode;
-          }*/
-
-          resultMatrix = targetLayerMatrix.invert().prod(frameMatrix);
-        }
-
-        //  resultMatrix = difference;
+        var targetLayerMatrix = calculateMatrix(targetElement, commonParent);
+        var resultMatrix = targetLayerMatrix.invert().prod(frameMatrix);
 
         this.layer.innerEl.appendChild(frame.outerEl);
+        frame.transformData = undefined;
 
         frame.applyStyles({
           transform: resultMatrix.transform_nomatrix(),
