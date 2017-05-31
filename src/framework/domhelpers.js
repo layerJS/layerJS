@@ -488,16 +488,18 @@ var DomHelpers = {
     topLeftMatrix.ty = topLeftMatrix.ty - (matrix.ty * matrix.d);
     topLeftMatrix = topLeftMatrix.prod(TMat.Tscalexy(matrix.a, matrix.d));
     */
-    matrix = matrix.prod(topLeftMatrix);
+    //  matrix = matrix.prod(topLeftMatrix);
+    matrix = topLeftMatrix.prod(matrix);
+
     return matrix;
   },
 
   getTopLeftMatrix: function(element) {
 
-  /*  var elementBoundingRect = element.getBoundingClientRect();
-    var parentBoundingRect = element.parentNode.getBoundingClientRect();
+    /*  var elementBoundingRect = element.getBoundingClientRect();
+      var parentBoundingRect = element.parentNode.getBoundingClientRect();
 
-    return TMat.Ttrans(elementBoundingRect.left - parentBoundingRect.left, elementBoundingRect.top - parentBoundingRect.top);*/
+      return TMat.Ttrans(elementBoundingRect.left - parentBoundingRect.left, elementBoundingRect.top - parentBoundingRect.top);*/
 
     return TMat.Ttrans(element.offsetLeft, element.offsetTop);
   }

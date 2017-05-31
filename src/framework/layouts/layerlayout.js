@@ -53,15 +53,29 @@ var LayerLayout = Kern.EventManager.extend({
       if (frame.parent !== this.layer) {
         var targetElement = this.layer.currentFrame && null !== this.layer.currentFrame ? this.layer.currentFrame.innerEl : this.layer.outerEl;
         var commonParent = $.commonParent(frame.innerEl, targetElement);
-        var frameMatrix = $.getMatrix(frame.outerEl);
 
-        var parent = frame.outerEl.parentNode;
+        var calculateMatrix = function(element, stopElement){
+          var parentMatrix = new TMat();
+
+          if (element.parentNode !== stopElement){
+            parentMatrix = calculateMatrix(element.parentNode, stopElement);
+          }
+
+          var elementMatrix = $.getMatrix(element);
+          var result = parentMatrix.prod(elementMatrix);
+          return result;
+        };
+
+
+        var frameMatrix = calculateMatrix(frame.outerEl, commonParent);
+
+        /*var parent = frame.outerEl.parentNode;
         var parentMatrix;
         while (parent !== commonParent) {
           parentMatrix = $.getMatrix(parent);
           frameMatrix = parentMatrix.prod(frameMatrix);
           parent = parent.parentNode;
-        }
+        }*/
 
 
         var resultMatrix = frameMatrix;
@@ -74,13 +88,17 @@ var LayerLayout = Kern.EventManager.extend({
         //  resultMatrix = frameMatrix.prod(difference);
 
         if (commonParent !== targetElement) {
+          var parent = targetElement === this.layer.outerEl ? targetElement : targetElement.parentNode /* is inside a frame*/;
+          var targetLayerMatrix = calculateMatrix(parent, commonParent);
+
+          /*
           var targetLayerMatrix = TMat.Tscalexy(1, 1);
-          parent = targetElement === this.layer.outerEl ? targetElement : targetElement.parentNode /* is inside a frame*/;
+          parent = targetElement === this.layer.outerEl ? targetElement : targetElement.parentNode;
           while (parent !== commonParent) {
             parentMatrix = $.getMatrix(parent);
             targetLayerMatrix = parentMatrix.prod(targetLayerMatrix);
             parent = parent.parentNode;
-          }
+          }*/
 
           resultMatrix = targetLayerMatrix.invert().prod(frameMatrix);
         }
