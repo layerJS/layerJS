@@ -66,7 +66,6 @@ var LayerLayout = Kern.EventManager.extend({
           return result;
         };
 
-
         var frameMatrix = calculateMatrix(frame.outerEl, commonParent);
         var targetLayerMatrix = calculateMatrix(targetElement, commonParent);
         var resultMatrix = targetLayerMatrix.invert().prod(frameMatrix);

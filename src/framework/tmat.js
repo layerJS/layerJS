@@ -76,10 +76,12 @@ TMat.prototype = {
     return Math.sqrt(x * x + y * y);
   },
   get_rotation_equal: function() { // WARNING only works for equal x and y scale
-    var s = this.get_scale_equal();
+    //https://css-tricks.com/get-value-of-css-rotation-through-javascript/
+    return (Math.atan2(this.b, this.a) * (180/Math.PI));
+    /*var s = this.get_scale_equal();
     var phi = 180 * Math.acos(this.a / s) / Math.PI;
     if (this.c < 0) phi = 360 - phi;
-    return phi;
+    return phi;*/
   },
   get_translation_equal: function() { // WARNING only works for equal x and y scale and translation applied last
     return {
