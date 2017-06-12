@@ -60,36 +60,36 @@ describe('DomHelpers', function() {
     expect(result).toBe('http://localhost/dir1/index.html');
   });
 
-  it('will resolve ~/ paths', function() {
-    var url = '~/index.html';
+  it('will resolve ./ paths', function() {
+    var url = './index.html';
 
     var result = domHelpers.getAbsoluteUrl(url);
 
     expect(result).toBe('http://localhost/index.html');
   });
 
-  it('will resolve /~/ paths', function() {
-    var url = 'test/~/index.html';
+  it('will resolve paths with only filename', function() {
+    var url = 'index.html';
 
     var result = domHelpers.getAbsoluteUrl(url);
 
     expect(result).toBe('http://localhost/index.html');
   });
 
+  it('will resolve /./ paths', function() {
+    var url = 'test/./index.html';
+
+    var result = domHelpers.getAbsoluteUrl(url);
+
+    expect(result).toBe('http://localhost/test/index.html');
+  });
+  
   it('will make paths absolute from the same domain', function() {
     var url = window.location.origin + '/dir/../index.html';
 
     var result = domHelpers.getAbsoluteUrl(url);
 
     expect(result).toBe('http://localhost/index.html');
-  });
-
-  it('will not resolve paths from other domains', function() {
-    var url = 'http://layerjs.org/dir/../index.html';
-
-    var result =domHelpers.getAbsoluteUrl(url);
-
-    expect(result).toBe('http://layerjs.org/dir/../index.html');
   });
 
 });
