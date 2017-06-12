@@ -41,10 +41,11 @@ var HashRouter = Kern.EventManager.extend({
           }
         }
         // if we didn't find any frame try to find a matching anchor element
-        if (resolvedPaths.length === 0) {
+        if (resolvedPaths.length === 0 && i === 0) {
           // an anchorId will be the first one in the list
           // check if it is an anchor element
-          var anchor = document.getElementById(frameName);
+          var anchor = document.getElementsByName(frameName);
+          anchor = anchor && anchor[0] || document.getElementById(frameName);
           // only proceed when an element is found and if that element is visible
           if (anchor && window.getComputedStyle(anchor).display !== 'none') {
             var frameView = $.findParentViewOfType(anchor, 'frame');
@@ -52,7 +53,7 @@ var HashRouter = Kern.EventManager.extend({
             if (undefined !== frameView) {
               var transition;
               var path = state.buildPath(frameView.outerEl, false);
-              var index = options.paths.indexOf(path);
+              var index = paths.indexOf(path);
               // check if there is already a transition path for this frame
               // FIXME: this only works if that path has been found already in this hashrouter run
               if (index !== -1) {
@@ -65,8 +66,10 @@ var HashRouter = Kern.EventManager.extend({
                 transitions.push(transition);
               }
               // add scroll position of anchor to the transition record
-              transition.scrollY = anchor.offsetTop;
-              transition.scrollX = anchor.offsetLeft;
+              if (transition) {
+                transition.scrollY = anchor.offsetTop;
+                transition.scrollX = anchor.offsetLeft;
+              }
             }
           }
         }
