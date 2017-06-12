@@ -595,11 +595,11 @@ var LayerView = BaseView.extend({
           // apply new transform (will be 0,0 in case of native scrolling)
           that.inTransition(false);
           that.setLayerTransform(that.currentTransform);
-        /*  if (transition.interLayer) {
-            frame.parent._parseChildren();
-            frame.parent = that;
-            frame.parent._parseChildren();
-          }*/
+          /*  if (transition.interLayer) {
+              frame.parent._parseChildren();
+              frame.parent = that;
+              frame.parent._parseChildren();
+            }*/
           $.postAnimationFrame(function() {
             that.trigger('transitionFinished', framename);
           });
@@ -793,6 +793,16 @@ var LayerView = BaseView.extend({
     BaseView.prototype._parseChildren.call(this, options);
 
     var childrenViews = this._cache.children;
+    var that = this;
+
+    if (options && options.removedNodes && options.removedNodes.length > 0) {
+      options.removedNodes.forEach(function(removedNode) {
+        if (removedNode._ljView) {
+          removedNode._ljView.off('renderRequired', undefined, that);          
+        }
+      });
+    }
+
 
     if (options && options.addedNodes && options.addedNodes.length > 0) {
       childrenViews = [];
@@ -803,16 +813,18 @@ var LayerView = BaseView.extend({
       }
     }
 
-    var that = this;
+
     var renderRequiredEventHandler = function(name) {
-      if (!that.inTransition() && that.currentFrame && null !== that.currentFrame && that.currentFrame.name() === name) {
-        that._renderChildPosition(that._cache.childNames[name]);
-        that.onResize();
+      if (!this.inTransition() && !this.inPreparation() && this.currentFrame && null !== this.currentFrame && this.currentFrame.name() === name) {
+        this._renderChildPosition(this._cache.childNames[name]);
+        this.onResize();
       }
     };
 
     for (var y = 0; y < childrenViews.length; y++) {
-      childrenViews[y].on('renderRequired', renderRequiredEventHandler);
+      childrenViews[y].on('renderRequired', renderRequiredEventHandler, {
+        context: this
+      });
     }
   }
 }, {

@@ -75,6 +75,16 @@ var BaseView = DOMObserver.extend({
     this._cache.children = [];
     this._cache.childNames = {};
     this._cache.childIDs = {};
+
+    // trigger remove nodes first. this is important for inter stage transitions
+    if (options.removedNodes && options.removedNodes.length > 0) {
+      options.removedNodes.forEach(function(removedNode) {
+        if (removedNode._ljView) {
+          that.trigger('childRemoved', removedNode._ljView);      
+        }
+      });
+    }
+
     if (this.childType) {
       for (var i = 0; i < this.innerEl.children.length; i++) {
         var child = this.innerEl.children[i];
@@ -94,15 +104,6 @@ var BaseView = DOMObserver.extend({
           this._cache.childIDs[cv.id()] = cv;
         }
       }
-    }
-
-    // trigger remove nodes first. this is important for inter stage transitions
-    if (options.removedNodes && options.removedNodes.length > 0) {
-      options.removedNodes.forEach(function(removedNode) {
-        if (removedNode._ljView) {
-          that.trigger('childRemoved', removedNode._ljView);
-        }
-      });
     }
 
     if (options.addedNodes && options.addedNodes.length > 0) {

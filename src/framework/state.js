@@ -43,16 +43,16 @@ var State = Kern.EventManager.extend({
         (that.paths[tp] = that.paths[tp] || []).push(id);
       });
       if (view.type() === 'layer') this.layers.push(id);
-      view.on('childAdded', function(child) {
-        that.registerView(child);
-      }, {
-        context: this
-      });
       view.on('childRemoved', function(child) {
         that.unregisterView(child);
       }, {
         context: this
       });
+      view.on('childAdded', function(child) {
+        that.registerView(child);
+      }, {
+        context: this
+      });    
       view.on('transitionStarted', function(frameName, transition) {
         var trigger = true;
         var payload = {};

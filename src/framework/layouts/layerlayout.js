@@ -69,25 +69,39 @@ var LayerLayout = Kern.EventManager.extend({
         var frameMatrix = calculateMatrix(frame.outerEl, commonParent);
         var targetLayerMatrix = calculateMatrix(targetElement, commonParent);
         var resultMatrix = targetLayerMatrix.invert().prod(frameMatrix);
+        var that = this;
 
-        this.layer.innerEl.appendChild(frame.outerEl);
-        frame.transformData = undefined;
+        frame.parent.innerEl.removeChild(frame.outerEl);
 
-        frame.applyStyles({
-          transform: resultMatrix.transform_nomatrix(),
-        }, {}, {});
+        setTimeout(function() {
+          that.layer.innerEl.appendChild(frame.outerEl);
+          frame.transformData = undefined;
+
+          frame.applyStyles({
+            transform: resultMatrix.transform_nomatrix(),
+          }, {}, {});
+
+          // wait until rendered;
+          setTimeout(function() {
+            console.log('1');
+            finished.resolve();
+          }, 1000);
+        },1000);
+
       } else {
         // FIXME: add to dom if not in dom
         // set display block
         frame.outerEl.style.display = 'block';
         // frame should not be visible; opacity is the best as "visibility" can be reverted by nested elements
         frame.outerEl.style.opacity = '0';
+
+        // wait until rendered;
+        $.postAnimationFrame(function() {
+          finished.resolve();
+        });
       }
 
-      // wait until rendered;
-      $.postAnimationFrame(function() {
-        finished.resolve();
-      });
+
     }
     return finished;
   },
