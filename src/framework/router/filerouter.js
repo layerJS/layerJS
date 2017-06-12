@@ -67,6 +67,7 @@ var FileRouter = StaticRouter.extend({
                     var html = fileState.resolvePath(path)[0].view.outerEl.outerHTML; // this should always resolve to a single view
                     var parentHTML = isRoot ? document.body : state.resolvePath(parentPath)[0].view.innerEl;
                     parentHTML.insertAdjacentHTML('beforeend', html);
+                    parentHTML.lastChild.style.display = "none"; // don't show currently added element (this should be done by the layerview/layout code)
                     addedHash.push(path);
                   } else {
                     // this should never happen because structure is tranversered in DOM order
