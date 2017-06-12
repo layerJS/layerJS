@@ -1,5 +1,6 @@
 'use strict';
 var Kern = require('../kern/Kern.js');
+var $ = require('./domhelpers.js');
 
 /**
  * this is the ScrollTransformer which handles native and transform scrolling for Layers.
@@ -40,6 +41,41 @@ var ScrollTransformer = Kern.EventManager.extend({
     return "translate3d(" + scrollX + "px," + scrollY + "px,0px)";
   },
   /**
+   * will check if current gesture would lead to scrolling in a nested element
+   * FIXME: what if the inner element is a layer itself?
+   *
+   * @param {object} gesture - current gesture
+   * @returns {Boolean} true if inner scrolling would occur
+   */
+  _detectInnerScrolling: function(gesture) {
+    var element = gesture.event.target.parentElement;
+    while (element !== this.layer.innerEl) {
+      if (Math.abs(gesture.shift.x) > Math.abs(gesture.shift.y)) {
+        if (element.clientWidth < element.scrollWidth && window.getComputedStyle(element)['overflow-x'] in {
+            visible: 1,
+            hidden: 1
+          }) {
+          if ((gesture.shift.x > 0 && element.scrollLeft > 0) || element.scrollLeft < element.scrollWidth - element.clientWidth){
+            gesture.event.stopPropagation();
+            return true;
+          }
+        }
+      } else {
+        if (element.clientHeight < element.scrollHeight && window.getComputedStyle(element)['overflow-y'] in {
+            visible: 1,
+            hidden: 1
+          }) {
+          if ((gesture.shift.y > 0 && element.scrollTop > 0) || element.scrollTop < element.scrollHeight - element.clientHeight){
+            gesture.event.stopPropagation();
+            return true;
+          }
+        }
+      }
+      element = element.parentElement;
+    }
+    return false;
+  },
+  /**
    * calculate current transform based on gesture
    *
    * @param {Gesture} gesture - the input gesture to be interpreted as scroll transform
@@ -52,12 +88,15 @@ var ScrollTransformer = Kern.EventManager.extend({
       this.scrollStartY = tfd.scrollY;
       return true;
     }
+    // detect nested scrolling
+    if (this._detectInnerScrolling(gesture)) return true;
     // primary direction
     var axis = (Math.abs(gesture.shift.x) > Math.abs(gesture.shift.y) ? "x" : "y");
     // check if can't scroll in primary direction
     if (axis === "x" && !tfd.isScrollX) return false;
     if (axis === "y" && !tfd.isScrollY) return false;
     if (this.layer.nativeScroll()) {
+      if (Math.abs(gesture.shift.x) + Math.abs(gesture.shift.y) < 10) return true;
       if (axis === 'y') {
         if (gesture.shift.y > 0) { // Note: gesture.shift is negative
           return tfd.scrollY > 0; // return true if can scroll; false otherwise
@@ -148,6 +187,20 @@ var ScrollTransformer = Kern.EventManager.extend({
         // apply inital scroll position
         this.layer.outerEl.scrollLeft = tfd.scrollX * tfd.scale;
         this.layer.outerEl.scrollTop = tfd.scrollY * tfd.scale;
+        // fix ios scroll bug
+        if ($.browser === 'ios') {
+          // ios safari will by default not have inertial scrolling on nested scrolling divs
+          // this can be activated by -webkit-overflow-scrolling:touch on the container
+          // however this introduces a bug: if the content is changed causing a change of the scrolling behaviour
+          // e.g. a div smaller than the container enlarges to be larger than the container, the scrolling will not be switch on anymore
+          // when temporarily switching off -webkit-overflow-scrolling this will be fixed.
+          this.layer.outerEl.style['-webkit-overflow-scrolling'] = "auto";
+          var that = this;
+          setTimeout(function() {
+            that.layer.outerEl.style['-webkit-overflow-scrolling'] = "touch";
+          }, 1);
+        }
+        // needed by iOS safari; otherwise scrolling will be disabled if the scrollhelper was too small for scrolling before
 
         return this.scrollTransform(0, 0); // no transforms as scrolling is achieved by native scrolling
       }
