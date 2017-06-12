@@ -335,7 +335,6 @@ img {
 }
 
 #frame2 .header-wrap {
-  position: fixed;
   left: 0px;
   top: 0px;
   right: 0px;
@@ -389,7 +388,6 @@ img {
 }
 
 #frame3 .header {
-  position: fixed;
   left: 0px;
   top: 0px;
   right: 0px;
@@ -489,7 +487,6 @@ img {
 }
 
 #frame4 .header {
-  position: fixed;
   left: 0px;
   top: 0px;
   right: 0px;
