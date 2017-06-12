@@ -126,7 +126,7 @@ var LayerView = BaseView.extend({
       });
     }
 
-    this.on('transitionStarted',function(){
+    this.on('transitionStarted', function() {
       that.autoTrigger();
     });
   },
@@ -256,13 +256,13 @@ var LayerView = BaseView.extend({
         this.innerEl._ljView = this.outerEl._ljView;
         this.innerEl._state = this.outerEl._state;
       }
-      $.addClass(this.outerEl,'nativescroll');
+      $.addClass(this.outerEl, 'nativescroll');
     } else {
       if (hasScroller) {
         $.unwrapChildren(this.outerEl);
       }
       this.innerEl = this.outerEl;
-      $.removeClass(this.outerEl,'nativescroll');
+      $.removeClass(this.outerEl, 'nativescroll');
     }
 
     this._transformer = this._layout.getScrollTransformer() || new ScrollTransformer(this);
@@ -363,6 +363,8 @@ var LayerView = BaseView.extend({
     });
   },
   gestureListener: function(gesture) {
+    if (gesture.event._ljEvtHndld && gesture.event._ljEvtHndld !== this) return; // check if some inner layer has already dealt with the gesture/event
+    gesture.event._ljEvtHndld = this;
     if (this.currentFrame === null) { //this actually shoudn't happen as null frames don't have a DOM element that could recieve a gesture. However it happens when the gesture still continues from before the transition. Still we can't do anything here as we can't define neighbors for null frames (maybe later)
       return;
     }
@@ -373,17 +375,23 @@ var LayerView = BaseView.extend({
     }
     if (layerTransform === true) {
       // native scrolling possible
+      gesture.preventDefault = false;
       return;
     } else if (layerTransform) {
       this.setLayerTransform(this.currentTransform = layerTransform);
+      // console.log("gestureListener: transformscrolling, prevented default");
       gesture.preventDefault = true;
     } else {
-      if (this.inTransition()) gesture.preventDefault = true; // we need to differentiate here later as we may have to check up stream handlers
+      if (this.inTransition()) {
+        gesture.preventDefault = true; // we need to differentiate here later as we may have to check up stream handlers
+        // console.log("gestureListener: intransform, prevented default");
+      }
       // gesture.cancelled = true;
       var neighbors = this.currentFrame.neighbors();
       if (gesture.direction) {
         if (neighbors && neighbors[defaults.directions2neighbors[gesture.direction]]) {
           gesture.preventDefault = true;
+          // console.log("gestureListener: directional gesture, prevented default");
           if (!this.inTransition() && (gesture.last || (gesture.wheel && gesture.enoughDistance()))) {
             this.transitionTo(neighbors[defaults.directions2neighbors[gesture.direction]], {
               type: defaults.neighbors2transition[defaults.directions2neighbors[gesture.direction]]
@@ -394,7 +402,9 @@ var LayerView = BaseView.extend({
         }
       } else { //jshint ignore:line
         // this will prevent any bubbling for small movements
-        gesture.preventDefault = true;
+        gesture.event.stopPropagation();
+        //gesture.preventDefault = true;
+        //console.log("gestureListener: bubble preventer, prevented default");
       }
     }
   },
@@ -447,7 +457,7 @@ var LayerView = BaseView.extend({
     });
   },
   noFrameTransformdata: function(transitionStartPosition) {
-    if (this._noframetd && this._noframetd.startPosition===transitionStartPosition) return this._noframetd;
+    if (this._noframetd && this._noframetd.startPosition === transitionStartPosition) return this._noframetd;
     var d = this._noframetd = {};
     d.stage = this.stage;
     d.scale = 1;
@@ -719,10 +729,10 @@ var LayerView = BaseView.extend({
    */
   updateClasses: function(newFrame) {
     if (this.currentFrame) {
-      $.removeClass(this.currentFrame.outerEl,'lj-active');
+      $.removeClass(this.currentFrame.outerEl, 'lj-active');
     }
     if (null !== newFrame) {
-      $.addClass(newFrame.outerEl,'lj-active');
+      $.addClass(newFrame.outerEl, 'lj-active');
     }
   },
   /**
