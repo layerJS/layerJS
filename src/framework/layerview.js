@@ -121,7 +121,7 @@ var LayerView = BaseView.extend({
 
     if (this.parent) {
       this.parent.on('renderRequired', function() {
-        if (!that.inTransition()) {
+        if (!that.inTransition() && !that.inPreparation() ) {
           that.onResize();
         }
       });
@@ -545,6 +545,11 @@ var LayerView = BaseView.extend({
     transition.transitionID = this.transitionID = ++this._transitionIDcounter; // inc transition ID and save new ID into transition record; keep exiting transitionID if existing (delayed transitions)
     this.inPreparation(true, $.timeToMS(transition.duration));
     this.inTransition(true, $.timeToMS(transition.duration));
+    // when doing an inter stage transition, the other layer also needs to do a preparation and transition
+    if (frame && null !== frame && frame.parent !== this){
+      frame.parent.inPreparation(true, $.timeToMS(transition.duration));
+      frame.parent.inTransition(true, $.timeToMS(transition.duration));
+    }
 
     if ((that.currentFrame === frame && wasInTransition) || transition.delay) {
       // this is not a valid transition -> so the transitionend handlers of the previous transition must be called (if in transition currently)

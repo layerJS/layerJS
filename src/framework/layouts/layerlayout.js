@@ -72,8 +72,12 @@ var LayerLayout = Kern.EventManager.extend({
         var that = this;
 
         frame.parent.innerEl.removeChild(frame.outerEl);
+        if(frame.parent.currentFrame === frame)        
+        {
+          frame.parent.currentFrame = null;
+        }
 
-        setTimeout(function() {
+        $.postAnimationFrame(function() {
           that.layer.innerEl.appendChild(frame.outerEl);
           frame.transformData = undefined;
 
@@ -82,11 +86,11 @@ var LayerLayout = Kern.EventManager.extend({
           }, {}, {});
 
           // wait until rendered;
-          setTimeout(function() {
+          $.postAnimationFrame(function() {
             console.log('1');
             finished.resolve();
-          }, 1000);
-        },1000);
+          });
+        });
 
       } else {
         // FIXME: add to dom if not in dom
