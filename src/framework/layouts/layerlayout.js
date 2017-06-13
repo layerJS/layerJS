@@ -87,7 +87,6 @@ var LayerLayout = Kern.EventManager.extend({
 
           // wait until rendered;
           $.postAnimationFrame(function() {
-            console.log('1');
             finished.resolve();
           });
         });
