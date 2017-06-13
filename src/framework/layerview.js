@@ -432,6 +432,12 @@ var LayerView = BaseView.extend({
 
     // this.inTransition(true, 0);
     this.inPreparation(true);
+
+    // when doing an inter stage transition, the other layer also needs to do a preparation
+    if (frame && null !== frame && frame.parent !== this){
+      frame.parent.inPreparation(true);
+    }
+    
     this._layout.loadFrame(frame).then(function() {
       var tfd = that.currentFrameTransformData = null === frame ? that.noFrameTransformdata(scrollData.startPosition) : frame.getTransformData(that.stage, scrollData.startPosition);
       that.currentTransform = that._transformer.getScrollTransform(tfd, scrollData.scrollX || (tfd.isScrollX && tfd.scrollX) || 0, scrollData.scrollY || (tfd.isScrollY && tfd.scrollY) || 0);
