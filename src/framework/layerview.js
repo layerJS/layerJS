@@ -120,10 +120,10 @@ var LayerView = BaseView.extend({
 
     if (this.parent) {
       this.parent.on('renderRequired', function() {
-        if (!that.inTransition()) {
+        if (!that.inTransition() && !that.resizeQueued) {
           that.onResize();
         }
-        else if (!that.resizeQueued) {
+        else if (that.inTransition() && !that.resizeQueued) {
           that.resizeQueued = true;
           that.once('transitionFinished', function(){
               that.onResize().then(function(){
@@ -808,7 +808,7 @@ var LayerView = BaseView.extend({
            that._renderChildPosition(that._cache.childNames[name]);
            that.onResize();
         }
-        else if (!that.resizeQueued){
+        else if (that.inTransition() && !that.resizeQueued){
           that.resizeQueued = true;
           that.once('transitionFinished', function(){
               that._renderChildPosition(that._cache.childNames[name]);
