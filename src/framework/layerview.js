@@ -123,12 +123,21 @@ var LayerView = BaseView.extend({
         if (!that.inTransition()) {
           that.onResize();
         }
+        else if (!that.resizeQueued) {
+          that.resizeQueued = true;
+          that.once('transitionFinished', function(){
+              that.onResize().then(function(){
+                  delete that.resizeQueued;
+              });
+          });
+        }
+
       });
     }
 
     this.on('transitionStarted', function() {
       that.autoTrigger();
-    });
+    });  
   },
   /**
    * Will be invoked the an 'attributesChanged' event is triggered.
@@ -414,9 +423,10 @@ var LayerView = BaseView.extend({
    * @param {string} framename - the frame to be active
    * @param {Object} scrollData - information about the scroll position to be set. Note: this is a subset of a
    * transition object where only startPosition, scrollX and scrollY is considered
-   * @returns {void}
+   * @returns {Kern.Promise} a promise fullfilled after the show frame is finished.
    */
   showFrame: function(framename, scrollData) {
+    var promise = new Kern.Promise();
     if (!this.stage) {
       return;
     }
@@ -453,8 +463,11 @@ var LayerView = BaseView.extend({
         that.inPreparation(false);
         that.inTransition(false); // we stop all transitions if we do a showframe
         that.trigger('transitionFinished', framename);
+        promise.resolve();
       });
     });
+
+    return promise;
   },
   noFrameTransformdata: function(transitionStartPosition) {
     if (this._noframetd && this._noframetd.startPosition === transitionStartPosition) return this._noframetd;
@@ -752,6 +765,8 @@ var LayerView = BaseView.extend({
   },
   /**
    * Method will be invoked when a resize event is detected.
+   * 
+   * @returns {Kern.Promise} a promise fullfilled after the resize is finished.
    */
   onResize: function() {
     var childViews = this.getChildViews();
@@ -765,7 +780,7 @@ var LayerView = BaseView.extend({
       }
     }
     var frameName = this.currentFrame === null ? null : this.currentFrame.name();
-    this.showFrame(frameName, scrollData);
+     return this.showFrame(frameName, scrollData);
   },
   /**
    * Will parse the current DOM Element it's children.
@@ -788,9 +803,20 @@ var LayerView = BaseView.extend({
 
     var that = this;
     var renderRequiredEventHandler = function(name) {
-      if (!that.inTransition() && that.currentFrame && null !== that.currentFrame && that.currentFrame.name() === name) {
-        that._renderChildPosition(that._cache.childNames[name]);
-        that.onResize();
+      if (that.currentFrame && null !== that.currentFrame && that.currentFrame.name() === name) {
+        if (!that.inTransition()){
+           that._renderChildPosition(that._cache.childNames[name]);
+           that.onResize();
+        }
+        else if (!that.resizeQueued){
+          that.resizeQueued = true;
+          that.once('transitionFinished', function(){
+              that._renderChildPosition(that._cache.childNames[name]);
+              that.onResize().then(function(){
+                  delete that.resizeQueued;
+              });
+          });
+        }       
       }
     };
 

@@ -11,6 +11,7 @@ var HashRouter = Kern.EventManager.extend({
   handle: function(options) {
 
     var promise = new Kern.Promise();
+    var handled = false;
 
     if (options.hash === undefined || options.hash === '#' || options.hash === '') {
       // not the same file or no hash in href
@@ -72,12 +73,15 @@ var HashRouter = Kern.EventManager.extend({
               }
             }
           }
+          else if (anchor) {
+            handled = true;
+          }
         }
       }
 
       promise.resolve({
         stop: false,
-        handled: paths.length > 0,
+        handled: handled || paths.length > 0,
         paths: paths,
         transitions: transitions
       });
