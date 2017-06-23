@@ -22,7 +22,7 @@ var ParseManager = function() {
    * @returns {void}
    */
   this.parseElement = function(element, options) {
-    if (element.nodeType === 1) {
+    if (element && element.nodeType === 1) {
       this._parse(element, element.ownerDocument, options);
     }
   };

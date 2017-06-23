@@ -120,17 +120,20 @@ var LayerView = BaseView.extend({
 
     if (this.parent) {
       this.parent.on('renderRequired', function() {
+        //console.log('renderRequired on ' + that.name());
         if (!that.inTransition() && !that.resizeQueued) {
           that.onResize();
         }
-        else if (that.inTransition() && !that.resizeQueued) {
+        /*else if (that.inTransition() && !that.resizeQueued) {
           that.resizeQueued = true;
           that.once('transitionFinished', function(){
+            if (that.resizeQueued) {
               that.onResize().then(function(){
                   delete that.resizeQueued;
               });
+            }
           });
-        }
+        }*/
 
       });
     }
@@ -509,6 +512,9 @@ var LayerView = BaseView.extend({
     if (frame && null !== frame) {
       framename = frame.name();
     }
+
+   // console.log(this.name() + ' transition to ' + framename);
+    
     // dealing with transition.type
 
     // autotransitions are transition types automatically generated e.g. by swipe gestures. They are "suggested" and hence have to be dealt with lower priority
@@ -582,11 +588,13 @@ var LayerView = BaseView.extend({
       if (that.currentFrame === frame && that.currentFrameTransformData === targetFrameTransformData) {
         // don't do a transition, just execute Promise
         var p = new Kern.Promise();
+        //console.log(that.name() + ' trigger transitionStarted');
         that.trigger('transitionStarted', framename, transition);
         transition.semaphore.sync().then(function() { // we need to call sync in case there are other transitions waiting.
           if (targetFrameTransformData.scrollX !== currentScroll.scrollX || targetFrameTransformData.scrollY !== currentScroll.scrollY) {
             that.scrollTo(targetFrameTransformData.scrollX, targetFrameTransformData.scrollY, transition).then(function() {
               if (!wasInTransition) {
+               // console.log(that.name() + ' trigger transitionFinished');                
                 that.trigger('transitionFinished', framename);
                 that.inTransition(false);
               }
@@ -594,6 +602,7 @@ var LayerView = BaseView.extend({
             });
           } else {
             if (!wasInTransition) {
+            //  console.log(that.name() + ' trigger transitionFinished');
               that.trigger('transitionFinished', framename);
               that.inTransition(false);
             }
@@ -613,6 +622,8 @@ var LayerView = BaseView.extend({
           that.inTransition(false);
           that.setLayerTransform(that.currentTransform);
           $.postAnimationFrame(function() {
+        //  console.log(that.name() + ' trigger transitionFinished');
+
             that.trigger('transitionFinished', framename);
           });
         }
@@ -622,6 +633,8 @@ var LayerView = BaseView.extend({
       that.currentFrameTransformData = targetFrameTransformData;
       that.currentFrame = frame;
       that.currentTransform = targetTransform;
+    // console.log(that.name() + ' trigger transitionStarted');
+
       that.trigger('transitionStarted', framename, transition);
 
       return layoutPromise;
@@ -803,6 +816,7 @@ var LayerView = BaseView.extend({
 
     var that = this;
     var renderRequiredEventHandler = function(name) {
+     // console.log('renderRequired on ' + name);
       if (that.currentFrame && null !== that.currentFrame && that.currentFrame.name() === name) {
         if (!that.inTransition() && !that.resizeQueued){
            that._renderChildPosition(that._cache.childNames[name]);
@@ -811,12 +825,14 @@ var LayerView = BaseView.extend({
         else if (that.inTransition() && !that.resizeQueued){
           that.resizeQueued = true;
           that.once('transitionFinished', function(){
+            if (that.resizeQueued) {
               that._renderChildPosition(that._cache.childNames[name]);
               that.onResize().then(function(){
                   delete that.resizeQueued;
               });
+            }
           });
-        }       
+        }     
       }
     };
 
