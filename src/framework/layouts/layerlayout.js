@@ -61,19 +61,22 @@ var LayerLayout = Kern.EventManager.extend({
             parentMatrix = calculateMatrix(element.parentNode, stopElement);
           }
 
-          var elementMatrix = $.getMatrix(element);
+          var elementMatrix = $.getScaleAndRotationMatrix(element);
           var result = parentMatrix.prod(elementMatrix);
           return result;
         };
 
         var frameMatrix = calculateMatrix(frame.outerEl, commonParent);
+        frameMatrix = $.applyTopLeftOnMatrix(frame.outerEl, frameMatrix);
+
         var targetLayerMatrix = calculateMatrix(targetElement, commonParent);
+        targetLayerMatrix = $.applyTopLeftOnMatrix(targetElement, targetLayerMatrix);
+
         var resultMatrix = targetLayerMatrix.invert().prod(frameMatrix);
         var that = this;
 
         frame.parent.innerEl.removeChild(frame.outerEl);
-        if(frame.parent.currentFrame === frame)        
-        {
+        if (frame.parent.currentFrame === frame) {
           frame.parent.currentFrame = null;
         }
 

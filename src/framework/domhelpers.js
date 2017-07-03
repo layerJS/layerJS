@@ -494,14 +494,54 @@ var DomHelpers = {
     return matrix;
   },
 
-  getTopLeftMatrix: function(element) {
+  getScaleAndRotationMatrix: function(element) {
+    var matrix = new TMat(this.getMatrixArray(element));
+    matrix.tx = matrix.ty = 0;
 
-    /*  var elementBoundingRect = element.getBoundingClientRect();
-      var parentBoundingRect = element.parentNode.getBoundingClientRect();
+    return matrix;
+  },
 
-      return TMat.Ttrans(elementBoundingRect.left - parentBoundingRect.left, elementBoundingRect.top - parentBoundingRect.top);*/
+  applyTopLeftOnMatrix: function(element, matrix) {
 
-    return TMat.Ttrans(element.offsetLeft, element.offsetTop);
+    var degrees = matrix.get_rotation_equal();
+    degrees = (degrees % 360);
+    var rectAfter = element.getBoundingClientRect();
+    var width = rectAfter.width,
+      height = rectAfter.height;
+    var rotation, rotationLeft, rotationTop, top = rectAfter.top,
+      left = rectAfter.left;
+
+    if ((degrees > 0 && degrees <= 90) || (degrees < -270 && degrees >= -360)) {
+      //ok
+      rotation = degrees * Math.PI / 180 * (-1);
+
+      top = rectAfter.top;
+      left = rectAfter.left - Math.sin(rotation) * height;
+    } else if ((degrees > 90 && degrees <= 180) || (degrees < -180 && degrees >= -270)) {
+      //ok
+      rotationTop = ((180 - degrees) * Math.PI / 180);
+      rotationLeft = ((degrees) * Math.PI / 180);
+
+      top = rectAfter.top - Math.cos(rotationTop) * height * (-1);
+      left = rectAfter.left + (Math.sin(rotationLeft) * height + Math.cos(rotationLeft) * (-1) * width); //NOK
+    } else if ((degrees < 0 && degrees >= -90) || (degrees > 270 && degrees <= 360)) {
+      //ok
+      rotation = (-degrees) * Math.PI / 180;
+
+      top = rectAfter.top + Math.sin(rotation) * width;
+      left = rectAfter.left;
+    } else if ((degrees < -90 && degrees >= -180) || (degrees > 180 && degrees <= 270)) {
+      //ok
+      rotationLeft = ((180 - degrees) * Math.PI / 180);
+      rotationTop = ((-degrees) * Math.PI / 180);
+
+      left = rectAfter.left + Math.cos(rotationLeft) * width;
+      top = rectAfter.top + (Math.sin(rotationTop) * width + Math.cos(rotationTop) * (-1) * height); //ok
+    }
+
+    matrix.tx = left;// * matrix.a;
+    matrix.ty = top;// * matrix.d;
+    return matrix;
   }
 };
 DomHelpers.detectBrowser();
