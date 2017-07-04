@@ -211,11 +211,13 @@ var SlideLayout = LayerLayout.extend({
         finished.resolve(prep);
         return finished;
       }
-      // apply pre position to target frame
-      this._applyTransform(frame, prep.t0, this.layer.currentTransform, {
-        transition: 'none',
-        visibility: 'inital'
-      });
+      if (undefined === transition.applyPrePosition || true === transition.applyPrePosition) {
+        // apply pre position to target frame
+        this._applyTransform(frame, prep.t0, this.layer.currentTransform, {
+          transition: 'none',
+          visibility: 'inital'
+        });
+      }
       // apply pre position to current frame
       if (prep.current_css) {
         this._applyTransform(currentFrame, prep.c0, this.layer.currentTransform, {

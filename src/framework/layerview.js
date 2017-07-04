@@ -508,7 +508,8 @@ var LayerView = BaseView.extend({
     transition = Kern._extend({
       type: transition && transition.type ? 'default' : (frame && frame.defaultTransition()) || this.defaultTransition() || autotransition || 'default',
       previousType: transition && transition.type ? undefined : (this.currentFrame && this.currentFrame.defaultTransition()) || undefined,
-      duration: '1s'
+      duration: '1s',
+      applyPrePosition: !(frame && frame.parent && frame.parent !== this)
       // FIXME: add more default values like timing
     }, transition || {});
     transition.lastFrameName = (this.currentFrame && this.currentFrame.name()) || "!none";
