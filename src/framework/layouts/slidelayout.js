@@ -210,7 +210,7 @@ var SlideLayout = LayerLayout.extend({
         finished.resolve(prep);
         return finished;
       }
-      if (!transition.interLayer) {
+      if (undefined === transition.applyPrePosition || true === transition.applyPrePosition) {
         // apply pre position to target frame
         this._applyTransform(frame, prep.t0, this.layer.currentTransform, {
           transition: 'none',

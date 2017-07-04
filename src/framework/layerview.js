@@ -437,7 +437,7 @@ var LayerView = BaseView.extend({
     if (frame && null !== frame && frame.parent !== this){
       frame.parent.inPreparation(true);
     }
-    
+
     this._layout.loadFrame(frame).then(function() {
       var tfd = that.currentFrameTransformData = null === frame ? that.noFrameTransformdata(scrollData.startPosition) : frame.getTransformData(that.stage, scrollData.startPosition);
       that.currentTransform = that._transformer.getScrollTransform(tfd, scrollData.scrollX || (tfd.isScrollX && tfd.scrollX) || 0, scrollData.scrollY || (tfd.isScrollY && tfd.scrollY) || 0);
@@ -509,7 +509,7 @@ var LayerView = BaseView.extend({
       type: transition && transition.type ? 'default' : (frame && frame.defaultTransition()) || this.defaultTransition() || autotransition || 'default',
       previousType: transition && transition.type ? undefined : (this.currentFrame && this.currentFrame.defaultTransition()) || undefined,
       duration: '1s',
-      interLayer: frame && frame.parent && frame.parent !== this
+      applyPrePosition: !(frame && frame.parent && frame.parent !== this)
 
       // FIXME: add more default values like timing
     }, transition || {});
@@ -809,7 +809,7 @@ var LayerView = BaseView.extend({
     if (options && options.removedNodes && options.removedNodes.length > 0) {
       options.removedNodes.forEach(function(removedNode) {
         if (removedNode._ljView) {
-          removedNode._ljView.off('renderRequired', undefined, that);          
+          removedNode._ljView.off('renderRequired', undefined, that);
         }
       });
     }
