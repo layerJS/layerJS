@@ -48,23 +48,23 @@ var ScrollTransformer = Kern.EventManager.extend({
    * @returns {Boolean} true if inner scrolling would occur
    */
   _detectInnerScrolling: function(gesture) {
-    var element = gesture.event.target.parentElement;
+    var element = gesture.event.target;
     while (element !== this.layer.innerEl) {
       if (Math.abs(gesture.shift.x) > Math.abs(gesture.shift.y)) {
-        if (element.clientWidth < element.scrollWidth && window.getComputedStyle(element)['overflow-x'] in {
+        if (element.clientWidth < element.scrollWidth && !(window.getComputedStyle(element)['overflow-x'] in {
             visible: 1,
             hidden: 1
-          }) {
+          })) {
           if ((gesture.shift.x > 0 && element.scrollLeft > 0) || element.scrollLeft < element.scrollWidth - element.clientWidth){
             gesture.event.stopPropagation();
             return true;
           }
         }
       } else {
-        if (element.clientHeight < element.scrollHeight && window.getComputedStyle(element)['overflow-y'] in {
+        if (element.clientHeight < element.scrollHeight && !(window.getComputedStyle(element)['overflow-y'] in {
             visible: 1,
             hidden: 1
-          }) {
+          })) {
           if ((gesture.shift.y > 0 && element.scrollTop > 0) || element.scrollTop < element.scrollHeight - element.clientHeight){
             gesture.event.stopPropagation();
             return true;
