@@ -313,29 +313,20 @@ var LayerView = BaseView.extend({
     }
     scrollX = (scrollX !== undefined ? scrollX : (transition.scrollX !== undefined ? transition.scrollX : tfd.scrollX || 0));
     scrollY = (scrollY !== undefined ? scrollY : (transition.scrollY !== undefined ? transition.scrollY : tfd.scrollY || 0));
-    this.currentTransform = this._transformer.getScrollTransform(tfd, scrollX, scrollY, true);
-    var d = transition && transition.duration && $.timeToMS(transition.duration);
-    if (this.inTransition()) { // make scroll transition time at least as long as ongoing transition;
-      d = Math.max(this.getRemainingTransitionTime(), d || 0);
-    }
-    var myScrollID;
-    if (d) { // we have a transition time (duration)
-      this.inTransition(true, d);
-      myScrollID = ++this.scrollID;
-      var that = this;
-      return this.setLayerTransform(this.currentTransform, {
-        transition: d + "ms"
-      }).then(function() {
-        if (that.scrollID !== myScrollID) return; // there was another scrollTo in between so don't finish.
-        that.currentTransform = that._transformer.getScrollTransform(tfd, scrollX, scrollY, false);
-        // apply new transform (will be 0,0 in case of native scrolling)
-        that.inTransition(false);
-        that.setLayerTransform(that.currentTransform);
 
-      });
-    } else {
-      return this.setLayerTransform(this.currentTransform);
-    }
+    transition.scrollX = scrollX;
+    transition.scrollY = scrollY;
+
+    transition = Kern._extend({
+      lastFrameName: this.currentFrame.name(),
+      applyTargetPrePosition: false,
+      applyCurrentPostPosition: false,
+      applyCurrentPrePosition: false,
+      duration: '5ms',
+      type: 'none'
+    }, transition || {});
+
+    return this.transitionTo(this.currentFrame.name(), transition);
   },
   /**
    * Will change the current layout with an other layout
@@ -421,7 +412,7 @@ var LayerView = BaseView.extend({
    * @param {string} framename - the frame to be active
    * @param {Object} scrollData - information about the scroll position to be set. Note: this is a subset of a
    * transition object where only startPosition, scrollX and scrollY is considered
-   * @returns {void}
+   * @returns {Kern.Promise} a promise fullfilled after the show frame has finished.
    */
   showFrame: function(framename, scrollData) {
     if (!this.stage) {
@@ -439,40 +430,7 @@ var LayerView = BaseView.extend({
       type: 'none'
     }, scrollData || {});
 
-    this.transitionTo(framename, scrollData);
-
-    /*    var that = this;
-        var frame = null;
-
-        frame = framename ? this._getFrame(framename) : null;
-        if (!frame && null !== frame) throw "transformTo: " + framename + " does not exist in layer";
-
-        if (null !== frame) {
-          framename = frame.name();
-        }
-        // create a dummy semaphore if there isn't any
-        if (!scrollData.semaphore) {
-          scrollData.semaphore = (new Kern.Semaphore()).register();
-        }
-
-        that.trigger('beforeTransition', framename);
-
-        // this.inTransition(true, 0);
-        this.inPreparation(true);
-        this._layout.loadFrame(frame).then(function() {
-          var tfd = that.currentFrameTransformData = null === frame ? that.noFrameTransformdata(scrollData.startPosition) : frame.getTransformData(that.stage, scrollData.startPosition);
-          that.currentTransform = that._transformer.getScrollTransform(tfd, scrollData.scrollX || (tfd.isScrollX && tfd.scrollX) || 0, scrollData.scrollY || (tfd.isScrollY && tfd.scrollY) || 0);
-
-          that.updateClasses(frame);
-          that.currentFrame = frame;
-          that.trigger('transitionStarted', framename, scrollData);
-          scrollData.semaphore.sync().then(function() {
-            that._layout.showFrame(frame, tfd, that.currentTransform);
-            that.inPreparation(false);
-            that.inTransition(false); // we stop all transitions if we do a showframe
-            that.trigger('transitionFinished', framename);
-          });
-        });*/
+    return this.transitionTo(framename, scrollData);
   },
   noFrameTransformdata: function(transitionStartPosition) {
     if (this._noframetd && this._noframetd.startPosition === transitionStartPosition) return this._noframetd;
@@ -585,35 +543,40 @@ var LayerView = BaseView.extend({
       var currentScroll = that.getCurrentScroll(); // get current scroll position before recalculating it for this frame
       var targetFrameTransformData = null === frame ? that.noFrameTransformdata(transition.startPosition) : frame.getTransformData(that.stage, transition.startPosition);
       var targetTransform = that._transformer.getScrollTransform(targetFrameTransformData, transition.scrollX || targetFrameTransformData.scrollX, transition.scrollY || targetFrameTransformData.scrollY, true);
-      console.log(targetTransform);
+
       // check if transition goes to exactly the same position
       if (that.currentFrame === frame && that.currentFrameTransformData === targetFrameTransformData) {
-        // don't do a transition, just execute Promise
-        var p = new Kern.Promise();
-        that.trigger('transitionStarted', framename, transition);
-        transition.semaphore.sync().then(function() ùm; { // we need to call sync in case there are other transitions waiting.
-          if (targetFrameTransformData.scrollX !== cur = rentScroll.scrollX || targetFrameTransformData.scrollY !== currentScroll.scrollY) {
-            that.scrollTo(targetFrameTransformData.scrollX, targetFrameTransformData.scrollY, transition).then(function() {
-              if (!wasInTransition) {
-                that.trigger('transitionFinished', framename);
-                that.inTransition(false);
-              }
-              p.resolve();
-            });
-          } else {
+
+        if (targetFrameTransformData.scrollX !== currentScroll.scrollX || targetFrameTransformData.scrollY !== currentScroll.scrollY) {
+          // just do a scroll using a transition
+          transition = Kern._extend(transition, {
+            applyTargetPrePosition: false,
+            applyCurrentPostPosition: false,
+            applyCurrentPrePosition: false,
+            scrollX: targetFrameTransformData.scrollX,
+            scrollY: targetFrameTransformData.scrollY,
+            duration: '5ms',
+            type: 'none'
+          });
+        } else {
+
+          var p = new Kern.Promise();
+          that.trigger('transitionStarted', framename, transition);
+          transition.semaphore.sync().then(function() {
+
             if (!wasInTransition) {
               that.trigger('transitionFinished', framename);
               that.inTransition(false);
             }
             p.resolve();
-          }
-        });
-        return p;
+          });
+
+          return p;
+        }
       }
 
 
       var layoutPromise = that._layout.transitionTo(frame, transition, targetFrameTransformData, targetTransform).then(function() {
-
         // is this still the active transition?
         if (transition.transitionID === that.transitionID) {
           // this will now calculate the currect layer transform and set up scroll positions in native scroll
