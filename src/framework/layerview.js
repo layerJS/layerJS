@@ -127,9 +127,10 @@ var LayerView = BaseView.extend({
 
     if (this.parent) {
       this.parent.on('renderRequired', function() {
-        if (!that.inTransition()) {
-          that.onResize();
-        }
+        // this check can be disabled
+        //if (!that.inTransition()) {
+        that.onResize();
+        //  }
       });
     }
 
@@ -437,8 +438,8 @@ var LayerView = BaseView.extend({
     var d = this._noframetd = {};
     d.stage = this.stage;
     d.scale = 1;
-    d.width = d.frameWidth = this.stage.width();
-    d.height = d.frameHeight = this.stage.height();
+    d.width = d.frameWidth = this.stage ? this.stage.width() : 0;
+    d.height = d.frameHeight = this.stage ? this.stage.height() : 0;
     d.shiftX = d.shiftY = d.scrollX = d.scrollY = 0;
     d.isScrollX = d.isScrollY = false;
     d.startPosition = transitionStartPosition || 'top';
@@ -535,7 +536,6 @@ var LayerView = BaseView.extend({
     }
     // make sure frame is there such that we can calculate dimensions and transform data
     return this._layout.loadFrame(frame).then(function() {
-
       that.inPreparation(false);
       // calculate the layer transform for the target frame. Note: this will automatically consider native scrolling
       // getScrollIntermediateTransform will not change the current native scroll position but will calculate
@@ -574,7 +574,6 @@ var LayerView = BaseView.extend({
           return p;
         }
       }
-
 
       var layoutPromise = that._layout.transitionTo(frame, transition, targetFrameTransformData, targetTransform).then(function() {
         // is this still the active transition?

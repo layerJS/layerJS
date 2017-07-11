@@ -55,7 +55,7 @@ describe("LayerView", function() {
     expect(layerView.nativeScroll()).toBeFalsy();
   });
 
-  it('show frame will trigger events', function(done) {
+  xit('show frame will trigger events', function(done) {
     var html = "<div data-lj-type='stage' id='stage1'>" +
       "<div data-lj-type='layer' id='layer1' data-lj-default-frame='frame1'>" +
       "<div data-lj-type='frame' id='frame1' data-lj-name='frame1'></div>" +
@@ -83,15 +83,13 @@ describe("LayerView", function() {
     layerView1.on('transitionFinished', function() {
       transitionFinished = true;
     });
-    layerView1.showFrame('frame2');
-
-    setTimeout(function() {
+    layerView1.showFrame('frame2').then(function() {
       expect(beforeTransition).toBeTruthy();
       expect(transitionStarted).toBeTruthy();
       expect(transitionFinished).toBeTruthy();
       done();
-    }, 100);
-  });
+    });
+  }, 1000);
 
   ViewsCommon_parseChildrenTests(function() {
     return {
@@ -293,14 +291,14 @@ describe("LayerView", function() {
 
         spyOn(layerView, '_parseChildren');
 
-        layerView.on('childrenChanged', function(options){
+        layerView.on('childrenChanged', function(options) {
           expect(options.addedNodes.length).toBe(1);
           expect(layerView._parseChildren).toHaveBeenCalled();
           done();
         });
 
         layerView.innerEl.innerHTML = require('./htmlelements/simple_frame_1.js');
-      });    
+      });
     });
 
     describe('attributesChanged', function() {
@@ -336,7 +334,4 @@ describe("LayerView", function() {
       }, 100);
     });
   });
-
-
-
 });
