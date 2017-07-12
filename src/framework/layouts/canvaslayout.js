@@ -15,45 +15,6 @@ var CanvasLayout = LayerLayout.extend({
     this._frameTransforms = {};
   },
   /**
-   * transforms immidiately to the specified frame.
-   *
-   * @param {FrameView} frame - the frame to activate
-   * @param {Object} transfromData - transform data of current frame
-   * @param {string} transform - a string representing the scroll transform of the current frame
-   * @returns {void}
-   */
-  /*jshint unused: true*/
-  showFrame: function(frame, targetFrameTransformData, transform) {
-    /*jshint unused: false*/
-    transform = transform || "";
-    var frames = this.layer.getChildViews();
-    var framesLength = frames.length;
-    var childFrame;
-
-    if (null !== frame) {
-      delete this._currentRotation; // as we don't animate we don't have to care about the current rotation
-      this._reverseTransform = this._calculateReverseTransform(frame, targetFrameTransformData);
-      // now apply all transforms to all frames
-      for (var i = 0; i < framesLength; i++) {
-        childFrame = frames[i];
-        childFrame.getTransformData(this.layer.stage); // this will initialize dimensions for the frame
-        this._applyTransform(childFrame, this._reverseTransform, transform, {
-          transition: 'none',
-          opacity: 1,
-          display: 'block'
-        });
-      }
-    } else {
-      for (var x = 0; x < framesLength; x++) {
-        childFrame = frames[x];
-        childFrame.applyStyles({
-          opacity: 0,
-          transition: 'none'
-        });
-      }
-    }
-  },
-  /**
    * transform to a given frame in this layer with given transition
    *
    * @param {FrameView} frame - frame to transition to

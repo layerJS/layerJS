@@ -55,41 +55,45 @@ describe("LayerView", function() {
     expect(layerView.nativeScroll()).toBeFalsy();
   });
 
-  xit('show frame will trigger events', function(done) {
-    var html = "<div data-lj-type='stage' id='stage1'>" +
-      "<div data-lj-type='layer' id='layer1' data-lj-default-frame='frame1'>" +
-      "<div data-lj-type='frame' id='frame1' data-lj-name='frame1'></div>" +
-      "<div data-lj-type='frame' id='frame2' data-lj-name='frame2'></div>" +
-      "</div>" +
-      "</div>";
 
-    var element = utilities.appendChildHTML(html);
+  /*
+    jsdom has some problems with this test. Add as comment for future references
+    it('show frame will trigger events', function(done) {
+      var html = "<div data-lj-type='stage' id='stage1'>" +
+        "<div data-lj-type='layer' id='layer1' data-lj-default-frame='frame1'>" +
+        "<div data-lj-type='frame' id='frame1' data-lj-name='frame1' lj-width='1280px' lj-height='500px'></div>" +
+        "<div data-lj-type='frame' id='frame2' data-lj-name='frame2' lj-width='1280px' lj-height='500px'></div>" +
+        "</div>" +
+        "</div>";
 
-    var stageView1 = new StageView({
-      el: element
-    });
+      var element = utilities.appendChildHTML(html);
 
-    var layerView1 = document.getElementById('layer1')._ljView;
-    var beforeTransition = false;
-    var transitionStarted = false;
-    var transitionFinished = false;
+      var stageView1 = new StageView({
+        el: element
+      });
 
-    layerView1.on('beforeTransition', function() {
-      beforeTransition = true;
-    });
-    layerView1.on('transitionStarted', function() {
-      transitionStarted = true;
-    });
-    layerView1.on('transitionFinished', function() {
-      transitionFinished = true;
-    });
-    layerView1.showFrame('frame2').then(function() {
-      expect(beforeTransition).toBeTruthy();
-      expect(transitionStarted).toBeTruthy();
-      expect(transitionFinished).toBeTruthy();
-      done();
-    });
-  }, 1000);
+      var layerView1 = document.getElementById('layer1')._ljView;
+      var beforeTransition = false;
+      var transitionStarted = false;
+      var transitionFinished = false;
+
+      layerView1.on('beforeTransition', function() {
+        beforeTransition = true;
+      });
+      layerView1.on('transitionStarted', function() {
+        transitionStarted = true;
+      });
+      layerView1.on('transitionFinished', function() {
+        transitionFinished = true;
+      });
+      layerView1.showFrame('frame2').then(function() {
+        expect(beforeTransition).toBeTruthy();
+        expect(transitionStarted).toBeTruthy();
+        expect(transitionFinished).toBeTruthy();
+        done();
+      });
+    }, 10000);
+    */
 
   ViewsCommon_parseChildrenTests(function() {
     return {

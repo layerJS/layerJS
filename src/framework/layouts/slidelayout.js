@@ -70,28 +70,6 @@ var SlideLayout = LayerLayout.extend({
     this._preparedTransitions = {};
   },
   /**
-   * transforms immidiately to the specified frame. hides all other frames
-   *
-   * @param {FrameView} frame - the frame to activate
-   * @param {Object} transfromData - transform data of current frame
-   * @param {string} transform - a string represenptg the scroll transform of the current frame
-   * @returns {void}
-   */
-  showFrame: function(frame, frameTransformData, transform) {
-    for (var i = 0; i < this.layer.innerEl.children.length; i++) {
-      this.layer.innerEl.children[i].style.display = 'none';
-    }
-    this._applyTransform(frame, this._currentFrameTransform = this._calcFrameTransform(frameTransformData), transform, {
-      display: 'block',
-      opacity: 1,
-      visibility: 'initial',
-      top: "0px",
-      left: "0px"
-    });
-    this._preparedTransitions = {};
-  },
-
-  /**
    * Hides all other frames
    *
    * @param {FrameView} currentFrame - the current active frame
@@ -125,7 +103,6 @@ var SlideLayout = LayerLayout.extend({
     return this.prepareTransition(frame, transition, targetFrameTransformData, targetTransform).then(function(t) {
       var finished = new Kern.Promise();
       var frameToTransition = frame || currentFrame;
-
       if (frameToTransition) {
         frameToTransition.outerEl.addEventListener("transitionend", function f(e) { // FIXME needs webkitTransitionEnd etc
           e.target.removeEventListener(e.type, f); // remove event listener for transitionEnd.
@@ -154,14 +131,12 @@ var SlideLayout = LayerLayout.extend({
       }
       // wait for semaphore as there may be more transitions that need to be setup
       transition.semaphore.sync().then(function() {
-
         that._applyTransform(frame, that._currentFrameTransform = t.t1, targetTransform, {
           transition: transition.duration,
           top: "0px",
           left: "0px",
           opacity: "1"
         });
-
 
         if (transition.applyCurrentPostPosition !== false) {
           that._applyTransform(currentFrame, t.c1, targetTransform, {
