@@ -325,8 +325,8 @@ describe("Fit to", function() {
         var frame_elastic_right = parseFloat(data[5]);
         var frame_width_before_change = parseFloat(data[6]);
         var calculated_frame_width = frame_width_before_change / ((frame_width_before_change - (frame_elastic_left + frame_elastic_right))/(stage_dimensions.width)); // (550/((550-(50+50))/350))
-     
-        expect(frame_dimensions.width).toBeWithinRange((calculated_frame_width - 1), (calculated_frame_width + 1)); 
+
+        expect(frame_dimensions.width).toBeWithinRange((calculated_frame_width - 1), (calculated_frame_width + 1));
         expect(stage_dimensions.height).not.toBe(frame_dimensions.height);
         expect(layer_dimensions.height).not.toBe(frame_dimensions.height);
         expect(stage_dimensions.width).not.toBe(frame_dimensions.width);
@@ -377,7 +377,7 @@ describe("Fit to", function() {
         var frame_height_before_change = parseFloat(data[6]);
         var calculated_frame_height = frame_height_before_change / ((frame_height_before_change - (frame_elastic_top + frame_elastic_bottom))/(stage_dimensions.height)); // (500/((500-(25+25))/350))
 
-        expect(frame_dimensions.height).toBeWithinRange((calculated_frame_height - 1), (calculated_frame_height + 1)); 
+        expect(frame_dimensions.height).toBeWithinRange((calculated_frame_height - 1), (calculated_frame_height + 1));
         expect(stage_dimensions.width).not.toBe(frame_dimensions.width);
         expect(layer_dimensions.width).not.toBe(frame_dimensions.width);
         expect(stage_dimensions.height).not.toBe(frame_dimensions.height);

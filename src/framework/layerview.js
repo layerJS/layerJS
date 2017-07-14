@@ -772,7 +772,7 @@ var LayerView = BaseView.extend({
 
     var that = this;
     var renderRequiredEventHandler = function(name) {
-      if (!that.inTransition() && that.currentFrame && null !== that.currentFrame && that.currentFrame.name() === name) {
+      if (that.currentFrame && null !== that.currentFrame && that.currentFrame.name() === name) {
         that._renderChildPosition(that._cache.childNames[name]);
         that.onResize();
       }
