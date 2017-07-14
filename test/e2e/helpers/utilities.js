@@ -34,6 +34,22 @@ utilities.scrollTo = function(layerId, scrollX, scrollY, transition, waitTime) {
   }, layerId, scrollX, scrollY, transition, waitTime);
 };
 
+//Gili added for tmp use in tests
+  utilities.getCurrentExportStructure = function(layerId) {
+    return browser.driver.executeAsyncScript(function(layerId, callBack) {
+      var ExportStructure = layerJS.getState().exportStructure();
+      callBack(ExportStructure);
+    }, layerId);
+};
+
+
+utilities.removeAttribute = function(elementId, attribute) {
+  return browser.driver.executeAsyncScript(function(elementId, attribute, callBack) {
+    var el = window.document.getElementById(elementId);
+    callBack(el.removeAttribute(attribute));
+  }, elementId, attribute);
+};
+
 utilities.getBoundingClientRect = function(elementId) {
   return browser.driver.executeAsyncScript(function(elementId, callBack) {
     var el = window.document.getElementById(elementId);
@@ -131,14 +147,6 @@ utilities.resizeWindow = function(width, height) {
   browser.driver.manage().window().setSize(width, height);
 };
 
-utilities.setAttribute = function(elementId, attribute, value) {
-  return browser.driver.executeAsyncScript(function(elementId, attribute, value, callBack) {
-    var el = window.document.getElementById(elementId);
-    el.setAttribute(attribute, value);
-    callBack();
-  }, elementId, attribute, value);
-};
-
 utilities.getAttribute = function(elementId, attribute) {
   return browser.driver.executeAsyncScript(function(elementId, attribute, callBack) {
     var el = window.document.getElementById(elementId);
@@ -155,7 +163,28 @@ utilities.getStyle = function(elementId, cssAttribtue) {
   }, elementId, cssAttribtue);
 };
 
+utilities.setAttribute = function(elementId, attribute, value) {
+  return browser.driver.executeAsyncScript(function(elementId, attribute, value, callBack) {
+    var el = window.document.getElementById(elementId);
+    el.setAttribute(attribute, value);
+    callBack();
+  }, elementId, attribute, value);
+};
 
+utilities.setAttributeByClassName = function(elementClass, attribute, value) {
+  return browser.driver.executeAsyncScript(function(elementClass, attribute, value, callBack) {
+    //var el = window.document.getElementsByClassName(elementClass)[0];
+    var el, index;
+    el = document.getElementsByClassName(elementClass); //maybe needs window.
+    for (index = 0; index < el.length; ++index) {
+        el[index].setAttribute(attribute, value);
+    }
+
+    //var el1 = el[0];
+    //el.setAttribute(attribute, value);
+    callBack();
+  }, elementClass, attribute, value);
+};
 
 utilities.setAttributes = function(elementId, attributes) {
   return browser.driver.executeAsyncScript(function(elementId, attributes, callBack) {

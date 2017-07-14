@@ -1,0 +1,52 @@
+<html>
+
+<head>
+  <title>Simple Example</title>
+  <link rel="stylesheet" type="text/css" href="../../../src/css/layerjs.css">
+</head>
+<style>
+  body {
+    /*margin: auto;*/
+    margin: 0;
+  }
+
+  #stage {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    /*margin: auto;*/
+    margin: 0;
+  }
+
+  #frame1 {
+    position: absolute;
+    border-style: solid;
+  }
+
+  #frame2 {
+    position: absolute;
+    border-style: solid;
+  }
+</style>
+
+<body>
+  <div id="stage" data-lj-type="stage">
+    <div id="layer" data-lj-type="layer" data-lj-default-frame="frame1" data-lj-native-scroll="true" data-lj-layout-type="canvas">
+
+      <div id="frame1" data-lj-type="frame" data-lj-x="-150" data-lj-name="frame1" data-lj-fit-to="width" style="width:450px">
+        <h1>frame1</h1>
+       </div>
+
+      <div id="frame2" data-lj-type="frame" data-lj-x="100" data-lj-y="10" data-lj-name="frame2" data-lj-fit-to="width"  style="width:440px" data-lj-scale-x="0.5" data-lj-scale-y="0.5">
+        <!-- adding data-lj-rotation="40" -->
+        <h1>frame2</h1>
+      </div>
+    </div>
+  </div>
+  <script src="../../../dist/layerjs.js"></script>
+  <script>
+    layerJS.init();
+  </script>
+</body>
+
+</html>

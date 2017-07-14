@@ -1,0 +1,38 @@
+<html>
+<!-- canvas -->
+<head>
+    <title>html page for rigorously test for attribute mutations</title>
+    <link rel="stylesheet" type="text/css" href="../../../src/css/layerjs.css">
+</head>
+<style>
+  body {
+    margin: 0;
+  }
+
+  #stage {
+      margin: 0;
+  }
+
+  #frame1 {
+      background-color: #3a63a5;
+  }
+</style>
+
+<body>
+    <div id="stage" data-lj-type="stage" style="width:600px; height:400px">
+        <div id="layer" data-lj-type="layer" data-lj-default-frame="frame1" >
+          <!-- data-lj-layout-type="canvas" data-lj-native-scroll="true" -->
+            <div id="frameIdToIgnore" class="fr" data-lj-type="frame" data-lj-name="frame1" style="width:800px; height:600px">
+              <!-- data-lj-no-scrolling="true" -->
+              <h1>FRAME  1</h1>
+            </div>
+        </div>
+    </div>
+
+    <script src="../../../dist/layerjs.js"></script>
+    <script>
+        layerJS.init();
+    </script>
+</body>
+
+</html>
