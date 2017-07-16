@@ -182,6 +182,9 @@ var Router = Kern.EventManager.extend({
     if (window.history && (!payload || !payload.noHistory) && window.location.href !== url) {
       window.history.pushState({}, "", url);
     }
+    else if (window.history && window.location.href !== url){
+      window.history.replaceState({}, "", url);
+    }
   }
 });
 
