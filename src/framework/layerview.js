@@ -401,11 +401,14 @@ var LayerView = BaseView.extend({
           }
         } else { //jshint ignore:line
           // FIXME: escalate/gesture bubbling ; ignore for now
+          gesture.preventDefault = false;
+          console.log(gesture.direction);
+          if (neighbors && (neighbors.l || neighbors.r) && (gesture.direction === 'left' || gesture.direction === 'right')) gesture.preventDefault = true; // bad hack, but there is an aggressive "back/forward" functionality on left / right swipe at least on mac computers that will impact UX severely
         }
       } else { //jshint ignore:line
         // this will prevent any bubbling for small movements
         gesture.event.stopPropagation();
-        //gesture.preventDefault = true;
+        gesture.preventDefault = true;
         //console.log("gestureListener: bubble preventer, prevented default");
       }
     }
