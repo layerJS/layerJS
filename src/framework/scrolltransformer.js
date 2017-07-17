@@ -49,7 +49,7 @@ var ScrollTransformer = Kern.EventManager.extend({
    */
   _detectInnerScrolling: function(gesture) {
     var element = gesture.event.target;
-    while (element !== this.layer.innerEl) {
+    while (element && element !== this.layer.innerEl) {
       if (Math.abs(gesture.shift.x) > Math.abs(gesture.shift.y)) {
         if (element.clientWidth < element.scrollWidth && !(window.getComputedStyle(element)['overflow-x'] in {
             visible: 1,
