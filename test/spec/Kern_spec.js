@@ -208,7 +208,7 @@ describe("EventManager", function() {
     var myContext = {};
     var myContext2 = {};
     var myContextHandled = false;
-    var myContext2Handled =  false;
+    var myContext2Handled = false;
 
     that.e.on('onEvent', function() {
       myContextHandled = true;
@@ -337,32 +337,32 @@ describe('Promise', function() {
   });
 });
 
-describe('Queue', function(){
+describe('Queue', function() {
 
   var queue;
 
-  beforeEach(function(){
+  beforeEach(function() {
     queue = new Kern.Queue();
   });
 
-  it('can add something to the queue', function(done){
-      queue.add().then(function(){
-        expect(true).toBe(true);
-        done();
-      });
+  it('can add something to the queue', function(done) {
+    queue.add().then(function() {
+      expect(true).toBe(true);
+      done();
+    });
   });
 
-  it('will wait to advance until the continue method is called ', function(done){
-      queue.add();
+  it('will wait to advance until the continue method is called ', function(done) {
+    queue.add();
 
-      queue.add().then(function() {
-        expect(queue.waiting).toBe(true);
-        queue.continue();
-        expect(queue.waiting).toBe(false);
-        done();
-      });
-
+    queue.add().then(function() {
       expect(queue.waiting).toBe(true);
       queue.continue();
+      expect(queue.waiting).toBe(false);
+      done();
+    });
+
+    expect(queue.waiting).toBe(true);
+    queue.continue();
   });
 });
