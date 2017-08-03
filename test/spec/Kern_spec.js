@@ -365,4 +365,14 @@ describe('Queue', function() {
     expect(queue.waiting).toBe(true);
     queue.continue();
   });
+
+  it('can be cleared', function() {
+
+    queue.add();
+    queue.add();
+
+    expect(queue.q.length).toBeGreaterThan(0);
+    queue.clear();
+    expect(queue.q.length).toBe(0);
+  });
 });
