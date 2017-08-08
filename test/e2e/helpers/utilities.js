@@ -6,16 +6,17 @@ utilities.transitionTo = function(layerId, frameName, transition, waitTime) {
 
   return browser.driver.executeAsyncScript(function(layerId, frameName, transition, waitTime, callBack) {
     var layer = layerJS.select('#' + layerId);
+    var p = layer.transitionTo(frameName, transition);
     if (waitTime) {
       setTimeout(function() {
         callBack();
       }, waitTime);
     } else {
-      layer.on("transitionFinished", function() {
+      p.then(function() {
         callBack();
       });
     }
-    layer.transitionTo(frameName, transition);
+
   }, layerId, frameName, transition, waitTime);
 };
 utilities.getCurrentFrame = function(layerId) {
@@ -26,11 +27,17 @@ utilities.getCurrentFrame = function(layerId) {
 };
 
 utilities.scrollTo = function(layerId, scrollX, scrollY, transition, waitTime) {
-  waitTime = waitTime || 3000;
 
   return browser.driver.executeAsyncScript(function(layerId, scrollX, scrollY, transition, waitTime, callBack) {
-    layerJS.select('#' + layerId).scrollTo(scrollX, scrollY, transition);
-    window.setTimeout(callBack, waitTime);
+    var p = layerJS.select('#' + layerId).scrollTo(scrollX, scrollY, transition);
+
+    if (!waitTime) {
+      p.then(function() {
+        callBack();
+      });
+    } else {
+      window.setTimeout(callBack, waitTime);
+    }
   }, layerId, scrollX, scrollY, transition, waitTime);
 };
 
@@ -407,7 +414,7 @@ utilities.scrollRight = function(elementId, times) {
 
       if (isSafari || isChrome) {
         evt.wheelDeltaY = 0;
-        evt.wheelDeltaX = 120;
+        evt.wheelDeltaX = 1200;
       } else if (isFirefox || isOpera || isIE || isEdge) {
         evt.deltaY = 0;
         evt.deltaX = 100;
@@ -482,11 +489,15 @@ utilities.getChildrenIds = function(elementId) {
 
 
 utilities.showFrame = function(layerId, frameName, scrollData, waitTime) {
-  waitTime = waitTime || 0;
-
   return browser.driver.executeAsyncScript(function(id, frameName, scrollData, waitTime, callback) {
-    layerJS.select('#' + id).showFrame(frameName, scrollData);
-    callback();
+    var p = layerJS.select('#' + id).showFrame(frameName, scrollData);
+    if (!waitTime) {
+      p.then(function() {
+        callback();
+      });
+    } else {
+      window.setTimeout(callback, waitTime);
+    }
   }, layerId, frameName, scrollData, waitTime);
 };
 
@@ -511,8 +522,8 @@ utilities.showState = function(states, transitions, payload) {
   }, states, transitions, payload);
 };
 
-utilities.exportState = function(){
-  return browser.driver.executeAsyncScript(function(callBack){
+utilities.exportState = function() {
+  return browser.driver.executeAsyncScript(function(callBack) {
     var exportedState = layerJS.getState().exportState();
     callBack(exportedState);
   });

@@ -7,24 +7,11 @@ describe("CanvasLayout", function() {
     browser.driver.manage().window().setSize(800, 600);
   });
 
-  /*
-    function sin(x) {
-      return Math.sin(x / 180 * Math.PI);
-    }
 
-    function cos(x) {
-      return Math.cos(x / 180 * Math.PI);
-    }
-
-    function rotate(x, y, a) {
-      var x2 = cos(a) * x - sin(a) * y;
-      var y2 = sin(a) * x + cos(a) * y;
-      return [x2, y2];
-    }*/
 
   it('will transition to a frame and will apply a transform on all frames within the layer (1)', function() {
     browser.get('canvasLayout/canvaslayout.html').then(function() {
-      browser.sleep(3000).then(function() {
+      browser.sleep(1000).then(function() {
         var stage = element(by.id('root'));
         var layer1 = element(by.id('layer1'));
         var f1 = element(by.id('main'));
@@ -75,8 +62,8 @@ describe("CanvasLayout", function() {
             expect(f1_dimensions.top).toBeWithinRange(-56, -54);
             expect(f1_scale).toBeWithinRange(0.544, 0.556);
             expect(f1_rotation).toBe(0);
-            expect(f2_dimensions.left).toBeWithinRange(0, 0.5);
-            expect(f2_dimensions.top).toBeWithinRange(0, 0.5);
+            expect(f2_dimensions.left).toBeWithinRange(-0.1, 0.1);
+            expect(f2_dimensions.top).toBeWithinRange(-0.1, 0.1);
             expect(f2_scale).toBeWithinRange(0.544, 0.556);
             expect(f2_rotation).toBe(0);
             expect(f3_dimensions.left).toBeWithinRange(-97, -93);
