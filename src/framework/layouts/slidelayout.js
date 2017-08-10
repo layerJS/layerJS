@@ -103,29 +103,31 @@ var SlideLayout = LayerLayout.extend({
     return this.prepareTransition(frame, transition, targetFrameTransformData, targetTransform).then(function(t) {
       var finished = new Kern.Promise();
       var frameToTransition = frame || currentFrame;
-      if (frameToTransition) {
-        var transitionEnd = function() {
-          if (transition.transitionID === that.layer.transitionID) {
-            if (currentFrame && transition.applyCurrentPostPosition !== false) {
-              currentFrame.applyStyles(t.fix_css, {
-                transition: 'none',
-                display: 'none',
-                'z-index': 'initial'
-              });
-            }
-            if (frame) {
-              frame.applyStyles(t.fix_css, {
-                transition: 'none',
-                'z-index': 'initial'
-              });
-            }
-          }
-          // wait until above styles are applied;
-          $.postAnimationFrame(function() {
-            finished.resolve();
-          });
-        };
 
+      var transitionEnd = function() {
+        if (transition.transitionID === that.layer.transitionID) {
+          if (currentFrame && transition.applyCurrentPostPosition !== false) {
+            currentFrame.applyStyles(t.fix_css, {
+              transition: 'none',
+              display: 'none',
+              'z-index': 'initial'
+            });
+          }
+          if (frame) {
+            frame.applyStyles(t.fix_css, {
+              transition: 'none',
+              'z-index': 'initial'
+            });
+          }
+        }
+        // wait until above styles are applied;
+        $.postAnimationFrame(function() {
+          finished.resolve();
+        });
+      };
+
+
+      if (frameToTransition) {
         if (transition.duration !== '') {
           frameToTransition.outerEl.addEventListener("transitionend", function f(e) { // FIXME needs webkitTransitionEnd etc
             e.target.removeEventListener(e.type, f); // remove event listener for transitionEnd.

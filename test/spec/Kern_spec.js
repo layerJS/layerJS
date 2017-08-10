@@ -375,4 +375,26 @@ describe('Queue', function() {
     queue.clear();
     expect(queue.q.length).toBe(0);
   });
+
+  it('can debouce items', function(){
+    queue.add();
+    queue.add('debounce');
+    expect(queue.q.length).toBe(1);
+    queue.add('debounce');
+    expect(queue.q.length).toBe(1);
+    queue.add();
+    expect(queue.q.length).toBe(2);
+    queue.add('test');
+    expect(queue.q.length).toBe(3);
+    queue.add('test');
+    expect(queue.q.length).toBe(3);
+  });
+
+  it('will not debouce items', function(){
+    queue.add();
+    queue.add();
+    expect(queue.q.length).toBe(1);
+    queue.add();
+    expect(queue.q.length).toBe(2);
+  });
 });

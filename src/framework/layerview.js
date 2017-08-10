@@ -470,30 +470,35 @@ var LayerView = BaseView.extend({
     var that = this;
 
     if (transition && transition.isEvent) {
-
+      //in case of an event, use queue
       promise = new Kern.Promise();
+      var queuePromise = this.transitionQueue.add('event');
 
-      promise.then(function() {
-        //console.log('in continue queue');
-        that.transitionQueue.continue();
-      });
+      if (queuePromise) {
+        // is not debounced in the queue
 
-      this.transitionQueue.add().then(function() {
-        var innerPromise = that._transitionTo(framename, transition);
-        //console.log('in queue');
-        innerPromise.then(function() {
-          //console.log('transitioned');
-          promise.resolve();
-          //console.log('promise resolved');
+        promise.then(function() {
+          // when resolved, move to next in queue
+          that.transitionQueue.continue();
         });
-      });
 
+        queuePromise.then(function() {
+          var innerPromise = that._transitionTo(framename, transition);
+
+          innerPromise.then(function() {
+            promise.resolve();
+          });
+        });
+      } else {
+        promise.resolve();
+      }
     } else {
+      // is not an event, clear queue and invoke
       this.transitionQueue.clear();
       this.transitionQueue.add();
       promise = this._transitionTo(framename, transition);
       promise.then(function() {
-        //console.log('continue in queue');
+
         that.transitionQueue.continue();
       });
     }
