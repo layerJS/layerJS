@@ -294,7 +294,9 @@ describe('state', function() {
       } else {
         expect(layerView1.currentFrame.name()).toBe(expectedFrameName);
       }
-      expect(state.exportState()).toEqual(expectedState);
+
+      var exportedState = state.exportState();
+      expect(exportedState).toEqual(expectedState);
       done();
     }, 100);
   }

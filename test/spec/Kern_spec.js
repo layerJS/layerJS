@@ -208,7 +208,7 @@ describe("EventManager", function() {
     var myContext = {};
     var myContext2 = {};
     var myContextHandled = false;
-    var myContext2Handled =  false;
+    var myContext2Handled = false;
 
     that.e.on('onEvent', function() {
       myContextHandled = true;
@@ -334,5 +334,45 @@ describe('Promise', function() {
     expect(p2.value).toBeUndefined();
     ip(4);
     expect(p2.value).toBe(26);
+  });
+});
+
+describe('Queue', function() {
+
+  var queue;
+
+  beforeEach(function() {
+    queue = new Kern.Queue();
+  });
+
+  it('can add something to the queue', function(done) {
+    queue.add().then(function() {
+      expect(true).toBe(true);
+      done();
+    });
+  });
+
+  it('will wait to advance until the continue method is called ', function(done) {
+    queue.add();
+
+    queue.add().then(function() {
+      expect(queue.waiting).toBe(true);
+      queue.continue();
+      expect(queue.waiting).toBe(false);
+      done();
+    });
+
+    expect(queue.waiting).toBe(true);
+    queue.continue();
+  });
+
+  it('can be cleared', function() {
+
+    queue.add();
+    queue.add();
+
+    expect(queue.q.length).toBeGreaterThan(0);
+    queue.clear();
+    expect(queue.q.length).toBe(0);
   });
 });

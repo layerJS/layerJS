@@ -38,9 +38,7 @@ var CanvasLayout = LayerLayout.extend({
     // NOTE: Maybe this is a solution for not stopping the transitions
     var lastFrameToTransition = frames[framesLength - 1];
 
-    lastFrameToTransition.outerEl.addEventListener("transitionend", function f(e) { // FIXME needs webkitTransitionEnd etc
-      e.target.removeEventListener(e.type, f); // remove event listener for transitionEnd.
-      // console.log("canvaslayout transitionend", transition.transitionID);
+    var transitionEnd = function() {
       if (transition.transitionID === that.layer.transitionID) {
         for (var i = 0; i < framesLength; i++) {
           childFrame = frames[i];
@@ -51,7 +49,15 @@ var CanvasLayout = LayerLayout.extend({
         }
       }
       finished.resolve();
-    });
+    };
+
+    if (transition.duration !== '') {
+      lastFrameToTransition.outerEl.addEventListener("transitionend", function f(e) { // FIXME needs webkitTransitionEnd etc
+        e.target.removeEventListener(e.type, f); // remove event listener for transitionEnd.
+        // console.log("canvaslayout transitionend", transition.transitionID);
+        transitionEnd();
+      });
+    }
     // wait for semaphore as there may be more transitions that need to be setup
     transition.semaphore.sync().then(function() {
 
@@ -63,7 +69,8 @@ var CanvasLayout = LayerLayout.extend({
           childFrame.getTransformData(that.layer.stage); // this will initialize dimensions for the frame
           that._applyTransform(childFrame, that._reverseTransform, targetTransform, {
             transition: transition.duration,
-            opacity: 1
+            opacity: 1,
+            display: 'block'
           });
         }
       } else {
@@ -74,6 +81,10 @@ var CanvasLayout = LayerLayout.extend({
             transition: transition.duration
           });
         }
+      }
+
+      if (transition.duration === '') {
+        transitionEnd();
       }
     });
 

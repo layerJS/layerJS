@@ -104,8 +104,7 @@ var SlideLayout = LayerLayout.extend({
       var finished = new Kern.Promise();
       var frameToTransition = frame || currentFrame;
       if (frameToTransition) {
-        frameToTransition.outerEl.addEventListener("transitionend", function f(e) { // FIXME needs webkitTransitionEnd etc
-          e.target.removeEventListener(e.type, f); // remove event listener for transitionEnd.
+        var transitionEnd = function() {
           if (transition.transitionID === that.layer.transitionID) {
             if (currentFrame && transition.applyCurrentPostPosition !== false) {
               currentFrame.applyStyles(t.fix_css, {
@@ -125,7 +124,14 @@ var SlideLayout = LayerLayout.extend({
           $.postAnimationFrame(function() {
             finished.resolve();
           });
-        });
+        };
+
+        if (transition.duration !== '') {
+          frameToTransition.outerEl.addEventListener("transitionend", function f(e) { // FIXME needs webkitTransitionEnd etc
+            e.target.removeEventListener(e.type, f); // remove event listener for transitionEnd.
+            transitionEnd();
+          });
+        }
       } else {
         finished.resolve(); // FIXME: this would be only called if currentFrame and new frame are null ?????
       }
@@ -144,6 +150,10 @@ var SlideLayout = LayerLayout.extend({
             top: "0px",
             left: "0px"
           });
+        }
+
+        if (transition.duration === '') {
+          transitionEnd();
         }
 
         that._preparedTransitions = {};

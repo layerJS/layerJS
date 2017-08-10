@@ -462,6 +462,19 @@
         } else {
           this.waiting = false;
         }
+      },
+      /**
+       * indicate that the execution of the current entry has finished and that the next entry can resolve (if any)
+       *
+       * @param {Type} Name - Description
+       * @returns {Type} Description
+       */
+      clear: function() {
+        while (this.q.length > 0) {
+          var p = this.q.shift();
+          p.reject();
+        }
+        this.waiting = false;
       }
     });
     return Kern;

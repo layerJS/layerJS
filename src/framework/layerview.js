@@ -18,6 +18,7 @@ var LayerView = BaseView.extend({
   constructor: function(options) {
     options = options || {};
     options.childType = 'frame';
+    this.transitionQueue = new Kern.Queue();
 
     this.innerEl = this.outerEl = options.el;
 
@@ -50,7 +51,7 @@ var LayerView = BaseView.extend({
     this.onResizeCallBack = function() {
       // when doing a transform, the callback should not be called
       if (!that.inTransition()) {
-        that.onResize();
+        that.render();
       }
     };
 
@@ -80,25 +81,26 @@ var LayerView = BaseView.extend({
     */
 
     // set the initial frame if possible
+    var currentFrame;
     var defaultFrame = this.defaultFrame();
     if (defaultFrame && defaultFrame !== '!none') {
-      this.currentFrame = this._getFrame(defaultFrame) || null;
-      if (!this.currentFrame) console.warn("layerJS: layer '" + this.name() + "': could not find defaultframe: '" + defaultFrame + "'");
+      currentFrame = this._getFrame(defaultFrame) || null;
+      if (!currentFrame) console.warn("layerJS: layer '" + this.name() + "': could not find defaultframe: '" + defaultFrame + "'");
     }
     // set first frame if possible
-    if (!this.currentFrame && defaultFrame !== '!none') {
-      this.currentFrame = this._getFrame(defaults.specialFrames.next) || null;
+    if (!currentFrame && defaultFrame !== '!none') {
+      currentFrame = this._getFrame(defaults.specialFrames.next) || null;
     }
 
     this.currentFrameTransformData = this.noFrameTransformdata();
 
     // set none otherwise
-    if (!this.currentFrame) {
+    if (!currentFrame) {
       this.showFrame(defaults.specialFrames.none, {
         lastFrameName: ''
       });
     } else {
-      this.showFrame(this.currentFrame.name(), {
+      this.showFrame(currentFrame.name(), {
         lastFrameName: ''
       });
     }
@@ -129,7 +131,7 @@ var LayerView = BaseView.extend({
       this.parent.on('renderRequired', function() {
         // this check can be disabled
         //if (!that.inTransition()) {
-        that.onResize();
+        that.render();
         //  }
       });
     }
@@ -323,8 +325,9 @@ var LayerView = BaseView.extend({
       applyTargetPrePosition: false,
       applyCurrentPostPosition: false,
       applyCurrentPrePosition: false,
-      duration: '5ms',
-      type: 'none'
+      duration: '',
+      type: 'none',
+      isEvent: true
     }, transition || {});
 
     return this.transitionTo(this.currentFrame.name(), transition);
@@ -340,7 +343,7 @@ var LayerView = BaseView.extend({
     this._transformer = this._layout.getScrollTransformer() || new ScrollTransformer(this);
 
     if (this.currentFrame) {
-      this.showFrame(this.currentFrame.name());
+      this.render();
     }
   },
   /**
@@ -431,9 +434,9 @@ var LayerView = BaseView.extend({
       scrollY: 0,
       lastFrameName: (this.currentFrame && this.currentFrame.name()) || "!none",
       applyTargetPrePosition: false,
-      applyCurrentPostPosition: false,
+      applyCurrentPostPosition: this.currentFrame ? framename !== this.currentFrame.name() : false,
       applyCurrentPrePosition: false,
-      duration: '5ms',
+      duration: '',
       type: 'none'
     }, scrollData || {});
 
@@ -462,6 +465,48 @@ var LayerView = BaseView.extend({
    * @returns {Kern.Promise} a promise fullfilled after the transition finished. Note: if you start another transition before the first one finished, this promise will not be resolved.
    */
   transitionTo: function(framename, transition) {
+
+    var promise;
+    var that = this;
+
+    if (transition && transition.isEvent) {
+
+      promise = new Kern.Promise();
+
+      promise.then(function() {
+        //console.log('in continue queue');
+        that.transitionQueue.continue();
+      });
+
+      this.transitionQueue.add().then(function() {
+        var innerPromise = that._transitionTo(framename, transition);
+        //console.log('in queue');
+        innerPromise.then(function() {
+          //console.log('transitioned');
+          promise.resolve();
+          //console.log('promise resolved');
+        });
+      });
+
+    } else {
+      this.transitionQueue.clear();
+      this.transitionQueue.add();
+      promise = this._transitionTo(framename, transition);
+      promise.then(function() {
+        //console.log('continue in queue');
+        that.transitionQueue.continue();
+      });
+    }
+    return promise;
+  },
+  /**
+   * transform to a given frame in this layer with given transition
+   *
+   * @param {string} [framename] - (optional) frame name to transition to
+   * @param {Object} [transition] - (optional) transition object
+   * @returns {Kern.Promise} a promise fullfilled after the transition finished. Note: if you start another transition before the first one finished, this promise will not be resolved.
+   */
+  _transitionTo: function(framename, transition) {
     // is framename  omitted?
     if (typeof framename === 'object' && null !== framename) {
       transition = framename;
@@ -741,17 +786,18 @@ var LayerView = BaseView.extend({
     childView.startObserving();
   },
   /**
-   * Method will be invoked when a resize event is detected.
+   * Method will render the layer
    */
-  onResize: function() {
+  render: function() {
     var childViews = this.getChildViews();
     var length = childViews.length;
-    var scrollData = this.currentFrame !== null ? this.currentFrame.getScrollData() : undefined;
+    var scrollData = this.currentFrame !== null ? this.currentFrame.getScrollData() : {};
+    scrollData.isEvent = true;
 
     for (var i = 0; i < length; i++) {
       var childView = childViews[i];
-      if (childView.hasOwnProperty('transformData')) {
-        childView.transformData = undefined;
+      if (undefined !== childView.transformData) {
+        childView.transformData.isDirty = true;
       }
     }
     var frameName = this.currentFrame === null ? null : this.currentFrame.name();
@@ -780,7 +826,7 @@ var LayerView = BaseView.extend({
     var renderRequiredEventHandler = function(name) {
       if (that.currentFrame && null !== that.currentFrame && that.currentFrame.name() === name) {
         that._renderChildPosition(that._cache.childNames[name]);
-        that.onResize();
+        that.render();
       }
     };
 
