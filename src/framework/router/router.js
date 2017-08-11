@@ -53,7 +53,10 @@ var Router = Kern.EventManager.extend({
     var that = this;
 
     // listen to history buttons
-    window.onpopstate = function() {
+    window.onpopstate = function(event) {
+      if (event && null === event.state){
+        return;
+      }
       that.navigate(document.location.href, null, true);
     };
 
