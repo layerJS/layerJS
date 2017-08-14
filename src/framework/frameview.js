@@ -314,6 +314,7 @@ var FrameView = BaseView.extend({
     // save inital scroll position to be able to reset this without recalculating the full transform data
     d.initialScrollX = d.scrollX;
     d.initialScrollY = d.scrollY;
+    d.frame = this;
     return (this.transformData = d);
   },
   /**
