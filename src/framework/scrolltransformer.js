@@ -49,7 +49,7 @@ var ScrollTransformer = Kern.EventManager.extend({
    */
   _detectInnerScrolling: function(gesture) {
     var element = gesture.event.target;
-    while (element !== this.layer.innerEl) {
+    while (element && element !== this.layer.innerEl) {
       if (Math.abs(gesture.shift.x) > Math.abs(gesture.shift.y)) {
         if (element.clientWidth < element.scrollWidth && !(window.getComputedStyle(element)['overflow-x'] in {
             visible: 1,
@@ -148,7 +148,16 @@ var ScrollTransformer = Kern.EventManager.extend({
                                      here, the (possibly wrong/old native scroll position is taken into account)
    * @returns {Type} Description
    */
-  getScrollTransform: function(tfd, scrollX, scrollY, intermediate) {
+  getScrollTransform: function(tfd, transition, intermediate) {
+
+    var scrollX = transition.scrollX || tfd.scrollX;
+    var scrollY = transition.scrollY || tfd.scrollY;
+
+    if (!intermediate) {
+      scrollX = transition.scrollX || tfd.initialScrollX;
+      scrollY = transition.scrollY || tfd.initialScrollY;
+    }
+
     // update frameTransformData
     tfd.scrollX = scrollX !== undefined ? scrollX : tfd.scrollX;
     tfd.scrollY = scrollY !== undefined ? scrollY : tfd.scrollY;
@@ -168,8 +177,14 @@ var ScrollTransformer = Kern.EventManager.extend({
     if (this.layer.nativeScroll()) {
       if (intermediate) {
         // in nativescroll, the scroll position is not applied via transform, but we need to compensate for a displacement due to the different scrollTop/Left values in the current frame and the target frame. This displacement is set to 0 after correcting the scrollTop/Left in the transitionEnd listener in transitionTo()
-        var shiftX = this.layer.outerEl.scrollLeft - (tfd.scrollX * tfd.scale || 0);
-        var shiftY = this.layer.outerEl.scrollTop - (tfd.scrollY * tfd.scale || 0);
+        var shiftX = 0;
+        var shiftY = 0;
+
+        if (/*tfd.frame !== this.layer.currentFrame || */!transition.isEvent) {
+          shiftX = this.layer.outerEl.scrollLeft || 0 - (tfd.scrollX * tfd.scale || 0);
+          shiftY = this.layer.outerEl.scrollTop || 0 - (tfd.scrollY * tfd.scale || 0);
+        }
+
         return this.scrollTransform(shiftX, shiftY);
       } else {
         // set inner size to set up native scrolling
@@ -201,7 +216,6 @@ var ScrollTransformer = Kern.EventManager.extend({
           }, 1);
         }
         // needed by iOS safari; otherwise scrolling will be disabled if the scrollhelper was too small for scrolling before
-
         return this.scrollTransform(0, 0); // no transforms as scrolling is achieved by native scrolling
       }
     } else {
