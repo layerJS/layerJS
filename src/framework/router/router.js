@@ -54,11 +54,18 @@ var Router = Kern.EventManager.extend({
 
     // listen to history buttons
     window.onpopstate = function() {
-      that.navigate(document.location.href, null, true);
+      if (document.location.href === that.ignoreUrl){
+        delete that.ignoreUrl;
+      }
+      else {
+        that.navigate(document.location.href, null, true);
+      }
+
     };
 
     // register link listener
     $.addDelegtedListener(this.rootElement, 'click', 'a', function(event) {
+      //delete that.ignoreUrl;
       if (this.href !== '' && !this.href.startsWith('javascript:')) { // jshint ignore:line
         var href = this.getAttribute('href'); // get the explicitly given href (that is not extended) to see the intention of the user
 
@@ -67,6 +74,7 @@ var Router = Kern.EventManager.extend({
         that.navigate(href, $.findParentViewOfType(this, 'layer')).then(function(result) {
           if (!result) {
             setTimeout(function() { // why do we have to get at the end of the queue?
+              that.ignoreUrl = $.getAbsoluteUrl(href);
               window.location.href = href;
             }, 1);
           }
@@ -140,7 +148,7 @@ var Router = Kern.EventManager.extend({
             // when the router couldn't handle the url or when the router indecated that we should try other routers, call other routers
             callRouter(index + 1);
           } else
-            // end iteration
+          // end iteration
             resolve();
         });
       } else {
@@ -181,6 +189,8 @@ var Router = Kern.EventManager.extend({
 
     if (window.history && (!payload || !payload.noHistory) && window.location.href !== url) {
       window.history.pushState({}, "", url);
+    } else if (window.history && window.location.href !== url) {
+      window.history.replaceState({}, "", url);
     }
   }
 });

@@ -27,7 +27,7 @@ var HashRouter = Kern.EventManager.extend({
       var state = layerJS.getState();
 
       for (var i = 0; i < hashPaths.length; i++) {
-        var frameName = hashPaths[i].split('&')[0];
+        var frameName = hashPaths[i].split('?')[0].split('&')[0];
         var parsed = $.parseStringForTransitions(hashPaths[i]);
         var resolvedPaths = state.resolvePath(frameName);
         for (var x = 0; x < resolvedPaths.length; x++) {

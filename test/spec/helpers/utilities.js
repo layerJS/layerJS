@@ -22,7 +22,13 @@ utilities._beforeAll = function() {
   style.innerHTML = "";
 
   this.setHtml("");
-  layerJS.getState(document);
+  var state = layerJS.getState(document);
+  state.views = {};
+  state.layers = [];
+  state.paths = {};
+  state._transitionGroup = {};
+  state._transitionGroupId = 0;
+  state.previousState = undefined;
 }
 
 utilities._beforeEachNodeJS = function() {

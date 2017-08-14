@@ -436,16 +436,24 @@
       /**
        * add an entry to the queue. A new promise is returned that will resolve when all previous entries have finished
        *
-       * @param {Type} Name - Description
+       * @param {string} category - a category so we can debounce
        * @returns {Type} Description
        */
-      add: function() {
+      add: function(category) {
         var p = new Kern.Promise();
         if (!this.waiting) {
           p.resolve();
           this.waiting = true;
         } else {
-          this.q.push(p);
+          var debounce = this.q.length > 0 && category === this.q[this.q.length - 1].category;
+          if (undefined === category || !debounce) {
+            this.q.push({
+              promise: p,
+              category: category
+            });
+          } else {
+            p = undefined;
+          }
         }
         return p;
       },
@@ -457,11 +465,24 @@
        */
       continue: function() {
         if (this.q.length) {
-          var p = this.q.shift();
+          var p = this.q.shift().promise;
           p.resolve();
         } else {
           this.waiting = false;
         }
+      },
+      /**
+       * indicate that the execution of the current entry has finished and that the next entry can resolve (if any)
+       *
+       * @param {Type} Name - Description
+       * @returns {Type} Description
+       */
+      clear: function() {
+        while (this.q.length > 0) {
+          var p = this.q.shift().promise;
+          p.reject();
+        }
+        this.waiting = false;
       }
     });
     return Kern;

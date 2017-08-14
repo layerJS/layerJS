@@ -53,7 +53,6 @@ var FrameView = BaseView.extend({
     for (var i = 0; i < this.renderRequiredAttributes.length; i++) {
       var attributeNames = Object.getOwnPropertyNames(attributes);
       if (attributeNames.indexOf(this.renderRequiredAttributes[i]) !== -1 || attributeNames.indexOf('data-' + this.renderRequiredAttributes[i]) !== -1) {
-        this.transformData = undefined;
         this.trigger('renderRequired', this.name());
         break;
       }
@@ -70,7 +69,7 @@ var FrameView = BaseView.extend({
   getTransformData: function(stage, transitionStartPosition, keepScroll) {
     // check if we can return cached version of transfromData
     var d = this.transformData;
-    if (!d || d.stage !== stage || (transitionStartPosition && transitionStartPosition !== d.startPosition)) {
+    if (!d || d.isDirty || d.stage !== stage || (transitionStartPosition && transitionStartPosition !== d.startPosition)) {
       // calculate transformData
       return (this.transformData = this.calculateTransformData(stage, transitionStartPosition));
     }
@@ -82,12 +81,12 @@ var FrameView = BaseView.extend({
   },
   /**
    * Returns the scroll data for this frame in form of a transition record with only the values for scroll positions and startPosition set.   *
-   * @returns {object} contains the the startPosition, scrollX and scrollY
+   * @returns {object} contains the scrollX and scrollY
    */
   getScrollData: function() {
 
     var scrollData = this.transformData ? {
-      startPosition: this.transformData.startPosition,
+    //  startPosition: this.transformData.startPosition,
       scrollX: this.transformData.scrollX,
       scrollY: this.transformData.scrollY
     } : {};
@@ -315,6 +314,7 @@ var FrameView = BaseView.extend({
     // save inital scroll position to be able to reset this without recalculating the full transform data
     d.initialScrollX = d.scrollX;
     d.initialScrollY = d.scrollY;
+    d.frame = this;
     return (this.transformData = d);
   },
   /**
