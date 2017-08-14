@@ -17,7 +17,6 @@ describe('scrolling', function() {
           utilities.wait(1000).then(function() {
             utilities.scrollDown('layer', 2).then(function() {
               utilities.wait(1000).then(function() {
-                console.log('done scrolling?');
                 protractor.promise.all([utilities.getBoundingClientRect('layer'),
                   utilities.getBoundingClientRect('frame1'),
                   utilities.getScroll('layer')

@@ -326,8 +326,7 @@ var LayerView = BaseView.extend({
       applyCurrentPostPosition: false,
       applyCurrentPrePosition: false,
       duration: '',
-      type: 'none',
-      isEvent: true
+      type: 'none'
     }, transition || {});
 
     return this.transitionTo(this.currentFrame.name(), transition);
