@@ -53,21 +53,14 @@ var Router = Kern.EventManager.extend({
     var that = this;
 
     // listen to history buttons
-    window.onpopstate = function(event) {
-      /*if (document.location.href === that.ignoreUrl) {
+    window.onpopstate = function() {
+      if (document.location.href === that.ignoreUrl){
         delete that.ignoreUrl;
-        that._stateChanged(layerJS.getState(), {
-          noHistory: true
-        });
-      } else {*/
-      if ( event && event.state){
+      }
+      else {
         that.navigate(document.location.href, null, true);
       }
-    /*  else {
-        that._stateChanged(layerJS.getState(), {
-          noHistory: true
-        });
-      }*/
+
     };
 
     // register link listener
@@ -81,7 +74,7 @@ var Router = Kern.EventManager.extend({
         that.navigate(href, $.findParentViewOfType(this, 'layer')).then(function(result) {
           if (!result) {
             setTimeout(function() { // why do we have to get at the end of the queue?
-              //that.ignoreUrl = href;
+              that.ignoreUrl = $.getAbsoluteUrl(href);
               window.location.href = href;
             }, 1);
           }
