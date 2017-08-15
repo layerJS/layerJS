@@ -372,6 +372,7 @@
         this.num = num || 0;
         this.cc = 0;
         this.ps = [];
+        this.ls = [];
       },
       /**
        * register a stakeholder for this semaphore
@@ -389,7 +390,7 @@
        */
       listen: function() {
         var p;
-        this.ps.push(p = new Kern.Promise());
+        this.ls.push(p = new Kern.Promise());
         return p;
       },
       /**
@@ -418,6 +419,12 @@
           for (var i = 0; i < this.ps.length; i++) {
             this.ps[i].resolve(this.num);
           }
+          var that = this;
+          setTimeout(function() { // needs to be called with setTimeout to call listeners after then() function of last sync
+            for (var i = 0; i < that.ls.length; i++) {
+              that.ls[i].resolve(that.num);
+            }
+          }, 0);
         } else if (this.cc >= this.num) {
           throw "semaphore: more syncs than stakeholders";
         }
@@ -446,14 +453,13 @@
           this.waiting = true;
         } else {
           var debounce = this.q.length > 0 && category === this.q[this.q.length - 1].category;
-          if (undefined === category || !debounce) {
-            this.q.push({
-              promise: p,
-              category: category
-            });
-          } else {
-            p = undefined;
+          if (undefined !== category && debounce) {
+            this.q.pop().promise.reject();
           }
+          this.q.push({
+            promise: p,
+            category: category
+          });
         }
         return p;
       },
