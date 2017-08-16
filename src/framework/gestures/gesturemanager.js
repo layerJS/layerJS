@@ -238,6 +238,7 @@ var GestureManager = Kern.EventManager.extend({
    */
   _raiseGesture: function(event, callback) {
     if (callback && this.gesture) {
+      this.gesture.event = event;
       if (!this.gesture.direction) { // is direction locked?
         var x = this.gesture.shift.x;
         var y = this.gesture.shift.y;
@@ -251,12 +252,16 @@ var GestureManager = Kern.EventManager.extend({
           }
         }
       }
+      // console.log(this.gesture.shift.x, this.gesture.shift.y);
       callback(this.gesture);
+
       if (this.gesture.preventDefault) { // should we stop propagation and prevent default?
+        // console.log("gesturemanager: preventing default");
         event.preventDefault();
         event.stopPropagation();
       }
       if (this.gesture.cancelled) {
+        // console.log("gesture cancelled");
         this.gesture = this.element = null;
       }
     }

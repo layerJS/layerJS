@@ -54,7 +54,8 @@ var transitions = {
   slideOverRightFade: [partials.left, partials.fade, 1],
   slideOverUpFade: [partials.bottom, partials.fade, 1],
   slideOverDownFade: [partials.top, partials.fade, 1],
-
+  zoomout: [partials.zoomin, partials.zoomout, 1],
+  zoomin: [partials.zoomout, partials.zoomin, -1]
 };
 
 var SlideLayout = LayerLayout.extend({
@@ -69,25 +70,23 @@ var SlideLayout = LayerLayout.extend({
     this._preparedTransitions = {};
   },
   /**
-   * transforms immidiately to the specified frame. hides all other frames
+   * Hides all other frames
    *
+   * @param {FrameView} currentFrame - the current active frame
    * @param {FrameView} frame - the frame to activate
-   * @param {Object} transfromData - transform data of current frame
-   * @param {string} transform - a string represenptg the scroll transform of the current frame
    * @returns {void}
    */
-  showFrame: function(frame, frameTransformData, transform) {
-    for (var i = 0; i < this.layer.innerEl.children.length; i++) {
-      this.layer.innerEl.children[i].style.display = 'none';
+  hideOtherFrames: function(currentFrame, frame) {
+    var frames = this.layer.getChildViews();
+
+    for (var i = 0; i < frames.length; i++) {
+
+      if (frames[i] !== frame && frames[i] !== currentFrame) {
+        frames[i].applyStyles({
+          display: 'none'
+        });
+      }
     }
-    this._applyTransform(frame, this._currentFrameTransform = this._calcFrameTransform(frameTransformData), transform, {
-      display: 'block',
-      opacity: 1,
-      visibility: 'initial',
-      top: "0px",
-      left: "0px"
-    });
-    this._preparedTransitions = {};
   },
   /**
    * transform to a given frame in this layer with given transition
@@ -105,35 +104,41 @@ var SlideLayout = LayerLayout.extend({
       var finished = new Kern.Promise();
       var frameToTransition = frame || currentFrame;
 
-      if (frameToTransition) {
-        frameToTransition.outerEl.addEventListener("transitionend", function f(e) { // FIXME needs webkitTransitionEnd etc
-          e.target.removeEventListener(e.type, f); // remove event listener for transitionEnd.
-          if (transition.transitionID === that.layer.transitionID) {
-            if (currentFrame) {
-              currentFrame.applyStyles(t.fix_css, {
-                transition: 'none',
-                display: 'none',
-                'z-index': 'initial'
-              });
-            }
-            if (frame) {
-              frame.applyStyles(t.fix_css, {
-                transition: 'none',
-                'z-index': 'initial'
-              });
-            }
+      var transitionEnd = function() {
+        if (transition.transitionID === that.layer.transitionID) {
+          if (currentFrame && transition.applyCurrentPostPosition !== false) {
+            currentFrame.applyStyles(t.fix_css, {
+              transition: 'none',
+              display: 'none',
+              'z-index': 'initial'
+            });
           }
-          // wait until above styles are applied;
-          $.postAnimationFrame(function() {
-            finished.resolve();
-          });
+          if (frame) {
+            frame.applyStyles(t.fix_css, {
+              transition: 'none',
+              'z-index': 'initial'
+            });
+          }
+        }
+        // wait until above styles are applied;
+        $.postAnimationFrame(function() {
+          finished.resolve();
         });
+      };
+
+
+      if (frameToTransition) {
+        if (transition.duration !== '') {
+          frameToTransition.outerEl.addEventListener("transitionend", function f(e) { // FIXME needs webkitTransitionEnd etc
+            e.target.removeEventListener(e.type, f); // remove event listener for transitionEnd.
+            transitionEnd();
+          });
+        }
       } else {
         finished.resolve(); // FIXME: this would be only called if currentFrame and new frame are null ?????
       }
       // wait for semaphore as there may be more transitions that need to be setup
       transition.semaphore.sync().then(function() {
-
         that._applyTransform(frame, that._currentFrameTransform = t.t1, targetTransform, {
           transition: transition.duration,
           top: "0px",
@@ -141,11 +146,18 @@ var SlideLayout = LayerLayout.extend({
           opacity: "1"
         });
 
-        that._applyTransform(currentFrame, t.c1, targetTransform, {
-          transition: transition.duration,
-          top: "0px",
-          left: "0px"
-        });
+        if (transition.applyCurrentPostPosition !== false) {
+          that._applyTransform(currentFrame, t.c1, targetTransform, {
+            transition: transition.duration,
+            top: "0px",
+            left: "0px"
+          });
+        }
+
+        if (transition.duration === '') {
+          transitionEnd();
+        }
+
         that._preparedTransitions = {};
       });
       return finished;
@@ -167,6 +179,7 @@ var SlideLayout = LayerLayout.extend({
     var finished = new Kern.Promise();
     var prep;
     var currentFrame = this.layer.currentFrame;
+    this.hideOtherFrames(frame, currentFrame);
     if (frame && (prep = this._preparedTransitions[frame.id()])) {
       if (prep.transform === targetTransform && prep.applied) { // if also the targetTransform is already applied we can just conptue
         finished.resolve(prep);
@@ -210,7 +223,7 @@ var SlideLayout = LayerLayout.extend({
         finished.resolve(prep);
         return finished;
       }
-      if (undefined === transition.applyPrePosition || true === transition.applyPrePosition) {
+      if (transition.applyTargetPrePosition !== false) {
         // apply pre position to target frame
         this._applyTransform(frame, prep.t0, this.layer.currentTransform, {
           transition: 'none',
@@ -218,7 +231,7 @@ var SlideLayout = LayerLayout.extend({
         });
       }
       // apply pre position to current frame
-      if (prep.current_css) {
+      if (prep.current_css && transition.applyCurrentPrePosition !== false) {
         this._applyTransform(currentFrame, prep.c0, this.layer.currentTransform, {
           transition: 'none',
           'z-index': 'initial'

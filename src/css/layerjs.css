@@ -34,6 +34,7 @@
   height: auto;
   height: initial;
   overflow: auto;
+  -webkit-overflow-scrolling: touch; /* ios safari needs some extra catering here, otherwise it does not have inertial scrolling */
 }
 .nativescroll[data-lj-type='layer']>div, .nativescroll[lj-type='layer']>div {
   position: relative;

@@ -287,7 +287,7 @@ var State = Kern.EventManager.extend({
       layerpath = segments.join('.'),
       candidates = (isSpecial ? (layerpath ? this.paths[layerpath] : this.layers) : this.paths[path]); // if special frame name, only search for layer
 
-    if (!candidates || candidates.length === 0) throw "state: could not resolve path '" + path + "'";
+    if (!candidates || candidates.length === 0) return []; // couldn't find any matchin path; return empty array
     if (candidates.length > 1 && contextpath) { // check whether we can reduce list of candidates be resolving relative to the context path
       var reduced = [];
       while (reduced.length === 0 && contextpath) { // if we don't find any frames in context, move context path one up and try again

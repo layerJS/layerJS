@@ -110,6 +110,7 @@ var BaseView = DOMObserver.extend({
       var length = options.addedNodes.length;
       for (var x = 0; x < length; x++) {
         // check if added nodes don't already have a view defined.
+        if (options.addedNodes[x].parentElement !== this.innerEl) continue;
         if (!options.addedNodes[x]._ljView) {
           parseManager.parseElement(options.addedNodes[x].parentNode, {
             parent: this

@@ -127,9 +127,6 @@ var LayerLayout = Kern.EventManager.extend({
   getStageHeight: function() {
     return this.layer.stage.height();
   },
-  showFrame: function() {
-    throw "showFrame() not implemented";
-  },
   transitionTo: function() {
     throw "transitionTo() not implemented";
   },

@@ -14,17 +14,20 @@ describe('scrolling', function() {
           width: '650px',
           height: '650px'
         }).then(function() {
-          utilities.resizeWindow(800, 599);
-          utilities.scrollDown('layer', 2).then(function() {
-            protractor.promise.all([utilities.getBoundingClientRect('layer'),
-              utilities.getBoundingClientRect('frame1'),
-              utilities.getScroll('scroller')
-            ]).then(function(data) {
-              var layer_dimensions = data[0];
-              var frame_dimensions = data[1];
-              var layer_scroll = data[2];
+          utilities.wait(1000).then(function() {
+            utilities.scrollDown('layer', 2).then(function() {
+              utilities.wait(1000).then(function() {
+                protractor.promise.all([utilities.getBoundingClientRect('layer'),
+                  utilities.getBoundingClientRect('frame1'),
+                  utilities.getScroll('layer')
+                ]).then(function(data) {
+                  var layer_dimensions = data[0];
+                  var frame_dimensions = data[1];
+                  var layer_scroll = data[2];
 
-              expect(layer_scroll.scrollTop).toBe(frame_dimensions.height - layer_dimensions.height);
+                  expect(layer_scroll.scrollTop).toBe(frame_dimensions.height - layer_dimensions.height);
+                });
+              });
             });
           });
         });
@@ -33,22 +36,26 @@ describe('scrolling', function() {
 
     it('mouse wheel can reach right of frame', function() {
       browser.get('scrolling/native_scrolling.html').then(function() {
-        utilities.setStyle('stage', {
-          width: '450px',
-          height: '500px'
-        }).then(function() {
-          utilities.setAttribute('frame1', 'data-lj-fit-to', 'height').then(function() {
-            utilities.resizeWindow(800, 599);
+        protractor.promise.all([
+          utilities.setStyle('stage', {
+            width: '450px',
+            height: '500px'
+          }),
+          utilities.setAttribute('frame1', 'data-lj-fit-to', 'height')
+        ]).then(function() {
+          utilities.wait(1000).then(function() {
             utilities.scrollRight('layer', 3).then(function() {
-              protractor.promise.all([utilities.getBoundingClientRect('layer'),
-                utilities.getBoundingClientRect('frame1'),
-                utilities.getScroll('layer')
-              ]).then(function(data) {
-                var layer_dimensions = data[0];
-                var frame_dimensions = data[1];
-                var layer_scroll = data[2];
+              utilities.wait(1000).then(function() {
+                protractor.promise.all([utilities.getBoundingClientRect('layer'),
+                  utilities.getBoundingClientRect('frame1'),
+                  utilities.getScroll('layer')
+                ]).then(function(data) {
+                  var layer_dimensions = data[0];
+                  var frame_dimensions = data[1];
+                  var layer_scroll = data[2];
 
-                expect(layer_scroll.scrollLeft).toBe(frame_dimensions.width - layer_dimensions.width);
+                  expect(layer_scroll.scrollLeft).toBe(frame_dimensions.width - layer_dimensions.width);
+                });
               });
             });
           });
@@ -64,12 +71,11 @@ describe('scrolling', function() {
         }), utilities.setStyle('stage', {
           width: '500px',
           height: '500px'
+        }), utilities.setAttributes('frame2', {
+          'data-lj-start-position': 'bottom',
+          'data-lj-fit-to': 'width'
         })]).then(function() {
-          utilities.setAttributes('frame2', {
-            'data-lj-start-position': 'bottom',
-            'data-lj-fit-to': 'width'
-          }).then(function() {
-            utilities.resizeWindow(800, 599);
+          utilities.wait(1000).then(function() {
             protractor.promise.all([utilities.getBoundingClientRect('frame1'),
               utilities.getScroll('layer')
             ]).then(function(data) {
@@ -110,6 +116,7 @@ describe('scrolling', function() {
               });
             });
           });
+
         });
       });
     });
@@ -131,39 +138,40 @@ describe('scrolling', function() {
               'data-lj-start-position': 'left',
               'data-lj-fit-to': 'height'
             }).then(function() {
-              utilities.resizeWindow(800, 599);
-              protractor.promise.all([utilities.getBoundingClientRect('frame1'),
-                utilities.getScroll('layer')
-              ]).then(function(data) {
-                var frame1_dimensions_before = data[0];
-                var layer_scroll_before = data[1];
-                utilities.transitionTo('layer', 'frame2', {}).then(function() {
-                  utilities.getBoundingClientRect('frame2').then(function(frame2_dimensions_before) {
-                    protractor.promise.all([
-                      utilities.getBoundingClientRect('layer'),
-                      utilities.getBoundingClientRect('frame2'),
-                      utilities.getScroll('layer'),
-                      utilities.getBoundingClientRect('scroller'),
-                      utilities.getBoundingClientRect('frame1'),
-                    ]).then(function(data) {
-                      var layer_dimensions = data[0];
-                      var frame2_dimensions_after = data[1];
-                      var layer_scroll_after = data[2];
-                      var scroller_dimensions = data[3];
-                      var frame1_dimensions_after = data[4];
-                      //test if new frame1 top matches the old frame1 left.(otherwise the animation would appear diagonal)
-                      //expect(frame1_dimensions_before.left).toBe(frame1_dimensions_after.left);
-                      // top of frame1 + before scrollLeft should be 0
-                      expect(frame1_dimensions_before.left).toBe(layer_scroll_before.scrollLeft * -1);
-                      // top of frame2 + new scrollLeft should be 0
-                      expect(frame2_dimensions_after.left).toBe(layer_scroll_after.scrollLeft * -1);
-                      // if frame1 was scrolled down:
-                      expect(layer_scroll_before.scrollLeft).toBe(frame1_dimensions_before.width - layer_dimensions.width);
-                      // if frame1 was scrolled up:
-                      expect(layer_scroll_before.scrollLeft).toBe(0);
-                      // check if the new scrollLeft is correct
-                      expect(layer_scroll_after.scrollLeft).toBe(frame2_dimensions_after.width - layer_dimensions.width);
-                      expect(scroller_dimensions.width).toBe(frame2_dimensions_after.width);
+              utilities.wait(1000).then(function() {
+                protractor.promise.all([utilities.getBoundingClientRect('frame1'),
+                  utilities.getScroll('layer')
+                ]).then(function(data) {
+                  var frame1_dimensions_before = data[0];
+                  var layer_scroll_before = data[1];
+                  utilities.transitionTo('layer', 'frame2', {}).then(function() {
+                    utilities.getBoundingClientRect('frame2').then(function(frame2_dimensions_before) {
+                      protractor.promise.all([
+                        utilities.getBoundingClientRect('layer'),
+                        utilities.getBoundingClientRect('frame2'),
+                        utilities.getScroll('layer'),
+                        utilities.getBoundingClientRect('scroller'),
+                        utilities.getBoundingClientRect('frame1'),
+                      ]).then(function(data) {
+                        var layer_dimensions = data[0];
+                        var frame2_dimensions_after = data[1];
+                        var layer_scroll_after = data[2];
+                        var scroller_dimensions = data[3];
+                        var frame1_dimensions_after = data[4];
+                        //test if new frame1 top matches the old frame1 left.(otherwise the animation would appear diagonal)
+                        //expect(frame1_dimensions_before.left).toBe(frame1_dimensions_after.left);
+                        // top of frame1 + before scrollLeft should be 0
+                        expect(frame1_dimensions_before.left).toBe(layer_scroll_before.scrollLeft * -1);
+                        // top of frame2 + new scrollLeft should be 0
+                        expect(frame2_dimensions_after.left).toBe(layer_scroll_after.scrollLeft * -1);
+                        // if frame1 was scrolled down:
+                        expect(layer_scroll_before.scrollLeft).toBe(frame1_dimensions_before.width - layer_dimensions.width);
+                        // if frame1 was scrolled up:
+                        expect(layer_scroll_before.scrollLeft).toBe(0);
+                        // check if the new scrollLeft is correct
+                        expect(layer_scroll_after.scrollLeft).toBe(frame2_dimensions_after.width - layer_dimensions.width);
+                        expect(scroller_dimensions.width).toBe(frame2_dimensions_after.width);
+                      });
                     });
                   });
                 });
@@ -209,10 +217,11 @@ describe('scrolling', function() {
         utilities.getBoundingClientRect('test').then(function(tag_bounding_before) {
           var link = element(by.css('a[href*="#test"]'))
           link.click().then(function() {
-            utilities.wait(2000);
-            utilities.getBoundingClientRect('test').then(function(tag_bounding_after) {
-              utilities.getScroll('layer').then(function(layer_scroll_after) {
-                expect(tag_bounding_before.top).toBe(tag_bounding_after.top + layer_scroll_after.scrollTop);
+            utilities.wait(2000).then(function() {
+              utilities.getBoundingClientRect('test').then(function(tag_bounding_after) {
+                utilities.getScroll('layer').then(function(layer_scroll_after) {
+                  expect(tag_bounding_before.top).toBe(tag_bounding_after.top + layer_scroll_after.scrollTop);
+                });
               });
             });
           });
@@ -230,11 +239,10 @@ describe('scrolling', function() {
         }), utilities.setStyle('stage', {
           width: '500px',
           height: '500px'
+        }), utilities.setAttributes('frame2', {
+          'data-lj-fit-to': 'width'
         })]).then(function() {
-          utilities.setAttributes('frame2', {
-            'data-lj-fit-to': 'width'
-          }).then(function() {
-            utilities.resizeWindow(800, 599);
+          utilities.wait(1000).then(function() {
             protractor.promise.all([utilities.getBoundingClientRect('frame1'),
               utilities.getScroll('layer')
             ]).then(function(data) {
@@ -289,50 +297,47 @@ describe('scrolling', function() {
         }), utilities.setStyle('stage', {
           width: '500px',
           height: '500px'
+        }), utilities.setAttributes('frame2', {
+          'data-lj-fit-to': 'height'
+        }), utilities.setAttributes('frame1', {
+          'data-lj-start-position': 'left',
+          'data-lj-fit-to': 'height'
         })]).then(function() {
-          utilities.setAttributes('frame2', {
-            'data-lj-fit-to': 'height'
-          }).then(function() {
-            utilities.setAttributes('frame1', {
-              'data-lj-start-position': 'left',
-              'data-lj-fit-to': 'height'
-            }).then(function() {
-              utilities.resizeWindow(800, 599);
-              protractor.promise.all([utilities.getBoundingClientRect('frame1'),
-                utilities.getScroll('layer')
-              ]).then(function(data) {
-                var frame1_dimensions_before = data[0];
-                var layer_scroll_before = data[1];
-                utilities.transitionTo('layer', 'frame2', {
-                  startPosition: 'right'
-                }).then(function() {
-                  utilities.getBoundingClientRect('frame2').then(function(frame2_dimensions_before) {
-                    protractor.promise.all([
-                      utilities.getBoundingClientRect('layer'),
-                      utilities.getBoundingClientRect('frame2'),
-                      utilities.getScroll('layer'),
-                      utilities.getBoundingClientRect('scroller'),
-                      utilities.getBoundingClientRect('frame1'),
-                    ]).then(function(data) {
-                      var layer_dimensions = data[0];
-                      var frame2_dimensions_after = data[1];
-                      var layer_scroll_after = data[2];
-                      var scroller_dimensions = data[3];
-                      var frame1_dimensions_after = data[4];
-                      //test if new frame1 top matches the old frame1 left.(otherwise the animation would appear diagonal)
-                      //expect(frame1_dimensions_before.left).toBe(frame1_dimensions_after.left);
-                      // top of frame1 + before scrollLeft should be 0
-                      expect(frame1_dimensions_before.left).toBe(layer_scroll_before.scrollLeft * -1);
-                      // top of frame2 + new scrollLeft should be 0
-                      expect(frame2_dimensions_after.left).toBe(layer_scroll_after.scrollLeft * -1);
-                      // if frame1 was scrolled down:
-                      expect(layer_scroll_before.scrollLeft).toBe(frame1_dimensions_before.width - layer_dimensions.width);
-                      // if frame1 was scrolled up:
-                      expect(layer_scroll_before.scrollLeft).toBe(0);
-                      // check if the new scrollLeft is correct
-                      expect(layer_scroll_after.scrollLeft).toBe(frame2_dimensions_after.width - layer_dimensions.width);
-                      expect(scroller_dimensions.width).toBe(frame2_dimensions_after.width);
-                    });
+          utilities.wait(1000).then(function() {
+            protractor.promise.all([utilities.getBoundingClientRect('frame1'),
+              utilities.getScroll('layer')
+            ]).then(function(data) {
+              var frame1_dimensions_before = data[0];
+              var layer_scroll_before = data[1];
+              utilities.transitionTo('layer', 'frame2', {
+                startPosition: 'right'
+              }).then(function() {
+                utilities.getBoundingClientRect('frame2').then(function(frame2_dimensions_before) {
+                  protractor.promise.all([
+                    utilities.getBoundingClientRect('layer'),
+                    utilities.getBoundingClientRect('frame2'),
+                    utilities.getScroll('layer'),
+                    utilities.getBoundingClientRect('scroller'),
+                    utilities.getBoundingClientRect('frame1'),
+                  ]).then(function(data) {
+                    var layer_dimensions = data[0];
+                    var frame2_dimensions_after = data[1];
+                    var layer_scroll_after = data[2];
+                    var scroller_dimensions = data[3];
+                    var frame1_dimensions_after = data[4];
+                    //test if new frame1 top matches the old frame1 left.(otherwise the animation would appear diagonal)
+                    //expect(frame1_dimensions_before.left).toBe(frame1_dimensions_after.left);
+                    // top of frame1 + before scrollLeft should be 0
+                    expect(frame1_dimensions_before.left).toBe(layer_scroll_before.scrollLeft * -1);
+                    // top of frame2 + new scrollLeft should be 0
+                    expect(frame2_dimensions_after.left).toBe(layer_scroll_after.scrollLeft * -1);
+                    // if frame1 was scrolled down:
+                    expect(layer_scroll_before.scrollLeft).toBe(frame1_dimensions_before.width - layer_dimensions.width);
+                    // if frame1 was scrolled up:
+                    expect(layer_scroll_before.scrollLeft).toBe(0);
+                    // check if the new scrollLeft is correct
+                    expect(layer_scroll_after.scrollLeft).toBe(frame2_dimensions_after.width - layer_dimensions.width);
+                    expect(scroller_dimensions.width).toBe(frame2_dimensions_after.width);
                   });
                 });
               });
@@ -341,7 +346,6 @@ describe('scrolling', function() {
         });
       });
     });
-
   });
 
   describe('a transition can pass in a scroll position', function() {
@@ -353,11 +357,10 @@ describe('scrolling', function() {
         }), utilities.setStyle('stage', {
           width: '500px',
           height: '500px'
+        }), utilities.setAttributes('frame2', {
+          'data-lj-fit-to': 'width'
         })]).then(function() {
-          utilities.setAttributes('frame2', {
-            'data-lj-fit-to': 'width'
-          }).then(function() {
-            utilities.resizeWindow(800, 599);
+          utilities.wait(1000).then(function() {
             protractor.promise.all([utilities.getBoundingClientRect('frame1'),
               utilities.getScroll('layer')
             ]).then(function(data) {
@@ -412,50 +415,47 @@ describe('scrolling', function() {
         }), utilities.setStyle('stage', {
           width: '500px',
           height: '500px'
+        }), utilities.setAttributes('frame2', {
+          'data-lj-fit-to': 'height'
+        }), utilities.setAttributes('frame1', {
+          'data-lj-start-position': 'left',
+          'data-lj-fit-to': 'height'
         })]).then(function() {
-          utilities.setAttributes('frame2', {
-            'data-lj-fit-to': 'height'
-          }).then(function() {
-            utilities.setAttributes('frame1', {
-              'data-lj-start-position': 'left',
-              'data-lj-fit-to': 'height'
-            }).then(function() {
-              utilities.resizeWindow(800, 599);
-              protractor.promise.all([utilities.getBoundingClientRect('frame1'),
-                utilities.getScroll('layer')
-              ]).then(function(data) {
-                var frame1_dimensions_before = data[0];
-                var layer_scroll_before = data[1];
-                utilities.transitionTo('layer', 'frame2', {
-                  scrollX: '250'
-                }).then(function() {
-                  utilities.getBoundingClientRect('frame2').then(function(frame2_dimensions_before) {
-                    protractor.promise.all([
-                      utilities.getBoundingClientRect('layer'),
-                      utilities.getBoundingClientRect('frame2'),
-                      utilities.getScroll('layer'),
-                      utilities.getBoundingClientRect('scroller'),
-                      utilities.getBoundingClientRect('frame1'),
-                    ]).then(function(data) {
-                      var layer_dimensions = data[0];
-                      var frame2_dimensions_after = data[1];
-                      var layer_scroll_after = data[2];
-                      var scroller_dimensions = data[3];
-                      var frame1_dimensions_after = data[4];
-                      //test if new frame1 top matches the old frame1 left.(otherwise the animation would appear diagonal)
-                      //expect(frame1_dimensions_before.left).toBe(frame1_dimensions_after.left);
-                      // top of frame1 + before scrollLeft should be 0
-                      expect(frame1_dimensions_before.left).toBe(layer_scroll_before.scrollLeft * -1);
-                      // top of frame2 + new scrollLeft should be 0
-                      expect(frame2_dimensions_after.left).toBe(layer_scroll_after.scrollLeft * -1);
-                      // if frame1 was scrolled down:
-                      expect(layer_scroll_before.scrollLeft).toBe(frame1_dimensions_before.width - layer_dimensions.width);
-                      // if frame1 was scrolled up:
-                      expect(layer_scroll_before.scrollLeft).toBe(0);
-                      // check if the new scrollLeft is correct
-                      expect(layer_scroll_after.scrollLeft).toBe(250);
-                      expect(scroller_dimensions.width).toBe(frame2_dimensions_after.width);
-                    });
+          utilities.wait(1000).then(function() {
+            protractor.promise.all([utilities.getBoundingClientRect('frame1'),
+              utilities.getScroll('layer')
+            ]).then(function(data) {
+              var frame1_dimensions_before = data[0];
+              var layer_scroll_before = data[1];
+              utilities.transitionTo('layer', 'frame2', {
+                scrollX: '250'
+              }).then(function() {
+                utilities.getBoundingClientRect('frame2').then(function(frame2_dimensions_before) {
+                  protractor.promise.all([
+                    utilities.getBoundingClientRect('layer'),
+                    utilities.getBoundingClientRect('frame2'),
+                    utilities.getScroll('layer'),
+                    utilities.getBoundingClientRect('scroller'),
+                    utilities.getBoundingClientRect('frame1'),
+                  ]).then(function(data) {
+                    var layer_dimensions = data[0];
+                    var frame2_dimensions_after = data[1];
+                    var layer_scroll_after = data[2];
+                    var scroller_dimensions = data[3];
+                    var frame1_dimensions_after = data[4];
+                    //test if new frame1 top matches the old frame1 left.(otherwise the animation would appear diagonal)
+                    //expect(frame1_dimensions_before.left).toBe(frame1_dimensions_after.left);
+                    // top of frame1 + before scrollLeft should be 0
+                    expect(frame1_dimensions_before.left).toBe(layer_scroll_before.scrollLeft * -1);
+                    // top of frame2 + new scrollLeft should be 0
+                    expect(frame2_dimensions_after.left).toBe(layer_scroll_after.scrollLeft * -1);
+                    // if frame1 was scrolled down:
+                    expect(layer_scroll_before.scrollLeft).toBe(frame1_dimensions_before.width - layer_dimensions.width);
+                    // if frame1 was scrolled up:
+                    expect(layer_scroll_before.scrollLeft).toBe(0);
+                    // check if the new scrollLeft is correct
+                    expect(layer_scroll_after.scrollLeft).toBe(250);
+                    expect(scroller_dimensions.width).toBe(frame2_dimensions_after.width);
                   });
                 });
               });
@@ -482,19 +482,19 @@ describe('scrolling', function() {
             'data-lj-fit-to': 'height'
           })
         ]).then(function() {
-          utilities.resizeWindow(599, 599);
-          utilities.scrollTo('layer', 25, 0, {
-            duration: '2ms'
-          }).then(function() {
-            utilities.getScroll('layer').then(function(layer_scroll) {
-              // scroll is not 25, it is multiplied by the scale
-              expect(layer_scroll.scrollTop).toBe(0);
-              expect(layer_scroll.scrollLeft).toBe(15);
-            })
+          utilities.wait(1000).then(function() {
+            utilities.scrollTo('layer', 25, 0, {
+              duration: '2ms'
+            }).then(function() {
+              utilities.getScroll('layer').then(function(layer_scroll) {
+                // scroll is not 25, it is multiplied by the scale
+                expect(layer_scroll.scrollTop).toBe(0);
+                expect(layer_scroll.scrollLeft).toBe(15);
+              })
+            });
           });
         });
       });
-
     });
 
     it('using a scroll y', function() {
@@ -511,15 +511,16 @@ describe('scrolling', function() {
             'data-lj-fit-to': 'width'
           })
         ]).then(function() {
-          utilities.resizeWindow(599, 599);
-          utilities.scrollTo('layer', 0, 25, {
-            duration: '2ms'
-          }).then(function() {
-            utilities.getScroll('layer').then(function(layer_scroll) {
-              // scroll is not 25, it is multiplied by the scale
-              expect(layer_scroll.scrollTop).toBe(15);
-              expect(layer_scroll.scrollLeft).toBe(0);
-            })
+          utilities.wait(1000).then(function() {
+            utilities.scrollTo('layer', 0, 25, {
+              duration: '2ms'
+            }).then(function() {
+              utilities.getScroll('layer').then(function(layer_scroll) {
+                // scroll is not 25, it is multiplied by the scale
+                expect(layer_scroll.scrollTop).toBe(15);
+                expect(layer_scroll.scrollLeft).toBe(0);
+              })
+            });
           });
         });
       });
@@ -543,17 +544,18 @@ describe('scrolling', function() {
             height: '40px'
           })
         ]).then(function() {
-          utilities.resizeWindow(800, 599);
-          utilities.scrollDown('layer', 4).then(function() {
-            protractor.promise.all([utilities.getBoundingClientRect('stage'),
-              utilities.getBoundingClientRect('frame1'),
-              utilities.getScroll('layer')
-            ]).then(function(data) {
-              var layer_dimensions = data[0];
-              var frame_dimensions = data[1];
+          utilities.wait(1000).then(function() {
+            utilities.scrollDown('frame1', 4).then(function() {
+              protractor.promise.all([utilities.getBoundingClientRect('stage'),
+                utilities.getBoundingClientRect('frame1'),
+                utilities.getScroll('layer')
+              ]).then(function(data) {
+                var layer_dimensions = data[0];
+                var frame_dimensions = data[1];
 
-              expect(frame_dimensions.top).toBe(layer_dimensions.height - frame_dimensions.height);
-            })
+                expect(frame_dimensions.top).toBe(layer_dimensions.height - frame_dimensions.height);
+              })
+            });
           });
         });
       });
@@ -569,13 +571,12 @@ describe('scrolling', function() {
           utilities.setStyle('frame1', {
             width: '40px',
             height: '400px'
+          }), utilities.setAttributes("frame1", {
+            'data-lj-fit-to': 'height'
           })
         ]).then(function() {
-          utilities.setAttributes("frame1", {
-            'data-lj-fit-to': 'height'
-          }).then(function() {
-            utilities.resizeWindow(800, 599);
-            utilities.scrollRight('layer', 4).then(function() {
+          utilities.wait(1000).then(function() {
+            utilities.scrollRight('frame1', 4).then(function() {
               protractor.promise.all([utilities.getBoundingClientRect('stage'),
                 utilities.getBoundingClientRect('frame1'),
                 utilities.getScroll('layer')
@@ -599,12 +600,11 @@ describe('scrolling', function() {
         }), utilities.setStyle('stage', {
           width: '500px',
           height: '500px'
+        }), utilities.setAttributes('frame2', {
+          'data-lj-start-position': 'bottom',
+          'data-lj-fit-to': 'width'
         })]).then(function() {
-          utilities.setAttributes('frame2', {
-            'data-lj-start-position': 'bottom',
-            'data-lj-fit-to': 'width'
-          }).then(function() {
-            utilities.resizeWindow(800, 599);
+          utilities.wait(1000).then(function() {
             utilities.listenDimensionsBeforeTransition('layer', 'frame1');
             utilities.listenDimensionsBeforeTransition('layer', 'frame2');
             utilities.transitionTo('layer', 'frame2', {}).then(function() {
@@ -643,12 +643,11 @@ describe('scrolling', function() {
         }), utilities.setStyle('stage', {
           width: '500px',
           height: '500px'
+        }), utilities.setAttributes('frame2', {
+          'data-lj-start-position': 'right',
+          'data-lj-fit-to': 'height'
         })]).then(function() {
-          utilities.setAttributes('frame2', {
-            'data-lj-start-position': 'right',
-            'data-lj-fit-to': 'height'
-          }).then(function() {
-            utilities.resizeWindow(800, 599);
+          utilities.wait(1000).then(function() {
             utilities.listenDimensionsBeforeTransition('layer', 'frame1');
             utilities.listenDimensionsBeforeTransition('layer', 'frame2');
             utilities.transitionTo('layer', 'frame2', {}).then(function() {
@@ -690,19 +689,20 @@ describe('scrolling', function() {
             height: '40px'
           })
         ]).then(function() {
-          utilities.resizeWindow(800, 599);
-          utilities.scrollDown('layer', 4).then(function() {
-            protractor.promise.all([utilities.getBoundingClientRect('stage'),
-              utilities.getBoundingClientRect('frame1'),
-              utilities.getScroll('layer')
-            ]).then(function(data) {
-              var layer_dimensions = data[0];
-              var frame_dimensions = data[1];
+          utilities.wait(1000).then(function() {
+            utilities.scrollDown('frame1', 4).then(function() {
+              protractor.promise.all([utilities.getBoundingClientRect('stage'),
+                utilities.getBoundingClientRect('frame1'),
+                utilities.getScroll('layer')
+              ]).then(function(data) {
+                var layer_dimensions = data[0];
+                var frame_dimensions = data[1];
 
-              expect(frame_dimensions.top).not.toBe(0);
-              utilities.transitionTo('layer', 'frame1', {}).then(function() {
-                utilities.getBoundingClientRect('frame1').then(function(frame_dimensions_after) {
-                  expect(frame_dimensions_after.top).toBe(0);
+                expect(frame_dimensions.top).not.toBe(0);
+                utilities.transitionTo('layer', 'frame1', {}).then(function() {
+                  utilities.getBoundingClientRect('frame1').then(function(frame_dimensions_after) {
+                    expect(frame_dimensions_after.top).toBe(0);
+                  });
                 });
               });
             });
@@ -716,10 +716,11 @@ describe('scrolling', function() {
         utilities.getBoundingClientRect('test').then(function(tag_bounding_before) {
           var link = element(by.css('a[href*="#test"]'))
           link.click().then(function() {
-            utilities.wait(2000);
-            utilities.getBoundingClientRect('test').then(function(tag_bounding_after) {
-              utilities.getBoundingClientRect('frame1').then(function(layer_scroll_after) {
-                expect(tag_bounding_after.top).toBe(tag_bounding_before.top + layer_scroll_after.top);
+            utilities.wait(1000).then(function() {
+              utilities.getBoundingClientRect('test').then(function(tag_bounding_after) {
+                utilities.getBoundingClientRect('frame1').then(function(layer_scroll_after) {
+                  expect(tag_bounding_after.top).toBe(tag_bounding_before.top + layer_scroll_after.top);
+                });
               });
             });
           });
@@ -738,11 +739,10 @@ describe('scrolling', function() {
         }), utilities.setStyle('stage', {
           width: '500px',
           height: '500px'
+        }), utilities.setAttributes('frame2', {
+          'data-lj-fit-to': 'width'
         })]).then(function() {
-          utilities.setAttributes('frame2', {
-            'data-lj-fit-to': 'width'
-          }).then(function() {
-            utilities.resizeWindow(800, 599);
+          utilities.wait(1000).then(function() {
             utilities.listenDimensionsBeforeTransition('layer', 'frame1');
             utilities.listenDimensionsBeforeTransition('layer', 'frame2');
             utilities.transitionTo('layer', 'frame2', {
@@ -782,11 +782,10 @@ describe('scrolling', function() {
         }), utilities.setStyle('stage', {
           width: '500px',
           height: '500px'
+        }), utilities.setAttributes('frame2', {
+          'data-lj-fit-to': 'height'
         })]).then(function() {
-          utilities.setAttributes('frame2', {
-            'data-lj-fit-to': 'height'
-          }).then(function() {
-            utilities.resizeWindow(800, 599);
+          utilities.wait(1000).then(function() {
             utilities.listenDimensionsBeforeTransition('layer', 'frame1');
             utilities.listenDimensionsBeforeTransition('layer', 'frame2');
             utilities.transitionTo('layer', 'frame2', {
@@ -828,11 +827,10 @@ describe('scrolling', function() {
         }), utilities.setStyle('stage', {
           width: '500px',
           height: '500px'
+        }), utilities.setAttributes('frame2', {
+          'data-lj-fit-to': 'width'
         })]).then(function() {
-          utilities.setAttributes('frame2', {
-            'data-lj-fit-to': 'width'
-          }).then(function() {
-            utilities.resizeWindow(800, 599);
+          utilities.wait(1000).then(function() {
             utilities.listenDimensionsBeforeTransition('layer', 'frame1');
             utilities.listenDimensionsBeforeTransition('layer', 'frame2');
             utilities.transitionTo('layer', 'frame2', {
@@ -873,11 +871,10 @@ describe('scrolling', function() {
         }), utilities.setStyle('stage', {
           width: '500px',
           height: '500px'
+        }), utilities.setAttributes('frame2', {
+          'data-lj-fit-to': 'height'
         })]).then(function() {
-          utilities.setAttributes('frame2', {
-            'data-lj-fit-to': 'height'
-          }).then(function() {
-            utilities.resizeWindow(800, 599);
+          utilities.wait(1000).then(function() {
             utilities.listenDimensionsBeforeTransition('layer', 'frame1');
             utilities.listenDimensionsBeforeTransition('layer', 'frame2');
             utilities.transitionTo('layer', 'frame2', {
@@ -925,15 +922,16 @@ describe('scrolling', function() {
             'data-lj-fit-to': 'height'
           })
         ]).then(function() {
-          utilities.resizeWindow(599, 599);
-          utilities.scrollTo('layer', 25, 0, {
-            duration: '2ms'
-          }).then(function() {
-            utilities.getBoundingClientRect('frame1').then(function(frame1_dimensions_after) {
-              // scroll is not 25, it is multiplied by the scale
-              expect(frame1_dimensions_after.top).toBe(0);
-              expect(frame1_dimensions_after.left).toBeWithinRange(-16, -15);
-            })
+          utilities.wait(1000).then(function() {
+            utilities.scrollTo('layer', 25, 0, {
+              duration: '2ms'
+            }).then(function() {
+              utilities.getBoundingClientRect('frame1').then(function(frame1_dimensions_after) {
+                // scroll is not 25, it is multiplied by the scale
+                expect(frame1_dimensions_after.top).toBe(0);
+                expect(frame1_dimensions_after.left).toBeWithinRange(-16, -15);
+              })
+            });
           });
         });
       });
@@ -954,19 +952,19 @@ describe('scrolling', function() {
             'data-lj-fit-to': 'width'
           })
         ]).then(function() {
-          utilities.resizeWindow(599, 599);
-          utilities.scrollTo('layer', 0, 25, {
-            duration: '2ms'
-          }).then(function() {
-            utilities.getBoundingClientRect('frame1').then(function(frame1_dimensions_after) {
-              // scroll is not 25, it is multiplied by the scale
-              expect(frame1_dimensions_after.top).toBeWithinRange(-16, -15);
-              expect(frame1_dimensions_after.left).toBe(0);
-            })
+          utilities.wait(1000).then(function() {
+            utilities.scrollTo('layer', 0, 25, {
+              duration: '2ms'
+            }).then(function() {
+              utilities.getBoundingClientRect('frame1').then(function(frame1_dimensions_after) {
+                // scroll is not 25, it is multiplied by the scale
+                expect(frame1_dimensions_after.top).toBeWithinRange(-16, -15);
+                expect(frame1_dimensions_after.left).toBe(0);
+              })
+            });
           });
         });
       });
-
     });
 
   });
@@ -983,25 +981,28 @@ describe('scrolling', function() {
             height: '400px'
           })
         ]).then(function() {
-          utilities.resizeWindow(800, 599);
-          utilities.wait(100);
-          protractor.promise.all([utilities.scrollRight('layer', 1),
-            utilities.scrollDown('layer', 1)
-          ]).then(function() {
-            utilities.wait(100);
-            utilities.getScroll('layer').then(function(layer_scroll_before) {
-              utilities.switchScrolling('layer', false).then(function() {
-                protractor.promise.all([utilities.getBoundingClientRect('frame1'),
-                  utilities.getScroll('layer')
-                ]).then(function(data) {
-                  var frame_dimensions = data[0];
-                  var layer_scroll_after = data[1];
-                  expect(layer_scroll_before.scrollTop > 0).toBeTrue();
-                  expect(layer_scroll_before.scrollLeft > 0).toBeTrue();
-                  expect(frame_dimensions.top).toBe(layer_scroll_before.scrollTop * -1);
-                  expect(frame_dimensions.left).toBe(layer_scroll_before.scrollLeft * -1);
-                  expect(layer_scroll_after.scrollTop).toBe(0);
-                  expect(layer_scroll_after.scrollLeft).toBe(0);
+          utilities.wait(1000).then(function() {
+            protractor.promise.all([utilities.scrollRight('layer', 1),
+              utilities.scrollDown('layer', 1)
+            ]).then(function() {
+              utilities.wait(1000).then(function() {
+                utilities.getScroll('layer').then(function(layer_scroll_before) {
+                  utilities.switchScrolling('layer', false).then(function() {
+                    utilities.wait(1000).then(function() {
+                      protractor.promise.all([utilities.getBoundingClientRect('frame1'),
+                        utilities.getScroll('layer')
+                      ]).then(function(data) {
+                        var frame_dimensions = data[0];
+                        var layer_scroll_after = data[1];
+                        expect(layer_scroll_before.scrollTop > 0).toBeTrue();
+                        expect(layer_scroll_before.scrollLeft > 0).toBeTrue();
+                        expect(frame_dimensions.top).toBe(layer_scroll_before.scrollTop * -1);
+                        expect(frame_dimensions.left).toBe(layer_scroll_before.scrollLeft * -1);
+                        expect(layer_scroll_after.scrollTop).toBe(0);
+                        expect(layer_scroll_after.scrollLeft).toBe(0);
+                      });
+                    });
+                  });
                 });
               });
             });
@@ -1021,26 +1022,31 @@ describe('scrolling', function() {
             height: '400px'
           })
         ]).then(function() {
-          utilities.resizeWindow(800, 599);
-          protractor.promise.all([utilities.scrollRight('layer', 3),
-            utilities.scrollDown('layer', 3)
-          ]).then(function() {
-            protractor.promise.all([utilities.getScroll('layer'),
-              utilities.getBoundingClientRect('frame1')
-            ]).then(function(data) {
-              var layer_scroll_before = data[0];
-              var frame_dimensions_before = data[1];
-              utilities.switchScrolling('layer', true).then(function() {
-                protractor.promise.all([utilities.getBoundingClientRect('frame1'),
-                  utilities.getScroll('layer')
+          utilities.wait(1000).then(function() {
+            protractor.promise.all([utilities.scrollRight('layer', 3),
+              utilities.scrollDown('layer', 3)
+            ]).then(function() {
+              utilities.wait(1000).then(function() {
+                protractor.promise.all([utilities.getScroll('layer'),
+                  utilities.getBoundingClientRect('frame1')
                 ]).then(function(data) {
-                  var frame_dimensions_after = data[0];
-                  var layer_scroll_after = data[1];
-                  expect(layer_scroll_before.scrollTop).toBe(0);
-                  expect(layer_scroll_before.scrollLeft).toBe(0);
+                  var layer_scroll_before = data[0];
+                  var frame_dimensions_before = data[1];
+                  utilities.switchScrolling('layer', true).then(function() {
+                    utilities.wait(1000).then(function() {
+                      protractor.promise.all([utilities.getBoundingClientRect('frame1'),
+                        utilities.getScroll('layer')
+                      ]).then(function(data) {
+                        var frame_dimensions_after = data[0];
+                        var layer_scroll_after = data[1];
+                        expect(layer_scroll_before.scrollTop).toBe(0);
+                        expect(layer_scroll_before.scrollLeft).toBe(0);
 
-                  expect(layer_scroll_after.scrollTop).toBe(frame_dimensions_before.top * -1);
-                  expect(layer_scroll_after.scrollLeft).toBe(frame_dimensions_before.left * -1);
+                        expect(layer_scroll_after.scrollTop).toBe(frame_dimensions_before.top * -1);
+                        expect(layer_scroll_after.scrollLeft).toBe(frame_dimensions_before.left * -1);
+                      });
+                    });
+                  });
                 });
               });
             });
