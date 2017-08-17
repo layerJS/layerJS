@@ -39,7 +39,7 @@ describe("FrameView", function() {
         frameView.transformData = {};
 
         frameView.on('renderRequired', function() {
-          expect(frameView.transformData).toBe(undefined);
+          expect(frameView.transformData.isDirty).toBe(true);
           done();
         });
 
@@ -58,7 +58,7 @@ describe("FrameView", function() {
         frameView.transformData = {};
         frameView.on('renderRequired', function(name) {
           expect(name).toBe(frameView.name());
-          expect(frameView.transformData).toBe(undefined);
+          expect(frameView.transformData.isDirty).toBe(true);
           done();
         });
         action(element);
@@ -143,7 +143,6 @@ describe("FrameView", function() {
         var layerView = new LayerView({
           el: utilities.appendChildHTML(require('./htmlelements/simple_layer_1.js'))
         });
-
         spyOn(layerView, '_renderChildPosition');
         spyOn(layerView, 'showFrame');
 
