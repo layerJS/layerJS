@@ -6,16 +6,16 @@ utilities.transitionTo = function(layerId, frameName, transition, waitTime) {
 
   return browser.driver.executeAsyncScript(function(layerId, frameName, transition, waitTime, callBack) {
     var layer = layerJS.select('#' + layerId);
-    var p = layer.transitionTo(frameName, transition);
     if (waitTime) {
       setTimeout(function() {
         callBack();
       }, waitTime);
     } else {
-      p.then(function() {
+      layer.on("transitionFinished", function() {
         callBack();
       });
     }
+    layer.transitionTo(frameName, transition);
 
   }, layerId, frameName, transition, waitTime);
 };
@@ -29,15 +29,14 @@ utilities.getCurrentFrame = function(layerId) {
 utilities.scrollTo = function(layerId, scrollX, scrollY, transition, waitTime) {
 
   return browser.driver.executeAsyncScript(function(layerId, scrollX, scrollY, transition, waitTime, callBack) {
-    var p = layerJS.select('#' + layerId).scrollTo(scrollX, scrollY, transition);
-
     if (!waitTime) {
-      p.then(function() {
+      layer.on("transitionFinished", function() {
         callBack();
       });
     } else {
       window.setTimeout(callBack, waitTime);
     }
+    var p = layerJS.select('#' + layerId).scrollTo(scrollX, scrollY, transition);
   }, layerId, scrollX, scrollY, transition, waitTime);
 };
 
