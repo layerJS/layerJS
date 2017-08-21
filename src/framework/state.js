@@ -52,7 +52,7 @@ var State = Kern.EventManager.extend({
         that.registerView(child);
       }, {
         context: this
-      });    
+      });
       view.on('transitionStarted', function(frameName, transition) {
         var trigger = true;
         var payload = {};
@@ -287,6 +287,10 @@ var State = Kern.EventManager.extend({
       layerpath = segments.join('.'),
       candidates = (isSpecial ? (layerpath ? this.paths[layerpath] : this.layers) : this.paths[path]); // if special frame name, only search for layer
 
+    if (!isSpecial && (!candidates || candidates.length === 0) && layerpath) {
+      candidates = this.paths[layerpath];
+    }
+
     if (!candidates || candidates.length === 0) return []; // couldn't find any matchin path; return empty array
     if (candidates.length > 1 && contextpath) { // check whether we can reduce list of candidates be resolving relative to the context path
       var reduced = [];
@@ -318,14 +322,28 @@ var State = Kern.EventManager.extend({
             path: fullPath,
             active: (undefined !== view.parent.currentFrame && null !== view.parent.currentFrame) ? view.parent.currentFrame.name() === frameName : false
           });
-        } else {
-          result.push({
-            view: view,
-            path: fullPath
-          });
+        } else if (view.type() === 'layer') {
+
+          var paths = this.resolvePath(frameName);
+
+          if (paths.length === 1) {
+            result.push({
+              layer: view,
+              frameName: frameName,
+              view: paths[0].view,
+              path: fullPath + '.' + frameName,
+              active: false
+            });
+          } else {
+            result.push({
+              view: view,
+              path: fullPath
+            });
+          }
         }
       }
     }
+
     return result;
   },
   /**

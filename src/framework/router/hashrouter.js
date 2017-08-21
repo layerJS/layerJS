@@ -27,15 +27,34 @@ var HashRouter = Kern.EventManager.extend({
       var state = layerJS.getState();
 
       for (var i = 0; i < hashPaths.length; i++) {
-        var frameName = hashPaths[i].split('?')[0].split('&')[0];
+        var hashPath = hashPaths[i].split('?')[0].split('&')[0];
         var parsed = $.parseStringForTransitions(hashPaths[i]);
-        var resolvedPaths = state.resolvePath(frameName);
+        var resolvedPaths = state.resolvePath(hashPath);
+        var isInterStage = false;
+
+        if (resolvedPaths.length === 0) {
+          //maybe an inter stage transition
+          var frameName = hashPath.split('.').pop();
+          resolvedPaths = state.resolvePath(frameName);
+
+          if (resolvedPaths.length > 0)
+          {
+            var layerPath = state.resolvePath(hashPath.replace('.' + frameName, ''));
+            // found the layer to move the frame to
+            isInterStage = layerPath.length > 0;
+          }
+        }
+
         for (var x = 0; x < resolvedPaths.length; x++) {
           var resolvedPath = resolvedPaths[x];
           // if a frame and layer is found, add it to the list
           if (resolvedPath.hasOwnProperty('frameName') && resolvedPath.hasOwnProperty('layer')) {
             // push layer path and frameName ( can't use directly the view because !right will not resolve in a view)
-            paths.push(resolvedPath.path);
+            if (!isInterStage) {
+              paths.push(resolvedPath.path);
+            } else {
+              paths.push(hashPath);
+            }
 
             transitions.push(Kern._extend(options.globalTransition, parsed.transition));
           }
@@ -44,8 +63,8 @@ var HashRouter = Kern.EventManager.extend({
         if (resolvedPaths.length === 0 && i === 0) {
           // an anchorId will be the first one in the list
           // check if it is an anchor element
-          var anchor = document.getElementsByName(frameName);
-          anchor = anchor && anchor[0] || document.getElementById(frameName);
+          var anchor = document.getElementsByName(hashPath);
+          anchor = anchor && anchor[0] || document.getElementById(hashPath);
           // only proceed when an element is found and if that element is visible
           if (anchor && window.getComputedStyle(anchor).display !== 'none') {
             var frameView = $.findParentViewOfType(anchor, 'frame');
