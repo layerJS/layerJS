@@ -29,32 +29,23 @@ var HashRouter = Kern.EventManager.extend({
       for (var i = 0; i < hashPaths.length; i++) {
         var hashPath = hashPaths[i].split('?')[0].split('&')[0];
         var parsed = $.parseStringForTransitions(hashPaths[i]);
-        var resolvedPaths = state.resolvePath(hashPath);
-        var isInterStage = false;
-
-        if (resolvedPaths.length === 0) {
-          //maybe an inter stage transition
-          var frameName = hashPath.split('.').pop();
-          resolvedPaths = state.resolvePath(frameName);
-
-          if (resolvedPaths.length > 0)
-          {
-            var layerPath = state.resolvePath(hashPath.replace('.' + frameName, ''));
-            // found the layer to move the frame to
-            isInterStage = layerPath.length > 0;
-          }
-        }
+        var resolvedPaths = state.resolvePath(hashPath);        
 
         for (var x = 0; x < resolvedPaths.length; x++) {
           var resolvedPath = resolvedPaths[x];
           // if a frame and layer is found, add it to the list
           if (resolvedPath.hasOwnProperty('frameName') && resolvedPath.hasOwnProperty('layer')) {
             // push layer path and frameName ( can't use directly the view because !right will not resolve in a view)
-            if (!isInterStage) {
-              paths.push(resolvedPath.path);
-            } else {
-              paths.push(hashPath);
+            if (resolvedPath.isInterStage === true) {
+              // is in interstage transition. remove frame orginal path from options (if exists)
+              var pathIndex = options.paths.indexOf(resolvedPath.originalPath);
+              if (pathIndex !== -1) {
+                options.paths.splice(pathIndex, 1);
+                options.transitions.splice(pathIndex, 1);
+              }
             }
+
+            paths.push(resolvedPath.path);
 
             transitions.push(Kern._extend(options.globalTransition, parsed.transition));
           }

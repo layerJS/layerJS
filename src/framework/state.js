@@ -332,7 +332,9 @@ var State = Kern.EventManager.extend({
               frameName: frameName,
               view: paths[0].view,
               path: fullPath + '.' + frameName,
-              active: false
+              active: false,
+              isInterStage: true,
+              originalPath: paths[0].path
             });
           } else {
             result.push({
