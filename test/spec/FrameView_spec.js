@@ -39,11 +39,12 @@ describe("FrameView", function() {
         frameView.transformData = {};
 
         frameView.on('renderRequired', function() {
-          expect(frameView.transformData).toBe(undefined);
+          expect(frameView.transformData.isDirty).toBe(true);
           done();
         });
 
         frameView.trigger('sizeChanged');
+        expect(frameView.transformData.isDirty).toBe(true);
       });
 
     });
@@ -58,7 +59,7 @@ describe("FrameView", function() {
         frameView.transformData = {};
         frameView.on('renderRequired', function(name) {
           expect(name).toBe(frameView.name());
-          expect(frameView.transformData).toBe(undefined);
+          expect(frameView.transformData.isDirty).toBe(true);
           done();
         });
         action(element);

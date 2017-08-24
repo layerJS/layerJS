@@ -324,24 +324,36 @@ var State = Kern.EventManager.extend({
           });
         } else if (view.type() === 'layer') {
 
-          var paths = this.resolvePath(frameName);
-
-          if (paths.length === 1) {
-            result.push({
-              layer: view,
-              frameName: frameName,
-              view: paths[0].view,
-              path: fullPath + '.' + frameName,
-              active: false,
-              isInterStage: true,
-              originalPath: paths[0].path
-            });
-          } else {
+          if (fullPath.endsWith(path))
+          {
             result.push({
               view: view,
               path: fullPath
             });
           }
+          else
+          {
+            var paths = this.resolvePath(frameName);
+
+            if (paths.length === 1) {
+              result.push({
+                layer: view,
+                frameName: frameName,
+                view: paths[0].view,
+                path: fullPath + '.' + frameName,
+                active: false,
+                isInterStage: true,
+                originalPath: paths[0].path
+              });
+            }
+          }
+        }
+        else {
+          //stages
+          result.push({
+            view: view,
+            path: fullPath
+          });
         }
       }
     }

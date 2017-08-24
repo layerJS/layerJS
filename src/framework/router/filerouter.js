@@ -49,7 +49,6 @@ var FileRouter = StaticRouter.extend({
             var addedHash = [];
 
             fileState.exportStructure().forEach(function(path) {
-
               // check if new path exists in current state
               if (!globalStructureHash[path]) {
                 // check if the parent is already added in this run

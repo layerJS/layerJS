@@ -39,6 +39,9 @@ var FrameView = BaseView.extend({
 
     this.on('sizeChanged', function() {
       if (that.parent && !that.parent.inPreparation()) {
+        if (that.transformData) {
+          that.transformData.isDirty = true;
+        }
         that.trigger('renderRequired', that.name());
       }
     });
@@ -53,6 +56,9 @@ var FrameView = BaseView.extend({
     for (var i = 0; i < this.renderRequiredAttributes.length; i++) {
       var attributeNames = Object.getOwnPropertyNames(attributes);
       if (attributeNames.indexOf(this.renderRequiredAttributes[i]) !== -1 || attributeNames.indexOf('data-' + this.renderRequiredAttributes[i]) !== -1) {
+        if (this.transformData) {
+          this.transformData.isDirty = true;
+        }
         this.trigger('renderRequired', this.name());
         break;
       }
@@ -86,7 +92,7 @@ var FrameView = BaseView.extend({
   getScrollData: function() {
 
     var scrollData = this.transformData ? {
-    //  startPosition: this.transformData.startPosition,
+      //  startPosition: this.transformData.startPosition,
       scrollX: this.transformData.scrollX,
       scrollY: this.transformData.scrollY
     } : {};
