@@ -95,12 +95,15 @@ var LayerView = BaseView.extend({
 
     // set none otherwise
     if (!currentFrame) {
+      this.currentFrame = null;
       this.showFrame(defaults.specialFrames.none, {
         lastFrameName: ''
       });
     } else {
+      this.currentFrame = currentFrame;
       this.showFrame(currentFrame.name(), {
-        lastFrameName: ''
+        lastFrameName: '',
+        applyCurrentPostPosition: false
       });
     }
 

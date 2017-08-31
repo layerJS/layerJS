@@ -31,16 +31,23 @@ describe("FrameView", function() {
     describe('sizeChanged', function() {
       it('will remove cached transformData and will trigger a renderRequired event', function(done) {
         var element = utilities.appendChildHTML(require('./htmlelements/simple_layer_1.js'));
+
         var layerView = new LayerView({
           el: element
         });
         var frameView = layerView.getChildViews()[0];
 
+        spyOn(layerView, 'render').and.callThrough();
+
         frameView.transformData = {};
 
         frameView.on('renderRequired', function() {
-          expect(frameView.transformData.isDirty).toBe(true);
-          done();
+          setTimeout(function() {
+            // give layer view the posibility to get invoked
+            expect(layerView.render).toHaveBeenCalled();
+            expect(frameView.transformData.isDirty).toBe(true);
+            done();
+          }, 1000);
         });
 
         frameView.trigger('sizeChanged');
@@ -50,18 +57,27 @@ describe("FrameView", function() {
 
     describe('attributesChanged', function() {
       function renderRequiredTriggered(action, done) {
-        var element = utilities.appendChildHTML(require('./htmlelements/simple_frame_1.js'));
-        var frameView = new FrameView({
+        var element = utilities.appendChildHTML(require('./htmlelements/simple_layer_1.js'));
+
+        var layerView = new LayerView({
           el: element
         });
+        var frameView = layerView.getChildViews()[0];
+
+        spyOn(layerView, 'render').and.callThrough();
 
         frameView.transformData = {};
-        frameView.on('renderRequired', function(name) {
-          expect(name).toBe(frameView.name());
-          expect(frameView.transformData.isDirty).toBe(true);
-          done();
+
+        frameView.on('renderRequired', function() {
+          setTimeout(function() {
+            // give layer view the posibility to get invoked
+            expect(layerView.render).toHaveBeenCalled();
+            expect(frameView.transformData.isDirty).toBe(true);
+            done();
+          }, 1000);
         });
-        action(element);
+
+        action(frameView.outerEl);
       }
 
       it('fit-to will remove the cached transformData and will trigger a renderRequired event', function(done) {
