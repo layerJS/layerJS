@@ -373,6 +373,7 @@
         this.cc = 0;
         this.ps = [];
         this.ls = [];
+        this.ls2 = [];
       },
       /**
        * register a stakeholder for this semaphore
@@ -386,11 +387,18 @@
       /**
        * register a listener for this semaphore which will not influence the waiting process
        *
+       * @param {boolean} before - determines if listener fires before stakeholders
        * @returns {Semaphore} the semaphore itself to be passed on
        */
-      listen: function() {
-        var p;
-        this.ls.push(p = new Kern.Promise());
+      listen: function(before) {
+        var p = new Kern.Promise();
+
+        if (before) {
+          this.ls.push(p);
+        } else {
+          this.ls2.push(p);
+        }
+
         return p;
       },
       /**
@@ -416,13 +424,16 @@
         this.cc++;
         this.ps.push(p = new Kern.Promise());
         if (this.cc === this.num) {
+          for (var x = 0; x < this.ls.length; x++) {
+            this.ls[x].resolve(this.num);
+          }
           for (var i = 0; i < this.ps.length; i++) {
             this.ps[i].resolve(this.num);
           }
           var that = this;
           setTimeout(function() { // needs to be called with setTimeout to call listeners after then() function of last sync
-            for (var i = 0; i < that.ls.length; i++) {
-              that.ls[i].resolve(that.num);
+            for (var i = 0; i < that.ls2.length; i++) {
+              that.ls2[i].resolve(that.num);
             }
           }, 0);
         } else if (this.cc >= this.num) {

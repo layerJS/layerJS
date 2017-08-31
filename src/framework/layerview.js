@@ -508,8 +508,10 @@ var LayerView = BaseView.extend({
           transition.semaphore = (new Kern.Semaphore()).register();
         }
         // add listener to the sempahore to get the moment the animation really startsWith
-        transition.semaphore.listen().then(function(num) {
+        transition.semaphore.listen(true).then(function(num) {
           if (num > 0) that.trigger('transitionPrepared'); // notify listeners about prepared state. (unless all have skipped, e.g. delayed transitions)
+        });
+        transition.semaphore.listen().then(function() {
           that.transitionQueue.continue(); // allow processing of next transition from queue
         });
 
