@@ -68,6 +68,7 @@ var SlideLayout = LayerLayout.extend({
   constructor: function(layer) {
     LayerLayout.call(this, layer);
     this._preparedTransitions = {};
+    this.transitionEnd = [];
   },
   /**
    * Hides all other frames
@@ -105,7 +106,8 @@ var SlideLayout = LayerLayout.extend({
       var frameToTransition = frame || currentFrame;
 
       var transitionEnd = function() {
-        if (transition.transitionID === that.layer.transitionID) {
+
+        that.transitionEnd.push(function() {
           if (currentFrame && transition.applyCurrentPostPosition !== false) {
             currentFrame.applyStyles(t.fix_css, {
               transition: 'none',
@@ -114,6 +116,7 @@ var SlideLayout = LayerLayout.extend({
             });
             console.log('slidelayout: fix c');
           }
+
           if (frame) {
             frame.applyStyles(t.fix_css, {
               transition: 'none',
@@ -121,7 +124,12 @@ var SlideLayout = LayerLayout.extend({
             });
             console.log('slidelayout: fix t');
           }
+        });
+
+        while (that.transitionEnd.length !== 0 && transition.transitionID === that.layer.transitionID) {
+          that.transitionEnd.shift()();
         }
+
         finished.resolve(); // do we need to wait here until it is rendered?
         // wait until above styles are applied;
         // $.postAnimationFrame(function() {

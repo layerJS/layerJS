@@ -45,14 +45,14 @@ var LayerView = BaseView.extend({
       mouseDragging: this.draggable()
     });
 
-    // var that = this;
+     var that = this;
 
-    // this.onResizeCallBack = function() {
-    //   // when doing a transform, the callback should not be called
+     this.onResizeCallBack = function() {
+       // when doing a transform, the callback should not be called
     //   if (!that.inTransition()) {
-    //     that.render();
+         that.render();
     //   }
-    // };
+     };
 
     // this is my stage and add listener to keep it updated
     this.stage = this.parent;
