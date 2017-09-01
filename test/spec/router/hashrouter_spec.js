@@ -164,4 +164,88 @@ describe('HashRouter', function() {
     });
   });
 
+  describe('interstage', function() {
+    it('can move a frame to a different layer', function() {
+      var url = 'http://localhost/#stage1.layer1.frame2';
+
+      var html = "<div data-lj-type='stage' id='stage1'>" +
+        "<div data-lj-type='layer' id='layer1' data-lj-default-frame='frame1'>" +
+        "<div data-lj-type='frame' id='frame1' data-lj-name='frame1'></div>" +
+        "</div>" +
+        "<div data-lj-type='layer' id='layer2' data-lj-default-frame='frame2'>" +
+        "<div data-lj-type='frame' id='frame2' data-lj-name='frame2'></div>" +
+        "</div>" +
+        "</div>";
+
+      utilities.setHtml(html);
+
+      new StageView({
+        el: document.getElementById('stage1')
+      });
+      var options = {
+        url: url,
+        location: 'http://localhost/',
+        hash: 'stage1.layer1.frame2',
+        transitions: [],
+        paths: [],
+        globalTransition: {
+          type: 'left'
+        }
+      };
+      var promise = hashRouter.handle(options);
+
+      promise.then(function(result) {
+        setTimeout(function() {
+          expect(result.handled).toBeTruthy();
+          expect(result.stop).toBeFalsy();
+          expect(result.paths).toEqual(['stage1.layer1.frame2']);
+          expect(result.transitions.length).toBe(1);
+          expect(result.transitions[0]).toEqual(options.globalTransition);
+          done();
+        }, 500);
+      });
+    });
+
+    it('will remove interstage frame from previous detected paths', function() {      
+      var url = 'http://localhost/#stage1.layer1.frame2';
+
+      var html = "<div data-lj-type='stage' id='stage1'>" +
+        "<div data-lj-type='layer' id='layer1' data-lj-default-frame='frame1'>" +
+        "<div data-lj-type='frame' id='frame1' data-lj-name='frame1'></div>" +
+        "</div>" +
+        "<div data-lj-type='layer' id='layer2' data-lj-default-frame='frame2'>" +
+        "<div data-lj-type='frame' id='frame2' data-lj-name='frame2'></div>" +
+        "</div>" +
+        "</div>";
+
+      utilities.setHtml(html);
+
+      new StageView({
+        el: document.getElementById('stage1')
+      });
+      var options = {
+        url: url,
+        location: 'http://localhost/',
+        hash: 'stage1.layer1.frame2',
+        transitions: ['stage1.layer2.frame2'],
+        paths: [],
+        globalTransition: {
+          type: 'left'
+        }
+      };
+      var promise = hashRouter.handle(options);
+
+      promise.then(function(result) {
+        setTimeout(function() {
+          expect(result.handled).toBeTruthy();
+          expect(result.stop).toBeFalsy();
+          expect(result.paths).toEqual(['stage1.layer1.frame2']);
+          expect(result.transitions.length).toBe(1);
+          expect(result.transitions[0]).toEqual(options.globalTransition);
+          done();
+        }, 500);
+      });
+    });
+  });
+
 });
