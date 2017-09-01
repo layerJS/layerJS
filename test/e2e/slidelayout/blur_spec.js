@@ -25,14 +25,17 @@ describe('blur', function() {
         }), utilities.setStyle('stage', {
           width: '500px',
           height: '500px'
+        }), utilities.setAttributes('frame2', {
+          'lj-transition': 'blur'
         })]).then(function() {
-          utilities.setAttributes('frame2', {
-            'lj-transition': 'blur'
-          }).then(function() {
-            utilities.wait(300); // time for the style changes to take effect
+          // time for the style changes to take effect
+          utilities.wait(1000).then(function() {
+
             utilities.listenDimensionsBeforeTransition('layer', 'frame1');
             utilities.listenDimensionsBeforeTransition('layer', 'frame2');
-            utilities.transitionTo('layer', 'frame2', {}).then(function() {
+            utilities.transitionTo('layer', 'frame2', {
+              duration: '5s'
+            }, 6000).then(function() {
               protractor.promise.all([
                 utilities.getBoundingClientRect('stage'),
                 utilities.getBoundingClientRect('frame1'),
@@ -45,19 +48,17 @@ describe('blur', function() {
                 var frame2_dimensions_after = data[2];
                 var frame1_dimensions_before = data[3];
                 var frame2_dimensions_before = data[4];
-
                 // frame1_display_after == none
                 expect(f1.getCssValue('display')).toBe('none');
                 // frame2_display_after == block
                 expect(f2.getCssValue('display')).toBe('block');
-
                 // opacity
-                expect(frame1_dimensions_before.opacity).toBe('1');
-                expect(frame2_dimensions_before.opacity).toBe('0');
+                expect(frame1_dimensions_before.opacity).toBeGreaterThan(0.9);
+                expect(frame2_dimensions_before.opacity).toBeLessThan(0.1);
                 expect(frame2_dimensions_after.opacity).toBe('1');
                 expect(frame1_dimensions_after.opacity).toBe('0');
                 // z-index shouldn't change by the transition
-                expect(frame1_dimensions_before['z-index']).toBe('auto');
+                expect(frame1_dimensions_before['z-index']).toBe('1');
                 expect(frame2_dimensions_before['z-index']).toBe('-1');
                 expect(frame2_dimensions_after['z-index']).toBe('auto');
                 expect(frame1_dimensions_after['z-index']).toBe('auto');

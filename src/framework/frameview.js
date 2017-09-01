@@ -38,10 +38,7 @@ var FrameView = BaseView.extend({
     BaseView.prototype.registerEventHandlers.call(this);
 
     this.on('sizeChanged', function() {
-      if (that.parent && !that.parent.inPreparation()) {
-        if (that.transformData) {
-          that.transformData.isDirty = true;
-        }
+      if (that.parent) {
         that.trigger('renderRequired', that.name());
       }
     });
@@ -56,9 +53,6 @@ var FrameView = BaseView.extend({
     for (var i = 0; i < this.renderRequiredAttributes.length; i++) {
       var attributeNames = Object.getOwnPropertyNames(attributes);
       if (attributeNames.indexOf(this.renderRequiredAttributes[i]) !== -1 || attributeNames.indexOf('data-' + this.renderRequiredAttributes[i]) !== -1) {
-        if (this.transformData) {
-          this.transformData.isDirty = true;
-        }
         this.trigger('renderRequired', this.name());
         break;
       }
@@ -77,6 +71,7 @@ var FrameView = BaseView.extend({
     var d = this.transformData;
     if (!d || d.isDirty || d.stage !== stage || (transitionStartPosition && transitionStartPosition !== d.startPosition)) {
       // calculate transformData
+      if (d) delete d.isDirty;
       return (this.transformData = this.calculateTransformData(stage, transitionStartPosition));
     }
     if (!keepScroll) {

@@ -68,6 +68,7 @@ var SlideLayout = LayerLayout.extend({
   constructor: function(layer) {
     LayerLayout.call(this, layer);
     this._preparedTransitions = {};
+    this.transitionEnd = [];
   },
   /**
    * Hides all other frames
@@ -105,25 +106,35 @@ var SlideLayout = LayerLayout.extend({
       var frameToTransition = frame || currentFrame;
 
       var transitionEnd = function() {
-        if (transition.transitionID === that.layer.transitionID) {
+
+        that.transitionEnd.push(function() {
           if (currentFrame && transition.applyCurrentPostPosition !== false) {
             currentFrame.applyStyles(t.fix_css, {
               transition: 'none',
               display: 'none',
               'z-index': 'initial'
             });
+            console.log('slidelayout: fix c');
           }
+
           if (frame) {
             frame.applyStyles(t.fix_css, {
               transition: 'none',
               'z-index': 'initial'
             });
+            console.log('slidelayout: fix t');
           }
-        }
-        // wait until above styles are applied;
-        $.postAnimationFrame(function() {
-          finished.resolve();
         });
+
+        while (that.transitionEnd.length !== 0 && transition.transitionID === that.layer.transitionID) {
+          that.transitionEnd.shift()();
+        }
+
+        finished.resolve(); // do we need to wait here until it is rendered?
+        // wait until above styles are applied;
+        // $.postAnimationFrame(function() {
+        //   finished.resolve();
+        // });
       };
 
 
@@ -145,6 +156,7 @@ var SlideLayout = LayerLayout.extend({
           left: "0px",
           opacity: "1"
         });
+        console.log('slidelayout: apply t1');
 
         if (transition.applyCurrentPostPosition !== false) {
           that._applyTransform(currentFrame, t.c1, targetTransform, {
@@ -152,6 +164,7 @@ var SlideLayout = LayerLayout.extend({
             top: "0px",
             left: "0px"
           });
+          console.log('slidelayout: apply c1');
         }
 
         if (transition.duration === '') {
@@ -179,7 +192,7 @@ var SlideLayout = LayerLayout.extend({
     var finished = new Kern.Promise();
     var prep;
     var currentFrame = this.layer.currentFrame;
-    this.hideOtherFrames(frame, currentFrame);
+    if (!transition.wasInTransition) this.hideOtherFrames(frame, currentFrame);
     if (frame && (prep = this._preparedTransitions[frame.id()])) {
       if (prep.transform === targetTransform && prep.applied) { // if also the targetTransform is already applied we can just conptue
         finished.resolve(prep);
@@ -218,6 +231,10 @@ var SlideLayout = LayerLayout.extend({
         throw "slidelayout: error in registered transition type.";
       }
       prep.transform = targetTransform; // FIXME: targetTransform is not enough, need to check current transform as well
+      if (transition.applyTargetPrePosition === false && transition.applyCurrentPrePosition === false) { // shortcut if we don't hve to apply pre positions
+        finished.resolve(prep);
+        return finished;
+      }
       if (frame === null && !prep.current_css) { // nothing to do as new frame is "none"
         prep.applied = true;
         finished.resolve(prep);
@@ -229,6 +246,7 @@ var SlideLayout = LayerLayout.extend({
           transition: 'none',
           visibility: 'inital'
         });
+        console.log('slidelayout: apply t0');
       }
       // apply pre position to current frame
       if (prep.current_css && transition.applyCurrentPrePosition !== false) {
@@ -236,6 +254,7 @@ var SlideLayout = LayerLayout.extend({
           transition: 'none',
           'z-index': 'initial'
         });
+        console.log('slidelayout: apply c0');
       }
       // wait until new positions are rendered then resolve promise
       $.postAnimationFrame(function() {

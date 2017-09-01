@@ -6,15 +6,16 @@ utilities.transitionTo = function(layerId, frameName, transition, waitTime) {
 
   return browser.driver.executeAsyncScript(function(layerId, frameName, transition, waitTime, callBack) {
     var layer = layerJS.select('#' + layerId);
+
+    if (!waitTime) {
+      layer.on('transitionFinished', function() {
+        setTimeout(callBack, 2000);
+      });
+    }
+
     var p = layer.transitionTo(frameName, transition);
     if (waitTime) {
-      setTimeout(function() {
-        callBack();
-      }, waitTime);
-    } else {
-      p.then(function() {
-        callBack();
-      });
+      setTimeout(callBack, waitTime);
     }
 
   }, layerId, frameName, transition, waitTime);
@@ -490,13 +491,18 @@ utilities.getChildrenIds = function(elementId) {
 
 utilities.showFrame = function(layerId, frameName, scrollData, waitTime) {
   return browser.driver.executeAsyncScript(function(id, frameName, scrollData, waitTime, callback) {
-    var p = layerJS.select('#' + id).showFrame(frameName, scrollData);
+    var layer = layerJS.select('#' + id);
+
     if (!waitTime) {
-      p.then(function() {
-        callback();
+      layer.on('transitionFinished', function() {
+        setTimeout(callback, 1000);
       });
-    } else {
-      window.setTimeout(callback, waitTime);
+    }
+
+    var p = layer.showFrame(frameName, scrollData);
+
+    if (waitTime) {
+      setTimeout(callback, waitTime);
     }
   }, layerId, frameName, scrollData, waitTime);
 };

@@ -55,7 +55,7 @@ var ScrollTransformer = Kern.EventManager.extend({
             visible: 1,
             hidden: 1
           })) {
-          if ((gesture.shift.x > 0 && element.scrollLeft > 0) || element.scrollLeft < element.scrollWidth - element.clientWidth){
+          if ((gesture.shift.x > 0 && element.scrollLeft > 0) || element.scrollLeft < element.scrollWidth - element.clientWidth) {
             gesture.event.stopPropagation();
             return true;
           }
@@ -65,7 +65,7 @@ var ScrollTransformer = Kern.EventManager.extend({
             visible: 1,
             hidden: 1
           })) {
-          if ((gesture.shift.y > 0 && element.scrollTop > 0) || element.scrollTop < element.scrollHeight - element.clientHeight){
+          if ((gesture.shift.y > 0 && element.scrollTop > 0) || element.scrollTop < element.scrollHeight - element.clientHeight) {
             gesture.event.stopPropagation();
             return true;
           }
@@ -180,10 +180,8 @@ var ScrollTransformer = Kern.EventManager.extend({
         var shiftX = 0;
         var shiftY = 0;
 
-        if (/*tfd.frame !== this.layer.currentFrame || */!transition.isEvent) {
-          shiftX = this.layer.outerEl.scrollLeft || 0 - (tfd.scrollX * tfd.scale || 0);
-          shiftY = this.layer.outerEl.scrollTop || 0 - (tfd.scrollY * tfd.scale || 0);
-        }
+        shiftX = (this.layer.outerEl.scrollLeft || 0) - (tfd.scrollX * tfd.scale || 0);
+        shiftY = (this.layer.outerEl.scrollTop || 0) - (tfd.scrollY * tfd.scale || 0);
 
         return this.scrollTransform(shiftX, shiftY);
       } else {
