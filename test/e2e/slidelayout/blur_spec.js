@@ -53,8 +53,8 @@ describe('blur', function() {
                 // frame2_display_after == block
                 expect(f2.getCssValue('display')).toBe('block');
                 // opacity
-                expect(frame1_dimensions_before.opacity).toBeGreaterThan(0.9);
-                expect(frame2_dimensions_before.opacity).toBeLessThan(0.1);
+                expect(parseFloat(frame1_dimensions_before.opacity)).toBeWithinRange(0.9, 1);
+                expect(parseFloat(frame2_dimensions_before.opacity)).toBeWithinRange(0, 0.1);
                 expect(frame2_dimensions_after.opacity).toBe('1');
                 expect(frame1_dimensions_after.opacity).toBe('0');
                 // z-index shouldn't change by the transition
