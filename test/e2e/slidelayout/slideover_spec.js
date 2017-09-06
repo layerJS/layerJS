@@ -203,9 +203,9 @@ describe('slideOver', function() {
                 expect(frame1_dimensions_before['z-index']).toBe('-1');
                 expect(frame1_dimensions_after['z-index']).toBe('auto');
                 // positioning and dimensions of frame1 and frame 2
-                expect(Math.round(frame2_dimensions_before.right)).toBe(stage_dimensions.right);
-                expect(Math.round(frame2_dimensions_before.right)).toBe(stage_dimensions.width);
-                expect(Math.round(frame2_dimensions_before.right)).toBe(frame1_dimensions_before.width);
+                expect(frame2_dimensions_before.right).toBe(stage_dimensions.right);
+                expect(frame2_dimensions_before.right).toBe(stage_dimensions.width);
+                expect(frame2_dimensions_before.right).toBe(frame1_dimensions_before.width);
 
                 delete frame1_dimensions_before.opacity;
                 delete frame1_dimensions_after.opacity;
@@ -274,9 +274,9 @@ describe('slideOver', function() {
                 expect(frame1_dimensions_before['z-index']).toBe('-1');
                 expect(frame1_dimensions_after['z-index']).toBe('auto');
                 // positioning and dimensions of frame1 and frame 2
-                expect(Math.round(frame2_dimensions_before.right)).toBe(stage_dimensions.right);
-                expect(Math.round(frame2_dimensions_before.right)).toBe(stage_dimensions.width);
-                expect(Math.round(frame2_dimensions_before.right)).toBe(frame1_dimensions_before.width);
+                expect(frame2_dimensions_before.right).toBe(stage_dimensions.right);
+                expect(frame2_dimensions_before.right).toBe(stage_dimensions.width);
+                expect(frame2_dimensions_before.right).toBe(frame1_dimensions_before.width);
 
                 delete frame1_dimensions_before.opacity;
                 delete frame1_dimensions_after.opacity;
@@ -346,10 +346,13 @@ describe('slideOver', function() {
                 expect(frame1_dimensions_before['z-index']).toBe('-1');
                 expect(frame1_dimensions_after['z-index']).toBe('auto');
                 // positioning and dimensions of frame1 and frame 2
-                expect(frame2_dimensions_before.top - frame2_dimensions_before.bottom).toBe(stage_dimensions.top - frame2_dimensions_after.height);
-                // already checked by previous statement
-                //expect(frame2_dimensions_before.bottom).toBe(stage_dimensions.top);
-                //expect(frame2_dimensions_before.bottom).toBe(frame1_dimensions_before.top);
+                expect(frame2_dimensions_before.top).toBe(stage_dimensions.top - frame2_dimensions_after.height);
+                expect(frame2_dimensions_before.bottom).toBe(stage_dimensions.top);
+                expect(frame2_dimensions_before.bottom).toBe(frame1_dimensions_before.top);
+                //expect(frame2_dimensions_before.top - frame2_dimensions_before.bottom).toBe(stage_dimensions.top - frame2_dimensions_after.height);
+
+                expect(frame2_dimensions_before.bottom).toBe(stage_dimensions.top);
+                expect(frame2_dimensions_before.bottom).toBe(frame1_dimensions_before.top);
 
                 delete frame1_dimensions_before.opacity;
                 delete frame1_dimensions_after.opacity;
@@ -490,9 +493,8 @@ describe('slideOver', function() {
                 expect(frame1_dimensions_before['z-index']).toBe('-1');
                 expect(frame1_dimensions_after['z-index']).toBe('auto');
                 // positioning and dimensions of frame1 and frame 2
-                expect(Math.round(frame2_dimensions_before.bottom - frame2_dimensions_before.top)).toBe(stage_dimensions.height);
-                // implicitliy checked with previous check
-                //expect(frame2_dimensions_before.top).toBe(frame1_dimensions_before.bottom);
+                expect(frame2_dimensions_before.bottom).toBeWithinRange(stage_dimensions.height,stage_dimensions.height + 0.3);
+                expect(frame2_dimensions_before.top).toBe(frame1_dimensions_before.bottom);
 
                 delete frame1_dimensions_before.opacity;
                 delete frame1_dimensions_after.opacity;
@@ -556,16 +558,18 @@ describe('slideOver', function() {
                 // frame2_display_after == block
                 expect(f2.getCssValue('display')).toBe('block');
                 // opacity
-                expect(Math.round(frame1_dimensions_before.opacity)).toBe(0);
+                expect(frame1_dimensions_before.opacity).toBeLessThan(0.1);
                 // expect(frame1_dimensions_after.opacity).toBe('0'); //result: Expected '1' to be '0'.- this is not fulfilled because of resetting opacity
                 // z-index
                 expect(frame1_dimensions_before['z-index']).toBe('-1');
                 expect(frame1_dimensions_after['z-index']).toBe('auto');
                 // positioning and dimensions of frame1 and frame 2
-                expect(Math.round(frame2_dimensions_before.bottom - frame2_dimensions_before.top)).toBe(stage_dimensions.height);
-                // implicitliy checked with previous check
-                //expect(frame2_dimensions_before.top).toBe(stage_dimensions.bottom);
-                //expect(frame2_dimensions_before.top).toBe(frame1_dimensions_before.bottom);
+                expect(frame2_dimensions_before.bottom).toBeWithinRange(stage_dimensions.height,stage_dimensions.height + 0.3);
+                expect(frame2_dimensions_before.top).toBe(stage_dimensions.bottom);
+                expect(frame2_dimensions_before.top).toBe(frame1_dimensions_before.bottom);
+
+                expect(frame2_dimensions_before.top).toBe(stage_dimensions.bottom);
+                expect(frame2_dimensions_before.top).toBe(frame1_dimensions_before.bottom);
 
                 delete frame1_dimensions_before.opacity;
                 delete frame1_dimensions_after.opacity;

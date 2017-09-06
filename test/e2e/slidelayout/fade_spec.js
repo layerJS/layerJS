@@ -52,8 +52,8 @@ describe('fade', function() {
                 // frame2_display_after == block
                 expect(f2.getCssValue('display')).toBe('block');
                 // opacity
-                expect(Math.round(frame1_dimensions_before.opacity)).toBe(1);
-                expect(Math.round(frame2_dimensions_before.opacity)).toBe(0);
+                expect(parseFloat(frame1_dimensions_before.opacity)).toBeWithinRange(0.9, 1);
+                expect(parseFloat(frame2_dimensions_before.opacity)).toBeWithinRange(0, 0.1);
                 expect(frame2_dimensions_after.opacity).toBe('1');
                 // expect(frame1_dimensions_after.opacity).toBe('0'); //result: Expected '1' to be '0'.- this is not fulfilled because of resetting opacity
                 // z-index (shouldn't change by the transition)
