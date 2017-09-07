@@ -491,7 +491,8 @@ var LayerView = BaseView.extend({
           previousType: transition && transition.type ? undefined : (that.currentFrame && that.currentFrame.defaultTransition()) || undefined,
           duration: '1s',
           lastFrameName: (that.currentFrame && that.currentFrame.name()) || "!none",
-          applyTargetPrePosition: transition.applyTargetPrePosition || (frame && frame.parent && frame.parent === that)
+          applyTargetPrePosition: transition.applyTargetPrePosition || (frame && frame.parent && frame.parent === that),
+          applyCurrentPostPosition: transition.applyCurrentPostPosition || (frame && frame.parent && frame.parent === that)
           // FIXME: add more default values like timing
         }, transition || {});
 
