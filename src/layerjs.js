@@ -25,12 +25,18 @@ require("./framework/stageview.js");
 var href = window.location.href;
 var FileRouter = require("./framework/router/filerouter.js");
 var HashRouter = require("./framework/router/hashrouter.js");
+var $ = require('./framework/domhelpers.js');
 
 layerJS.init = function() {
   layerJS.parseManager.parseDocument();
-  layerJS.router.addRouter(new FileRouter({
-    cacheCurrent: true
-  }));
+
+  var routerAttribute = $.getAttributeLJ(document.body, 'router');
+  if (routerAttribute && 'filerouter' === routerAttribute.toLower()) {
+    layerJS.router.addRouter(new FileRouter({
+      cacheCurrent: true
+    }));
+  }
+
   layerJS.router.addRouter(new HashRouter());
 
 
