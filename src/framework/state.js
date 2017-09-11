@@ -195,44 +195,69 @@ var State = Kern.EventManager.extend({
     transitions = transitions || [];
 
     // map the given state (list of (reduced) paths) into a list of fully specified paths (may be more paths than in states list)
-    var paths = []; // path to transition to
+    var paths = {}; // path to transition to
     var seenLayers = {}; // for deduplicating paths
+    var seenTransition = {};
+
+    var seenPath = function(path) {
+      var originalLayer = paths[path].layer.id();
+      seenTransition = paths[path].transition;
+      delete paths[path];
+      delete seenLayers[originalLayer];
+    };
+
+
     states.map(function(state) {
       return that.resolvePath(state);
-    }).forEach(function(layerframe, index) {
-      for (var i = 0; i < layerframe.length; i++) {
-        var layer = layerframe[i].layer.id();
-        if (seenLayers.hasOwnProperty(layer)) {
-          Kern._extend(paths[seenLayers[layer]].transition, transitions[Math.min(index, transitions.length - 1)] || {});
-          paths[seenLayers[layer]].frameName = layerframe[i].frameName;
-        } else {
-          paths.push({ // ignore currently active frames
-            layer: layerframe[i].layer,
-            frameName: layerframe[i].frameName,
-            transition: transitions[Math.min(index, transitions.length - 1)] || {}
-          });
-          seenLayers[layer] = paths.length - 1;
+    }).forEach(function(layerframes, index) {
+      for (var i = 0; i < layerframes.length; i++) {
+        var layerframe = layerframes[i];
+        var layer = layerframe.layer.id();
+        seenTransition = {};
+
+        if (layerframe.isInterStage && paths.hasOwnProperty(layerframe.originalPath)) {
+          seenPath(layerframe.originalPath);
         }
+
+        if (paths.hasOwnProperty(layerframe.path)) {
+          seenPath(layerframe.path);
+        }
+
+        if (seenLayers.hasOwnProperty(layer)) {
+          seenPath(seenLayers[layer]);
+        }
+
+        paths[layerframe.path] = { // ignore currently active frames
+          layer: layerframe.layer,
+          frameName: layerframe.frameName,
+          transition: Kern._extend(seenTransition, transitions[Math.min(index, transitions.length - 1)] || {})
+        };
+
+        seenLayers[layer] = layerframe.path;
       }
     });
 
+
+    var pathRoutes = Object.getOwnPropertyNames(paths);
     // semaphore is necessary to let all transition run in sync
-    var semaphore = new Kern.Semaphore(paths.length);
+    var semaphore = new Kern.Semaphore(pathRoutes.length);
     // group transitions to fire only one stateChanged event for all transitions triggered in this call
     var groupId = $.uniqueID('group');
     this._transitionGroup[groupId] = {
-      length: paths.length,
+      length: pathRoutes.length,
       payload: payload
     };
 
     // execute transition
-    for (var i = 0; i < paths.length; i++) {
-      paths[i].transition.semaphore = semaphore;
-      paths[i].transition.groupId = groupId;
+    for (var i = 0; i < pathRoutes.length; i++) {
+      var path = paths[pathRoutes[i]];
+      path.transition.semaphore = semaphore;
+      path.transition.groupId = groupId;      
+
       if (showFrame) {
-        paths[i].layer.showFrame(paths[i].frameName, paths[i].transition); // switch to frame
+        path.layer.showFrame(path.frameName, path.transition); // switch to frame
       } else {
-        paths[i].layer.transitionTo(paths[i].frameName, paths[i].transition); // switch to frame
+        path.layer.transitionTo(path.frameName, path.transition); // switch to frame
       }
     }
     return transitions.length > 0;
@@ -324,15 +349,12 @@ var State = Kern.EventManager.extend({
           });
         } else if (view.type() === 'layer') {
 
-          if (fullPath.endsWith(path))
-          {
+          if (fullPath.endsWith(path)) {
             result.push({
               view: view,
               path: fullPath
             });
-          }
-          else
-          {
+          } else {
             var paths = this.resolvePath(frameName);
 
             if (paths.length === 1) {
@@ -347,8 +369,7 @@ var State = Kern.EventManager.extend({
               });
             }
           }
-        }
-        else {
+        } else {
           //stages
           result.push({
             view: view,

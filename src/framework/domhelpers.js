@@ -466,7 +466,7 @@ var DomHelpers = {
       "FAIL";
 
     var array;
-    if (tr === 'none') {
+    if (tr === 'none' || undefined === tr || 'FAIL' === tr) {
       array = [1, 0, 0, 1, 0, 0];
     } else {
       var values = tr.split('(')[1].split(')')[0].split(',');

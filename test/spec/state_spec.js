@@ -298,7 +298,7 @@ describe('state', function() {
       var exportedState = state.exportState();
       expect(exportedState).toEqual(expectedState);
       done();
-    }, 100);
+    }, 200);
   }
 
   describe('can show to a named state', function() {
@@ -782,7 +782,7 @@ describe('state', function() {
       utilities.setHtml("<div data-lj-type='stage' id='stage1'>" +
         "<div data-lj-type='layer' id='layer1' data-lj-default-frame='frame1'>" +
         "<div data-lj-type='frame' id='frame1' data-lj-name='frame1'></div>" +
-        "</div>");
+        "</div></div>");
 
       var stageView = new StageView({
         el: document.getElementById('stage1')
@@ -797,7 +797,7 @@ describe('state', function() {
       utilities.setHtml("<div data-lj-type='stage' id='stage1'>" +
         "<div data-lj-type='layer' id='layer1'>" +
         "<div data-lj-type='frame' id='frame1' data-lj-name='frame1'></div>" +
-        "</div>");
+        "</div></div>");
 
       var stageView = new StageView({
         el: document.getElementById('stage1')
@@ -812,7 +812,7 @@ describe('state', function() {
       utilities.setHtml("<div data-lj-type='stage' id='stage1'>" +
         "<div data-lj-type='layer' id='layer1' data-lj-default-frame='!none'>" +
         "<div data-lj-type='frame' id='frame1' data-lj-name='frame1'></div>" +
-        "</div>");
+        "</div></div>");
 
       var stageView = new StageView({
         el: document.getElementById('stage1')
@@ -823,5 +823,47 @@ describe('state', function() {
       expect(exportedState.state).toEqual([]);
       expect(exportedState.omittedState).toEqual(['stage1.layer1.!none']);
     });
+
+
+    /*it('will detect same frame transitions', function(done) {
+      utilities.setHtml("<div data-lj-type='stage' id='stage1'>" +
+        "<div data-lj-type='layer' id='layer1' data-lj-default-frame='frame1'>" +
+        "<div data-lj-type='frame' id='frame1' data-lj-name='frame1'></div>" +
+        "</div>" +
+        "<div data-lj-type='layer' id='layer2' data-lj-default-frame='frame2'>" +
+        "<div data-lj-type='frame' id='frame2' data-lj-name='frame2'></div>" +
+        "</div>" +
+        "</div>");
+
+      var stageView = new StageView({
+        el: document.getElementById('stage1')
+      });
+      var state = layerJS.getState();
+
+      var layerView1 = document.getElementById('layer1')._ljView;
+      var layerView2 = document.getElementById('layer2')._ljView;
+
+      var layer1Transition = false;
+      var layer2Transition = false;
+
+      layerView1.on('transitionFinished', function(frameName) {
+        console.log('layer 1 transitionFinished ' + frameName);
+        layer1Transition = frameName == 'frame1';
+      });
+
+      layerView2.on('transitionFinished', function(frameName) {
+        console.log('layer 2 transitionFinished ' + frameName);
+        layer2Transition = frameName == 'frame1';
+      });
+
+      state.transitionTo(["stage1.layer1.frame1", "stage1.layer2.frame1"]);
+
+      setTimeout(function() {
+        expect(layer1Transition).toBe(false);
+        expect(layer2Transition).toBe(true);
+        done();
+      }, 2000);
+
+    });*/
   });
 });
