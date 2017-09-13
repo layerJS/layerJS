@@ -8,7 +8,7 @@ var ViewsCommonIdentifyTests = require('./helpers/views/common/identifytests.js'
 var ViewsCommonViewTests = require('./helpers/views/common/viewtests.js')
 
 describe("StageView", function() {
-  /*
+
     ViewsCommonViewTests('simple_stagedata_nochilden', function() {
       return {
         ViewType: StageView,
@@ -94,7 +94,7 @@ describe("StageView", function() {
           stageView.trigger('sizeChanged');
         });
       });
-  */
+
   describe('renderRequired', function() {
     it('will call the showFrame method of it\'s layer', function(done) {
       var stageView = new StageView({
@@ -113,8 +113,7 @@ describe("StageView", function() {
       stageView.trigger('renderRequired');
     });
 
-    //  });
+      });
 
-    //  });
+    });
   });
-});

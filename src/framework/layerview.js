@@ -427,8 +427,44 @@ var LayerView = BaseView.extend({
     var d = this._noframetd = {};
     d.stage = this.stage;
     d.scale = 1;
-    d.width = d.frameWidth = this.stage ? this.stage.width() : 0;
-    d.height = d.frameHeight = this.stage ? this.stage.height() : 0;
+
+    d.width = this.stage ? this.stage.width() : 0;
+    d.height = this.stage ? this.stage.height() : 0;
+    d.frameWidth = 0;
+    d.frameHeight = 0;
+
+    var fitTo = this.fitTo();
+    switch (fitTo) {
+      case 'width':
+      case 'elastic-width':
+      case 'responsive-width':
+        d.frameWidth = d.width;
+        break;
+      case 'height':
+      case 'elastic-height':
+      case 'responsive-height':
+        d.frameHeight = d.height;
+        break;
+      case 'fixed':
+      case 'responsive':
+      case 'contain':
+      case 'cover':
+      case 'responsive':
+        d.frameWidth = d.width;
+        d.frameHeight = d.height;
+        break;
+      default:
+        throw "unkown fitTo type '" + fitTo + "'";
+    }
+
+    if (this.stage && this.stage.autoHeight()) {
+      d.height = d.frameHeight = 0;
+    }
+
+    if (this.stage && this.stage.autoWidth()) {
+      d.width = d.frameWidth = 0;
+    }
+
     d.shiftX = d.shiftY = d.scrollX = d.scrollY = 0;
     d.isScrollX = d.isScrollY = false;
     d.startPosition = transitionStartPosition || 'top';

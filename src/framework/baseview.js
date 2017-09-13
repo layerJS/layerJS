@@ -80,7 +80,7 @@ var BaseView = DOMObserver.extend({
     if (options.removedNodes && options.removedNodes.length > 0) {
       options.removedNodes.forEach(function(removedNode) {
         if (removedNode._ljView) {
-          that.trigger('childRemoved', removedNode._ljView);      
+          that.trigger('childRemoved', removedNode._ljView);
         }
       });
     }
@@ -346,11 +346,17 @@ var BaseView = DOMObserver.extend({
    * Will return the value of the lj-fit-to attribute on the outer element.
    * The default value is 'width'.
    *
+   * @param {boolean} useFallBack (optional) when false, the fallback value will not be used
    * @return {string} the value of the lj-fit-to attribute
    */
-  /*frame */
-  fitTo: function() {
-    return this.getAttributeLJ('fit-to') || 'width';
+  fitTo: function(useFallBack) {
+    var fitTo = this.getAttributeLJ('fit-to');
+
+    if (useFallBack !== false && !fitTo) {
+      fitTo = 'width';
+    }
+
+    return fitTo;
   },
   /**
    * Will return the value of the lj-elastic-left attribute on the outer element
@@ -505,7 +511,23 @@ var BaseView = DOMObserver.extend({
     return this.getAttributeLJ('timer');
   },
   /**
-   * Will return if the layer allows dragging
+   * returns the value for lj-auto-height
+   *
+   * @returns {string} A layername
+   */
+  autoHeight: function() {
+    return this.getAttributeLJ('auto-height');
+  },
+  /**
+   * returns the value for lj-auto-width
+   *
+   * @returns {string} A layername
+   */
+  autoWidth: function() {
+    return this.getAttributeLJ('auto-width');
+  },
+
+  /** Will return if the layer allows dragging
    *
    * @return {Boolean} the value of the lj-draggable attribute
    */
