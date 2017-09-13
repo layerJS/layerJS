@@ -64,7 +64,7 @@ var Router = Kern.EventManager.extend({
     };
 
     // register link listener
-    $.addDelegtedListener(this.rootElement, 'click', 'a', function(event) {
+    $.addDelegtedListener(this.rootElement, 'click', 'a:not([data-lj-nolink=\'true\']):not([lj-nolink=\'true\'])', function(event) {
       //delete that.ignoreUrl;
       if (this.href !== '' && !this.href.startsWith('javascript:')) { // jshint ignore:line
         var href = this.getAttribute('href'); // get the explicitly given href (that is not extended) to see the intention of the user
