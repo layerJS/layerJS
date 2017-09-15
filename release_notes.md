@@ -1,6 +1,6 @@
 # Release notes #
 
-##New in 0.4.3
+ ## New in 0.4.3
  * A 'lj-nolink' attribute can be added to anchor tags. When true the links will be ignored by the router(s).
  * Filerouter is disabled by default. To enable add 'lj-router=filerouter' to the body of the HTML document.
  * Fixes for swipping left/right caused by the history button on chrome Mac.
