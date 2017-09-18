@@ -66,7 +66,7 @@ var CanvasLayout = LayerLayout.extend({
         // now apply all transforms to all frames
         for (var i = 0; i < framesLength; i++) {
           childFrame = frames[i];
-          childFrame.getTransformData(that.layer.stage); // this will initialize dimensions for the frame
+          childFrame.getTransformData(); // this will initialize dimensions for the frame
           that._applyTransform(childFrame, that._reverseTransform, targetTransform, {
             transition: transition.duration,
             opacity: 1,

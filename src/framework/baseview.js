@@ -482,7 +482,7 @@ var BaseView = DOMObserver.extend({
    * @return {Object}
    */
   getMargin: function() {
-    var computedStyle = window.getComputedStyle(this.outerEl, null);
+    var computedStyle = this.computedStyle();
 
     return {
       top: $.parseDimension(computedStyle.getPropertyValue('margin-top') || '0'),
@@ -545,6 +545,46 @@ var BaseView = DOMObserver.extend({
   destroy: function() {
     this.unobserve();
     this.outerEl.parentNode.removeChild(this.outerEl);
+  },
+  /**
+   * returns the value for the css content property
+   *
+   * @returns {string} css content value
+   */
+  cssContent: function() {
+    return this.computedStyle().content;
+  },
+  /**
+   * returns the computed style of the view
+   *
+   * @returns {object} style
+   */
+  computedStyle: function() {
+    return window.getComputedStyle(this.outerEl, null);
+  },
+  /**
+   * returns the value for the css content property
+   *
+   * @returns {string} css content value
+   */
+  grid: function() {
+    var gridName = this.cssContent();
+    var grid = {
+      columns: '*',
+      rows: '*'
+    };
+
+    var attributeValue = (this.getAttributeLJ('grid-' + gridName) || '*,*').split(',');
+
+    if (attributeValue.length > 0 && '*' !== attributeValue[0]) {
+      grid.columns = parseInt(attributeValue[0]);
+    }
+
+    if (attributeValue.length > 1 && '*' !== attributeValue[1]) {
+      grid.rows = parseInt(attributeValue[1]);
+    }
+
+    return grid;
   }
 });
 

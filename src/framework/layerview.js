@@ -46,14 +46,14 @@ var LayerView = BaseView.extend({
       mouseDragging: this.draggable()
     });
 
-     var that = this;
+    var that = this;
 
-     this.onResizeCallBack = function() {
-       // when doing a transform, the callback should not be called
-    //   if (!that.inTransition()) {
-         that.render();
-    //   }
-     };
+    this.onResizeCallBack = function() {
+      // when doing a transform, the callback should not be called
+      //   if (!that.inTransition()) {
+      that.render();
+      //   }
+    };
 
     // this is my stage and add listener to keep it updated
     this.stage = this.parent;
@@ -288,7 +288,7 @@ var LayerView = BaseView.extend({
     if (this.currentFrame === null) return;
     transition = transition || {};
     if (transition.startPosition) { // need to recalculate transform data if startPosition has changed
-      this.currentFrameTransformData = this.currentFrame.getTransformData(this.stage, transition.startPosition);
+      this.currentFrameTransformData = this.currentFrame.getTransformData(transition.startPosition);
     }
     var tfd = this.currentFrameTransformData;
     if (typeof scrollX === 'object') {
@@ -529,7 +529,7 @@ var LayerView = BaseView.extend({
           lastFrameName: (that.currentFrame && that.currentFrame.name()) || "!none",
           applyTargetPrePosition: transition.applyTargetPrePosition || (frame && frame.parent && frame.parent === that),
           applyCurrentPostPosition: transition.applyCurrentPostPosition || (frame && frame.parent && frame.parent === that)
-          // FIXME: add more default values like timing
+            // FIXME: add more default values like timing
         }, transition || {});
 
         // check for reverse transition; remove "r:"/"reverse:" indicator and set transition.reverse instead
@@ -570,7 +570,7 @@ var LayerView = BaseView.extend({
           // getScrollIntermediateTransform will not change the current native scroll position but will calculate
           // a compensatory transform for the target scroll position.
           var currentScroll = that.getCurrentScroll(); // get current scroll position before recalculating it for that frame
-          var targetFrameTransformData = null === frame ? that.noFrameTransformdata(transition.startPosition) : frame.getTransformData(that.stage, transition.startPosition);
+          var targetFrameTransformData = null === frame ? that.noFrameTransformdata(transition.startPosition) : frame.getTransformData(transition.startPosition);
           var targetTransform = that._transformer.getScrollTransform(targetFrameTransformData, transition, true);
 
           // check if transition goes to exactly the same position
@@ -844,6 +844,38 @@ var LayerView = BaseView.extend({
         context: this
       });
     }
+  },
+  /**
+   * Get width of the layer
+   *
+   * @returns {number} the width
+   */
+  width: function() {
+    return this._layout.getStageWidth();
+  },
+  /**
+   * Get height of the layer
+   *
+   * @returns {number} the width
+   */
+  height: function() {
+    return this._layout.getStageHeight();
+  },
+  /**
+   * returns the value for lj-auto-height
+   *
+   * @returns {string} A layername
+   */
+  autoHeight: function() {
+    return this.parent.autoHeight();
+  },
+  /**
+   * returns the value for lj-auto-width
+   *
+   * @returns {string} A layername
+   */
+  autoWidth: function() {
+    return this.parent.autoHeight();
   }
 }, {
   defaultProperties: {
