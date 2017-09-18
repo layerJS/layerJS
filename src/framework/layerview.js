@@ -875,7 +875,7 @@ var LayerView = BaseView.extend({
    * @returns {string} A layername
    */
   autoWidth: function() {
-    return this.parent.autoHeight();
+    return this.parent.autoWidth();
   }
 }, {
   defaultProperties: {
