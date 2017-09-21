@@ -552,7 +552,7 @@ var BaseView = DOMObserver.extend({
    * @returns {string} css content value
    */
   cssContent: function() {
-    return this.computedStyle().content;
+    return (this.computedStyle().content || '').replace(new RegExp('"', 'g'), '').replace(new RegExp('\'', 'g'), '');
   },
   /**
    * returns the computed style of the view
@@ -567,8 +567,8 @@ var BaseView = DOMObserver.extend({
    *
    * @returns {string} css content value
    */
-  grid: function() {
-    var gridName = this.cssContent();
+  grid: function(gridName) {
+    gridName = gridName || this.gridName();
     var grid = {
       columns: '*',
       rows: '*'
@@ -585,7 +585,17 @@ var BaseView = DOMObserver.extend({
     }
 
     return grid;
+  },
+  /**
+   * returns the grid name
+   *
+   * @returns {string} the grid name
+   */
+  gridName: function() {
+    return this.cssContent();
   }
+
+
 });
 
 module.exports = BaseView;

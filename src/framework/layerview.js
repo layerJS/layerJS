@@ -27,8 +27,8 @@ var LayerView = BaseView.extend({
       this.innerEl = this.outerEl.children[0];
     }
 
-    BaseView.call(this, options);
-
+    this.stage = options.parent;
+    BaseView.call(this, options);    
     this._inTransition = false; // indicates that transition is still being animated
     this._transitionIDcounter = 1; // counts up every call of transitionTo()
     this.transitionID = 1; // in principle the same as _transitionIDcounter, but may be reset is transitionTo is not actually executing a transition
@@ -56,7 +56,6 @@ var LayerView = BaseView.extend({
     };
 
     // this is my stage and add listener to keep it updated
-    this.stage = this.parent;
 
     /*    if (this.stage) {
           sizeObserver.register([this.stage], this.onResizeCallBack);

@@ -1,0 +1,64 @@
+<html>
+
+<head>
+  <title>Simple Example</title>
+  <link rel="stylesheet" type="text/css" href="../../../src/css/layerjs.css">
+</head>
+<style>
+  body {
+    margin: auto;
+  }
+
+  #root {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    margin: auto;
+  }
+
+  #main {
+    position: absolute
+  }
+
+  #second {
+    position: absolute;
+  }
+
+  #thirth {
+    position: absolute;
+  }
+
+  #layer1 {
+    content: 'l';
+  }
+
+
+@media (max-width: 600px){
+	#layer1{
+		content:'s'
+	}
+}
+
+</style>
+
+<body>
+  <div id="root" data-lj-type="stage">
+    <div id="layer1" data-lj-type="layer" data-lj-default-frame="main" data-lj-native-scroll="true" data-lj-layout-type="grid" data-lj-grid-l="*,*" data-lj-grid-s="3,*">
+      <div id="main" data-lj-type="frame" data-lj-name="main" data-lj-fit-to="responsive" data-lj-start-position="top" style="width:50px;height:50px;background:red;" class="big"
+                    data-lj-neighbors.b="thirth"
+                    data-lj-grid-s="0,1">main</div>
+      <div id="second" data-lj-type="frame" data-lj-x="0" data-lj-y="0" data-lj-name="second" data-lj-fit-to="responsive" data-lj-start-position="top" style="width:50px;height:50px;background:green;"
+                    data-lj-grid-s="2,0">second
+      </div>
+      <div id="thirth" data-lj-type="frame" data-lj-x="0" data-lj-y="0" data-lj-name="thirth" data-lj-fit-to="responsive" data-lj-start-position="top" style="width:50px;height:50px;background:yellow;" data-lj-scale-x="1" data-lj-scale-y="1" data-lj-rotation="0"
+                       data-lj-neighbors.t="main"
+                       data-lj-grid-s="0,0"> third</div>
+    </div>
+  </div>
+  <script src="../../../dist/layerjs.js"></script>
+  <script>
+    layerJS.init();
+  </script>
+</body>
+
+</html>
