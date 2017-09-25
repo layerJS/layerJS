@@ -1,7 +1,7 @@
 # Release notes #
 
 ## New in 0.4.4
- * The layer now has a transition queue. Events and transition are now getting queued. The queue is freed after the "transitionPrepared" event is triggered.
+ * The layer now has a transition queue. Events and transition are now getting queued. This gets a more defined behavior if gestures/trigger overlap. The queue is freed after the "transitionPrepared" event is triggered.
  * Refactoring showFrame and scrollTo methods of a layer. Both now use the transitionTo method for showing frames and scrolling. This also puts them into the queue
  * Filerouter is disabled by default. To enable add `lj-router="filerouter"` to the body of the HTML document.
  * Fixes for swipping left/right caused by the history button on chrome Mac. (fix of 0.4.3 fix)
