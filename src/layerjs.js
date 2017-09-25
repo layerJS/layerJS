@@ -31,7 +31,7 @@ layerJS.init = function() {
   layerJS.parseManager.parseDocument();
 
   var routerAttribute = $.getAttributeLJ(document.body, 'router');
-  if (routerAttribute && 'filerouter' === routerAttribute.toLower()) {
+  if (routerAttribute && 'filerouter' === routerAttribute.toLowerCase()) {
     layerJS.router.addRouter(new FileRouter({
       cacheCurrent: true
     }));
