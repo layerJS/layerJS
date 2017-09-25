@@ -9,7 +9,7 @@ utilities.transitionTo = function(layerId, frameName, transition, waitTime) {
 
     if (!waitTime) {
       layer.on('transitionFinished', function() {
-        setTimeout(callBack, 2000);
+        setTimeout(callBack, 1);
       });
     }
 
@@ -77,7 +77,7 @@ utilities.listenDimensionsBeforeTransition = function(layerId, frameId) {
 
 utilities.getFromStore = function(id) {
   return browser.driver.executeAsyncScript(function(id, callback) {
-    callback(window._selenium_store[id]);
+    callback(window._selenium_store && window._selenium_store[id]);
   }, id);
 };
 
@@ -495,7 +495,7 @@ utilities.showFrame = function(layerId, frameName, scrollData, waitTime) {
 
     if (!waitTime) {
       layer.on('transitionFinished', function() {
-        setTimeout(callback, 1000);
+        setTimeout(callback, 1);
       });
     }
 

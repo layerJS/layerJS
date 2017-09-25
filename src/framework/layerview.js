@@ -45,14 +45,14 @@ var LayerView = BaseView.extend({
       mouseDragging: this.draggable()
     });
 
-     var that = this;
+    var that = this;
 
-     this.onResizeCallBack = function() {
-       // when doing a transform, the callback should not be called
-    //   if (!that.inTransition()) {
-         that.render();
-    //   }
-     };
+    this.onResizeCallBack = function() {
+      // when doing a transform, the callback should not be called
+      //   if (!that.inTransition()) {
+      that.render();
+      //   }
+    };
 
     // this is my stage and add listener to keep it updated
     this.stage = this.parent;
@@ -509,7 +509,7 @@ var LayerView = BaseView.extend({
         }
         // add listener to the sempahore to get the moment the animation really startsWith
         transition.semaphore.listen(true).then(function(num) {
-          if (num > 0) that.trigger('transitionPrepared'); // notify listeners about prepared state. (unless all have skipped, e.g. delayed transitions)
+          if (num > 0 && transition.applyTargetPrePosition !== false) that.trigger('transitionPrepared'); // notify listeners about prepared state. (unless all have skipped, e.g. delayed transitions)
         });
         transition.semaphore.listen().then(function() {
           that.transitionQueue.continue(); // allow processing of next transition from queue
