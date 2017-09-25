@@ -72,15 +72,18 @@ var BaseView = DOMObserver.extend({
   _parseChildren: function(options) {
     options = options || {};
     var that = this;
+    var childrenRemoved = [];
+    var childrenAdded = [];
     this._cache.children = [];
     this._cache.childNames = {};
     this._cache.childIDs = {};
+
 
     // trigger remove nodes first. this is important for inter stage transitions
     if (options.removedNodes && options.removedNodes.length > 0) {
       options.removedNodes.forEach(function(removedNode) {
         if (removedNode._ljView) {
-          that.trigger('childRemoved', removedNode._ljView);
+          childrenRemoved.push(removedNode._ljView);
         }
       });
     }
@@ -95,7 +98,7 @@ var BaseView = DOMObserver.extend({
             document: this.document
           });
           this._renderChildPosition(child._ljView);
-          this.trigger('childAdded', child._ljView);
+          childrenAdded.push(child._ljView);
         }
         if (child._ljView && child._ljView.type() === this.childType) {
           var cv = child._ljView;
@@ -120,10 +123,19 @@ var BaseView = DOMObserver.extend({
           options.addedNodes[x]._ljView.parent = this;
         }
         if (options.addedNodes[x]._ljView) {
-          this.trigger('childAdded', options.addedNodes[x]._ljView);
+          childrenAdded.push(options.addedNodes[x]._ljView);
         }
       }
     }
+
+    childrenRemoved.forEach(function(view) {
+      that.trigger('childRemoved', view);
+    });
+
+    childrenAdded.forEach(function(view) {
+      that.trigger('childAdded', view);
+    });
+
   },
   /**
    * Will return a childview by a specific name
