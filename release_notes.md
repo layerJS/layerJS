@@ -1,12 +1,15 @@
 # Release notes #
 
- ## New in 0.4.3
- * A `lj-nolink` attribute can be added to anchor tags. When true the links will be ignored by the router(s).
- * Filerouter is disabled by default. To enable add `lj-router=filerouter` to the body of the HTML document.
- * Fixes for swipping left/right caused by the history button on chrome Mac.
- * Fixed the dection of innerscrolling (scrollable containers within a frame).
- * Refactoring showFrame and scrollTo methods of a layer. Both now use the transitionTo method for showing frames and scrolling.
+## New in 0.4.4
  * The layer now has a transition queue. Events and transition are now getting queued. The queue is freed after the "transitionPrepared" event is triggered.
+ * Refactoring showFrame and scrollTo methods of a layer. Both now use the transitionTo method for showing frames and scrolling. This also puts them into the queue
+ * Filerouter is disabled by default. To enable add `lj-router="filerouter"` to the body of the HTML document.
+ * Fixes for swipping left/right caused by the history button on chrome Mac. (fix of 0.4.3 fix)
+ * Fixed the detection of innerscrolling (scrollable containers within a frame). (fix of 0.4.3 fix)
+ * A `lj-nolink` attribute can be added to anchor tags. When true the links will be ignored by the router(s).
+
+## New in 0.4.3
+* fix scrolling on IOS devices. Basically native scrolling for divs wasn't working. Also inertial scrolling was not working.
 
 ## New in 0.4.2
 * Refactored how layerJS keeps track of it's internal state.
