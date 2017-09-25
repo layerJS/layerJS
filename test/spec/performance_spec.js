@@ -6,7 +6,7 @@ describe('performance tests', function() {
     Perfcollector = require("perfcollector.js");
   });
 
-  it('slice vs for loop', function() {
+  xit('slice vs for loop', function() {
     var iterations = 1000000;
     var params = ['a', 'b', 'c', 'd', 'e'];
     var perfs = Perfcollector.create().enable();
