@@ -28,7 +28,7 @@ var LayerView = BaseView.extend({
     }
 
     this.stage = options.parent;
-    BaseView.call(this, options);    
+    BaseView.call(this, options);
     this._inTransition = false; // indicates that transition is still being animated
     this._transitionIDcounter = 1; // counts up every call of transitionTo()
     this.transitionID = 1; // in principle the same as _transitionIDcounter, but may be reset is transitionTo is not actually executing a transition
@@ -72,6 +72,7 @@ var LayerView = BaseView.extend({
     this.on('scroll', function() { // jshint ignore:line
       //that._layout.updateTransitions(); // FIXME: notify layout about scroll and that prepared transitions may be outdated
     });
+
     /*
     // register for gestures
     gestureManager.register(this.layer.outerEl,function(){
@@ -140,6 +141,10 @@ var LayerView = BaseView.extend({
 
     this.on('transitionStarted', function() {
       that.autoTrigger();
+    });
+
+    this.on('childrenChanged', function(){
+      that.render();
     });
   },
   /**

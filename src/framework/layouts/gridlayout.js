@@ -100,9 +100,9 @@ var GridLayout = LayerLayout.extend({
         display: 'block'
       };
 
-      if (null === frame) {
+      /*if (null === frame) {
         cssTransition.opacity = 0;
-      }
+      }*/
 
       that.setLayerTransform('', cssTransition, frame);
 
