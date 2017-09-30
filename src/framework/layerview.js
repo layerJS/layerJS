@@ -523,7 +523,7 @@ var LayerView = BaseView.extend({
         transition.transitionID = that.transitionID = ++that._transitionIDcounter; // inc transition ID and save new ID into transition record; keep exiting transitionID if existing (delayed transitions)
         that.inTransition(true, $.timeToMS(transition.duration));
 
-        console.log('running new transition', transition.transitionID, transition);
+        console.log('running new transition', transition.transitionID, transition, framename, that.id());
 
         // make sure frame is there such that we can calculate dimensions and transform data
         return that._layout.loadFrame(frame).then(function() {

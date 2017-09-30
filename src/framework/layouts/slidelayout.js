@@ -102,26 +102,25 @@ var SlideLayout = LayerLayout.extend({
     var currentFrame = that.layer.currentFrame;
     return this.prepareTransition(frame, transition, targetFrameTransformData, targetTransform).then(function(t) {
       var finished = new Kern.Promise();
-      var frameToTransition = frame || currentFrame;
 
       var transitionEnd = function() {
 
-          if (currentFrame && transition.applyCurrentPostPosition !== false) {
-            currentFrame.applyStyles(t.fix_css, {
-              transition: 'none',
-              display: 'none',
-              'z-index': 'initial'
-            });
-            console.log('slidelayout: fix c');
-          }
+        if (currentFrame && transition.applyCurrentPostPosition !== false) {
+          currentFrame.applyStyles(t.fix_css, {
+            transition: 'none',
+            display: 'none',
+            'z-index': 'initial'
+          });
+          console.log('slidelayout: fix c');
+        }
 
-          if (frame) {
-            frame.applyStyles(t.fix_css, {
-              transition: 'none',
-              'z-index': 'initial'
-            });
-            console.log('slidelayout: fix t');
-          }
+        if (frame) {
+          frame.applyStyles(t.fix_css, {
+            transition: 'none',
+            'z-index': 'initial'
+          });
+          console.log('slidelayout: fix t');
+        }
 
 
         finished.resolve(); // do we need to wait here until it is rendered?
@@ -131,16 +130,12 @@ var SlideLayout = LayerLayout.extend({
         // });
       };
 
-
-      if (frameToTransition) {
-        if (transition.duration !== '') {
-          frameToTransition.outerEl.addEventListener("transitionend", function f(e) { // FIXME needs webkitTransitionEnd etc
-            e.target.removeEventListener(e.type, f); // remove event listener for transitionEnd.
-            transitionEnd();
-          });
-        }
-      } else {
-        finished.resolve(); // FIXME: this would be only called if currentFrame and new frame are null ?????
+      var frameToTransition = frame || currentFrame; // is there at least on frame to transition?
+      if (frameToTransition && transition.duration !== '') {
+        frameToTransition.outerEl.addEventListener("transitionend", function f(e) { // FIXME needs webkitTransitionEnd etc
+          e.target.removeEventListener(e.type, f); // remove event listener for transitionEnd.
+          transitionEnd();
+        });
       }
       // wait for semaphore as there may be more transitions that need to be setup
       transition.semaphore.sync().then(function() {
@@ -161,7 +156,7 @@ var SlideLayout = LayerLayout.extend({
           console.log('slidelayout: apply c1');
         }
 
-        if (transition.duration === '') {
+        if (transition.duration === '' || !frameToTransition) { // execute transitionend immediately if not transition is going on
           transitionEnd();
         }
 
