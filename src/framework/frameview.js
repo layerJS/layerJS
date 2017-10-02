@@ -87,7 +87,7 @@ var FrameView = BaseView.extend({
   getScrollData: function() {
 
     var scrollData = this.transformData ? {
-    //  startPosition: this.transformData.startPosition,
+      //  startPosition: this.transformData.startPosition,
       scrollX: this.transformData.scrollX,
       scrollY: this.transformData.scrollY
     } : {};
@@ -102,8 +102,8 @@ var FrameView = BaseView.extend({
    * @returns {TransformData} the transform data
    */
   calculateTransformData: function(stage, transitionStartPosition) {
-    var stageWidth = stage.width();
-    var stageHeight = stage.height();
+    var stageWidth = stage ? stage.width() : 0;
+    var stageHeight = stage ? stage.height(): 0;
     // data record contianing transformation and scrolling information of frame within given stage
     var d = this.transformData = {};
     d.stage = stage;
@@ -111,6 +111,7 @@ var FrameView = BaseView.extend({
     d.scale = 1;
     d.frameWidth = this.width();
     d.frameHeight = this.height();
+
     // d.shiftX/Y indicate how much the top-left corner of the frame should be shifted from
     // the stage top-left corner (in stage space)
     d.shiftX = 0;
@@ -121,7 +122,9 @@ var FrameView = BaseView.extend({
     // indicate whether scrolling in x or y directions is active
     d.isScrollX = false;
     d.isScrollY = false;
-    switch (this.fitTo()) {
+
+    var fitTo = this.fitTo(false) || this.parent.fitTo();
+    switch (fitTo) {
       case 'width':
         d.scale = stageWidth / d.frameWidth;
         d.isScrollY = true;
@@ -207,11 +210,26 @@ var FrameView = BaseView.extend({
         }
         break;
       default:
-        throw "unkown fitTo type '" + this.fitTo() + "'";
+        throw "unkown fitTo type '" + fitTo + "'";
     }
+
+    if (d.isScrollY && stage.autoWidth()) {
+      throw 'we can\'t adapt stage width if we fit to width';
+    } else if (d.isScrollX && stage.autoHeight()) {
+      throw 'we can\'t adapt stage height if we fit to height';
+    }
+
+
     // calculate actual frame width height in stage space
     d.width = d.frameWidth * d.scale;
     d.height = d.frameHeight * d.scale;
+
+    if (stage && stage.autoWidth()) {
+      stageWidth= d.width;
+    }
+    else if (stage && stage.autoHeight()){
+      stageHeight = d.height;
+    }
     // calculate maximum scroll positions (depend on frame and stage dimensions)
     // WARN: allow negative maxScroll for now
     d.maxScrollY = 0;

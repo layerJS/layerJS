@@ -1,5 +1,6 @@
 'use strict';
 var defaults = require('./defaults.js');
+var TMat = require('./tmat.js');
 
 var DomHelpers = {
   /**
@@ -409,7 +410,153 @@ var DomHelpers = {
       a.href = url;
       return a.href;
     };
-  })()
+  })(),
+
+  /**
+   *  Will return all parents of a node in DOM order
+   * https://gist.github.com/benpickles/4059636
+   * @param {object} node an node who's parents we need to find
+   * @return {array} Array of the DOM parents of the node. Tomost parent comes first
+   */
+  _parents: function(node) {
+    // Place the first node into an array
+    var nodes = [node];
+
+    // As long as there is a node
+    for (; node; node = node.parentNode) {
+      // Place that node at the beginning of the array
+      // This unravels the tree into an array with child/parents only
+      nodes.unshift(node);
+    }
+    // Return the array
+    return nodes;
+  },
+
+  /**
+   *  Will return the common parent between 2 nodes
+   * https://gist.github.com/benpickles/4059636
+   * @param {object} node
+   * @param {object} node
+   * @return {object} common parent
+   */
+  commonParent: function(node1, node2) {
+    // Get the hierarchy arrays
+    var parents1 = this._parents(node1);
+    var parents2 = this._parents(node2);
+
+    /* At this point we have two hierarchies. Although DOM can go x steps up to
+     ** a common parent node, top down will be equal for a common ancestor, as
+     ** the difference to the top is only after we break past the common ancestor.
+     ** After that, the common node has the same parent as the other node, so it's
+     ** the same all the way to the top. (If that doesn't make sense, thing about
+     ** it, and maybe draw it out).
+     */
+
+    // Ensure we have found a common ancestor, which will be the first one if anything
+    if (parents1[0] !== parents2[0]) return null;
+
+    /* Otherwise, traverse down the hierarchy until we reach where they're no longer
+     ** the same. Then return one up, which is the closest, common ancestor.
+     */
+    for (var i = 0; i < parents1.length; ++i) {
+      // If we found the split, return the one above it
+      if (parents1[i] !== parents2[i]) return parents1[i - 1];
+    }
+
+    // Formality, even though we'll never make it this far
+    return null;
+  },
+  getMatrixArray: function(element) {
+    var st = window.getComputedStyle(element, null);
+    var tr = st.getPropertyValue("-webkit-transform") ||
+      st.getPropertyValue("-moz-transform") ||
+      st.getPropertyValue("-ms-transform") ||
+      st.getPropertyValue("-o-transform") ||
+      st.getPropertyValue("transform") ||
+      "FAIL";
+
+    var array;
+    if (tr === 'none' || undefined === tr || 'FAIL' === tr) {
+      array = [1, 0, 0, 1, 0, 0];
+    } else {
+      var values = tr.split('(')[1].split(')')[0].split(',');
+      var a = parseFloat(values[0].replace(/\s+/g, ''));
+      var b = parseFloat(values[1].replace(/\s+/g, ''));
+      var c = parseFloat(values[2].replace(/\s+/g, ''));
+      var d = parseFloat(values[3].replace(/\s+/g, ''));
+      var e = parseFloat(values[4].replace(/\s+/g, ''));
+      var f = parseFloat(values[5].replace(/\s+/g, ''));
+
+      array = [a, b, c, d, e, f];
+    }
+
+    return array;
+  },
+
+  getMatrix: function(element) {
+    var matrix = new TMat(this.getMatrixArray(element));
+    var topLeftMatrix = this.getTopLeftMatrix(element);
+    /*
+    could contain translate -> correct this
+    topLeftMatrix.tx = topLeftMatrix.tx - (matrix.tx * matrix.a);
+    topLeftMatrix.ty = topLeftMatrix.ty - (matrix.ty * matrix.d);
+    topLeftMatrix = topLeftMatrix.prod(TMat.Tscalexy(matrix.a, matrix.d));
+    */
+    //  matrix = matrix.prod(topLeftMatrix);
+    matrix = topLeftMatrix.prod(matrix);
+
+    return matrix;
+  },
+
+  getScaleAndRotationMatrix: function(element) {
+    var matrix = new TMat(this.getMatrixArray(element));
+    matrix.tx = matrix.ty = 0;
+
+    return matrix;
+  },
+
+  applyTopLeftOnMatrix: function(element, matrix) {
+
+    var degrees = matrix.get_rotation_equal();
+    degrees = (degrees % 360);
+    var rectAfter = element.getBoundingClientRect();
+    var width = rectAfter.width,
+      height = rectAfter.height;
+    var rotation, rotationLeft, rotationTop, top = rectAfter.top,
+      left = rectAfter.left;
+
+    if ((degrees > 0 && degrees <= 90) || (degrees < -270 && degrees >= -360)) {
+      //ok
+      rotation = degrees * Math.PI / 180 * (-1);
+
+      top = rectAfter.top;
+      left = rectAfter.left - Math.sin(rotation) * height;
+    } else if ((degrees > 90 && degrees <= 180) || (degrees < -180 && degrees >= -270)) {
+      //ok
+      rotationTop = ((180 - degrees) * Math.PI / 180);
+      rotationLeft = ((degrees) * Math.PI / 180);
+
+      top = rectAfter.top - Math.cos(rotationTop) * height * (-1);
+      left = rectAfter.left + (Math.sin(rotationLeft) * height + Math.cos(rotationLeft) * (-1) * width); //NOK
+    } else if ((degrees < 0 && degrees >= -90) || (degrees > 270 && degrees <= 360)) {
+      //ok
+      rotation = (-degrees) * Math.PI / 180;
+
+      top = rectAfter.top + Math.sin(rotation) * width;
+      left = rectAfter.left;
+    } else if ((degrees < -90 && degrees >= -180) || (degrees > 180 && degrees <= 270)) {
+      //ok
+      rotationLeft = ((180 - degrees) * Math.PI / 180);
+      rotationTop = ((-degrees) * Math.PI / 180);
+
+      left = rectAfter.left + Math.cos(rotationLeft) * width;
+      top = rectAfter.top + (Math.sin(rotationTop) * width + Math.cos(rotationTop) * (-1) * height); //ok
+    }
+
+    matrix.tx = left;// * matrix.a;
+    matrix.ty = top;// * matrix.d;
+    return matrix;
+  }
 };
 DomHelpers.detectBrowser();
 DomHelpers.calculatePrefixes(['transform', 'transform-origin']);

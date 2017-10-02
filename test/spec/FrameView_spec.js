@@ -1,3 +1,4 @@
+var StageView = require('../../src/framework/stageview.js');
 var LayerView = require('../../src/framework/layerview.js');
 var FrameView = require('../../src/framework/frameview.js');
 var state = require('../../src/framework/state.js');
@@ -7,6 +8,7 @@ var ViewsCommonIdentifyTests = require('./helpers/views/common/identifytests.js'
 var ViewsCommonViewTests = require('./helpers/views/common/viewtests.js')
 
 describe("FrameView", function() {
+
 
   ViewsCommonViewTests('simple_frame_1.js', function() {
     return {
@@ -30,43 +32,44 @@ describe("FrameView", function() {
 
     describe('sizeChanged', function() {
       it('will remove cached transformData and will trigger a renderRequired event', function(done) {
-        var element = utilities.appendChildHTML(require('./htmlelements/simple_layer_1.js'));
+        var element = utilities.appendChildHTML(require('./htmlelements/simple_stage_1.js'));
 
-        var layerView = new LayerView({
+        var stageView = new StageView({
           el: element
         });
+        var layerView = stageView.getChildViews()[0];
         var frameView = layerView.getChildViews()[0];
 
         spyOn(layerView, 'render').and.callThrough();
-
-        frameView.transformData = {};
+        spyOn(layerView, 'showFrame');
 
         frameView.on('renderRequired', function() {
           setTimeout(function() {
-            // give layer view the posibility to get invoked
             expect(layerView.render).toHaveBeenCalled();
             expect(frameView.transformData.isDirty).toBe(true);
             done();
-          }, 1000);
+          }, 1);
         });
 
         frameView.trigger('sizeChanged');
+        expect(frameView.transformData.isDirty).toBe(true);
       });
 
     });
 
     describe('attributesChanged', function() {
       function renderRequiredTriggered(action, done) {
-        var element = utilities.appendChildHTML(require('./htmlelements/simple_layer_1.js'));
+        var element = utilities.appendChildHTML(require('./htmlelements/simple_stage_1.js'));
 
-        var layerView = new LayerView({
+        var stageView = new StageView({
           el: element
         });
+
+        var layerView = stageView.getChildViews()[0];
         var frameView = layerView.getChildViews()[0];
 
         spyOn(layerView, 'render').and.callThrough();
-
-        frameView.transformData = {};
+        spyOn(layerView, 'showFrame');
 
         frameView.on('renderRequired', function() {
           setTimeout(function() {
@@ -74,7 +77,7 @@ describe("FrameView", function() {
             expect(layerView.render).toHaveBeenCalled();
             expect(frameView.transformData.isDirty).toBe(true);
             done();
-          }, 1000);
+          }, 1);
         });
 
         action(frameView.outerEl);
@@ -156,9 +159,12 @@ describe("FrameView", function() {
 
     describe('renderRequired', function() {
       it('will call the renderChildPosition and showFrame method of it\'s layer', function(done) {
-        var layerView = new LayerView({
-          el: utilities.appendChildHTML(require('./htmlelements/simple_layer_1.js'))
+        var stageView = new StageView({
+          el: utilities.appendChildHTML(require('./htmlelements/simple_stage_1.js'))
         });
+
+        var layerView = stageView.getChildViews()[0];
+
         spyOn(layerView, '_renderChildPosition');
         spyOn(layerView, 'showFrame');
 

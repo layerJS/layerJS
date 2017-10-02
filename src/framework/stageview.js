@@ -53,6 +53,45 @@ var StageView = BaseView.extend({
       childView.startObserving();
     }
   },
+  /**
+   * Will parse the current DOM Element it's children.
+   * @param {object} options - optional: includes addedNodes
+   */
+  _parseChildren: function(options) {
+    var that = this;
+    var autoLength = this.autoWidth() || this.autoHeight();
+
+    var layerTransitioned = function(layerView) {
+      return function(frameName, transition) {
+        transition = transition || {};
+        var currentFrameTransformData = layerView.currentFrameTransformData;
+        var style = {
+          transition: transition.duration || ''
+        };
+        if (that.autoWidth()) {
+          //that.setWidth(currentFrameTransformData.width);
+          style.width = currentFrameTransformData.width;
+          //style.transform = 'scaleX(' + (1 / that.width()) * currentFrameTransformData.width + ')';
+        } else if (that.autoHeight()) {
+          //that.setHeight(currentFrameTransformData.height);
+          style.height = currentFrameTransformData.height;
+          //style.transform = 'scaleY(' + (1 / that.height()) * currentFrameTransformData.height + ')';
+        }
+        that.applyStyles(style);
+
+      };
+    };
+
+    BaseView.prototype._parseChildren.call(this, options);
+
+    if (autoLength) {
+      for (var x = 0; x < this._cache.children.length; x++) {
+        if (this._cache.children[x].name() === autoLength) {
+          this._cache.children[x].on('transitionStarted', layerTransitioned(this._cache.children[x]));
+        }
+      }
+    }
+  },
 }, {
   defaultProperties: {
     type: 'stage'

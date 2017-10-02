@@ -1,6 +1,7 @@
 'use strict';
 var $ = require('../domhelpers.js');
 var Kern = require('../../kern/Kern.js');
+var TMat = require('../tmat.js');
 
 /**
  * this is the base class for all LayerLayouts
@@ -44,18 +45,69 @@ var LayerLayout = Kern.EventManager.extend({
     var computedStyle = (null !== frame && frame.document.defaultView && frame.document.defaultView.getComputedStyle) || function(el) {
       return el.style;
     };
-    if (frame === null || (frame.document.body.contains(frame.outerEl) && computedStyle(frame.outerEl).display !== 'none')) {
+    if (frame === null || (frame.document.body.contains(frame.outerEl) && computedStyle(frame.outerEl).display !== 'none' && frame.parent === this.layer)) {
       finished.resolve();
     } else {
-      // FIXME: add to dom if not in dom
-      // set display block
-      frame.outerEl.style.display = 'block';
-      // frame should not be visible; opacity is the best as "visibility" can be reverted by nested elements
-      frame.outerEl.style.opacity = '0';
-      // wait until rendered;
-      $.postAnimationFrame(function() {
-        finished.resolve();
-      });
+
+      // frame not in the layer
+      if (frame.parent !== this.layer) {
+        var targetElement = this.layer.outerEl;
+        var commonParent = $.commonParent(frame.innerEl, targetElement);
+
+        var calculateMatrix = function(element, stopElement) {
+          var parentMatrix = new TMat();
+
+          if (element !== stopElement) {
+            parentMatrix = calculateMatrix(element.parentNode, stopElement);
+          }
+
+          var elementMatrix = $.getScaleAndRotationMatrix(element);
+          var result = parentMatrix.prod(elementMatrix);
+          return result;
+        };
+
+        var frameMatrix = calculateMatrix(frame.outerEl, commonParent);
+        frameMatrix = $.applyTopLeftOnMatrix(frame.outerEl, frameMatrix);
+
+        var targetLayerMatrix = calculateMatrix(targetElement, commonParent);
+        targetLayerMatrix = $.applyTopLeftOnMatrix(targetElement, targetLayerMatrix);
+
+        var resultMatrix = targetLayerMatrix.invert().prod(frameMatrix);
+        var that = this;
+
+        frame.parent.innerEl.removeChild(frame.outerEl);
+        if (frame.parent.currentFrame === frame) {
+          frame.parent.currentFrame = null;
+        }
+
+        $.postAnimationFrame(function() {
+          that.layer.innerEl.appendChild(frame.outerEl);
+          frame.transformData = undefined;
+
+          frame.applyStyles({
+            transform: resultMatrix.transform_nomatrix(),
+          }, {}, {});
+
+          // wait until rendered;
+          $.postAnimationFrame(function() {
+            finished.resolve();
+          });
+        });
+
+      } else {
+        // FIXME: add to dom if not in dom
+        // set display block
+        frame.outerEl.style.display = 'block';
+        // frame should not be visible; opacity is the best as "visibility" can be reverted by nested elements
+        frame.outerEl.style.opacity = '0';
+
+        // wait until rendered;
+        $.postAnimationFrame(function() {
+          finished.resolve();
+        });
+      }
+
+
     }
     return finished;
   },

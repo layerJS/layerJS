@@ -39,9 +39,9 @@ var MutationsObserver = ElementObserver.extend({
             result.addedNodes.push(mutation.addedNodes[x]);
           }
         }
-        if (mutation.removeNodes && mutation.removeNodes.length > 0) {
-          for (var y = 0; y < mutation.removeNodes.length; y++) {
-            result.removedNodes.push(mutation.removeNodes[y]);
+        if (mutation.removedNodes && mutation.removedNodes.length > 0) {
+          for (var y = 0; y < mutation.removedNodes.length; y++) {
+            result.removedNodes.push(mutation.removedNodes[y]);
           }
         }
       }

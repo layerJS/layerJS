@@ -7,6 +7,7 @@ var ScrollTransformer = require('./scrolltransformer.js');
 var gestureManager = require('./gestures/gesturemanager.js');
 var defaults = require('./defaults.js');
 var BaseView = require('./baseview.js');
+var State = require('./state.js');
 /**
  * A View which can have child views
  * @param {LayerData} dataModel
@@ -426,8 +427,44 @@ var LayerView = BaseView.extend({
     var d = this._noframetd = {};
     d.stage = this.stage;
     d.scale = 1;
-    d.width = d.frameWidth = this.stage ? this.stage.width() : 0;
-    d.height = d.frameHeight = this.stage ? this.stage.height() : 0;
+
+    d.width = this.stage ? this.stage.width() : 0;
+    d.height = this.stage ? this.stage.height() : 0;
+    d.frameWidth = 0;
+    d.frameHeight = 0;
+
+    var fitTo = this.fitTo();
+    switch (fitTo) {
+      case 'width':
+      case 'elastic-width':
+      case 'responsive-width':
+        d.frameWidth = d.width;
+        break;
+      case 'height':
+      case 'elastic-height':
+      case 'responsive-height':
+        d.frameHeight = d.height;
+        break;
+      case 'fixed':
+      case 'responsive':
+      case 'contain':
+      case 'cover':
+      case 'responsive':
+        d.frameWidth = d.width;
+        d.frameHeight = d.height;
+        break;
+      default:
+        throw "unkown fitTo type '" + fitTo + "'";
+    }
+
+    if (this.stage && this.stage.autoHeight()) {
+      d.height = d.frameHeight = 0;
+    }
+
+    if (this.stage && this.stage.autoWidth()) {
+      d.width = d.frameWidth = 0;
+    }
+
     d.shiftX = d.shiftY = d.scrollX = d.scrollY = 0;
     d.isScrollX = d.isScrollY = false;
     d.startPosition = transitionStartPosition || 'top';
@@ -489,7 +526,9 @@ var LayerView = BaseView.extend({
           type: transition && transition.type ? 'default' : (frame && frame.defaultTransition()) || that.defaultTransition() || autotransition || 'default',
           previousType: transition && transition.type ? undefined : (that.currentFrame && that.currentFrame.defaultTransition()) || undefined,
           duration: '1s',
-          lastFrameName: (that.currentFrame && that.currentFrame.name()) || "!none"
+          lastFrameName: (that.currentFrame && that.currentFrame.name()) || "!none",
+          applyTargetPrePosition: transition.applyTargetPrePosition || (frame && frame.parent && frame.parent === that),
+          applyCurrentPostPosition: transition.applyCurrentPostPosition || (frame && frame.parent && frame.parent === that)
           // FIXME: add more default values like timing
         }, transition || {});
 
@@ -641,7 +680,23 @@ var LayerView = BaseView.extend({
       frameName = this._getPreviousFrameName();
     }
 
-    return frameName === defaults.specialFrames.none ? null : this.getChildViewByName(frameName);
+    var frameView;
+    if (frameName === defaults.specialFrames.none) {
+      frameView = null;
+    } else {
+      frameView = this.getChildViewByName(frameName);
+
+      if (undefined === frameView && undefined !== frameName) {
+        var paths = State.getState().resolvePath(frameName);
+
+        if (paths.length > 1) throw 'only 1 path should be expected';
+        if (paths.length > 0) {
+          frameView = paths[0].view;
+        }
+      }
+    }
+
+    return frameView;
   },
   /**
    * Will get the next framename based on the html order
@@ -756,6 +811,16 @@ var LayerView = BaseView.extend({
     BaseView.prototype._parseChildren.call(this, options);
 
     var childrenViews = this._cache.children;
+    var that = this;
+
+    if (options && options.removedNodes && options.removedNodes.length > 0) {
+      options.removedNodes.forEach(function(removedNode) {
+        if (removedNode._ljView) {
+          removedNode._ljView.off('renderRequired', undefined, that);
+        }
+      });
+    }
+
 
     if (options && options.addedNodes && options.addedNodes.length > 0) {
       childrenViews = [];
@@ -766,7 +831,7 @@ var LayerView = BaseView.extend({
       }
     }
 
-    var that = this;
+
     var renderRequiredEventHandler = function(name) {
       if (that.currentFrame && null !== that.currentFrame && that.currentFrame.name() === name) {
         that._renderChildPosition(that._cache.childNames[name]);
@@ -775,7 +840,9 @@ var LayerView = BaseView.extend({
     };
 
     for (var y = 0; y < childrenViews.length; y++) {
-      childrenViews[y].on('renderRequired', renderRequiredEventHandler);
+      childrenViews[y].on('renderRequired', renderRequiredEventHandler, {
+        context: this
+      });
     }
   }
 }, {
