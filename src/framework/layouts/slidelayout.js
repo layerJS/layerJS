@@ -111,7 +111,7 @@ var SlideLayout = LayerLayout.extend({
             display: 'none',
             'z-index': 'initial'
           });
-          console.log('slidelayout: fix c');
+          $.debug('slidelayout: fix c');
         }
 
         if (frame) {
@@ -119,7 +119,7 @@ var SlideLayout = LayerLayout.extend({
             transition: 'none',
             'z-index': 'initial'
           });
-          console.log('slidelayout: fix t');
+          $.debug('slidelayout: fix t');
         }
 
 
@@ -145,7 +145,7 @@ var SlideLayout = LayerLayout.extend({
           left: "0px",
           opacity: "1"
         });
-        console.log('slidelayout: apply t1');
+        $.debug('slidelayout: apply t1');
 
         if (transition.applyCurrentPostPosition !== false) {
           that._applyTransform(currentFrame, t.c1, targetTransform, {
@@ -153,7 +153,7 @@ var SlideLayout = LayerLayout.extend({
             top: "0px",
             left: "0px"
           });
-          console.log('slidelayout: apply c1');
+          $.debug('slidelayout: apply c1');
         }
 
         if (transition.duration === '' || !frameToTransition) { // execute transitionend immediately if not transition is going on
@@ -235,7 +235,7 @@ var SlideLayout = LayerLayout.extend({
           transition: 'none',
           visibility: 'inital'
         });
-        console.log('slidelayout: apply t0');
+        $.debug('slidelayout: apply t0');
       }
       // apply pre position to current frame
       if (prep.current_css && transition.applyCurrentPrePosition !== false) {
@@ -243,7 +243,7 @@ var SlideLayout = LayerLayout.extend({
           transition: 'none',
           'z-index': 'initial'
         });
-        console.log('slidelayout: apply c0');
+        $.debug('slidelayout: apply c0');
       }
       // wait until new positions are rendered then resolve promise
       $.postAnimationFrame(function() {

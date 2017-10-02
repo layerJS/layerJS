@@ -384,7 +384,7 @@ var LayerView = BaseView.extend({
         } else { //jshint ignore:line
           // FIXME: escalate/gesture bubbling ; ignore for now
           gesture.preventDefault = false;
-          console.log(gesture.direction);
+          $.debug(gesture.direction);
           if (neighbors && (neighbors.l || neighbors.r) && (gesture.direction === 'left' || gesture.direction === 'right')) gesture.preventDefault = true; // bad hack, but there is an aggressive "back/forward" functionality on left / right swipe at least on mac computers that will impact UX severely
         }
       } else { //jshint ignore:line
@@ -523,7 +523,7 @@ var LayerView = BaseView.extend({
         transition.transitionID = that.transitionID = ++that._transitionIDcounter; // inc transition ID and save new ID into transition record; keep exiting transitionID if existing (delayed transitions)
         that.inTransition(true, $.timeToMS(transition.duration));
 
-        console.log('running new transition', transition.transitionID, transition, framename, that.id());
+        $.debug('running new transition', transition.transitionID, transition, framename, that.id());
 
         // make sure frame is there such that we can calculate dimensions and transform data
         return that._layout.loadFrame(frame).then(function() {
@@ -567,7 +567,7 @@ var LayerView = BaseView.extend({
           var layoutPromise = that._layout.transitionTo(frame, transition, targetFrameTransformData, targetTransform).then(function() {
             // is that still the active transition?
             if (transition.transitionID === that.transitionID) {
-              console.log('transition finished', transition.transitionID);
+              $.debug('transition finished', transition.transitionID);
               // that will now calculate the currect layer transform and set up scroll positions in native scroll
               that.currentTransform = that._transformer.getScrollTransform(targetFrameTransformData, transition, false);
               // apply new transform (will be 0,0 in case of native scrolling)

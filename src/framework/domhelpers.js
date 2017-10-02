@@ -290,6 +290,16 @@ var DomHelpers = {
     }
   },
   /**
+   * alternative console.log function that will supress output on live systems
+   *
+   * @param {...} ... - arguments to console.log
+   */
+  debug: function() {
+    if (!window || (window.location.protocol.match(/file/i)) || (window.location.host.match(/localhost/i)) || (window.location.host.match(/127\.0\./i))) {
+      console.log.apply(console, arguments);
+    }
+  },
+  /**
    * Will parse the url for a location, queryString and hash
    *
    * @param {string} url - url to parse
