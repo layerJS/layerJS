@@ -1,0 +1,25 @@
+body {
+  width: 100%;
+  height: 100%;
+  margin: 0px;
+}
+
+#overview {
+  width: 1440px;
+  height: 100vh;
+}
+
+.card {
+  width: 200px;
+  height: 200px;
+  border-radius: 20px;
+  padding: 20px;
+  border: 1px solid black;
+  background-color: white;
+}
+
+.card.lj-active {
+  transition: 1s;
+  border-radius: 0px;
+  border: 1px solid white;
+}

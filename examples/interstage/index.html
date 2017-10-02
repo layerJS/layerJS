@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="interstage example">
+  <script src="../../dist/layerjs.js"></script>
+  <link href="../../dist/layerjs.css" type="text/css" rel="stylesheet" />
+  <link href="your-style.css" type="text/css" rel="stylesheet" />
+  <title>title</title>
+</head>
+
+<body lj-type="stage">
+  <div lj-type="layer" lj-native-scroll="false" lj-layout="canvas" lj-name="canvas" lj-default-frame="overview">
+    <div lj-type="frame" id="overview" lj-x="0" lj-y="0">
+
+    </div>
+    <a href="#top.card1" lj-type="frame" class="card" id="card1" lj-x="0" lj-y="0">
+      card 1
+    </a>
+    <a href="#top.card2" lj-type="frame" class="card" id="card2" lj-x="200" lj-y="0">
+      card 2
+    </a>
+    <a href="#top.card3" lj-type="frame" class="card" id="card3" lj-x="400" lj-y="0">
+      card 3
+    </a>
+
+  </div>
+  <div lj-type="layer" lj-native-scroll="false" lj-name="top" lj-default-frame="!none">
+
+
+  </div>
+  <script>
+    layerJS.init(); // Initialize layerJS
+  </script>
+
+</body>
+
+</html>
