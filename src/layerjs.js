@@ -45,11 +45,4 @@ layerJS.init = function() {
     // layerJS.router.cache = true;
   });
 };
-// suppress all debug messages unless on testing environments
-var original_log = console.log;
-console.log = function() {
-  if (!window || (window.location.protocol.match(/file/i)) || (window.location.host.match(/localhost/i)) || (window.location.host.match(/127\.0\./i))) {
-    original_log.apply(console, arguments);
-  }
-};
 console.log('*** layerJS *** checkout http://layerjs.org *** happy to help you: developers@layerjs.org ***');
