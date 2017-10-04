@@ -84,9 +84,12 @@ var LayerLayout = Kern.EventManager.extend({
           that.layer.innerEl.appendChild(frame.outerEl);
           frame.transformData = undefined;
 
+          // reset top and left to 0 (important when doing an interstage from canva to slidelayout)
           frame.applyStyles({
             transform: resultMatrix.transform_nomatrix(),
-          }, {}, {});
+            top: '0px',
+            left:'0px'
+          });
 
           // wait until rendered;
           $.postAnimationFrame(function() {
