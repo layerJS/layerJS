@@ -16,6 +16,7 @@ var FrameView = BaseView.extend({
     this.transformData = undefined;
 
     BaseView.call(this, options);
+    this.originalParent = this.parent;
   },
   /**
    * Specifies what will need to be observed on the DOM element. (Attributes, Children and size)

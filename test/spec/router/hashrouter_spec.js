@@ -205,6 +205,35 @@ describe('HashRouter', function() {
         }, 500);
       });
     });
+
+
+    it('will put the full path of the frame when it is an interstage', function() {
+      utilities.setHtml("<div data-lj-type='stage' id='stage1'>" +
+        "<div data-lj-type='layer' id='layer1' data-lj-default-frame='frame1'>" +
+        "<div data-lj-type='frame' id='frame1' data-lj-name='frame1'></div>" +
+        "</div>"+
+        "<div data-lj-type='layer' id='layer2' >" +
+        "</div></div>");
+
+      var stageView = new StageView({
+        el: document.getElementById('stage1')
+      });
+
+      var frame1 = document.getElementById('frame1')._ljView;
+      var layer2 = document.getElementById('layer2')._ljView;
+      frame1.originalParent = layer2;
+
+      var options = {
+        location: 'http://localhost/index.html',
+        hash: 'something',
+        state: ['stage1.layer1.frame1']
+      };
+
+      hashRouter.buildUrl(options);
+      expect(options.state).toEqual([]);
+      expect(options.location).toBe('http://localhost/index.html');
+      expect(options.hash).toBe('stage1.layer1.frame1');
+    });
   });
 
 });
