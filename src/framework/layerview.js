@@ -347,7 +347,7 @@ var LayerView = BaseView.extend({
   gestureListener: function(gesture) {
     if (gesture.event._ljEvtHndld && gesture.event._ljEvtHndld !== this) return; // check if some inner layer has already dealt with the gesture/event
     gesture.event._ljEvtHndld = this;
-    if (this.currentFrame === null) { //this actually shoudn't happen as null frames don't have a DOM element that could recieve a gesture. However it happens when the gesture still continues from before the transition. Still we can't do anything here as we can't define neighbors for null frames (maybe later)
+    if (this.currentFrame === null) { //this actually shouldn't happen as null frames don't have a DOM element that could receive a gesture. However it happens when the gesture still continues from before the transition. Still we can't do anything here as we can't define neighbors for null frames (maybe later)
       return;
     }
     var layerTransform = this._transformer.scrollGestureListener(gesture);
@@ -356,7 +356,7 @@ var LayerView = BaseView.extend({
       return;
     }
     if (gesture.event.type === 'wheel') {
-      gesture.preventDefault = true; // set this as default. It's imporant as on macbooks horizonztal swipe gestures are used as history "forward" / "Backward" which needs to be prevented. Only if we detect a potential native scrolling then we set it to false afterwards.
+      gesture.preventDefault = true; // set this as default. It's imporant as on macbooks horizonztal swipe gestures are used as history "Forward" / "Backward" which needs to be prevented. Only if we detect a potential native scrolling then we set it to false afterwards.
     }
     if (layerTransform === true) {
       // native scrolling possible
