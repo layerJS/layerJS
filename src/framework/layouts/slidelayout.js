@@ -105,7 +105,7 @@ var SlideLayout = LayerLayout.extend({
 
       var transitionEnd = function() {
 
-        if (currentFrame && transition.applyCurrentPostPosition !== false) {
+        if (currentFrame && transition.applyCurrentPostPosition !== false  ) {
           currentFrame.applyStyles(t.fix_css, {
             transition: 'none',
             display: 'none',
@@ -114,7 +114,7 @@ var SlideLayout = LayerLayout.extend({
           $.debug('slidelayout: fix c');
         }
 
-        if (frame) {
+        if (frame ) {
           frame.applyStyles(t.fix_css, {
             transition: 'none',
             'z-index': 'initial'
@@ -148,8 +148,14 @@ var SlideLayout = LayerLayout.extend({
         // apply post frame dimensions
         if (targetFrameTransformData.applyWidth) otherCss.width = targetFrameTransformData.frameWidth + "px";
         if (targetFrameTransformData.applyHeight) otherCss.height = targetFrameTransformData.frameHeight + "px";
-        that._applyTransform(frame, that._currentFrameTransform = t.t1, targetTransform, otherCss);
-        $.debug('slidelayout: apply t1');
+        if (!transition.noActivation) {
+          that._applyTransform(frame, that._currentFrameTransform = t.t1, targetTransform, otherCss);
+          $.debug('slidelayout: apply t1');
+        } else {
+          that._applyTransform(frame, {
+            opacity: 0
+          }, targetTransform, {});
+        }
         if (transition.applyCurrentPostPosition !== false) {
           that._applyTransform(currentFrame, t.c1, targetTransform, {
             transition: transition.duration,
@@ -159,7 +165,7 @@ var SlideLayout = LayerLayout.extend({
           $.debug('slidelayout: apply c1');
         }
 
-        if (transition.duration === '' || !frameToTransition) { // execute transitionend immediately if not transition is going on
+        if (transition.duration === '' || !frameToTransition || transition.noActivation  ) { // execute transitionend immediately if not transition is going on
           transitionEnd();
         }
 

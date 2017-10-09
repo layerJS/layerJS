@@ -89,4 +89,29 @@ describe('inter stage', function() {
           });
       });
   });
+
+  describe('structure changing transition', function() {
+
+    it('canvas to slidelayout', function() {
+      browser.get('interstage/canvas_to_slide.html').then(function() {
+        utilities.transitionTo('top', 'card2', {
+          noActivation: true
+        }).then(function() {
+          protractor.promise.all([
+            utilities.getCurrentFrame('top'),
+            utilities.getCurrentFrame('canvas'),
+            utilities.getBoundingClientRect('card2')
+          ]).then(function(data) {
+            var topCurrentFrame = data[0];
+            var canvasCurrentFrame = data[1];
+            var card2Dimension = data[2];
+            expect(topCurrentFrame).toBe('!none');
+            expect(canvasCurrentFrame).toBe('overview');
+            expect(card2Dimension.opacity).toBe('0');
+          });
+        });
+      });
+    });
+  });
+
 });

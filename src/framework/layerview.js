@@ -527,8 +527,10 @@ var LayerView = BaseView.extend({
           previousType: transition && transition.type ? undefined : (that.currentFrame && that.currentFrame.defaultTransition()) || undefined,
           duration: '1s',
           lastFrameName: (that.currentFrame && that.currentFrame.name()) || "!none",
-          applyTargetPrePosition: transition.applyTargetPrePosition || (frame && frame.parent && frame.parent === that) // we need to set this here for interstage transitions; loadframe doesn't know about the transition record.
-          // FIXME: add more default values like timing
+          applyTargetPrePosition: !transition.noActivation && (transition.applyTargetPrePosition || (frame && frame.parent && frame.parent === that)), // we need to set this here for interstage transitions; loadframe doesn't know about the transition record.
+          applyCurrentPostPosition: transition.applyCurrentPostPosition && !transition.noActivation,
+          applyCurrentPrePosition: transition.applyCurrentPrePosition && !transition.noActivation
+            // FIXME: add more default values like timing
         }, transition || {});
 
         // check for reverse transition; remove "r:"/"reverse:" indicator and set transition.reverse instead
@@ -571,6 +573,7 @@ var LayerView = BaseView.extend({
           var currentScroll = that.getCurrentScroll(); // get current scroll position before recalculating it for that frame
           var targetFrameTransformData = null === frame ? that.noFrameTransformdata(transition.startPosition) : frame.getTransformData(that.stage, transition.startPosition);
           var targetTransform = that._transformer.getScrollTransform(targetFrameTransformData, transition, true);
+
 
           // check if transition goes to exactly the same position
           if (that.currentFrame === frame && that.currentFrameTransformData === targetFrameTransformData) {
@@ -617,10 +620,16 @@ var LayerView = BaseView.extend({
             }
           });
 
-          that.updateClasses(frame);
-          that.currentFrameTransformData = targetFrameTransformData;
-          that.currentFrame = frame;
-          that.currentTransform = targetTransform;
+
+          if (!transition.noActivation) {
+            that.updateClasses(frame);
+            that.currentFrameTransformData = targetFrameTransformData;
+            that.currentFrame = frame;
+            that.currentTransform = targetTransform;
+          } else if (frame) {
+            $.removeClass(frame.outerEl, 'lj-active');
+          }
+          
           that.trigger('transitionStarted', framename, transition);
 
           return layoutPromise;
