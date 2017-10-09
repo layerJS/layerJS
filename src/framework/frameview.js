@@ -104,7 +104,7 @@ var FrameView = BaseView.extend({
    */
   calculateTransformData: function(stage, transitionStartPosition) {
     var stageWidth = stage ? stage.width() : 0;
-    var stageHeight = stage ? stage.height(): 0;
+    var stageHeight = stage ? stage.height() : 0;
     // data record contianing transformation and scrolling information of frame within given stage
     var d = this.transformData = {};
     d.stage = stage;
@@ -188,26 +188,29 @@ var FrameView = BaseView.extend({
       case 'responsive':
         d.scale = 1;
         if (d.frameWidth !== stageWidth) {
-          // FIXME: if width:100% that wouldn't be necessary though. or would loadFrame already make sure that 100% is applied??
-          this.setWidth(d.frameWidth = stageWidth);
-          // FIXME: Afterward the height of the frame most likely changed which is not reflected in the transformData; we would need to wait for render, though, before reading new height
+          d.frameWidth = stageWidth;
+          d.applyWidth = true;
         }
         if (d.frameHeight !== stageHeight) {
-          this.setHeight(d.frameHeight = stageHeight);
+          d.applyHeight = true;
+          d.frameHeight = stageHeight;
         }
         break;
       case 'responsive-width':
         d.scale = 1;
         d.isScrollY = true;
         if (d.frameWidth !== stageWidth) {
-          this.setWidth(d.frameWidth = stageWidth);
+          d.applyWidth = true;
+          d.frameWidth = stageWidth;
+          // NOTE: Afterward the height of the frame most likely changed which is not reflected in the transformData; however, this should be dealt with by the sizechanged handler
         }
         break;
       case 'responsive-height':
         d.scale = 1;
         d.isScrollX = true;
         if (d.frameHeight !== stageHeight) {
-          this.setHeight(d.frameHeight = stageHeight);
+          d.applyHeight = true;
+          d.frameHeight = stageHeight;
         }
         break;
       default:
@@ -226,9 +229,8 @@ var FrameView = BaseView.extend({
     d.height = d.frameHeight * d.scale;
 
     if (stage && stage.autoWidth()) {
-      stageWidth= d.width;
-    }
-    else if (stage && stage.autoHeight()){
+      stageWidth = d.width;
+    } else if (stage && stage.autoHeight()) {
       stageHeight = d.height;
     }
     // calculate maximum scroll positions (depend on frame and stage dimensions)

@@ -139,14 +139,17 @@ var SlideLayout = LayerLayout.extend({
       }
       // wait for semaphore as there may be more transitions that need to be setup
       transition.semaphore.sync().then(function() {
-        that._applyTransform(frame, that._currentFrameTransform = t.t1, targetTransform, {
+        var otherCss = {
           transition: transition.duration,
           top: "0px",
           left: "0px",
           opacity: "1"
-        });
+        };
+        // apply post frame dimensions
+        if (targetFrameTransformData.applyWidth) otherCss.width = targetFrameTransformData.frameWidth + "px";
+        if (targetFrameTransformData.applyHeight) otherCss.height = targetFrameTransformData.frameHeight + "px";
+        that._applyTransform(frame, that._currentFrameTransform = t.t1, targetTransform, otherCss);
         $.debug('slidelayout: apply t1');
-
         if (transition.applyCurrentPostPosition !== false) {
           that._applyTransform(currentFrame, t.c1, targetTransform, {
             transition: transition.duration,
@@ -229,16 +232,20 @@ var SlideLayout = LayerLayout.extend({
         finished.resolve(prep);
         return finished;
       }
+      var otherCss = {
+        transition: 'none',
+        visibility: 'inital'
+      };
+      // apply frame dimensions. this should be the dimensions of the pre position, but in slide layout the pre position should have same frame dimensions as post position. (in all cases where this is not true [sizechanged, interstage, ?] applyTargetPrePosition would be false)
+      if (targetFrameTransformData.applyWidth) otherCss.width = targetFrameTransformData.frameWidth + "px";
+      if (targetFrameTransformData.applyHeight) otherCss.height = targetFrameTransformData.frameHeight + "px";
       if (transition.applyTargetPrePosition !== false) {
         // apply pre position to target frame
-        this._applyTransform(frame, prep.t0, this.layer.currentTransform, {
-          transition: 'none',
-          visibility: 'inital'
-        });
+        this._applyTransform(frame, prep.t0, this.layer.currentTransform, otherCss);
         $.debug('slidelayout: apply t0');
       }
       // apply pre position to current frame
-      if (prep.current_css && transition.applyCurrentPrePosition !== false) {
+      if (currentFrame && prep.current_css && transition.applyCurrentPrePosition !== false) {
         this._applyTransform(currentFrame, prep.c0, this.layer.currentTransform, {
           transition: 'none',
           'z-index': 'initial'

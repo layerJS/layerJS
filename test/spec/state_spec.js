@@ -194,7 +194,7 @@ describe('state', function() {
       if (expectedFrameName === 'null') {
         expect(layerView1.currentFrame).toBe(null);
       } else {
-        expect(layerView1.currentFrame.name()).toBe('frame2');
+        expect(layerView1.currentFrame.name()).toBe(expectedFrameName);
       }
       expect(state.exportState()).toEqual(expectedState);
       done();
