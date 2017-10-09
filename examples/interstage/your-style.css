@@ -1,7 +1,12 @@
+html {
+  height: 100%;
+}
+
 body {
   width: 100%;
   height: 100%;
   margin: 0px;
+  background-color: #fff;
 }
 
 #overview {
@@ -10,16 +15,39 @@ body {
 }
 
 .card {
-  width: 200px;
-  height: 200px;
+  overflow: hidden;
+  width: 180px;
+  height: 180px;
   border-radius: 20px;
-  padding: 20px;
-  border: 1px solid black;
   background-color: white;
+  box-shadow: 1px 1px 5px 1px rgba(136, 136, 136, 0.5);
+}
+
+.card>div{
+  width:100vh;
+}
+
+.cardimg {
+  width: 180px;
+  float: left;
 }
 
 .card.lj-active {
-  transition: 1s;
+  transition: 5s;
   border-radius: 0px;
   border: 1px solid white;
+  padding: 20px;
+}
+.card.lj-active>div{
+  transition: 5s;
+  width:100%;
+
+}
+
+.card.lj-active .cardimg {
+  transition: 5s;
+  width: 300px;
+  margin-top: 20px;
+  margin-right: 30px;
+  margin-bottom: 30px;
 }
