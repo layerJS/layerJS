@@ -145,9 +145,10 @@ var SlideLayout = LayerLayout.extend({
           left: "0px",
           opacity: "1"
         };
-        // apply post frame dimensions
-        if (targetFrameTransformData.applyWidth) otherCss.width = targetFrameTransformData.frameWidth + "px";
-        if (targetFrameTransformData.applyHeight) otherCss.height = targetFrameTransformData.frameHeight + "px";
+
+        otherCss.width = targetFrameTransformData.applyWidth ? targetFrameTransformData.frameWidth + "px" : '';
+        otherCss.height = targetFrameTransformData.applyHeight ? targetFrameTransformData.frameHeight + "px" : '';
+
         if (!transition.noActivation) {
           that._applyTransform(frame, that._currentFrameTransform = t.t1, targetTransform, otherCss);
           $.debug('slidelayout: apply t1');

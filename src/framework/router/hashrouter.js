@@ -27,8 +27,9 @@ var HashRouter = Kern.EventManager.extend({
       var state = layerJS.getState();
 
       for (var i = 0; i < hashPaths.length; i++) {
-        var hashPath = hashPaths[i].split('?')[0].split('&')[0];
+        var hashPath = hashPaths[i].split('?')[0].split('&')[0].replace('(' ,'').replace(')', '');
         var parsed = $.parseStringForTransitions(hashPaths[i]);
+        console.log('hdfhkh ' + hashPath);
         var resolvedPaths = state.resolvePath(hashPath);
 
         for (var x = 0; x < resolvedPaths.length; x++) {
@@ -107,7 +108,7 @@ var HashRouter = Kern.EventManager.extend({
 
         if (resolvedPaths.length === 1) { // if this returns 1 then the path is unique
           ok = true;
-          path = resolvedPaths[0].view.originalParent && resolvedPaths[0].view.originalParent !== resolvedPaths[0].view.parent ? options.state[i] : path;
+          path = resolvedPaths[0].view && resolvedPaths[0].view.originalParent && resolvedPaths[0].view.originalParent !== resolvedPaths[0].view.parent ? options.state[i] : path;
         }
       }
       while (!ok && splittedPath.length > 0);
