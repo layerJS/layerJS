@@ -18,36 +18,34 @@ body {
   overflow: hidden;
   width: 180px;
   height: 180px;
-  border-radius: 20px;
+  border-radius: 50%;
   background-color: white;
   box-shadow: 1px 1px 5px 1px rgba(136, 136, 136, 0.5);
 }
 
 .card>div{
-  width:100vh;
+  width:96vw;
+  float: left; // unclear why this is needed to align div to top
 }
 
 .cardimg {
   width: 180px;
   float: left;
+  margin-right: 30px;
+  margin-bottom: 30px;
+
 }
 
 .card.lj-active {
-  transition: 5s;
   border-radius: 0px;
   border: 1px solid white;
   padding: 20px;
 }
 .card.lj-active>div{
-  transition: 5s;
-  width:100%;
 
 }
 
 .card.lj-active .cardimg {
-  transition: 5s;
   width: 300px;
-  margin-top: 20px;
-  margin-right: 30px;
-  margin-bottom: 30px;
+  transition: .5s;
 }
