@@ -530,7 +530,7 @@ var LayerView = BaseView.extend({
           applyTargetPrePosition: !transition.noActivation && (transition.applyTargetPrePosition || (frame && frame.parent && frame.parent === that)), // we need to set this here for interstage transitions; loadframe doesn't know about the transition record.
           applyCurrentPostPosition: transition.applyCurrentPostPosition === true && !transition.noActivation,
           applyCurrentPrePosition: transition.applyCurrentPrePosition === true && !transition.noActivation
-            // FIXME: add more default values like timing
+          // FIXME: add more default values like timing
         }, transition || {});
 
         // check for reverse transition; remove "r:"/"reverse:" indicator and set transition.reverse instead
@@ -552,6 +552,9 @@ var LayerView = BaseView.extend({
           if (num > 0 && transition.applyTargetPrePosition !== false) that.trigger('transitionPrepared'); // notify listeners about prepared state. (unless all have skipped, e.g. delayed transitions)
         });
         transition.semaphore.listen().then(function() {
+          if (!transition.wasInTransition) {
+            that.updateClasses(); // update classes;
+          }
           that.transitionQueue.continue(); // allow processing of next transition from queue
         });
 
@@ -617,19 +620,15 @@ var LayerView = BaseView.extend({
               $.postAnimationFrame(function() {
                 that.trigger('transitionFinished', framename);
               });
+              that.updateClasses();
             }
           });
 
-
-          if (!transition.noActivation) {
-            that.updateClasses(frame);
+          if (!transition.noActivation) { // setup variables to new active frame
             that.currentFrameTransformData = targetFrameTransformData;
             that.currentFrame = frame;
             that.currentTransform = targetTransform;
-          } else if (frame) {
-            $.removeClass(frame.outerEl, 'lj-active');
           }
-
           that.trigger('transitionStarted', framename, transition);
 
           return layoutPromise;
@@ -769,12 +768,20 @@ var LayerView = BaseView.extend({
    * @param {Type} Name - Description
    * @returns {Type} Description
    */
-  updateClasses: function(newFrame) {
-    if (this.currentFrame) {
-      $.removeClass(this.currentFrame.outerEl, 'lj-active');
+  updateClasses: function() {
+    var childViews = this.getChildViews();
+    var length = childViews.length;
+    for (var i = 0; i < length; i++) {
+      $.removeClass(childViews[i].outerEl, 'lj-active');
+      $.removeClass(childViews[i].outerEl, 'lj-transition');
     }
-    if (null !== newFrame) {
-      $.addClass(newFrame.outerEl, 'lj-active');
+    if (null !== this.currentFrame) {
+      $.addClass(this.currentFrame.outerEl, 'lj-active');
+    }
+    for (i = 0; i < arguments.length; i++) {
+      if (arguments[i] && arguments[i].outerEl) {
+        $.addClass(arguments[i].outerEl, 'lj-transition');
+      }
     }
   },
   /**
