@@ -112,6 +112,27 @@ describe('inter stage', function() {
         });
       });
     });
+
+    it('slidelayout to canvas', function() {
+      browser.get('interstage/slide_to_canvas.html').then(function() {
+        utilities.transitionTo('canvas', 'card2', {
+          noActivation: true
+        }).then(function() {
+          protractor.promise.all([
+            utilities.getCurrentFrame('canvas'),
+            utilities.getCurrentFrame('top'),
+            utilities.getBoundingClientRect('card2')
+          ]).then(function(data) {
+            var canvasCurrentFrame = data[0];
+            var topCurrentFrame = data[1];
+            var card2Dimension = data[2];
+            expect(topCurrentFrame).toBe('card1');
+            expect(canvasCurrentFrame).toBe('overview');
+            expect(card2Dimension.opacity).not.toBe('0');
+          });
+        });
+      });
+    });
   });
 
 });

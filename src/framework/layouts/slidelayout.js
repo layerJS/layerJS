@@ -153,8 +153,9 @@ var SlideLayout = LayerLayout.extend({
           $.debug('slidelayout: apply t1');
         } else {
           that._applyTransform(frame, {
-            opacity: 0
-          }, targetTransform, {});
+            opacity: 0,
+            transition: transition.duration,
+          }, {}, {});
         }
         if (transition.applyCurrentPostPosition !== false) {
           that._applyTransform(currentFrame, t.c1, targetTransform, {
@@ -165,7 +166,7 @@ var SlideLayout = LayerLayout.extend({
           $.debug('slidelayout: apply c1');
         }
 
-        if (transition.duration === '' || !frameToTransition || transition.noActivation  ) { // execute transitionend immediately if not transition is going on
+        if (transition.duration === '' || !frameToTransition ) { // execute transitionend immediately if not transition is going on
           transitionEnd();
         }
 
