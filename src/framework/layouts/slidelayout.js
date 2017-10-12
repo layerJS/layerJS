@@ -105,7 +105,7 @@ var SlideLayout = LayerLayout.extend({
 
       var transitionEnd = function() {
 
-        if (currentFrame && transition.applyCurrentPostPosition !== false  ) {
+        if (currentFrame && transition.applyCurrentPostPosition !== false) {
           currentFrame.applyStyles(t.fix_css, {
             transition: 'none',
             display: 'none',
@@ -114,7 +114,7 @@ var SlideLayout = LayerLayout.extend({
           $.debug('slidelayout: fix c');
         }
 
-        if (frame ) {
+        if (frame) {
           frame.applyStyles(t.fix_css, {
             transition: 'none',
             'z-index': 'initial'
@@ -146,8 +146,13 @@ var SlideLayout = LayerLayout.extend({
           opacity: "1"
         };
 
-        otherCss.width = targetFrameTransformData.applyWidth ? targetFrameTransformData.frameWidth + "px" : '';
-        otherCss.height = targetFrameTransformData.applyHeight ? targetFrameTransformData.frameHeight + "px" : '';
+        if (targetFrameTransformData.applyWidth) {
+          otherCss.width = targetFrameTransformData.frameWidth + "px";
+        }
+
+        if (targetFrameTransformData.applyHeight) {
+          otherCss.height = targetFrameTransformData.frameHeight + "px";
+        }
 
         if (!transition.noActivation) {
           that._applyTransform(frame, that._currentFrameTransform = t.t1, targetTransform, otherCss);
@@ -167,7 +172,7 @@ var SlideLayout = LayerLayout.extend({
           $.debug('slidelayout: apply c1');
         }
 
-        if (transition.duration === '' || !frameToTransition ) { // execute transitionend immediately if not transition is going on
+        if (transition.duration === '' || !frameToTransition) { // execute transitionend immediately if not transition is going on
           transitionEnd();
         }
 
