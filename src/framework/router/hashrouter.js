@@ -29,7 +29,6 @@ var HashRouter = Kern.EventManager.extend({
       for (var i = 0; i < hashPaths.length; i++) {
         var hashPath = hashPaths[i].split('?')[0].split('&')[0].replace('(' ,'').replace(')', '');
         var parsed = $.parseStringForTransitions(hashPaths[i]);
-        console.log('hdfhkh ' + hashPath);
         var resolvedPaths = state.resolvePath(hashPath);
 
         for (var x = 0; x < resolvedPaths.length; x++) {

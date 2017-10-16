@@ -155,13 +155,22 @@ var State = Kern.EventManager.extend({
   },
   /**
    * Will return all paths to frames, layers and stages. Will be sorted in DOM order
+   * @param {string} type type of views to return the path of
    * @returns {array} An array of strings pointing to alle frames within the document
    */
-  exportStructure: function() {
+  exportStructure: function(type) {
     var that = this;
-    return Object.keys(this.views).map(function(key) {
+    var elements = Object.keys(this.views).map(function(key) {
       return that.views[key].view.outerEl;
-    }).sort($.comparePosition).map(function(element) {
+    }).sort($.comparePosition);
+
+    if (type) {
+      elements = elements.filter(function(element) {
+        return element._ljView.type() === type;
+      });
+    }
+
+    return elements.map(function(element) {
       return that.views[element._ljView.id()].path;
     });
   },
@@ -214,17 +223,23 @@ var State = Kern.EventManager.extend({
         var layerframe = layerframes[i];
         var layer = layerframe.layer.id();
         seenTransition = {};
+        var transition =  Kern._extend(seenTransition, transitions[Math.min(index, transitions.length - 1)]);
 
-        if (layerframe.isInterStage && paths.hasOwnProperty(layerframe.originalPath)) {
-          seenPath(layerframe.originalPath);
-        }
 
-        if (paths.hasOwnProperty(layerframe.path)) {
-          seenPath(layerframe.path);
-        }
+        if (transition.noActivation !== true) {
+          if (layerframe.isInterStage && paths.hasOwnProperty(layerframe.originalPath)) {
+            seenPath(layerframe.originalPath);
+          }
 
-        if (seenLayers.hasOwnProperty(layer)) {
-          seenPath(seenLayers[layer]);
+          if (paths.hasOwnProperty(layerframe.path)) {
+            seenPath(layerframe.path);
+          }
+
+          if (seenLayers.hasOwnProperty(layer)) {
+            seenPath(seenLayers[layer]);
+          }
+
+          seenLayers[layer] = layerframe.path;
         }
 
         paths[layerframe.path] = { // ignore currently active frames
@@ -233,7 +248,6 @@ var State = Kern.EventManager.extend({
           transition: Kern._extend(seenTransition, transitions[Math.min(index, transitions.length - 1)] || {})
         };
 
-        seenLayers[layer] = layerframe.path;
       }
     });
 
@@ -252,7 +266,7 @@ var State = Kern.EventManager.extend({
     for (var i = 0; i < pathRoutes.length; i++) {
       var path = paths[pathRoutes[i]];
       path.transition.semaphore = semaphore;
-      path.transition.groupId = groupId;      
+      path.transition.groupId = groupId;
 
       if (showFrame) {
         path.layer.showFrame(path.frameName, path.transition); // switch to frame
