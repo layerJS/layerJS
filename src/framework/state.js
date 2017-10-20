@@ -132,24 +132,41 @@ var State = Kern.EventManager.extend({
     };
     var that = this;
 
-    this.layers.map(function(layerId) {
-        return that.views[layerId].view.outerEl; // get the a list of the layer dom element
-      }).sort($.comparePosition) // sort in DOM order
-      .forEach(function(layerOuterEl) {
-        var layer = layerOuterEl._ljView;
-        if (layer.currentFrame) {
+    var framePaths = that.exportStructure('frame');
+
+    framePaths.forEach(function(framePath) {
+      if (framePath.endsWith('$')) {
+        result.state.push(framePath);
+      } else {
+        var frames = that.paths[framePath];
+
+        if (frames.length > 1)
+          throw "state.exportState: multiple frames found for " + framePath;
+
+        var frame = that.views[frames[0]].view;
+        var layer = frame.parent;
+        if (frame === layer.currentFrame) {
           if ((true === minimize) && (layer.noUrl() || layer.currentFrame.name() === layer.defaultFrame() ||
               (null === layer.defaultFrame() && null === layer.currentFrame.outerEl.previousElementSibling))) {
             result.omittedState.push(that.views[layer.currentFrame.id()].path);
           } else {
             result.state.push(that.views[layer.currentFrame.id()].path);
           }
-        } else if (true === minimize && layer.defaultFrame() === '!none') {
-          result.omittedState.push(that.views[layer.id()].path + ".!none");
-        } else {
-          result.state.push(that.views[layer.id()].path + ".!none");
         }
-      });
+      }
+    });
+
+    this.layers.map(function(layerId) {
+      return that.views[layerId].view; // get the a list of the layer dom element
+    }).filter(function(layer) {
+      return layer.currentFrame === null || layer.currentFrame === undefined;
+    }).forEach(function(layer) {
+      if (true === minimize && layer.defaultFrame() === '!none') {
+        result.omittedState.push(that.views[layer.id()].path + ".!none");
+      } else {
+        result.state.push(that.views[layer.id()].path + ".!none");
+      }
+    });
 
     return result;
   },
@@ -169,9 +186,9 @@ var State = Kern.EventManager.extend({
         return element._ljView.type() === type;
       });
     }
-
     return elements.map(function(element) {
-      return that.views[element._ljView.id()].path;
+      var structuraleChange = element._ljView.originalParent && element._ljView.parent !== element._ljView.originalParent ? '$' : '';
+      return that.views[element._ljView.id()].path + structuraleChange;
     });
   },
   /**
@@ -223,7 +240,7 @@ var State = Kern.EventManager.extend({
         var layerframe = layerframes[i];
         var layer = layerframe.layer.id();
         seenTransition = {};
-        var transition =  Kern._extend(seenTransition, transitions[Math.min(index, transitions.length - 1)]);
+        var transition = Kern._extend(seenTransition, transitions[Math.min(index, transitions.length - 1)] || {});
 
 
         if (transition.noActivation !== true) {
@@ -281,6 +298,7 @@ var State = Kern.EventManager.extend({
    *
    * @param {HTMLElement} node - the HTML node for which the layerJS path should be build
    * @param {boolean} reCalculate - if true, no lookups will be used
+   * @param {boolean} checkStructure - if false, will not add $ to the path
    * @returns {string} the path
    */
   buildPath: function(node, reCalculate) {
@@ -296,7 +314,13 @@ var State = Kern.EventManager.extend({
     if (parentPath !== '')
       parentPath += '.';
 
-    return parentPath + node._ljView.name();
+    var path = parentPath + node._ljView.name();
+
+    if (path !== '') {
+      path += (node._ljView &&  node._ljView.parent && node._ljView.originalParent && node._ljView.parent !== node._ljView.originalParent) ? '$' : '';
+    }
+
+    return path;
   },
   /**
    * calculate all different endings of a path
