@@ -490,7 +490,11 @@ var LayerView = BaseView.extend({
     } else if (null !== framename) {
       framename = framename || (transition && transition.framename);
     }
-    this.lastgroupId = transition.groupId || (transition.groupId = $.uniqueID('group'));
+
+    var newGroupId = transition.groupId || (transition.groupId = $.uniqueID('group'));
+    var addToQueue = this.lastgroupId !== newGroupId;
+    this.lastgroupId = newGroupId;
+
     if (transition.delay) { // handle delayed transition
       transition.semaphore.skip();
       setTimeout(function() {
@@ -502,142 +506,153 @@ var LayerView = BaseView.extend({
       }, $.timeToMS(transition.delay));
       return;
     }
-    return this.transitionQueue.add(transition.isEvent && 'event').then(function() {
-      try {
-        if (!framename && null !== framename) throw "transformTo: no frame given";
-        // lookup frame by framename
-        var frame = framename ? that._getFrame(framename, transition) : null;
-
-        if (!frame && null !== frame) throw "transformTo: " + framename + " does not exist in layer";
-
-        if (frame && null !== frame) {
-          framename = frame.name();
-        }
-        // dealing with transition.type
-
-        // autotransitions are transition types automatically generated e.g. by swipe gestures. They are "suggested" and hence have to be dealt with lower priority
-        var autotransition;
-        if (transition && transition.type && transition.type.match(/^auto:/)) {
-          autotransition = transition.type.replace(/^auto:/, '');
-          delete transition.type; // needs to be removed for now; othervise if will overwrite default transitions which is not desired for auto transitions
-        }
-        // merge defaults with given transition records; transition.type will overwrite default transitions (unless auto transition)
-        transition = Kern._extend({
-          type: transition && transition.type ? 'default' : (frame && frame.defaultTransition()) || that.defaultTransition() || autotransition || 'default',
-          previousType: transition && transition.type ? undefined : (that.currentFrame && that.currentFrame.defaultTransition()) || undefined,
-          duration: '1s',
-          lastFrameName: (that.currentFrame && that.currentFrame.name()) || "!none",
-          applyTargetPrePosition: !transition.noActivation && (transition.applyTargetPrePosition || (frame && frame.parent && frame.parent === that)), // we need to set this here for interstage transitions; loadframe doesn't know about the transition record.
-          applyCurrentPostPosition: transition.applyCurrentPostPosition !== true && !transition.noActivation,
-          applyCurrentPrePosition: transition.applyCurrentPrePosition !== true && !transition.noActivation
-          // FIXME: add more default values like timing
-        }, transition || {});
-
-        // check for reverse transition; remove "r:"/"reverse:" indicator and set transition.reverse instead
-        if (transition.type && transition.type.match(/^(?:r:|reverse:)/i)) {
-          transition.type = transition.type.replace(/^(?:r:|reverse:)/i, '');
-          transition.reverse = true;
-        }
-        if (transition.previousType && transition.previousType.match(/^(?:r:|reverse:)/i)) {
-          transition.previousType = transition.previousType.replace(/^(?:r:|reverse:)/i, '');
-          transition.previousReverse = true;
-        }
-
-        // create a dummy semaphore if there isn't any
-        if (!transition.semaphore) {
-          transition.semaphore = (new Kern.Semaphore()).register();
-        }
-        // add listener to the sempahore to get the moment the animation really startsWith
-        transition.semaphore.listen(true).then(function(num) {
-          if (num > 0 && transition.applyTargetPrePosition !== false) that.trigger('transitionPrepared'); // notify listeners about prepared state. (unless all have skipped, e.g. delayed transitions)
-        });
-        transition.semaphore.listen().then(function() {
-          if (!transition.wasInTransition) {
-            that.updateClasses(); // update classes;
-          }
-          that.transitionQueue.continue(); // allow processing of next transition from queue
-        });
 
 
-        if (that.inTransition()) transition.wasInTransition = true;
-        transition.duration = Math.max(that.getRemainingTransitionTime() || 0, $.timeToMS(transition.duration) || 0) + 'ms';
-        if (transition.duration === '0ms') transition.duration = '';
-        that.trigger('beforeTransition', framename);
-        transition.transitionID = that.transitionID = ++that._transitionIDcounter; // inc transition ID and save new ID into transition record; keep exiting transitionID if existing (delayed transitions)
-        that.inTransition(true, $.timeToMS(transition.duration));
+    var transitionFunction = function() {
+      if (!framename && null !== framename) throw "transformTo: no frame given";
+      // lookup frame by framename
+      var frame = framename ? that._getFrame(framename, transition) : null;
 
-        $.debug('running new transition', transition.transitionID, transition, framename, that.id());
+      if (!frame && null !== frame) throw "transformTo: " + framename + " does not exist in layer";
 
-        // make sure frame is there such that we can calculate dimensions and transform data
-        return that._layout.loadFrame(frame).then(function() {
-          // calculate the layer transform for the target frame. Note: that will automatically consider native scrolling
-          // getScrollIntermediateTransform will not change the current native scroll position but will calculate
-          // a compensatory transform for the target scroll position.
-          var currentScroll = that.getCurrentScroll(); // get current scroll position before recalculating it for that frame
-          var targetFrameTransformData = null === frame ? that.noFrameTransformdata(transition.startPosition) : frame.getTransformData(that.stage, transition.startPosition);
-          var targetTransform = that._transformer.getScrollTransform(targetFrameTransformData, transition, true);
-
-
-          // check if transition goes to exactly the same position
-          if (that.currentFrame === frame && that.currentFrameTransformData === targetFrameTransformData) {
-
-            if (targetFrameTransformData.scrollX !== currentScroll.scrollX || targetFrameTransformData.scrollY !== currentScroll.scrollY) {
-              // just do a scroll using a transition
-              transition = Kern._extend(transition, {
-                applyTargetPrePosition: false,
-                applyCurrentPostPosition: false,
-                applyCurrentPrePosition: false,
-                scrollX: targetFrameTransformData.scrollX,
-                scrollY: targetFrameTransformData.scrollY,
-                type: 'none'
-              });
-            } else {
-
-              var p = new Kern.Promise();
-              that.trigger('transitionStarted', framename, transition);
-              transition.semaphore.sync().then(function() {
-
-                if (!transition.wasInTransition) {
-                  that.trigger('transitionFinished', framename);
-                  that.inTransition(false);
-                }
-                p.resolve();
-              });
-
-              return p;
-            }
-          }
-
-          var layoutPromise = that._layout.transitionTo(frame, transition, targetFrameTransformData, targetTransform).then(function() {
-            // is that still the active transition?
-            if (transition.transitionID === that.transitionID) {
-              $.debug('transition finished', transition.transitionID);
-              // that will now calculate the currect layer transform and set up scroll positions in native scroll
-              that.currentTransform = that._transformer.getScrollTransform(targetFrameTransformData, transition, false);
-              // apply new transform (will be 0,0 in case of native scrolling)
-              that.inTransition(false);
-              that.setLayerTransform(that.currentTransform);
-              $.postAnimationFrame(function() {
-                that.trigger('transitionFinished', framename);
-              });
-              that.updateClasses();
-            }
-          });
-
-          if (!transition.noActivation) { // setup variables to new active frame
-            that.currentFrameTransformData = targetFrameTransformData;
-            that.currentFrame = frame;
-            that.currentTransform = targetTransform;
-          }
-          that.trigger('transitionStarted', framename, transition);
-
-          return layoutPromise;
-        });
-      } catch (e) {
-        that.transitionQueue.continue();
-        throw e;
+      if (frame && null !== frame) {
+        framename = frame.name();
       }
-    });
+      // dealing with transition.type
+
+      // autotransitions are transition types automatically generated e.g. by swipe gestures. They are "suggested" and hence have to be dealt with lower priority
+      var autotransition;
+      if (transition && transition.type && transition.type.match(/^auto:/)) {
+        autotransition = transition.type.replace(/^auto:/, '');
+        delete transition.type; // needs to be removed for now; othervise if will overwrite default transitions which is not desired for auto transitions
+      }
+      // merge defaults with given transition records; transition.type will overwrite default transitions (unless auto transition)
+      transition = Kern._extend({
+        type: transition && transition.type ? 'default' : (frame && frame.defaultTransition()) || that.defaultTransition() || autotransition || 'default',
+        previousType: transition && transition.type ? undefined : (that.currentFrame && that.currentFrame.defaultTransition()) || undefined,
+        duration: '1s',
+        lastFrameName: (that.currentFrame && that.currentFrame.name()) || "!none",
+        applyTargetPrePosition: !transition.noActivation && (transition.applyTargetPrePosition || (frame && frame.parent && frame.parent === that)), // we need to set this here for interstage transitions; loadframe doesn't know about the transition record.
+        applyCurrentPostPosition: transition.applyCurrentPostPosition !== true && !transition.noActivation,
+        applyCurrentPrePosition: transition.applyCurrentPrePosition !== true && !transition.noActivation
+          // FIXME: add more default values like timing
+      }, transition || {});
+
+      // check for reverse transition; remove "r:"/"reverse:" indicator and set transition.reverse instead
+      if (transition.type && transition.type.match(/^(?:r:|reverse:)/i)) {
+        transition.type = transition.type.replace(/^(?:r:|reverse:)/i, '');
+        transition.reverse = true;
+      }
+      if (transition.previousType && transition.previousType.match(/^(?:r:|reverse:)/i)) {
+        transition.previousType = transition.previousType.replace(/^(?:r:|reverse:)/i, '');
+        transition.previousReverse = true;
+      }
+
+      // create a dummy semaphore if there isn't any
+      if (!transition.semaphore) {
+        transition.semaphore = (new Kern.Semaphore()).register();
+      }
+      // add listener to the sempahore to get the moment the animation really startsWith
+      transition.semaphore.listen(true).then(function(num) {
+        if (num > 0 && transition.applyTargetPrePosition !== false) that.trigger('transitionPrepared'); // notify listeners about prepared state. (unless all have skipped, e.g. delayed transitions)
+      });
+      transition.semaphore.listen().then(function() {
+        if (!transition.wasInTransition) {
+          that.updateClasses(); // update classes;
+        }
+        that.transitionQueue.continue(); // allow processing of next transition from queue
+      });
+
+
+      if (that.inTransition()) transition.wasInTransition = true;
+      transition.duration = Math.max(that.getRemainingTransitionTime() || 0, $.timeToMS(transition.duration) || 0) + 'ms';
+      if (transition.duration === '0ms') transition.duration = '';
+      that.trigger('beforeTransition', framename);
+      transition.transitionID = that.transitionID = ++that._transitionIDcounter; // inc transition ID and save new ID into transition record; keep exiting transitionID if existing (delayed transitions)
+      that.inTransition(true, $.timeToMS(transition.duration));
+
+      $.debug('running new transition', transition.transitionID, transition, framename, that.id());
+
+      // make sure frame is there such that we can calculate dimensions and transform data
+      return that._layout.loadFrame(frame).then(function() {
+        // calculate the layer transform for the target frame. Note: that will automatically consider native scrolling
+        // getScrollIntermediateTransform will not change the current native scroll position but will calculate
+        // a compensatory transform for the target scroll position.
+        var currentScroll = that.getCurrentScroll(); // get current scroll position before recalculating it for that frame
+        var targetFrameTransformData = null === frame ? that.noFrameTransformdata(transition.startPosition) : frame.getTransformData(that.stage, transition.startPosition);
+        var targetTransform = that._transformer.getScrollTransform(targetFrameTransformData, transition, true);
+
+
+        // check if transition goes to exactly the same position
+        if (that.currentFrame === frame && that.currentFrameTransformData === targetFrameTransformData) {
+
+          if (targetFrameTransformData.scrollX !== currentScroll.scrollX || targetFrameTransformData.scrollY !== currentScroll.scrollY) {
+            // just do a scroll using a transition
+            transition = Kern._extend(transition, {
+              applyTargetPrePosition: false,
+              applyCurrentPostPosition: false,
+              applyCurrentPrePosition: false,
+              scrollX: targetFrameTransformData.scrollX,
+              scrollY: targetFrameTransformData.scrollY,
+              type: 'none'
+            });
+          } else {
+
+            var p = new Kern.Promise();
+            that.trigger('transitionStarted', framename, transition);
+            transition.semaphore.sync().then(function() {
+
+              if (!transition.wasInTransition) {
+                that.trigger('transitionFinished', framename);
+                that.inTransition(false);
+              }
+              p.resolve();
+            });
+
+            return p;
+          }
+        }
+
+        var layoutPromise = that._layout.transitionTo(frame, transition, targetFrameTransformData, targetTransform).then(function() {
+          // is that still the active transition?
+          if (transition.transitionID === that.transitionID) {
+            $.debug('transition finished', transition.transitionID);
+            // that will now calculate the currect layer transform and set up scroll positions in native scroll
+            that.currentTransform = that._transformer.getScrollTransform(targetFrameTransformData, transition, false);
+            // apply new transform (will be 0,0 in case of native scrolling)
+            that.inTransition(false);
+            that.setLayerTransform(that.currentTransform);
+            $.postAnimationFrame(function() {
+              that.trigger('transitionFinished', framename);
+            });
+            that.updateClasses();
+          }
+        });
+
+        if (!transition.noActivation) { // setup variables to new active frame
+          that.currentFrameTransformData = targetFrameTransformData;
+          that.currentFrame = frame;
+          that.currentTransform = targetTransform;
+        }
+        that.trigger('transitionStarted', framename, transition);
+
+        return layoutPromise;
+      });
+
+    };
+
+    if (addToQueue) {
+      return this.transitionQueue.add(transition.isEvent && 'event').then(function() {
+        try {
+          transitionFunction();
+        } catch (e) {
+          that.transitionQueue.continue();
+          throw e;
+        }
+      });
+    } else {
+      return transitionFunction();
+    }
   },
   /**
    * Will get a frame based on the framename. Special names will be resolved.

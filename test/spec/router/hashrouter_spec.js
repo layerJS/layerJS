@@ -11,7 +11,7 @@ describe('HashRouter', function() {
     hashRouter = new HashRouter();
   });
 
-  xit('can handle a hashed url', function(done) {
+  it('can handle a hashed url', function(done) {
     var url = 'http://localhost/#stage1.layer1.frame2';
 
     var html = "<div data-lj-type='stage' id='stage1'>" +
@@ -49,7 +49,7 @@ describe('HashRouter', function() {
     });
   });
 
-  xit('can only handle an url with a hash', function(done) {
+  it('can only handle an url with a hash', function(done) {
     var promise = hashRouter.handle('http://localhost/');
 
     promise.then(function(result) {
@@ -72,7 +72,7 @@ describe('HashRouter', function() {
 
   describe('can create a hash part for a url based on a state', function() {
 
-    xit('multiple frame names will be added comma seperated', function() {
+    it('multiple frame names will be added comma seperated', function() {
       utilities.setHtml("<div data-lj-type='stage' id='stage1'>" +
         "<div data-lj-type='layer' id='layer1' data-lj-default-frame='frame1'>" +
         "<div data-lj-type='frame' id='frame1' data-lj-name='frame1'></div>" +
@@ -97,7 +97,7 @@ describe('HashRouter', function() {
       expect(options.hash).toBe('frame1;frame2');
     });
 
-    xit('just the frame name if this one is unique', function() {
+    it('just the frame name if this one is unique', function() {
       utilities.setHtml("<div data-lj-type='stage' id='stage1'>" +
         "<div data-lj-type='layer' id='layer1' data-lj-default-frame='frame1'>" +
         "<div data-lj-type='frame' id='frame1' data-lj-name='frame1'></div>" +
@@ -118,7 +118,7 @@ describe('HashRouter', function() {
       expect(options.hash).toBe('frame1');
     });
 
-    xit('when a frame name is found multiple times, the parent fragment is added', function() {
+    it('when a frame name is found multiple times, the parent fragment is added', function() {
       utilities.setHtml("<div data-lj-type='stage' id='stage1'>" +
         "<div data-lj-type='layer' id='layer1' data-lj-default-frame='frame1'>" +
         "<div data-lj-type='frame' id='frame1' data-lj-name='frame1'></div>" +
@@ -141,7 +141,7 @@ describe('HashRouter', function() {
       expect(options.hash).toBe('layer1.frame1');
     });
 
-    xit('when a hash part already exists, it will be replaced', function() {
+    it('when a hash part already exists, it will be replaced', function() {
       utilities.setHtml("<div data-lj-type='stage' id='stage1'>" +
         "<div data-lj-type='layer' id='layer1' data-lj-default-frame='frame1'>" +
         "<div data-lj-type='frame' id='frame1' data-lj-name='frame1'></div>" +
@@ -165,7 +165,7 @@ describe('HashRouter', function() {
   });
 
   describe('interstage', function() {
-    xit('can move a frame to a different layer', function(done) {
+    it('can move a frame to a different layer', function(done) {
       var url = 'http://localhost/#stage1.layer1.frame2';
 
       var html = "<div data-lj-type='stage' id='stage1'>" +
@@ -207,7 +207,7 @@ describe('HashRouter', function() {
     });
 
 
-    xit('will put the full path of the frame when it is an interstage', function() {
+    it('will put the full path of the frame when it is an interstage', function() {
       utilities.setHtml("<div data-lj-type='stage' id='stage1'>" +
         "<div data-lj-type='layer' id='layer1' data-lj-default-frame='frame1'>" +
         "<div data-lj-type='frame' id='frame1' data-lj-name='frame1'></div>" +
@@ -236,7 +236,7 @@ describe('HashRouter', function() {
     });
 
     it('can detect a structure changing transition', function(done){
-      var url = 'http://localhost/#(stage1.layer1.frame2)';
+      var url = 'http://localhost/#stage1.layer1.frame2$';
 
       var html = "<div data-lj-type='stage' id='stage1'>" +
         "<div data-lj-type='layer' id='layer1' data-lj-default-frame='frame1'>" +
@@ -255,7 +255,7 @@ describe('HashRouter', function() {
       var options = {
         url: url,
         location: 'http://localhost/',
-        hash: '(stage1.layer1.frame2)',
+        hash: 'stage1.layer1.frame2$',
         transitions: [],
         paths: [],
         globalTransition: {
@@ -268,9 +268,8 @@ describe('HashRouter', function() {
         setTimeout(function() {
           expect(result.handled).toBeTruthy();
           expect(result.stop).toBeFalsy();
-          expect(result.paths).toEqual(['stage1.layer1.frame2']);
+          expect(result.paths).toEqual(['stage1.layer1.frame2$']);
           expect(result.transitions.length).toBe(1);
-          expect(result.transitions[0].noActivation).toEqual(true);
           done();
         }, 500);
       });

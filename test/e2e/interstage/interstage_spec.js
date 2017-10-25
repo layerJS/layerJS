@@ -32,7 +32,7 @@ describe('inter stage', function() {
               var frameX_dimensions = data[2];
               var frameX_dimensions_before = data[3];
               url = url.split('/').pop();
-              expect(url).toBe('index.html#frameX;layer2.!none');
+              expect(url).toBe('index.html#stage1.layer1.frameX;layer2.!none');
 
               // check position of frame in stage2 with position of frame before transition when already put in stage1
               expect(frameX_dimensions_org.bottom.toFixed(3)).toBe(frameX_dimensions_before.bottom.toFixed(3));
@@ -75,7 +75,7 @@ describe('inter stage', function() {
             var stage1_dimensions = data[1];
             var frameX_dimensions = data[2];
             url = url.split('/').pop();
-            expect(url).toBe('index.html#frameX;layer2.!none');
+            expect(url).toBe('index.html#stage1.layer1.frameX;layer2.!none');
             expect(element(by.id('frame1')).isDisplayed()).toBeFalsy();
             expect(element(by.id('frameX')).isDisplayed()).toBeTruthy();
 

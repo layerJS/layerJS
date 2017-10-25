@@ -363,13 +363,6 @@ var DomHelpers = {
 
     if (string) {
 
-      if (string.startsWith('(') && string.endsWith(')')) {
-        transition.noActivation = true;
-        if (true !== keepParameters) {
-          string = string.substr(1, string.length - 2);
-        }
-      }
-
       for (var parameter in defaults.transitionParameters) {
         if (defaults.transitionParameters.hasOwnProperty(parameter)) {
           var parameterName = defaults.transitionParameters[parameter];

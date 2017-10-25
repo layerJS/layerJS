@@ -135,25 +135,33 @@ var State = Kern.EventManager.extend({
     var framePaths = that.exportStructure('frame');
 
     framePaths.forEach(function(framePath) {
-      if (framePath.endsWith('$')) {
-        result.state.push(framePath);
-      } else {
-        var frames = that.paths[framePath];
 
-        if (frames.length > 1)
-          throw "state.exportState: multiple frames found for " + framePath;
-
-        var frame = that.views[frames[0]].view;
-        var layer = frame.parent;
-        if (frame === layer.currentFrame) {
-          if ((true === minimize) && (layer.noUrl() || layer.currentFrame.name() === layer.defaultFrame() ||
-              (null === layer.defaultFrame() && null === layer.currentFrame.outerEl.previousElementSibling))) {
-            result.omittedState.push(that.views[layer.currentFrame.id()].path);
-          } else {
-            result.state.push(that.views[layer.currentFrame.id()].path);
-          }
-        }
+      var notActive = framePath.endsWith('$');
+      var path = framePath;
+      if (notActive) {
+        path = path.substr(0, path.length - 1);
       }
+
+      var frames = that.paths[path];
+
+      if (frames.length > 1)
+        throw "state.exportState: multiple frames found for " + framePath;
+
+      var frame = that.views[frames[0]].view;
+      var layer = frame.parent;
+      if (frame === layer.currentFrame) {
+        if ((true === minimize) && (layer.noUrl() || layer.currentFrame.name() === layer.defaultFrame() ||
+            (null === layer.defaultFrame() && null === layer.currentFrame.outerEl.previousElementSibling))) {
+          result.omittedState.push(framePath);
+        } else {
+          result.state.push(framePath);
+        }
+      } else if (notActive && frame.parent !== frame.originalParent) {
+        result.state.push(framePath);
+      } else if (notActive) {
+        result.omittedState.push(framePath);
+      }
+
     });
 
     this.layers.map(function(layerId) {
@@ -187,8 +195,15 @@ var State = Kern.EventManager.extend({
       });
     }
     return elements.map(function(element) {
-      var structuraleChange = element._ljView.originalParent && element._ljView.parent !== element._ljView.originalParent ? '$' : '';
-      return that.views[element._ljView.id()].path + structuraleChange;
+      var active = true;
+      if (element._ljView.type() === 'frame') {
+        var frameView = element._ljView;
+        var layerView = frameView.parent;
+
+        active = layerView.currentFrame === frameView;
+      }
+
+      return that.views[element._ljView.id()].path + (active ? '' : '$');
     });
   },
   /**
@@ -262,7 +277,9 @@ var State = Kern.EventManager.extend({
         paths[layerframe.path] = { // ignore currently active frames
           layer: layerframe.layer,
           frameName: layerframe.frameName,
-          transition: Kern._extend(seenTransition, transitions[Math.min(index, transitions.length - 1)] || {})
+          transition: Kern._extend({
+            noActivation: layerframe.noActivation
+          }, seenTransition, transitions[Math.min(index, transitions.length - 1)] || {})
         };
 
       }
@@ -298,7 +315,6 @@ var State = Kern.EventManager.extend({
    *
    * @param {HTMLElement} node - the HTML node for which the layerJS path should be build
    * @param {boolean} reCalculate - if true, no lookups will be used
-   * @param {boolean} checkStructure - if false, will not add $ to the path
    * @returns {string} the path
    */
   buildPath: function(node, reCalculate) {
@@ -315,10 +331,6 @@ var State = Kern.EventManager.extend({
       parentPath += '.';
 
     var path = parentPath + node._ljView.name();
-
-    if (path !== '') {
-      path += (node._ljView &&  node._ljView.parent && node._ljView.originalParent && node._ljView.parent !== node._ljView.originalParent) ? '$' : '';
-    }
 
     return path;
   },
@@ -343,6 +355,13 @@ var State = Kern.EventManager.extend({
    * @returns {Array} Array of layerViews and the frameNames;
    */
   resolvePath: function(path, context) {
+
+    var noActivation = path.endsWith('$');
+
+    if (noActivation) {
+      path = path.substr(0, path.length - 1);
+    }
+
     var i, contextpath = context && this.buildPath(context),
       segments = path.split('.'),
       frameName = segments.pop(),
@@ -374,7 +393,7 @@ var State = Kern.EventManager.extend({
         result.push({
           layer: view,
           frameName: frameName,
-          path: fullPath + "." + frameName
+          path: fullPath + "." + frameName + (noActivation ? '$' : '')          
         });
       } else {
         if (view.type() === 'frame') { // for frames return a bit more information which is helpful to trigger the transition
@@ -382,8 +401,9 @@ var State = Kern.EventManager.extend({
             layer: view.parent,
             view: view,
             frameName: frameName,
-            path: fullPath,
-            active: (undefined !== view.parent.currentFrame && null !== view.parent.currentFrame) ? view.parent.currentFrame.name() === frameName : false
+            path: fullPath + (noActivation ? '$' : ''),
+            active: (undefined !== view.parent.currentFrame && null !== view.parent.currentFrame) ? view.parent.currentFrame.name() === frameName : false,
+            noActivation: noActivation
           });
         } else if (view.type() === 'layer') {
 
@@ -400,10 +420,11 @@ var State = Kern.EventManager.extend({
                 layer: view,
                 frameName: frameName,
                 view: paths[0].view,
-                path: fullPath + '.' + frameName,
+                path: fullPath + '.' + frameName + (noActivation ? '$' : ''),
                 active: false,
                 isInterStage: true,
-                originalPath: paths[0].path
+                originalPath: paths[0].path,
+                noActivation: noActivation
               });
             }
           }
