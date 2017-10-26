@@ -258,7 +258,7 @@ var State = Kern.EventManager.extend({
         var transition = Kern._extend(seenTransition, transitions[Math.min(index, transitions.length - 1)] || {});
 
 
-        if (transition.noActivation !== true) {
+        if (layerframe.noActivation !== true) {
           if (layerframe.isInterStage && paths.hasOwnProperty(layerframe.originalPath)) {
             seenPath(layerframe.originalPath);
           }
@@ -279,7 +279,7 @@ var State = Kern.EventManager.extend({
           frameName: layerframe.frameName,
           transition: Kern._extend({
             noActivation: layerframe.noActivation
-          }, seenTransition, transitions[Math.min(index, transitions.length - 1)] || {})
+          }, seenTransition, transition)
         };
 
       }
@@ -393,7 +393,7 @@ var State = Kern.EventManager.extend({
         result.push({
           layer: view,
           frameName: frameName,
-          path: fullPath + "." + frameName + (noActivation ? '$' : '')          
+          path: fullPath + "." + frameName + (noActivation ? '$' : '')
         });
       } else {
         if (view.type() === 'frame') { // for frames return a bit more information which is helpful to trigger the transition

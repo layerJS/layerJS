@@ -53,11 +53,14 @@ var Router = Kern.EventManager.extend({
     var that = this;
 
     // listen to history buttons
-    window.onpopstate = function() {
-      if (document.location.href === that.ignoreUrl){
+    window.onpopstate = function(eventArg) {
+      if (document.location.href === that.ignoreUrl) {
         delete that.ignoreUrl;
-      }
-      else {
+      } else if (eventArg && eventArg.state && eventArg.state.state) {
+        console.log('popstate');
+        console.log(eventArg.state.state);
+        that.state.transitionTo(eventArg.state.state, []);
+      } else {
         that.navigate(document.location.href, null, true);
       }
 
@@ -121,11 +124,15 @@ var Router = Kern.EventManager.extend({
         if (initial === true) {
           // this is the initial navigation ( page just loaded) so we should do a show
           that.state.showState(options.paths, {}, {
+            paths: options.paths,
+            transitions: [],
             noHistory: noHistory
           });
         } else {
           // do a transition
           that.state.transitionTo(options.paths, options.transitions, {
+            paths: options.paths,
+            transitions: options.transitions,
             noHistory: noHistory
           });
         }
@@ -175,6 +182,7 @@ var Router = Kern.EventManager.extend({
       state: [],
       omittedState: []
     };
+    var stateToSave = newState.state.concat(newState.omittedState);
     // prepare data for the routers
     var options = Kern._extend($.splitUrl(window.location.href), newState);
 
@@ -188,9 +196,13 @@ var Router = Kern.EventManager.extend({
     var url = $.joinUrl(options);
 
     if (window.history && (!payload || !payload.noHistory) && window.location.href !== url) {
-      window.history.pushState({}, "", url);
-    } else if (window.history && window.location.href !== url) {
-      window.history.replaceState({}, "", url);
+      window.history.pushState({
+        state: stateToSave,
+      }, "", url);
+    } else if (window.history) {
+      window.history.replaceState({
+        state: stateToSave,
+      }, "", url);
     }
   }
 });
