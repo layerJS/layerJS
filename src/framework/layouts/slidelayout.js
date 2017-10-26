@@ -81,7 +81,7 @@ var SlideLayout = LayerLayout.extend({
 
     for (var i = 0; i < frames.length; i++) {
 
-      if (frames[i] !== frame && frames[i] !== currentFrame) {
+      if (frames[i] !== frame && frames[i] !== currentFrame && null !== frames[i].outerEl.parentNode) {
         frames[i].applyStyles({
           display: 'none'
         });
