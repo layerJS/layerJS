@@ -57,13 +57,12 @@ var Router = Kern.EventManager.extend({
       if (document.location.href === that.ignoreUrl) {
         delete that.ignoreUrl;
       } else if (eventArg && eventArg.state && eventArg.state.state) {
-        console.log('popstate');
-        console.log(eventArg.state.state);
-        that.state.transitionTo(eventArg.state.state, []);
+        that.state.transitionTo(eventArg.state.state, eventArg.state.transitions, {
+          noHistory: true
+        });
       } else {
         that.navigate(document.location.href, null, true);
       }
-
     };
 
     // register link listener
@@ -177,12 +176,24 @@ var Router = Kern.EventManager.extend({
    * @param {Array} newState the minimized (changed) state
    */
   _stateChanged: function(state, payload) {
+    payload  = payload || {};
+    payload.state = payload.state || [];
+    payload.transitions = payload.transitions || [];
 
     var newState = (state && state.exportMinimizedState()) || {
       state: [],
       omittedState: []
     };
-    var stateToSave = newState.state.concat(newState.omittedState);
+
+    // remove state paths that are already added in the payload
+    // this need to be done for inital load and also for non active frames who are not in there orginal panrent
+    var tempState = newState.state.concat(newState.omittedState).filter(function(path){
+      return payload.state.indexOf(path) < 0 && payload.state.indexOf(path.replace('$'));
+    });
+
+    var stateToSave = payload.state.concat(tempState);
+    var transitions = payload.transitions;
+
     // prepare data for the routers
     var options = Kern._extend($.splitUrl(window.location.href), newState);
 
@@ -198,10 +209,12 @@ var Router = Kern.EventManager.extend({
     if (window.history && (!payload || !payload.noHistory) && window.location.href !== url) {
       window.history.pushState({
         state: stateToSave,
+        transitions: transitions,
       }, "", url);
     } else if (window.history) {
       window.history.replaceState({
         state: stateToSave,
+        transitions: transitions,
       }, "", url);
     }
   }

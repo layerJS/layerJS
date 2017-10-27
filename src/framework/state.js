@@ -234,6 +234,11 @@ var State = Kern.EventManager.extend({
   _transitionTo: function(showFrame, states, transitions, payload) {
     var that = this;
     transitions = transitions || [];
+    payload = payload || {};
+    payload.state = states;
+    payload.transitions = transitions.map(function(transition) {
+      return Kern._extend({},transition);
+    });
 
     // map the given state (list of (reduced) paths) into a list of fully specified paths (may be more paths than in states list)
     var paths = {}; // path to transition to
@@ -284,6 +289,7 @@ var State = Kern.EventManager.extend({
 
       }
     });
+
 
 
     var pathRoutes = Object.getOwnPropertyNames(paths);
