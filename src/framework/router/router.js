@@ -122,7 +122,7 @@ var Router = Kern.EventManager.extend({
         // determine is it was a clickevent and if we need to add this to the history
         if (initial === true) {
           // this is the initial navigation ( page just loaded) so we should do a show
-          that.state.showState(options.paths, {}, {
+          that.state.showState(options.paths, [], {
             paths: options.paths,
             transitions: [],
             noHistory: noHistory
