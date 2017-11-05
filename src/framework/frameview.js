@@ -62,18 +62,18 @@ var FrameView = BaseView.extend({
   /**
    * get the transformData of the frame that describes how to fit the frame into the stage
    *
-   * @param {StageView} stage - the stage to be fit into
+   * @param {LayerView} layer - the layer of the frame
    * @param {String} transitionStartPosition -  [optional] the transition data for the current transition, only startPosition is considered
    * @param {Boolean} keepScroll - if true, scrollX and scrollY are not reset to their initial positions (unless transitionStartPosition requests a full recalculation)
    * @returns {TransformData} the transform data
    */
-  getTransformData: function(stage, transitionStartPosition, keepScroll) {
+  getTransformData: function(layer, transitionStartPosition, keepScroll) {
     // check if we can return cached version of transfromData
     var d = this.transformData;
-    if (!d || d.isDirty || d.stage !== stage || (transitionStartPosition && transitionStartPosition !== d.startPosition)) {
+    if (!d || d.isDirty || d.layer !== layer || (transitionStartPosition && transitionStartPosition !== d.startPosition)) {
       // calculate transformData
       if (d) delete d.isDirty;
-      return (this.transformData = this.calculateTransformData(stage, transitionStartPosition));
+      return (this.transformData = this.calculateTransformData(layer, transitionStartPosition));
     }
     if (!keepScroll) {
       d.scrollX = d.initialScrollX;
@@ -98,16 +98,18 @@ var FrameView = BaseView.extend({
    * calculate transform data (scale, scoll position and displacement) when fitting current frame into associated stage.
    * Note: this ignores the frame's scale and rotation property which have to be dealt with in the layer layout if necessary.
    *
-   * @param {StageView} stage - the stage to be fit into
+   * @param {LayerView} layer - the layer the frame belongs to
    * @param {string} [transitionStartPosition] - the scroll position at start
    * @returns {TransformData} the transform data
    */
-  calculateTransformData: function(stage, transitionStartPosition) {
+  calculateTransformData: function(layer, transitionStartPosition) {
+    var stage = layer.parent;
     var stageWidth = stage ? stage.width() : 0;
     var stageHeight = stage ? stage.height() : 0;
     // data record contianing transformation and scrolling information of frame within given stage
     var d = this.transformData = {};
     d.stage = stage;
+    d.layer = layer;
     // scaling of frame needed to fit frame into stage
     d.scale = 1;
     d.frameWidth = this.width();
@@ -124,7 +126,7 @@ var FrameView = BaseView.extend({
     d.isScrollX = false;
     d.isScrollY = false;
 
-    var fitTo = this.fitTo(false) || this.parent.fitTo();
+    var fitTo = this.fitTo(false) || layer.fitTo();
     switch (fitTo) {
       case 'width':
         d.scale = stageWidth / d.frameWidth;

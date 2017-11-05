@@ -288,7 +288,7 @@ var LayerView = BaseView.extend({
     if (this.currentFrame === null) return;
     transition = transition || {};
     if (transition.startPosition) { // need to recalculate transform data if startPosition has changed
-      this.currentFrameTransformData = this.currentFrame.getTransformData(this.stage, transition.startPosition);
+      this.currentFrameTransformData = this.currentFrame.getTransformData(this, transition.startPosition);
     }
     var tfd = this.currentFrameTransformData;
     if (typeof scrollX === 'object') {
@@ -579,7 +579,7 @@ var LayerView = BaseView.extend({
         // getScrollIntermediateTransform will not change the current native scroll position but will calculate
         // a compensatory transform for the target scroll position.
         var currentScroll = that.getCurrentScroll(); // get current scroll position before recalculating it for that frame
-        var targetFrameTransformData = null === frame ? that.noFrameTransformdata(transition.startPosition) : frame.getTransformData(that.stage, transition.startPosition);
+        var targetFrameTransformData = null === frame ? that.noFrameTransformdata(transition.startPosition) : frame.getTransformData(that, transition.startPosition);
         var targetTransform = that._transformer.getScrollTransform(targetFrameTransformData, transition, true);
 
 

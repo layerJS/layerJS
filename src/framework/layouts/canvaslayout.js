@@ -65,14 +65,25 @@ var CanvasLayout = LayerLayout.extend({
 
 
         var transformFrame = function(childFrame) {
-          var tfd = childFrame.getTransformData(that.layer.stage); // this will NOT initialize dimensions for the frame; we need to check if we have to set them
+          var tfd = childFrame.getTransformData(that.layer); // this will NOT initialize dimensions for the frame; we need to check if we have to set them
           var otherCss = {
             transition: transition.duration,
             opacity: 1,
             display: 'block'
           };
-          otherCss.width = tfd.applyWidth ? tfd.frameWidth + "px" : '';
-          otherCss.height = tfd.applyHeight ? tfd.frameHeight + "px" : '';
+
+          if (tfd.applyWidth) {
+            otherCss.width = tfd.frameWidth + 'px';
+          } else if (childFrame.outerEl.style.width !== '') {
+            otherCss.width = '';
+          }
+
+          if (tfd.applyHeight) {
+            otherCss.height = tfd.frameHeight + 'px';
+          } else if (childFrame.outerEl.style.height !== '') {
+            otherCss.height = '';
+          }
+
           that._applyTransform(childFrame, that._reverseTransform, targetTransform, otherCss);
         };
 
