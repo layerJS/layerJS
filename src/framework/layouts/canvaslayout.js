@@ -74,13 +74,13 @@ var CanvasLayout = LayerLayout.extend({
 
           if (tfd.applyWidth) {
             otherCss.width = tfd.frameWidth + 'px';
-          } else if (childFrame.outerEl.style.width !== '') {
+          } else {
             otherCss.width = '';
           }
 
           if (tfd.applyHeight) {
             otherCss.height = tfd.frameHeight + 'px';
-          } else if (childFrame.outerEl.style.height !== '') {
+          } else {
             otherCss.height = '';
           }
 

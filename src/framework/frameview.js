@@ -189,31 +189,31 @@ var FrameView = BaseView.extend({
         break;
       case 'responsive':
         d.scale = 1;
-        if (d.frameWidth !== stageWidth) {
+        //if (d.frameWidth !== stageWidth) {
           d.frameWidth = stageWidth;
           d.applyWidth = true;
-        }
-        if (d.frameHeight !== stageHeight) {
+        //}
+        //if (d.frameHeight !== stageHeight) {
           d.applyHeight = true;
           d.frameHeight = stageHeight;
-        }
+        //}
         break;
       case 'responsive-width':
         d.scale = 1;
         d.isScrollY = true;
-        if (d.frameWidth !== stageWidth) {
+        //if (d.frameWidth !== stageWidth) {
           d.applyWidth = true;
           d.frameWidth = stageWidth;
           // NOTE: Afterward the height of the frame most likely changed which is not reflected in the transformData; however, this should be dealt with by the sizechanged handler
-        }
+        //}
         break;
       case 'responsive-height':
         d.scale = 1;
         d.isScrollX = true;
-        if (d.frameHeight !== stageHeight) {
+        //if (d.frameHeight !== stageHeight) {
           d.applyHeight = true;
           d.frameHeight = stageHeight;
-        }
+        //}
         break;
       default:
         throw "unkown fitTo type '" + fitTo + "'";
