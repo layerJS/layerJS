@@ -62,19 +62,30 @@ var CanvasLayout = LayerLayout.extend({
     transition.semaphore.sync().then(function() {
 
       if (null !== frame) {
-        that._reverseTransform = that._calculateReverseTransform(frame, targetFrameTransformData);
-        // now apply all transforms to all frames
-        for (var i = 0; i < framesLength; i++) {
-          childFrame = frames[i];
-          var tfd = childFrame.getTransformData(that.layer.stage); // this will NOT initialize dimensions for the frame; we need to check if we have to set them
+
+
+        var transformFrame = function(childFrame) {
+          var tfd = childFrame.getTransformData(that.layer); // this will NOT initialize dimensions for the frame; we need to check if we have to set them
           var otherCss = {
             transition: transition.duration,
             opacity: 1,
             display: 'block'
           };
-          if (tfd.applyWidth) otherCss.width = tfd.frameWidth + "px";
-          if (tfd.applyHeight) otherCss.height = tfd.frameHeight + "px";
+
+          otherCss.width = tfd.applyWidth ? tfd.frameWidth + 'px' : childFrame.getOriginalWidth();
+          otherCss.height = tfd.applyHeight ? tfd.frameHeight + 'px' : childFrame.getOriginalHeight();
+
           that._applyTransform(childFrame, that._reverseTransform, targetTransform, otherCss);
+        };
+
+        if (transition.noActivation) {
+          transformFrame(frame);
+        } else {
+          // now apply all transforms to all frames
+          that._reverseTransform = that._calculateReverseTransform(frame, targetFrameTransformData);
+          for (var i = 0; i < framesLength; i++) {
+            transformFrame(frames[i]);
+          }
         }
       } else {
         for (var x = 0; x < framesLength; x++) {

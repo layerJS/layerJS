@@ -81,7 +81,7 @@ var SlideLayout = LayerLayout.extend({
 
     for (var i = 0; i < frames.length; i++) {
 
-      if (frames[i] !== frame && frames[i] !== currentFrame) {
+      if (frames[i] !== frame && frames[i] !== currentFrame && null !== frames[i].outerEl.parentNode) {
         frames[i].applyStyles({
           display: 'none'
         });
@@ -145,11 +145,24 @@ var SlideLayout = LayerLayout.extend({
           left: "0px",
           opacity: "1"
         };
-        // apply post frame dimensions
-        if (targetFrameTransformData.applyWidth) otherCss.width = targetFrameTransformData.frameWidth + "px";
-        if (targetFrameTransformData.applyHeight) otherCss.height = targetFrameTransformData.frameHeight + "px";
-        that._applyTransform(frame, that._currentFrameTransform = t.t1, targetTransform, otherCss);
-        $.debug('slidelayout: apply t1');
+
+        if (targetFrameTransformData.applyWidth) {
+          otherCss.width = targetFrameTransformData.frameWidth + "px";
+        }
+
+        if (targetFrameTransformData.applyHeight) {
+          otherCss.height = targetFrameTransformData.frameHeight + "px";
+        }
+
+        if (!transition.noActivation) {
+          that._applyTransform(frame, that._currentFrameTransform = t.t1, targetTransform, otherCss);
+          $.debug('slidelayout: apply t1');
+        } else {
+          that._applyTransform(frame, {
+            opacity: 0,
+            transition: transition.duration,
+          }, {}, {});
+        }
         if (transition.applyCurrentPostPosition !== false) {
           that._applyTransform(currentFrame, t.c1, targetTransform, {
             transition: transition.duration,

@@ -8,6 +8,7 @@
   <script src="../../dist/layerjs.js"></script>
   <link href="../../dist/layerjs.css" type="text/css" rel="stylesheet" />
   <link href="your-style.css" type="text/css" rel="stylesheet" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/1.0.28/vue.min.js"></script>
   <title>title</title>
 </head>
 
@@ -16,11 +17,12 @@
     <div lj-type="frame" id="overview" lj-x="-50" lj-y="-50">
 
     </div>
-    <div lj-type="frame" class="card" id="card1" lj-x="0" lj-y="0">
+    <div v-for="c in cards" lj-type="frame" class="card" id="card{{ c.nr }}" lj-x="{{ 200 * (c.nr-1) }}" lj-y="0">
       <div class="cardcontainer">
-        <a href="#top.card1&t=5s"><img class="cardimg" src="profile.png" /></a>
-        <h2> Card I</h2>
-        <h3 stlye="clear: both">Lorem ipsum</h3>
+        <a href="#top.card{{ c.nr }}&t=.5s"><img class="cardimg" src="profile.png" /></a>
+        <h2>{{ c.hl }}</h2>
+        <h3>Lorem ipsum</h3>
+        <hr style="clear: both">
         <p>
           Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata
           sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et
@@ -36,12 +38,6 @@
       </div>
 
     </div>
-    <a href="#top.card2" lj-type="frame" class="card" id="card2" lj-x="200" lj-y="0">
-      card 2
-    </a>
-    <a href="#top.card3" lj-type="frame" class="card" id="card3" lj-x="400" lj-y="0">
-      card 3
-    </a>
 
   </div>
   <div lj-type="layer" lj-native-scroll="false" lj-name="top" lj-default-frame="!none" lj-fit-to="responsive">
@@ -50,6 +46,26 @@
   </div>
   <script>
     layerJS.init(); // Initialize layerJS
+  </script>
+  <script>
+    var app4 = new Vue({
+      el: 'body',
+      data: {
+        cards: [{
+            nr: 1,
+            hl: "Card I"
+          },
+          {
+            nr: 2,
+            hl: "Card II"
+          },
+          {
+            nr: 3,
+            hl: "Card III"
+          }
+        ]
+      }
+    });
   </script>
 
 </body>

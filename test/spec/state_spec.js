@@ -112,6 +112,20 @@ describe('state', function() {
     expect(activePaths[1]).toBe('stage1.layer1.frame1.stage2.layer2.frame2');
   });
 
+  it('can export the state as an array of strings with only active frames and structure changes', function() {
+    setHtmlForExport();
+
+    var stageView1 = document.getElementById('stage1')._ljView;
+
+    document.getElementById('frame3')._ljView.originalParent = document.getElementById('layer1')._ljView;
+
+    var activePaths = state.exportState();
+    expect(activePaths.length).toBe(3);
+    expect(activePaths[0]).toBe('stage1.layer1.frame1');
+    expect(activePaths[1]).toBe('stage1.layer1.frame1.stage2.layer2.frame2');
+    expect(activePaths[2]).toBe('stage1.layer1.frame1.stage2.layer2.frame3$');
+  });
+
 
   it('can export the structure as an array of strings ordered by there DOM order', function() {
     setHtmlForExport();
@@ -126,8 +140,34 @@ describe('state', function() {
     expect(structure[3]).toBe('stage1.layer1.frame1.stage2');
     expect(structure[4]).toBe('stage1.layer1.frame1.stage2.layer2');
     expect(structure[5]).toBe('stage1.layer1.frame1.stage2.layer2.frame2');
-    expect(structure[6]).toBe('stage1.layer1.frame1.stage2.layer2.frame3');
-    expect(structure[7]).toBe('stage1.layer1.frame4');
+    expect(structure[6]).toBe('stage1.layer1.frame1.stage2.layer2.frame3$');
+    expect(structure[7]).toBe('stage1.layer1.frame4$');
+  });
+
+  it('can export the structure as an array of strings ordered by there DOM order for a specific view type', function() {
+    setHtmlForExport();
+
+    var stageView1 = document.getElementById('stage1')._ljView;
+
+    var structure = state.exportStructure('frame');
+
+    expect(structure.length).toBe(4);
+    expect(structure[0]).toBe('stage1.layer1.frame1');
+    expect(structure[1]).toBe('stage1.layer1.frame1.stage2.layer2.frame2');
+    expect(structure[2]).toBe('stage1.layer1.frame1.stage2.layer2.frame3$');
+    expect(structure[3]).toBe('stage1.layer1.frame4$');
+  });
+
+  it('can export the structure as an array of strings ordered by there DOM order and can mark paths not active', function() {
+    setHtmlForExport();
+    var stageView1 = document.getElementById('stage1')._ljView;
+
+    var structure = state.exportStructure('frame');
+    expect(structure.length).toBe(4);
+    expect(structure[0]).toBe('stage1.layer1.frame1');
+    expect(structure[1]).toBe('stage1.layer1.frame1.stage2.layer2.frame2');
+    expect(structure[2]).toBe('stage1.layer1.frame1.stage2.layer2.frame3$');
+    expect(structure[3]).toBe('stage1.layer1.frame4$');
   });
 
   it('can detect a new frame transition', function(done) {
@@ -428,7 +468,7 @@ describe('state', function() {
 
     setTimeout(function() {
       var exportedState = state.exportStructure();
-      expect(exportedState).toEqual(['stage1', 'stage1.layer1', 'stage1.layer1.frame1', 'stage1.layer1.newframe']);
+      expect(exportedState).toEqual(['stage1', 'stage1.layer1', 'stage1.layer1.frame1', 'stage1.layer1.newframe$']);
       done();
     }, 500);
   });
@@ -594,7 +634,7 @@ describe('state', function() {
 
     setTimeout(function() {
       exportedState = state.exportStructure();
-      expect(exportedState).toEqual(['stage1', 'stage1.layer1', 'stage1.layer1.frame1', 'stage1.layer1.frame2']);
+      expect(exportedState).toEqual(['stage1', 'stage1.layer1', 'stage1.layer1.frame1', 'stage1.layer1.frame2$']);
       done();
     }, 1000);
   });
@@ -659,7 +699,6 @@ describe('state', function() {
       done();
     }, 500);
   });
-
   it('stateChanged is triggered after all layers have invoked \'transitionStarted\' event (transitionTo)', function(done) {
     var html = "<div data-lj-type='stage' id='stage1'>" +
       "<div data-lj-type='layer' id='layer1' data-lj-default-frame='frame1'>" +
@@ -821,7 +860,27 @@ describe('state', function() {
       var state = layerJS.getState();
       var exportedState = state.exportMinimizedState();
       expect(exportedState.state).toEqual([]);
-      expect(exportedState.omittedState).toEqual(['stage1.layer1.!none']);
+      expect(exportedState.omittedState).toEqual(['stage1.layer1.frame1$', 'stage1.layer1.!none']);
+    });
+
+    it('frames with frames that our outside there default layers should be added', function() {
+      utilities.setHtml("<div data-lj-type='stage' id='stage1'>" +
+        "<div data-lj-type='layer' id='layer1' data-lj-default-frame='!none'>" +
+        "<div data-lj-type='frame' id='frame1' data-lj-name='frame1'></div>" +
+        "</div>" +
+        "<div data-lj-type='layer' id='layer2' data-lj-default-frame='!none'>" + "</div></div>");
+
+      var stageView = new StageView({
+        el: document.getElementById('stage1')
+      });
+
+      document.getElementById('frame1')._ljView.originalParent = document.getElementById('layer2')._ljView;
+
+      var state = layerJS.getState();
+      var state = layerJS.getState();
+      var exportedState = state.exportMinimizedState();
+      expect(exportedState.state).toEqual(['stage1.layer1.frame1$']);
+      expect(exportedState.omittedState).toEqual(['stage1.layer1.!none', 'stage1.layer2.!none']);
     });
 
 
@@ -866,4 +925,35 @@ describe('state', function() {
 
     });*/
   });
+
+  describe('can resolve a path', function() {
+
+    it("of a frame that should be avtivated", function(done) {
+      utilities.setHtml("<div data-lj-type='stage' id='stage1'>" +
+        "<div data-lj-type='layer' id='layer1' data-lj-default-frame='!none'>" +
+        "<div data-lj-type='frame' id='frame1' data-lj-name='frame1'></div>" +
+        "</div>" +
+        "<div data-lj-type='layer' id='layer2' data-lj-default-frame='!none'>" + "</div></div>");
+
+      var stageView = new StageView({
+        el: document.getElementById('stage1')
+      });
+
+      //  document.getElementById('frame1')._ljView.originalParent = document.getElementById('layer2')._ljView;
+
+      var state = layerJS.getState();
+
+      setTimeout(function() {
+
+        var result = state.resolvePath('stage1.layer1.frame1$');
+        expect(result.length).toBe(1);
+        expect(result[0].view).toBe(document.getElementById('frame1')._ljView);
+        expect(result[0].transition.noActivation).toBe(true);
+
+        done();
+      }, 2000);
+    });
+
+  });
+
 });

@@ -132,37 +132,78 @@ var State = Kern.EventManager.extend({
     };
     var that = this;
 
-    this.layers.map(function(layerId) {
-        return that.views[layerId].view.outerEl; // get the a list of the layer dom element
-      }).sort($.comparePosition) // sort in DOM order
-      .forEach(function(layerOuterEl) {
-        var layer = layerOuterEl._ljView;
-        if (layer.currentFrame) {
-          if ((true === minimize) && (layer.noUrl() || layer.currentFrame.name() === layer.defaultFrame() ||
-              (null === layer.defaultFrame() && null === layer.currentFrame.outerEl.previousElementSibling))) {
-            result.omittedState.push(that.views[layer.currentFrame.id()].path);
-          } else {
-            result.state.push(that.views[layer.currentFrame.id()].path);
-          }
-        } else if (true === minimize && layer.defaultFrame() === '!none') {
-          result.omittedState.push(that.views[layer.id()].path + ".!none");
+    var framePaths = that.exportStructure('frame');
+
+    framePaths.forEach(function(framePath) {
+
+      var notActive = framePath.endsWith('$');
+      var path = framePath;
+      if (notActive) {
+        path = path.substr(0, path.length - 1);
+      }
+
+      var frames = that.paths[path];
+
+      if (frames.length > 1)
+        throw "state.exportState: multiple frames found for " + framePath;
+
+      var frame = that.views[frames[0]].view;
+      var layer = frame.parent;
+      if (frame === layer.currentFrame) {
+        if ((true === minimize) && (layer.noUrl() || layer.currentFrame.name() === layer.defaultFrame() ||
+            (null === layer.defaultFrame() && null === layer.currentFrame.outerEl.previousElementSibling))) {
+          result.omittedState.push(framePath);
         } else {
-          result.state.push(that.views[layer.id()].path + ".!none");
+          result.state.push(framePath);
         }
-      });
+      } else if (notActive && frame.parent !== frame.originalParent) {
+        result.state.push(framePath);
+      } else if (notActive) {
+        result.omittedState.push(framePath);
+      }
+
+    });
+
+    this.layers.map(function(layerId) {
+      return that.views[layerId].view; // get the a list of the layer dom element
+    }).filter(function(layer) {
+      return layer.currentFrame === null || layer.currentFrame === undefined;
+    }).forEach(function(layer) {
+      if (true === minimize && layer.defaultFrame() === '!none') {
+        result.omittedState.push(that.views[layer.id()].path + ".!none");
+      } else {
+        result.state.push(that.views[layer.id()].path + ".!none");
+      }
+    });
 
     return result;
   },
   /**
    * Will return all paths to frames, layers and stages. Will be sorted in DOM order
+   * @param {string} type type of views to return the path of
    * @returns {array} An array of strings pointing to alle frames within the document
    */
-  exportStructure: function() {
+  exportStructure: function(type) {
     var that = this;
-    return Object.keys(this.views).map(function(key) {
+    var elements = Object.keys(this.views).map(function(key) {
       return that.views[key].view.outerEl;
-    }).sort($.comparePosition).map(function(element) {
-      return that.views[element._ljView.id()].path;
+    }).sort($.comparePosition);
+
+    if (type) {
+      elements = elements.filter(function(element) {
+        return element._ljView.type() === type;
+      });
+    }
+    return elements.map(function(element) {
+      var active = true;
+      if (element._ljView.type() === 'frame') {
+        var frameView = element._ljView;
+        var layerView = frameView.parent;
+
+        active = layerView.currentFrame === frameView;
+      }
+
+      return that.views[element._ljView.id()].path + (active ? '' : '$');
     });
   },
   /**
@@ -193,6 +234,11 @@ var State = Kern.EventManager.extend({
   _transitionTo: function(showFrame, states, transitions, payload) {
     var that = this;
     transitions = transitions || [];
+    payload = payload || {};
+    payload.state = states;
+    payload.transitions = transitions.map(function(transition) {
+      return Kern._extend({},transition);
+    });
 
     // map the given state (list of (reduced) paths) into a list of fully specified paths (may be more paths than in states list)
     var paths = {}; // path to transition to
@@ -214,28 +260,36 @@ var State = Kern.EventManager.extend({
         var layerframe = layerframes[i];
         var layer = layerframe.layer.id();
         seenTransition = {};
+        var transition = Kern._extend(seenTransition, transitions[Math.min(index, transitions.length - 1)] || {});
 
-        if (layerframe.isInterStage && paths.hasOwnProperty(layerframe.originalPath)) {
-          seenPath(layerframe.originalPath);
-        }
 
-        if (paths.hasOwnProperty(layerframe.path)) {
-          seenPath(layerframe.path);
-        }
+        if (layerframe.noActivation !== true) {
+          if (layerframe.isInterStage && paths.hasOwnProperty(layerframe.originalPath)) {
+            seenPath(layerframe.originalPath);
+          }
 
-        if (seenLayers.hasOwnProperty(layer)) {
-          seenPath(seenLayers[layer]);
+          if (paths.hasOwnProperty(layerframe.path)) {
+            seenPath(layerframe.path);
+          }
+
+          if (seenLayers.hasOwnProperty(layer)) {
+            seenPath(seenLayers[layer]);
+          }
+
+          seenLayers[layer] = layerframe.path;
         }
 
         paths[layerframe.path] = { // ignore currently active frames
           layer: layerframe.layer,
           frameName: layerframe.frameName,
-          transition: Kern._extend(seenTransition, transitions[Math.min(index, transitions.length - 1)] || {})
+          transition: Kern._extend({
+            noActivation: layerframe.noActivation
+          }, seenTransition, transition)
         };
 
-        seenLayers[layer] = layerframe.path;
       }
     });
+
 
 
     var pathRoutes = Object.getOwnPropertyNames(paths);
@@ -252,7 +306,7 @@ var State = Kern.EventManager.extend({
     for (var i = 0; i < pathRoutes.length; i++) {
       var path = paths[pathRoutes[i]];
       path.transition.semaphore = semaphore;
-      path.transition.groupId = groupId;      
+      path.transition.groupId = groupId;
 
       if (showFrame) {
         path.layer.showFrame(path.frameName, path.transition); // switch to frame
@@ -282,7 +336,9 @@ var State = Kern.EventManager.extend({
     if (parentPath !== '')
       parentPath += '.';
 
-    return parentPath + node._ljView.name();
+    var path = parentPath + node._ljView.name();
+
+    return path;
   },
   /**
    * calculate all different endings of a path
@@ -305,6 +361,13 @@ var State = Kern.EventManager.extend({
    * @returns {Array} Array of layerViews and the frameNames;
    */
   resolvePath: function(path, context) {
+
+    var noActivation = path.endsWith('$');
+
+    if (noActivation) {
+      path = path.substr(0, path.length - 1);
+    }
+
     var i, contextpath = context && this.buildPath(context),
       segments = path.split('.'),
       frameName = segments.pop(),
@@ -336,7 +399,7 @@ var State = Kern.EventManager.extend({
         result.push({
           layer: view,
           frameName: frameName,
-          path: fullPath + "." + frameName
+          path: fullPath + "." + frameName + (noActivation ? '$' : '')
         });
       } else {
         if (view.type() === 'frame') { // for frames return a bit more information which is helpful to trigger the transition
@@ -344,8 +407,9 @@ var State = Kern.EventManager.extend({
             layer: view.parent,
             view: view,
             frameName: frameName,
-            path: fullPath,
-            active: (undefined !== view.parent.currentFrame && null !== view.parent.currentFrame) ? view.parent.currentFrame.name() === frameName : false
+            path: fullPath + (noActivation ? '$' : ''),
+            active: (undefined !== view.parent.currentFrame && null !== view.parent.currentFrame) ? view.parent.currentFrame.name() === frameName : false,
+            noActivation: noActivation
           });
         } else if (view.type() === 'layer') {
 
@@ -362,10 +426,11 @@ var State = Kern.EventManager.extend({
                 layer: view,
                 frameName: frameName,
                 view: paths[0].view,
-                path: fullPath + '.' + frameName,
+                path: fullPath + '.' + frameName + (noActivation ? '$' : ''),
                 active: false,
                 isInterStage: true,
-                originalPath: paths[0].path
+                originalPath: paths[0].path,
+                noActivation: noActivation
               });
             }
           }

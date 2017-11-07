@@ -362,6 +362,7 @@ var DomHelpers = {
     var transition = {};
 
     if (string) {
+
       for (var parameter in defaults.transitionParameters) {
         if (defaults.transitionParameters.hasOwnProperty(parameter)) {
           var parameterName = defaults.transitionParameters[parameter];
@@ -553,8 +554,8 @@ var DomHelpers = {
       top = rectAfter.top + (Math.sin(rotationTop) * width + Math.cos(rotationTop) * (-1) * height); //ok
     }
 
-    matrix.tx = left;// * matrix.a;
-    matrix.ty = top;// * matrix.d;
+    matrix.tx = left; // * matrix.a;
+    matrix.ty = top; // * matrix.d;
     return matrix;
   }
 };
