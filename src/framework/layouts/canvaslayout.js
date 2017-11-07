@@ -72,17 +72,8 @@ var CanvasLayout = LayerLayout.extend({
             display: 'block'
           };
 
-          if (tfd.applyWidth) {
-            otherCss.width = tfd.frameWidth + 'px';
-          } else {
-            otherCss.width = '';
-          }
-
-          if (tfd.applyHeight) {
-            otherCss.height = tfd.frameHeight + 'px';
-          } else {
-            otherCss.height = '';
-          }
+          otherCss.width = tfd.applyWidth ? tfd.frameWidth + 'px' : childFrame.getOriginalWidth();
+          otherCss.height = tfd.applyHeight ? tfd.frameHeight + 'px' : childFrame.getOriginalHeight();
 
           that._applyTransform(childFrame, that._reverseTransform, targetTransform, otherCss);
         };

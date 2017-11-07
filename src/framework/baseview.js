@@ -37,6 +37,8 @@ var BaseView = DOMObserver.extend({
     var state = layerJS.getState(this.document);
     state.registerView(this);
 
+    this.setOriginalHeight();
+    this.setOriginalWidth();
     this._parseChildren();
     this.registerEventHandlers();
     this.startObserving();
@@ -545,6 +547,32 @@ var BaseView = DOMObserver.extend({
   destroy: function() {
     this.unobserve();
     this.outerEl.parentNode.removeChild(this.outerEl);
+  },
+  /**
+  Save the original width of the outer element
+  */
+  setOriginalWidth: function() {
+    this.originalWidth = this.outerEl.style.width;
+  },
+  /**
+  Gets the original width of the outer element
+  @return {string}
+  */
+  getOriginalWidth: function() {
+    return this.originalWidth || '';
+  },
+  /**
+  Save the original height of the outer element
+  */
+  setOriginalHeight: function() {
+    this.originalHeight = this.outerEl.style.height;
+  },
+  /**
+  Gets the original height of the outer element
+  @return {string}
+  */
+  getOriginalHeight: function() {
+    return this.originalHeight || '';
   }
 });
 
