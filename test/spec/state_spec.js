@@ -832,6 +832,31 @@ describe('state', function() {
       expect(exportedState.omittedState).toEqual(['stage1.layer1.frame1']);
     });
 
+    it('when the layer has no url defined', function(done) {
+      utilities.setHtml("<div data-lj-type='stage' id='stage1'>" +
+        "<div data-lj-type='layer' id='layer1' data-lj-default-frame='frame1' data-lj-no-url='true'>" +
+        "<div data-lj-type='frame' id='frame1' data-lj-name='frame1'></div>" +
+        "<div data-lj-type='frame' id='frame2' data-lj-name='frame2'></div>" +
+        "</div></div>");
+
+      var stageView = new StageView({
+        el: document.getElementById('stage1')
+      });
+
+
+      document.getElementById('layer1')._ljView.transitionTo('frame2', {
+        duration: ''
+      });
+
+      window.setTimeout(function() {
+        var state = layerJS.getState();
+        var exportedState = state.exportMinimizedState();
+        expect(exportedState.state).toEqual([]);
+        expect(exportedState.omittedState).toEqual(['stage1.layer1.frame1$', 'stage1.layer1.frame2']);
+        done();
+      }, 1000);
+    });
+
     it('when the current frame is the first element and no default frame is specified', function() {
       utilities.setHtml("<div data-lj-type='stage' id='stage1'>" +
         "<div data-lj-type='layer' id='layer1'>" +
@@ -928,7 +953,7 @@ describe('state', function() {
 
   describe('can resolve a path', function() {
 
-    it("of a frame that should be avtivated", function(done) {
+    it("of a frame that should not be activated", function(done) {
       utilities.setHtml("<div data-lj-type='stage' id='stage1'>" +
         "<div data-lj-type='layer' id='layer1' data-lj-default-frame='!none'>" +
         "<div data-lj-type='frame' id='frame1' data-lj-name='frame1'></div>" +
@@ -939,7 +964,7 @@ describe('state', function() {
         el: document.getElementById('stage1')
       });
 
-      //  document.getElementById('frame1')._ljView.originalParent = document.getElementById('layer2')._ljView;
+      document.getElementById('frame1')._ljView.originalParent = document.getElementById('layer2')._ljView;
 
       var state = layerJS.getState();
 
@@ -948,7 +973,7 @@ describe('state', function() {
         var result = state.resolvePath('stage1.layer1.frame1$');
         expect(result.length).toBe(1);
         expect(result[0].view).toBe(document.getElementById('frame1')._ljView);
-        expect(result[0].transition.noActivation).toBe(true);
+        expect(result[0].noActivation).toBe(true);
 
         done();
       }, 2000);

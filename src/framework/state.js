@@ -169,7 +169,7 @@ var State = Kern.EventManager.extend({
     }).filter(function(layer) {
       return layer.currentFrame === null || layer.currentFrame === undefined;
     }).forEach(function(layer) {
-      if (true === minimize && layer.defaultFrame() === '!none') {
+      if (true === minimize && (layer.noUrl() || layer.defaultFrame() === '!none')) {
         result.omittedState.push(that.views[layer.id()].path + ".!none");
       } else {
         result.state.push(that.views[layer.id()].path + ".!none");
@@ -237,7 +237,7 @@ var State = Kern.EventManager.extend({
     payload = payload || {};
     payload.state = states;
     payload.transitions = transitions.map(function(transition) {
-      return Kern._extend({},transition);
+      return Kern._extend({}, transition);
     });
 
     // map the given state (list of (reduced) paths) into a list of fully specified paths (may be more paths than in states list)
