@@ -36,6 +36,7 @@ module.exports = {
     bottom : '!bottom',
     next  :'!next',
     previous : '!prev',
-    default : '!default'
+    default : '!default',
+    current: '!current'
   }
 };

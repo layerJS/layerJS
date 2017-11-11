@@ -16,7 +16,7 @@ var FrameView = BaseView.extend({
     this.transformData = undefined;
 
     BaseView.call(this, options);
-    this.originalParent = this.parent;  
+    this.originalParent = this.parent;
   },
   /**
    * Specifies what will need to be observed on the DOM element. (Attributes, Children and size)
@@ -190,29 +190,29 @@ var FrameView = BaseView.extend({
       case 'responsive':
         d.scale = 1;
         //if (d.frameWidth !== stageWidth) {
-          d.frameWidth = stageWidth;
-          d.applyWidth = true;
+        d.frameWidth = stageWidth;
+        d.applyWidth = true;
         //}
         //if (d.frameHeight !== stageHeight) {
-          d.applyHeight = true;
-          d.frameHeight = stageHeight;
+        d.applyHeight = true;
+        d.frameHeight = stageHeight;
         //}
         break;
       case 'responsive-width':
         d.scale = 1;
         d.isScrollY = true;
         //if (d.frameWidth !== stageWidth) {
-          d.applyWidth = true;
-          d.frameWidth = stageWidth;
-          // NOTE: Afterward the height of the frame most likely changed which is not reflected in the transformData; however, this should be dealt with by the sizechanged handler
+        d.applyWidth = true;
+        d.frameWidth = stageWidth;
+        // NOTE: Afterward the height of the frame most likely changed which is not reflected in the transformData; however, this should be dealt with by the sizechanged handler
         //}
         break;
       case 'responsive-height':
         d.scale = 1;
         d.isScrollX = true;
         //if (d.frameHeight !== stageHeight) {
-          d.applyHeight = true;
-          d.frameHeight = stageHeight;
+        d.applyHeight = true;
+        d.frameHeight = stageHeight;
         //}
         break;
       default:

@@ -316,6 +316,10 @@ describe('state', function() {
     it('path layer+prev', function(done) {
       showState(html, ['layer[0].!prev'], ['stage[0].layer[0].frame5'], 'frame5', done);
     });
+
+    it('path layer+current', function(done) {
+      showState(html, ['layer[0].!current'], ['stage[0].layer[0].frame1'], 'frame1', done);
+    });
   });
 
   function showState(html, states, expectedState, expectedFrameName, done) {
@@ -392,6 +396,10 @@ describe('state', function() {
     it('path frame', function(done) {
       showState(html, ['frame2'], ['stage1.layer1.frame2'], 'frame2', done);
     });
+
+    it('path layer+current', function(done) {
+      showState(html, ['layer1.!current'], ['stage1.layer1.frame1'], 'frame1', done);
+    });
   });
 
   describe('can show to a anonymous state', function() {
@@ -443,6 +451,10 @@ describe('state', function() {
 
     it('path layer+prev', function(done) {
       showState(html, ['layer[0].!prev'], ['stage[0].layer[0].frame5'], 'frame5', done);
+    });
+
+    it('path layer+current', function(done) {
+      showState(html, ['layer[0].!current'], ['stage[0].layer[0].frame1'], 'frame1', done);
     });
   });
 

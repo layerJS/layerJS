@@ -414,7 +414,7 @@ var LayerView = BaseView.extend({
       scrollY: 0,
       lastFrameName: (this.currentFrame && this.currentFrame.name()) || "!none",
       applyTargetPrePosition: false,
-      applyCurrentPostPosition: this.currentFrame ? framename !== this.currentFrame.name() : false,
+      applyCurrentPostPosition: this.currentFrame ? framename !== this.currentFrame.name() && framename !== defaults.specialFrames.current : false,
       applyCurrentPrePosition: false,
       duration: '',
       type: 'none'
@@ -700,6 +700,8 @@ var LayerView = BaseView.extend({
       frameName = this._getNextFrameName();
     } else if (frameName === defaults.specialFrames.previous) {
       frameName = this._getPreviousFrameName();
+    } else if (frameName === defaults.specialFrames.current) {
+      frameName = null !== this.currentFrame ? this.currentFrame.name() : defaults.specialFrames.none;
     }
 
     var frameView;
@@ -829,8 +831,8 @@ var LayerView = BaseView.extend({
         childView.transformData.isDirty = true;
       }
     }
-    var frameName = this.currentFrame === null ? null : this.currentFrame.name();
-    this.showFrame(frameName, scrollData);
+
+    this.showFrame(defaults.specialFrames.current, scrollData);
   },
   /**
    * Will parse the current DOM Element it's children.

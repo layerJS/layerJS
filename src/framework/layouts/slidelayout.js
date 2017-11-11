@@ -381,7 +381,9 @@ var SlideLayout = LayerLayout.extend({
     t.fix_css = [tin[5], tout[5], tin[6], tout[6]].map(function(e) {
       return Object.keys(e || {});
     }).reduce(function(css, property) {
-      if (property !== 'transform') css[property] = 'initial';
+      if (property !== 'transform' && '' !== property) {
+        css[property] = 'initial';
+      }
       return css;
     }, {}); // create a css record that sets all extra css properties back to inital
     return t;

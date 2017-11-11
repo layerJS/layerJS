@@ -195,6 +195,16 @@ describe("LayerView", function() {
         "</div>" +
         "</div>", '!bottom', 'frame2', done);
     });
+
+    it('!current', function(done) {
+      check("<div data-lj-type='stage' id='stage1'>" +
+        "<div data-lj-type='layer' id='layer1' data-lj-default-frame='frame1'>" +
+        "<div data-lj-type='frame' id='frame3' data-lj-name='frame3'></div>" +
+        "<div data-lj-type='frame' id='frame1' data-lj-name='frame1'></div>" +
+        "<div data-lj-type='frame' id='frame2' data-lj-name='frame2'></div>" +
+        "</div>" +
+        "</div>", '!current', 'frame1', done);
+    }, 1000);
   });
 
   describe('can show to special frame name', function() {
@@ -284,6 +294,16 @@ describe("LayerView", function() {
         "<div data-lj-type='frame' id='frame2' data-lj-name='frame2'></div>" +
         "</div>" +
         "</div>", '!bottom', 'frame2', done);
+    });
+
+    it('!current', function(done) {
+      check("<div data-lj-type='stage' id='stage1'>" +
+        "<div data-lj-type='layer' id='layer1' data-lj-default-frame='frame1'>" +
+        "<div data-lj-type='frame' id='frame1' data-lj-name='frame1' data-lj-neighbors.b='frame2'></div>" +
+        "<div data-lj-type='frame' id='frame3' data-lj-name='frame3'></div>" +
+        "<div data-lj-type='frame' id='frame2' data-lj-name='frame2'></div>" +
+        "</div>" +
+        "</div>", '!current', 'frame1', done);
     });
   });
 
