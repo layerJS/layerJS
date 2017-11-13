@@ -76,6 +76,30 @@ describe('router', function() {
     expect(called).toBeTruthy();
   });
 
+  it('will ignore links with data-lj-nolink attribute', function() {
+    var called = false;
+    var dummyRouter = {
+      handle: function(url) {
+        var promise = new Kern.Promise();
+        promise.resolve({
+          handled: true,
+          stop: true
+        });
+        called = true;
+        return promise;
+      }
+    };
+
+    layerJS.router.addRouter(dummyRouter);
+    var element = document.createElement('a');
+    element.setAttribute('data-lj-nolink','true');
+    element.href = '#';
+    document.body.appendChild(element);
+    element.click();
+
+    expect(called).toBeFalsy();
+  });
+
 
   it('will not add a new entry to the history when url can not be handled', function(done) {
     var dummyRouter = {

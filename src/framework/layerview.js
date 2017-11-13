@@ -292,7 +292,7 @@ var LayerView = BaseView.extend({
     if (this.currentFrame === null) return;
     transition = transition || {};
     if (transition.startPosition) { // need to recalculate transform data if startPosition has changed
-      this.currentFrameTransformData = this.currentFrame.getTransformData(transition.startPosition);
+      this.currentFrameTransformData = this.currentFrame.getTransformData(this, transition.startPosition);
     }
     var tfd = this.currentFrameTransformData;
     if (typeof scrollX === 'object') {
@@ -351,7 +351,7 @@ var LayerView = BaseView.extend({
   gestureListener: function(gesture) {
     if (gesture.event._ljEvtHndld && gesture.event._ljEvtHndld !== this) return; // check if some inner layer has already dealt with the gesture/event
     gesture.event._ljEvtHndld = this;
-    if (this.currentFrame === null) { //this actually shoudn't happen as null frames don't have a DOM element that could recieve a gesture. However it happens when the gesture still continues from before the transition. Still we can't do anything here as we can't define neighbors for null frames (maybe later)
+    if (this.currentFrame === null) { //this actually shouldn't happen as null frames don't have a DOM element that could receive a gesture. However it happens when the gesture still continues from before the transition. Still we can't do anything here as we can't define neighbors for null frames (maybe later)
       return;
     }
     var layerTransform = this._transformer.scrollGestureListener(gesture);
@@ -360,7 +360,7 @@ var LayerView = BaseView.extend({
       return;
     }
     if (gesture.event.type === 'wheel') {
-      gesture.preventDefault = true; // set this as default. It's imporant as on macbooks horizonztal swipe gestures are used as history "forward" / "Backward" which needs to be prevented. Only if we detect a potential native scrolling then we set it to false afterwards.
+      gesture.preventDefault = true; // set this as default. It's imporant as on macbooks horizonztal swipe gestures are used as history "Forward" / "Backward" which needs to be prevented. Only if we detect a potential native scrolling then we set it to false afterwards.
     }
     if (layerTransform === true) {
       // native scrolling possible
@@ -389,7 +389,7 @@ var LayerView = BaseView.extend({
         } else { //jshint ignore:line
           // FIXME: escalate/gesture bubbling ; ignore for now
           gesture.preventDefault = false;
-          console.log(gesture.direction);
+          $.debug(gesture.direction);
           if (neighbors && (neighbors.l || neighbors.r) && (gesture.direction === 'left' || gesture.direction === 'right')) gesture.preventDefault = true; // bad hack, but there is an aggressive "back/forward" functionality on left / right swipe at least on mac computers that will impact UX severely
         }
       } else { //jshint ignore:line
@@ -418,7 +418,7 @@ var LayerView = BaseView.extend({
       scrollY: 0,
       lastFrameName: (this.currentFrame && this.currentFrame.name()) || "!none",
       applyTargetPrePosition: false,
-      applyCurrentPostPosition: this.currentFrame ? framename !== this.currentFrame.name() : false,
+      applyCurrentPostPosition: this.currentFrame ? framename !== this.currentFrame.name() && framename !== defaults.specialFrames.current : false,
       applyCurrentPrePosition: false,
       duration: '',
       type: 'none'
@@ -494,7 +494,11 @@ var LayerView = BaseView.extend({
     } else if (null !== framename) {
       framename = framename || (transition && transition.framename);
     }
-    this.lastgroupId = transition.groupId || (transition.groupId = $.uniqueID('group'));
+
+    var newGroupId = transition.groupId || (transition.groupId = $.uniqueID('group'));
+    var addToQueue = this.lastgroupId !== newGroupId;
+    this.lastgroupId = newGroupId;
+
     if (transition.delay) { // handle delayed transition
       transition.semaphore.skip();
       setTimeout(function() {
@@ -506,135 +510,153 @@ var LayerView = BaseView.extend({
       }, $.timeToMS(transition.delay));
       return;
     }
-    return this.transitionQueue.add(transition.isEvent && 'event').then(function() {
-      try {
-        if (!framename && null !== framename) throw "transformTo: no frame given";
-        // lookup frame by framename
-        var frame = framename ? that._getFrame(framename, transition) : null;
 
-        if (!frame && null !== frame) throw "transformTo: " + framename + " does not exist in layer";
 
-        if (frame && null !== frame) {
-          framename = frame.name();
+    var transitionFunction = function() {
+      if (!framename && null !== framename) throw "transformTo: no frame given";
+      // lookup frame by framename
+      var frame = framename ? that._getFrame(framename, transition) : null;
+
+      if (!frame && null !== frame) throw "transformTo: " + framename + " does not exist in layer";
+
+      if (frame && null !== frame) {
+        framename = frame.name();
+      }
+      // dealing with transition.type
+
+      // autotransitions are transition types automatically generated e.g. by swipe gestures. They are "suggested" and hence have to be dealt with lower priority
+      var autotransition;
+      if (transition && transition.type && transition.type.match(/^auto:/)) {
+        autotransition = transition.type.replace(/^auto:/, '');
+        delete transition.type; // needs to be removed for now; othervise if will overwrite default transitions which is not desired for auto transitions
+      }
+      // merge defaults with given transition records; transition.type will overwrite default transitions (unless auto transition)
+      transition = Kern._extend({
+        type: transition && transition.type ? 'default' : (frame && frame.defaultTransition()) || that.defaultTransition() || autotransition || 'default',
+        previousType: transition && transition.type ? undefined : (that.currentFrame && that.currentFrame.defaultTransition()) || undefined,
+        duration: '1s',
+        lastFrameName: (that.currentFrame && that.currentFrame.name()) || "!none",
+        applyTargetPrePosition: !transition.noActivation && (transition.applyTargetPrePosition || (frame && frame.parent && frame.parent === that)), // we need to set this here for interstage transitions; loadframe doesn't know about the transition record.
+        applyCurrentPostPosition: (transition.applyCurrentPostPosition !== true && (that.currentFrame && that.currentFrame.parent && that.currentFrame.parent === that)) && !transition.noActivation,
+        applyCurrentPrePosition: (transition.applyCurrentPrePosition !== true && (that.currentFrame && that.currentFrame.parent && that.currentFrame.parent === that)) && !transition.noActivation
+          // FIXME: add more default values like timing
+      }, transition || {});
+
+      // check for reverse transition; remove "r:"/"reverse:" indicator and set transition.reverse instead
+      if (transition.type && transition.type.match(/^(?:r:|reverse:)/i)) {
+        transition.type = transition.type.replace(/^(?:r:|reverse:)/i, '');
+        transition.reverse = true;
+      }
+      if (transition.previousType && transition.previousType.match(/^(?:r:|reverse:)/i)) {
+        transition.previousType = transition.previousType.replace(/^(?:r:|reverse:)/i, '');
+        transition.previousReverse = true;
+      }
+
+      // create a dummy semaphore if there isn't any
+      if (!transition.semaphore) {
+        transition.semaphore = (new Kern.Semaphore()).register();
+      }
+      // add listener to the sempahore to get the moment the animation really startsWith
+      transition.semaphore.listen(true).then(function(num) {
+        if (num > 0 && transition.applyTargetPrePosition !== false) that.trigger('transitionPrepared'); // notify listeners about prepared state. (unless all have skipped, e.g. delayed transitions)
+      });
+      transition.semaphore.listen().then(function() {
+        if (!transition.wasInTransition) {
+          that.updateClasses(); // update classes;
         }
-        // dealing with transition.type
-
-        // autotransitions are transition types automatically generated e.g. by swipe gestures. They are "suggested" and hence have to be dealt with lower priority
-        var autotransition;
-        if (transition && transition.type && transition.type.match(/^auto:/)) {
-          autotransition = transition.type.replace(/^auto:/, '');
-          delete transition.type; // needs to be removed for now; othervise if will overwrite default transitions which is not desired for auto transitions
-        }
-        // merge defaults with given transition records; transition.type will overwrite default transitions (unless auto transition)
-        transition = Kern._extend({
-          type: transition && transition.type ? 'default' : (frame && frame.defaultTransition()) || that.defaultTransition() || autotransition || 'default',
-          previousType: transition && transition.type ? undefined : (that.currentFrame && that.currentFrame.defaultTransition()) || undefined,
-          duration: '1s',
-          lastFrameName: (that.currentFrame && that.currentFrame.name()) || "!none",
-          applyTargetPrePosition: transition.applyTargetPrePosition || (frame && frame.parent && frame.parent === that),
-          applyCurrentPostPosition: transition.applyCurrentPostPosition || (frame && frame.parent && frame.parent === that)
-            // FIXME: add more default values like timing
-        }, transition || {});
-
-        // check for reverse transition; remove "r:"/"reverse:" indicator and set transition.reverse instead
-        if (transition.type && transition.type.match(/^(?:r:|reverse:)/i)) {
-          transition.type = transition.type.replace(/^(?:r:|reverse:)/i, '');
-          transition.reverse = true;
-        }
-        if (transition.previousType && transition.previousType.match(/^(?:r:|reverse:)/i)) {
-          transition.previousType = transition.previousType.replace(/^(?:r:|reverse:)/i, '');
-          transition.previousReverse = true;
-        }
-
-        // create a dummy semaphore if there isn't any
-        if (!transition.semaphore) {
-          transition.semaphore = (new Kern.Semaphore()).register();
-        }
-        // add listener to the sempahore to get the moment the animation really startsWith
-        transition.semaphore.listen(true).then(function(num) {
-          if (num > 0) that.trigger('transitionPrepared'); // notify listeners about prepared state. (unless all have skipped, e.g. delayed transitions)
-        });
-        transition.semaphore.listen().then(function() {
-          that.transitionQueue.continue(); // allow processing of next transition from queue
-        });
+        that.transitionQueue.continue(); // allow processing of next transition from queue
+      });
 
 
-        if (that.inTransition()) transition.wasInTransition = true;
-        transition.duration = Math.max(that.getRemainingTransitionTime() || 0, $.timeToMS(transition.duration) || 0) + 'ms';
-        if (transition.duration === '0ms') transition.duration = '';
-        that.trigger('beforeTransition', framename);
-        transition.transitionID = that.transitionID = ++that._transitionIDcounter; // inc transition ID and save new ID into transition record; keep exiting transitionID if existing (delayed transitions)
-        that.inTransition(true, $.timeToMS(transition.duration));
+      if (that.inTransition()) transition.wasInTransition = true;
+      transition.duration = Math.max(that.getRemainingTransitionTime() || 0, $.timeToMS(transition.duration) || 0) + 'ms';
+      if (transition.duration === '0ms') transition.duration = '';
+      that.trigger('beforeTransition', framename);
+      transition.transitionID = that.transitionID = ++that._transitionIDcounter; // inc transition ID and save new ID into transition record; keep exiting transitionID if existing (delayed transitions)
+      that.inTransition(true, $.timeToMS(transition.duration));
 
-        console.log('running new transition', transition.transitionID, transition);
+      $.debug('running new transition', transition.transitionID, transition, framename, that.id());
 
-        // make sure frame is there such that we can calculate dimensions and transform data
-        return that._layout.loadFrame(frame).then(function() {
-          // calculate the layer transform for the target frame. Note: that will automatically consider native scrolling
-          // getScrollIntermediateTransform will not change the current native scroll position but will calculate
-          // a compensatory transform for the target scroll position.
-          var currentScroll = that.getCurrentScroll(); // get current scroll position before recalculating it for that frame
-          var targetFrameTransformData = null === frame ? that.noFrameTransformdata(transition.startPosition) : frame.getTransformData(transition.startPosition);
-          var targetTransform = that._transformer.getScrollTransform(targetFrameTransformData, transition, true);
+      // make sure frame is there such that we can calculate dimensions and transform data
+      return that._layout.loadFrame(frame).then(function() {
+        // calculate the layer transform for the target frame. Note: that will automatically consider native scrolling
+        // getScrollIntermediateTransform will not change the current native scroll position but will calculate
+        // a compensatory transform for the target scroll position.
+        var currentScroll = that.getCurrentScroll(); // get current scroll position before recalculating it for that frame
+        var targetFrameTransformData = null === frame ? that.noFrameTransformdata(transition.startPosition) : frame.getTransformData(that, transition.startPosition);
+        var targetTransform = that._transformer.getScrollTransform(targetFrameTransformData, transition, true);
 
-          // check if transition goes to exactly the same position
-          if (that.currentFrame === frame && that.currentFrameTransformData === targetFrameTransformData) {
 
-            if (targetFrameTransformData.scrollX !== currentScroll.scrollX || targetFrameTransformData.scrollY !== currentScroll.scrollY) {
-              // just do a scroll using a transition
-              transition = Kern._extend(transition, {
-                applyTargetPrePosition: false,
-                applyCurrentPostPosition: false,
-                applyCurrentPrePosition: false,
-                scrollX: targetFrameTransformData.scrollX,
-                scrollY: targetFrameTransformData.scrollY,
-                type: 'none'
-              });
-            } else {
+        // check if transition goes to exactly the same position
+        if (that.currentFrame === frame && that.currentFrameTransformData === targetFrameTransformData) {
 
-              var p = new Kern.Promise();
-              that.trigger('transitionStarted', framename, transition);
-              transition.semaphore.sync().then(function() {
+          if (targetFrameTransformData.scrollX !== currentScroll.scrollX || targetFrameTransformData.scrollY !== currentScroll.scrollY) {
+            // just do a scroll using a transition
+            transition = Kern._extend(transition, {
+              applyTargetPrePosition: false,
+              applyCurrentPostPosition: false,
+              applyCurrentPrePosition: false,
+              scrollX: targetFrameTransformData.scrollX,
+              scrollY: targetFrameTransformData.scrollY,
+              type: 'none'
+            });
+          } else {
 
-                if (!transition.wasInTransition) {
-                  that.trigger('transitionFinished', framename);
-                  that.inTransition(false);
-                }
-                p.resolve();
-              });
+            var p = new Kern.Promise();
+            that.trigger('transitionStarted', framename, transition);
+            transition.semaphore.sync().then(function() {
 
-              return p;
-            }
-          }
-
-          var layoutPromise = that._layout.transitionTo(frame, transition, targetFrameTransformData, targetTransform).then(function() {
-            // is that still the active transition?
-            if (transition.transitionID === that.transitionID) {
-              console.log('transition finished', transition.transitionID);
-              // that will now calculate the currect layer transform and set up scroll positions in native scroll
-              that.currentTransform = that._transformer.getScrollTransform(targetFrameTransformData, transition, false);
-              // apply new transform (will be 0,0 in case of native scrolling)
-              that.inTransition(false);
-              that.setLayerTransform(that.currentTransform);
-              $.postAnimationFrame(function() {
+              if (!transition.wasInTransition) {
                 that.trigger('transitionFinished', framename);
-              });
-            }
-          });
+                that.inTransition(false);
+              }
+              p.resolve();
+            });
 
-          that.updateClasses(frame);
+            return p;
+          }
+        }
+
+        var layoutPromise = that._layout.transitionTo(frame, transition, targetFrameTransformData, targetTransform).then(function() {
+          // is that still the active transition?
+          if (transition.transitionID === that.transitionID) {
+            $.debug('transition finished', transition.transitionID);
+            // that will now calculate the currect layer transform and set up scroll positions in native scroll
+            that.currentTransform = that._transformer.getScrollTransform(targetFrameTransformData, transition, false);
+            // apply new transform (will be 0,0 in case of native scrolling)
+            that.inTransition(false);
+            that.setLayerTransform(that.currentTransform);
+            $.postAnimationFrame(function() {
+              that.trigger('transitionFinished', framename);
+            });
+            that.updateClasses();
+          }
+        });
+
+        if (!transition.noActivation) { // setup variables to new active frame
           that.currentFrameTransformData = targetFrameTransformData;
           that.currentFrame = frame;
           that.currentTransform = targetTransform;
-          that.trigger('transitionStarted', framename, transition);
+        }
+        that.trigger('transitionStarted', framename, transition);
 
-          return layoutPromise;
-        });
-      } catch (e) {
-        that.transitionQueue.continue();
-        throw e;
-      }
-    });
+        return layoutPromise;
+      });
+
+    };
+
+    if (addToQueue) {
+      return this.transitionQueue.add(transition.isEvent && 'event').then(function() {
+        try {
+          transitionFunction();
+        } catch (e) {
+          that.transitionQueue.continue();
+          throw e;
+        }
+      });
+    } else {
+      return transitionFunction();
+    }
   },
   /**
    * Will get a frame based on the framename. Special names will be resolved.
@@ -682,6 +704,8 @@ var LayerView = BaseView.extend({
       frameName = this._getNextFrameName();
     } else if (frameName === defaults.specialFrames.previous) {
       frameName = this._getPreviousFrameName();
+    } else if (frameName === defaults.specialFrames.current) {
+      frameName = null !== this.currentFrame ? this.currentFrame.name() : defaults.specialFrames.none;
     }
 
     var frameView;
@@ -765,12 +789,20 @@ var LayerView = BaseView.extend({
    * @param {Type} Name - Description
    * @returns {Type} Description
    */
-  updateClasses: function(newFrame) {
-    if (this.currentFrame) {
-      $.removeClass(this.currentFrame.outerEl, 'lj-active');
+  updateClasses: function() {
+    var childViews = this.getChildViews();
+    var length = childViews.length;
+    for (var i = 0; i < length; i++) {
+      $.removeClass(childViews[i].outerEl, 'lj-active');
+      $.removeClass(childViews[i].outerEl, 'lj-transition');
     }
-    if (null !== newFrame) {
-      $.addClass(newFrame.outerEl, 'lj-active');
+    if (null !== this.currentFrame) {
+      $.addClass(this.currentFrame.outerEl, 'lj-active');
+    }
+    for (i = 0; i < arguments.length; i++) {
+      if (arguments[i] && arguments[i].outerEl) {
+        $.addClass(arguments[i].outerEl, 'lj-transition');
+      }
     }
   },
   /**
@@ -803,8 +835,8 @@ var LayerView = BaseView.extend({
         childView.transformData.isDirty = true;
       }
     }
-    var frameName = this.currentFrame === null ? null : this.currentFrame.name();
-    this.showFrame(frameName, scrollData);
+
+    this.showFrame(defaults.specialFrames.current, scrollData);
   },
   /**
    * Will parse the current DOM Element it's children.

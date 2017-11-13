@@ -291,6 +291,16 @@ var DomHelpers = {
     }
   },
   /**
+   * alternative console.log function that will supress output on live systems
+   *
+   * @param {...} ... - arguments to console.log
+   */
+  debug: function() {
+    if (!window || (window.location.protocol.match(/file/i)) || (window.location.host.match(/localhost/i)) || (window.location.host.match(/127\.0\./i))) {
+      console.log.apply(console, arguments);
+    }
+  },
+  /**
    * Will parse the url for a location, queryString and hash
    *
    * @param {string} url - url to parse
@@ -352,6 +362,7 @@ var DomHelpers = {
     var transition = {};
 
     if (string) {
+
       for (var parameter in defaults.transitionParameters) {
         if (defaults.transitionParameters.hasOwnProperty(parameter)) {
           var parameterName = defaults.transitionParameters[parameter];
@@ -543,8 +554,8 @@ var DomHelpers = {
       top = rectAfter.top + (Math.sin(rotationTop) * width + Math.cos(rotationTop) * (-1) * height); //ok
     }
 
-    matrix.tx = left;// * matrix.a;
-    matrix.ty = top;// * matrix.d;
+    matrix.tx = left; // * matrix.a;
+    matrix.ty = top; // * matrix.d;
     return matrix;
   }
 };

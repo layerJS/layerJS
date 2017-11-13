@@ -16,6 +16,7 @@ var FrameView = BaseView.extend({
     this.transformData = undefined;
 
     BaseView.call(this, options);
+    this.originalParent = this.parent;
   },
   /**
    * Specifies what will need to be observed on the DOM element. (Attributes, Children and size)
@@ -61,17 +62,18 @@ var FrameView = BaseView.extend({
   /**
    * get the transformData of the frame that describes how to fit the frame into the stage
    *
+   * @param {LayerView} layer - the layer of the frame
    * @param {String} transitionStartPosition -  [optional] the transition data for the current transition, only startPosition is considered
    * @param {Boolean} keepScroll - if true, scrollX and scrollY are not reset to their initial positions (unless transitionStartPosition requests a full recalculation)
    * @returns {TransformData} the transform data
    */
-  getTransformData: function(transitionStartPosition, keepScroll) {
+  getTransformData: function(layer, transitionStartPosition, keepScroll) {
     // check if we can return cached version of transfromData
     var d = this.transformData;
-    if (!d || d.isDirty /*|| d.stage !== stage */ || (transitionStartPosition && transitionStartPosition !== d.startPosition)) {
+    if (!d || d.isDirty || d.layer !== layer || (transitionStartPosition && transitionStartPosition !== d.startPosition)) {
       // calculate transformData
       if (d) delete d.isDirty;
-      return (this.transformData = this.calculateTransformData(transitionStartPosition));
+      return (this.transformData = this.calculateTransformData(layer, transitionStartPosition));
     }
     if (!keepScroll) {
       d.scrollX = d.initialScrollX;
@@ -96,14 +98,18 @@ var FrameView = BaseView.extend({
    * calculate transform data (scale, scoll position and displacement) when fitting current frame into associated stage.
    * Note: this ignores the frame's scale and rotation property which have to be dealt with in the layer layout if necessary.
    *
+   * @param {LayerView} layer - the layer the frame belongs to
    * @param {string} [transitionStartPosition] - the scroll position at start
    * @returns {TransformData} the transform data
    */
-  calculateTransformData: function(transitionStartPosition) {
-    var stageWidth = this.parent.width();
-    var stageHeight = this.parent.height();
+  calculateTransformData: function(layer, transitionStartPosition) {
+    var stage = layer.parent;
+    var stageWidth = stage ? stage.width() : 0;
+    var stageHeight = stage ? stage.height() : 0;
     // data record contianing transformation and scrolling information of frame within given stage
     var d = this.transformData = {};
+    d.stage = stage;
+    d.layer = layer;
     // scaling of frame needed to fit frame into stage
     d.scale = 1;
     d.frameWidth = this.width();
@@ -120,7 +126,7 @@ var FrameView = BaseView.extend({
     d.isScrollX = false;
     d.isScrollY = false;
 
-    var fitTo = this.fitTo(false) || this.parent.fitTo();
+    var fitTo = this.fitTo(false) || layer.fitTo();
     switch (fitTo) {
       case 'width':
         d.scale = stageWidth / d.frameWidth;
@@ -183,28 +189,31 @@ var FrameView = BaseView.extend({
         break;
       case 'responsive':
         d.scale = 1;
-        if (d.frameWidth !== stageWidth) {
-          // FIXME: if width:100% that wouldn't be necessary though. or would loadFrame already make sure that 100% is applied??
-          this.setWidth(d.frameWidth = stageWidth);
-          // FIXME: Afterward the height of the frame most likely changed which is not reflected in the transformData; we would need to wait for render, though, before reading new height
-        }
-        if (d.frameHeight !== stageHeight) {
-          this.setHeight(d.frameHeight = stageHeight);
-        }
+        //if (d.frameWidth !== stageWidth) {
+        d.frameWidth = stageWidth;
+        d.applyWidth = true;
+        //}
+        //if (d.frameHeight !== stageHeight) {
+        d.applyHeight = true;
+        d.frameHeight = stageHeight;
+        //}
         break;
       case 'responsive-width':
         d.scale = 1;
         d.isScrollY = true;
-        if (d.frameWidth !== stageWidth) {
-          this.setWidth(d.frameWidth = stageWidth);
-        }
+        //if (d.frameWidth !== stageWidth) {
+        d.applyWidth = true;
+        d.frameWidth = stageWidth;
+        // NOTE: Afterward the height of the frame most likely changed which is not reflected in the transformData; however, this should be dealt with by the sizechanged handler
+        //}
         break;
       case 'responsive-height':
         d.scale = 1;
         d.isScrollX = true;
-        if (d.frameHeight !== stageHeight) {
-          this.setHeight(d.frameHeight = stageHeight);
-        }
+        //if (d.frameHeight !== stageHeight) {
+        d.applyHeight = true;
+        d.frameHeight = stageHeight;
+        //}
         break;
       default:
         throw "unkown fitTo type '" + fitTo + "'";
@@ -221,10 +230,9 @@ var FrameView = BaseView.extend({
     d.width = d.frameWidth * d.scale;
     d.height = d.frameHeight * d.scale;
 
-    if (this.parent && this.parent.autoWidth()) {
-      stageWidth= d.width;
-    }
-    else if (this.parent && this.parent.autoHeight()){
+    if (stage && stage.autoWidth()) {
+      stageWidth = d.width;
+    } else if (stage && stage.autoHeight()) {
       stageHeight = d.height;
     }
     // calculate maximum scroll positions (depend on frame and stage dimensions)

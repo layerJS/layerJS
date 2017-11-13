@@ -1,0 +1,51 @@
+html {
+  height: 100%;
+}
+
+body {
+  width: 100%;
+  height: 100%;
+  margin: 0px;
+  background-color: #fff;
+}
+
+#overview {
+  width: 1440px;
+  height: 100vh;
+}
+
+.card {
+  overflow: hidden;
+  width: 180px;
+  height: 180px;
+  border-radius: 50%;
+  background-color: white;
+  box-shadow: 1px 1px 5px 1px rgba(136, 136, 136, 0.5);
+}
+
+.card>div{
+  width:96vw;
+  float: left; // unclear why this is needed to align div to top
+}
+
+.cardimg {
+  width: 180px;
+  float: left;
+  margin-right: 30px;
+  margin-bottom: 30px;
+
+}
+
+.card.lj-active {
+  border-radius: 0px;
+  border: 1px solid white;
+  padding: 20px;
+}
+.card.lj-active>div{
+
+}
+
+.card.lj-active .cardimg {
+  width: 300px;
+  transition: .5s;
+}

@@ -1,0 +1,43 @@
+* {
+  box-sizing: border-box;
+}
+body
+{
+    padding: 0px;
+    margin: 0px;
+    background-color: white;
+}
+
+[lj-type="stage"]
+{
+    width: 100%;
+    height: 100%;
+    max-width: 500px;
+    margin: auto;
+    background-color: white;
+}
+[lj-type="frame"] {
+  padding: 20px;
+}
+
+a {
+  text-decoration: none;
+  color: #60C694;
+}
+.close{
+  float: right;
+  padding: 5px;
+  text-decoration: none;
+  cursor: pointer;
+  color: black;
+}
+.modal {
+  background-color:rgba(80,80,80,0.5);
+  padding: 50px;
+  height: 100%;
+}
+.modal .modal-inner{
+  background-color: #fff;
+  height: 100%;
+  padding: 20px;
+}

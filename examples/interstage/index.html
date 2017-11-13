@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="interstage example">
+  <script src="../../dist/layerjs.js"></script>
+  <link href="../../dist/layerjs.css" type="text/css" rel="stylesheet" />
+  <link href="your-style.css" type="text/css" rel="stylesheet" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/1.0.28/vue.min.js"></script>
+  <title>title</title>
+</head>
+
+<body lj-type="stage">
+  <div lj-type="layer" lj-native-scroll="false" lj-layout="canvas" lj-name="canvas" lj-default-frame="overview">
+    <div lj-type="frame" id="overview" lj-x="-50" lj-y="-50">
+
+    </div>
+    <div v-for="c in cards" lj-type="frame" class="card" id="card{{ c.nr }}" lj-x="{{ 200 * (c.nr-1) }}" lj-y="0">
+      <div class="cardcontainer">
+        <a href="#top.card{{ c.nr }}&t=.5s"><img class="cardimg" src="profile.png" /></a>
+        <h2>{{ c.hl }}</h2>
+        <h3>Lorem ipsum</h3>
+        <hr style="clear: both">
+        <p>
+          Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata
+          sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et
+          ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.
+        </p>
+        <p>
+          Li Europan lingues es membres del sam familie. Lor separat existentie es un myth. Por scientie, musica, sport etc, litot Europa usa li sam vocabular. Li lingues differe solmen in li grammatica, li pronunciation e li plu commun vocabules. Omnicos directe
+          al desirabilite de un nov lingua franca: On refusa continuar payar custosi traductores. At solmen va esser necessi far uniform grammatica, pronunciation e plu sommun paroles. Ma quande lingues coalesce, li grammatica del resultant lingue es
+          plu simplic e regulari quam ti del coalescent lingues. Li nov lingua franca va esser plu simplic e regulari quam li existent Europan lingues. It va esser tam simplic quam Occidental in fact, it va esser Occidental. A un Angleso it va semblar
+          un simplificat Angles, quam un skeptic Cambridge amico dit me que Occidental es.Li Europan lingues es membres del sam familie. Lor separat existentie es un myth. Por scientie, musica,
+        </p>
+
+      </div>
+
+    </div>
+
+  </div>
+  <div lj-type="layer" lj-native-scroll="false" lj-name="top" lj-default-frame="!none" lj-fit-to="responsive">
+
+
+  </div>
+  <script>
+    layerJS.init(); // Initialize layerJS
+  </script>
+  <script>
+    var app4 = new Vue({
+      el: 'body',
+      data: {
+        cards: [{
+            nr: 1,
+            hl: "Card I"
+          },
+          {
+            nr: 2,
+            hl: "Card II"
+          },
+          {
+            nr: 3,
+            hl: "Card III"
+          }
+        ]
+      }
+    });
+  </script>
+
+</body>
+
+</html>

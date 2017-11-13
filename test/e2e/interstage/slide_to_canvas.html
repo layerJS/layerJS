@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="interstage example">
+  <link rel="stylesheet" type="text/css" href="../../../src/css/layerjs.css">
+  <title>title</title>
+
+  <style>
+    body {
+      width: 100%;
+      height: 100%;
+      margin: 0px;
+    }
+
+    #overview {
+      width: 1440px;
+      height: 100vh;
+    }
+
+    .card {
+      width: 200px;
+      height: 200px;
+      border-radius: 20px;
+      padding: 20px;
+      border: 1px solid black;
+      background-color: white;
+    }
+
+    .card.lj-active {
+      transition: 1s;
+      border-radius: 0px;
+      border: 1px solid white;
+    }
+  </style>
+</head>
+
+<body lj-type="stage">
+  <div lj-type="layer" id="top" lj-native-scroll="false" lj-layout="slide" lj-name="top" lj-default-frame="card1">
+
+    <a href="#canvas.card1" lj-type="frame" class="card" id="card1" lj-x="0" lj-y="0">
+      card 1
+    </a>
+    <a href="#canvas.card2" lj-type="frame" class="card" id="card2" lj-x="200" lj-y="0">
+      card 2
+    </a>
+    <a href="#canvas.card3" lj-type="frame" class="card" id="card3" lj-x="400" lj-y="0">
+      card 3
+    </a>
+
+  </div>
+  <div lj-type="layer" id="canvas" lj-native-scroll="false" lj-name="top" lj-default-frame="overview"  lj-layout="canvas">
+    <div lj-type="frame" id="overview" lj-x="20" lj-y="100">
+      overView
+    </div>
+  </div>
+    <script src="../../../dist/layerjs.js"></script>
+  <script>
+    layerJS.init(); // Initialize layerJS
+  </script>
+
+</body>
+
+</html>

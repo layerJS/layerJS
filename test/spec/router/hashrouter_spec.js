@@ -57,7 +57,7 @@ describe('HashRouter', function() {
       done();
     });
   });
-
+//Kenny
   xit('can only handle an url with a hash that is the same as the current url', function(done) {
     var promise = hashRouter.handle({
       location: 'http://localhost/test.html',
@@ -201,6 +201,75 @@ describe('HashRouter', function() {
           expect(result.paths).toEqual(['stage1.layer1.frame2']);
           expect(result.transitions.length).toBe(1);
           expect(result.transitions[0]).toEqual(options.globalTransition);
+          done();
+        }, 500);
+      });
+    });
+
+
+    it('will put the full path of the frame when it is an interstage', function() {
+      utilities.setHtml("<div data-lj-type='stage' id='stage1'>" +
+        "<div data-lj-type='layer' id='layer1' data-lj-default-frame='frame1'>" +
+        "<div data-lj-type='frame' id='frame1' data-lj-name='frame1'></div>" +
+        "</div>"+
+        "<div data-lj-type='layer' id='layer2' >" +
+        "</div></div>");
+
+      var stageView = new StageView({
+        el: document.getElementById('stage1')
+      });
+
+      var frame1 = document.getElementById('frame1')._ljView;
+      var layer2 = document.getElementById('layer2')._ljView;
+      frame1.originalParent = layer2;
+
+      var options = {
+        location: 'http://localhost/index.html',
+        hash: 'something',
+        state: ['stage1.layer1.frame1']
+      };
+
+      hashRouter.buildUrl(options);
+      expect(options.state).toEqual([]);
+      expect(options.location).toBe('http://localhost/index.html');
+      expect(options.hash).toBe('stage1.layer1.frame1');
+    });
+
+    it('can detect a structure changing transition', function(done){
+      var url = 'http://localhost/#stage1.layer1.frame2$';
+
+      var html = "<div data-lj-type='stage' id='stage1'>" +
+        "<div data-lj-type='layer' id='layer1' data-lj-default-frame='frame1'>" +
+        "<div data-lj-type='frame' id='frame1' data-lj-name='frame1'></div>" +
+        "</div>" +
+        "<div data-lj-type='layer' id='layer2' data-lj-default-frame='frame2'>" +
+        "<div data-lj-type='frame' id='frame2' data-lj-name='frame2'></div>" +
+        "</div>" +
+        "</div>";
+
+      utilities.setHtml(html);
+
+      new StageView({
+        el: document.getElementById('stage1')
+      });
+      var options = {
+        url: url,
+        location: 'http://localhost/',
+        hash: 'stage1.layer1.frame2$',
+        transitions: [],
+        paths: [],
+        globalTransition: {
+          type: 'left'
+        }
+      };
+      var promise = hashRouter.handle(options);
+
+      promise.then(function(result) {
+        setTimeout(function() {
+          expect(result.handled).toBeTruthy();
+          expect(result.stop).toBeFalsy();
+          expect(result.paths).toEqual(['stage1.layer1.frame2$']);
+          expect(result.transitions.length).toBe(1);
           done();
         }, 500);
       });

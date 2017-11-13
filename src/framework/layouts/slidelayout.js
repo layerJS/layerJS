@@ -81,7 +81,7 @@ var SlideLayout = LayerLayout.extend({
 
     for (var i = 0; i < frames.length; i++) {
 
-      if (frames[i] !== frame && frames[i] !== currentFrame) {
+      if (frames[i] !== frame && frames[i] !== currentFrame && null !== frames[i].outerEl.parentNode) {
         frames[i].applyStyles({
           display: 'none'
         });
@@ -102,26 +102,25 @@ var SlideLayout = LayerLayout.extend({
     var currentFrame = that.layer.currentFrame;
     return this.prepareTransition(frame, transition, targetFrameTransformData, targetTransform).then(function(t) {
       var finished = new Kern.Promise();
-      var frameToTransition = frame || currentFrame;
 
       var transitionEnd = function() {
 
-          if (currentFrame && transition.applyCurrentPostPosition !== false) {
-            currentFrame.applyStyles(t.fix_css, {
-              transition: 'none',
-              display: 'none',
-              'z-index': 'initial'
-            });
-            console.log('slidelayout: fix c');
-          }
+        if (currentFrame && transition.applyCurrentPostPosition !== false) {
+          currentFrame.applyStyles(t.fix_css, {
+            transition: 'none',
+            display: 'none',
+            'z-index': 'initial'
+          });
+          $.debug('slidelayout: fix c');
+        }
 
-          if (frame) {
-            frame.applyStyles(t.fix_css, {
-              transition: 'none',
-              'z-index': 'initial'
-            });
-            console.log('slidelayout: fix t');
-          }
+        if (frame) {
+          frame.applyStyles(t.fix_css, {
+            transition: 'none',
+            'z-index': 'initial'
+          });
+          $.debug('slidelayout: fix t');
+        }
 
 
         finished.resolve(); // do we need to wait here until it is rendered?
@@ -131,37 +130,49 @@ var SlideLayout = LayerLayout.extend({
         // });
       };
 
-
-      if (frameToTransition) {
-        if (transition.duration !== '') {
-          frameToTransition.outerEl.addEventListener("transitionend", function f(e) { // FIXME needs webkitTransitionEnd etc
-            e.target.removeEventListener(e.type, f); // remove event listener for transitionEnd.
-            transitionEnd();
-          });
-        }
-      } else {
-        finished.resolve(); // FIXME: this would be only called if currentFrame and new frame are null ?????
+      var frameToTransition = frame || currentFrame; // is there at least on frame to transition?
+      if (frameToTransition && transition.duration !== '') {
+        frameToTransition.outerEl.addEventListener("transitionend", function f(e) { // FIXME needs webkitTransitionEnd etc
+          e.target.removeEventListener(e.type, f); // remove event listener for transitionEnd.
+          transitionEnd();
+        });
       }
       // wait for semaphore as there may be more transitions that need to be setup
       transition.semaphore.sync().then(function() {
-        that._applyTransform(frame, that._currentFrameTransform = t.t1, targetTransform, {
+        var otherCss = {
           transition: transition.duration,
           top: "0px",
           left: "0px",
           opacity: "1"
-        });
-        console.log('slidelayout: apply t1');
+        };
 
+        if (targetFrameTransformData.applyWidth) {
+          otherCss.width = targetFrameTransformData.frameWidth + "px";
+        }
+
+        if (targetFrameTransformData.applyHeight) {
+          otherCss.height = targetFrameTransformData.frameHeight + "px";
+        }
+
+        if (!transition.noActivation) {
+          that._applyTransform(frame, that._currentFrameTransform = t.t1, targetTransform, otherCss);
+          $.debug('slidelayout: apply t1');
+        } else {
+          that._applyTransform(frame, {
+            opacity: 0,
+            transition: transition.duration,
+          }, {}, {});
+        }
         if (transition.applyCurrentPostPosition !== false) {
           that._applyTransform(currentFrame, t.c1, targetTransform, {
             transition: transition.duration,
             top: "0px",
             left: "0px"
           });
-          console.log('slidelayout: apply c1');
+          $.debug('slidelayout: apply c1');
         }
 
-        if (transition.duration === '') {
+        if (transition.duration === '' || !frameToTransition) { // execute transitionend immediately if not transition is going on
           transitionEnd();
         }
 
@@ -234,21 +245,25 @@ var SlideLayout = LayerLayout.extend({
         finished.resolve(prep);
         return finished;
       }
+      var otherCss = {
+        transition: 'none',
+        visibility: 'inital'
+      };
+      // apply frame dimensions. this should be the dimensions of the pre position, but in slide layout the pre position should have same frame dimensions as post position. (in all cases where this is not true [sizechanged, interstage, ?] applyTargetPrePosition would be false)
+      if (targetFrameTransformData.applyWidth) otherCss.width = targetFrameTransformData.frameWidth + "px";
+      if (targetFrameTransformData.applyHeight) otherCss.height = targetFrameTransformData.frameHeight + "px";
       if (transition.applyTargetPrePosition !== false) {
         // apply pre position to target frame
-        this._applyTransform(frame, prep.t0, this.layer.currentTransform, {
-          transition: 'none',
-          visibility: 'inital'
-        });
-        console.log('slidelayout: apply t0');
+        this._applyTransform(frame, prep.t0, this.layer.currentTransform, otherCss);
+        $.debug('slidelayout: apply t0');
       }
       // apply pre position to current frame
-      if (prep.current_css && transition.applyCurrentPrePosition !== false) {
+      if (currentFrame && prep.current_css && transition.applyCurrentPrePosition !== false) {
         this._applyTransform(currentFrame, prep.c0, this.layer.currentTransform, {
           transition: 'none',
           'z-index': 'initial'
         });
-        console.log('slidelayout: apply c0');
+        $.debug('slidelayout: apply c0');
       }
       // wait until new positions are rendered then resolve promise
       $.postAnimationFrame(function() {
@@ -366,7 +381,9 @@ var SlideLayout = LayerLayout.extend({
     t.fix_css = [tin[5], tout[5], tin[6], tout[6]].map(function(e) {
       return Object.keys(e || {});
     }).reduce(function(css, property) {
-      if (property !== 'transform') css[property] = 'initial';
+      if (property !== 'transform' && '' !== property) {
+        css[property] = 'initial';
+      }
       return css;
     }, {}); // create a css record that sets all extra css properties back to inital
     return t;

@@ -53,18 +53,20 @@ var Router = Kern.EventManager.extend({
     var that = this;
 
     // listen to history buttons
-    window.onpopstate = function() {
-      if (document.location.href === that.ignoreUrl){
+    window.onpopstate = function(eventArg) {
+      if (document.location.href === that.ignoreUrl) {
         delete that.ignoreUrl;
-      }
-      else {
+      } else if (eventArg && eventArg.state && eventArg.state.state) {
+        that.state.transitionTo(eventArg.state.state, eventArg.state.transitions, {
+          noHistory: true
+        });
+      } else {
         that.navigate(document.location.href, null, true);
       }
-
     };
 
     // register link listener
-    $.addDelegtedListener(this.rootElement, 'click', 'a', function(event) {
+    $.addDelegtedListener(this.rootElement, 'click', 'a:not([data-lj-nolink=\'true\']):not([lj-nolink=\'true\'])', function(event) {
       //delete that.ignoreUrl;
       if (this.href !== '' && !this.href.startsWith('javascript:')) { // jshint ignore:line
         var href = this.getAttribute('href'); // get the explicitly given href (that is not extended) to see the intention of the user
@@ -120,12 +122,16 @@ var Router = Kern.EventManager.extend({
         // determine is it was a clickevent and if we need to add this to the history
         if (initial === true) {
           // this is the initial navigation ( page just loaded) so we should do a show
-          that.state.showState(options.paths, {}, {
+          that.state.showState(options.paths, [], {
+            paths: options.paths,
+            transitions: [],
             noHistory: noHistory
           });
         } else {
           // do a transition
           that.state.transitionTo(options.paths, options.transitions, {
+            paths: options.paths,
+            transitions: options.transitions,
             noHistory: noHistory
           });
         }
@@ -170,11 +176,24 @@ var Router = Kern.EventManager.extend({
    * @param {Array} newState the minimized (changed) state
    */
   _stateChanged: function(state, payload) {
+    payload  = payload || {};
+    payload.state = payload.state || [];
+    payload.transitions = payload.transitions || [];
 
     var newState = (state && state.exportMinimizedState()) || {
       state: [],
       omittedState: []
     };
+
+    // remove state paths that are already added in the payload
+    // this need to be done for inital load and also for non active frames who are not in there orginal panrent
+    var tempState = newState.state.concat(newState.omittedState).filter(function(path){
+      return payload.state.indexOf(path) < 0 && payload.state.indexOf(path.replace('$'));
+    });
+
+    var stateToSave = payload.state.concat(tempState);
+    var transitions = payload.transitions;
+
     // prepare data for the routers
     var options = Kern._extend($.splitUrl(window.location.href), newState);
 
@@ -188,9 +207,15 @@ var Router = Kern.EventManager.extend({
     var url = $.joinUrl(options);
 
     if (window.history && (!payload || !payload.noHistory) && window.location.href !== url) {
-      window.history.pushState({}, "", url);
-    } else if (window.history && window.location.href !== url) {
-      window.history.replaceState({}, "", url);
+      window.history.pushState({
+        state: stateToSave,
+        transitions: transitions,
+      }, "", url);
+    } else if (window.history) {
+      window.history.replaceState({
+        state: stateToSave,
+        transitions: transitions,
+      }, "", url);
     }
   }
 });

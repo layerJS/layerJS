@@ -32,7 +32,7 @@ describe('inter stage', function() {
               var frameX_dimensions = data[2];
               var frameX_dimensions_before = data[3];
               url = url.split('/').pop();
-              expect(url).toBe('index.html#frameX;layer2.!none');
+              expect(url).toBe('index.html#stage1.layer1.frameX;layer2.!none');
 
               // check position of frame in stage2 with position of frame before transition when already put in stage1
               expect(frameX_dimensions_org.bottom.toFixed(3)).toBe(frameX_dimensions_before.bottom.toFixed(3));
@@ -75,7 +75,7 @@ describe('inter stage', function() {
             var stage1_dimensions = data[1];
             var frameX_dimensions = data[2];
             url = url.split('/').pop();
-            expect(url).toBe('index.html#frameX;layer2.!none');
+            expect(url).toBe('index.html#stage1.layer1.frameX;layer2.!none');
             expect(element(by.id('frame1')).isDisplayed()).toBeFalsy();
             expect(element(by.id('frameX')).isDisplayed()).toBeTruthy();
 
@@ -89,4 +89,50 @@ describe('inter stage', function() {
           });
       });
   });
+
+  describe('structure changing transition', function() {
+
+    it('canvas to slidelayout', function() {
+      browser.get('interstage/canvas_to_slide.html').then(function() {
+        utilities.transitionTo('top', 'card2', {
+          noActivation: true
+        }).then(function() {
+          protractor.promise.all([
+            utilities.getCurrentFrame('top'),
+            utilities.getCurrentFrame('canvas'),
+            utilities.getBoundingClientRect('card2')
+          ]).then(function(data) {
+            var topCurrentFrame = data[0];
+            var canvasCurrentFrame = data[1];
+            var card2Dimension = data[2];
+            expect(topCurrentFrame).toBe('!none');
+            expect(canvasCurrentFrame).toBe('overview');
+            expect(card2Dimension.opacity).toBe('0');
+          });
+        });
+      });
+    });
+
+    it('slidelayout to canvas', function() {
+      browser.get('interstage/slide_to_canvas.html').then(function() {
+        utilities.transitionTo('canvas', 'card2', {
+          noActivation: true
+        }).then(function() {
+          protractor.promise.all([
+            utilities.getCurrentFrame('canvas'),
+            utilities.getCurrentFrame('top'),
+            utilities.getBoundingClientRect('card2')
+          ]).then(function(data) {
+            var canvasCurrentFrame = data[0];
+            var topCurrentFrame = data[1];
+            var card2Dimension = data[2];
+            expect(topCurrentFrame).toBe('card1');
+            expect(canvasCurrentFrame).toBe('overview');
+            expect(card2Dimension.opacity).not.toBe('0');
+          });
+        });
+      });
+    });
+  });
+
 });

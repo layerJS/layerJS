@@ -12,7 +12,7 @@ var GridLayout = LayerLayout.extend({
    */
   constructor: function(layer) {
     LayerLayout.call(this, layer);
-    this._frameTransforms = {};
+    this._frameStyles = {};
   },
   /**
    * get the width of associated stage. Use this method in sub classes to be compatible with changing interfaces in layer/stage
@@ -128,8 +128,9 @@ var GridLayout = LayerLayout.extend({
 
     for (var i = 0; i < framesLength; i++) {
       childFrame = frames[i];
-      var transformData = childFrame.getTransformData(); // this will initialize dimensions for the frame
+      var transformData = childFrame.getTransformData(this.layer); // this will initialize dimensions for the frame
       var frameGrid = childFrame.grid(gridName);
+      var css = {};
 
       if (i % maxColumns === 0) {
         gridCol = 0;
@@ -139,7 +140,14 @@ var GridLayout = LayerLayout.extend({
       var frameCol = frameGrid.columns === '*' ? gridCol : parseInt(frameGrid.columns);
       var frameRow = frameGrid.rows === '*' ? gridRow : parseInt(frameGrid.rows);
 
-      this._frameTransforms[childFrame.id()] = this._calculateTransform(childFrame, transformData, colWidth, rowHeight, frameCol , frameRow );
+      css.width = transformData.applyWidth ? colWidth + 'px' : childFrame.getOriginalWidth();
+      css.height = transformData.applyHeight ? rowHeight + 'px' : childFrame.getOriginalHeight();
+
+      this._frameStyles[childFrame.id()] = {
+        css: css,
+        transform: this._calculateTransform(childFrame, transformData, colWidth, rowHeight, frameCol, frameRow)
+      };
+
       gridCol++;
 
       if (childFrame === frame || (undefined === frame && childFrame === this.layer.currentFrame)) {
@@ -150,7 +158,7 @@ var GridLayout = LayerLayout.extend({
     if (positionTransform) {
       for (i = 0; i < framesLength; i++) {
         childFrame = frames[i];
-        this._frameTransforms[childFrame.id()] = this._frameTransforms[childFrame.id()] + ' ' + positionTransform;
+        this._frameStyles[childFrame.id()].transform = this._frameStyles[childFrame.id()].transform + ' ' + positionTransform;
       }
     }
   },
@@ -205,9 +213,10 @@ var GridLayout = LayerLayout.extend({
 
     for (var i = 0; i < framesLength; i++) {
       childFrame = frames[i];
-      var frameTransform = this._frameTransforms[childFrame.id()];
+      var frameTransform = this._frameStyles[childFrame.id()].transform;
+      var css = Kern._extend(cssTransition, this._frameStyles[childFrame.id()].css);
 
-      this._applyTransform(childFrame, frameTransform, transform, cssTransition);
+      this._applyTransform(childFrame, frameTransform, transform, css);
     }
     return p;
   },
@@ -221,13 +230,13 @@ var GridLayout = LayerLayout.extend({
   renderFramePosition: function(frame, transform) {
     LayerLayout.prototype.renderFramePosition.call(this, frame, transform);
 
-    if (undefined === this._frameTransforms[frame.id()]) {
+    if (undefined === this._frameStyles[frame.id()]) {
       this._calculateFrameTransforms();
     }
 
-    if (this._frameTransforms[frame.id()] && transform) {
+    if (this._frameStyles[frame.id()] && transform) {
       // currentFrame is initialized -> we need to render the frame at new position
-      this._applyTransform(frame, this._frameTransforms[frame.id()], this.layer.currentTransform, {});
+      this._applyTransform(frame, this._frameStyles[frame.id()].transform, this.layer.currentTransform, this._frameStyles[frame.id()].css);
     }
 
   },

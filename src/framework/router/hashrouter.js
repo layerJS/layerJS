@@ -27,14 +27,14 @@ var HashRouter = Kern.EventManager.extend({
       var state = layerJS.getState();
 
       for (var i = 0; i < hashPaths.length; i++) {
-        var hashPath = hashPaths[i].split('?')[0].split('&')[0];
+        var hashPath = hashPaths[i].split('?')[0].split('&')[0].replace('(' ,'').replace(')', '');
         var parsed = $.parseStringForTransitions(hashPaths[i]);
         var resolvedPaths = state.resolvePath(hashPath);
 
         for (var x = 0; x < resolvedPaths.length; x++) {
           var resolvedPath = resolvedPaths[x];
           // if a frame and layer is found, add it to the list
-          if (resolvedPath.hasOwnProperty('frameName') && resolvedPath.hasOwnProperty('layer')) {          
+          if (resolvedPath.hasOwnProperty('frameName') && resolvedPath.hasOwnProperty('layer')) {
             // push layer path and frameName ( can't use directly the view because !right will not resolve in a view)
             paths.push(resolvedPath.path);
             transitions.push(Kern._extend(options.globalTransition, parsed.transition));
@@ -99,10 +99,16 @@ var HashRouter = Kern.EventManager.extend({
       // try to make the hash path as small as possible (still state.resolvePath should just return 1 path )
       var splittedPath = options.state[i].split('.');
       var path = undefined;
+      var resolvedPaths = undefined;
       var ok = false;
       do {
         path = splittedPath.pop() + (path ? '.' + path : '');
-        ok = state.resolvePath(path).length === 1; // if this returns 1 then the path is unique
+        resolvedPaths = state.resolvePath(path);
+
+        if (resolvedPaths.length === 1) { // if this returns 1 then the path is unique
+          ok = true;
+          path = resolvedPaths[0].view && resolvedPaths[0].view.originalParent && resolvedPaths[0].view.originalParent !== resolvedPaths[0].view.parent ? options.state[i] : path;
+        }
       }
       while (!ok && splittedPath.length > 0);
 
