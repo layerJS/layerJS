@@ -12,30 +12,30 @@ describe("LayerView", function() {
 
   var utilities = require('./helpers/utilities.js');
 
-    ViewsCommonViewTests('layer_nochildren_1.js', function() {
-      return {
-        ViewType: LayerView,
-        htmlElement: require('./htmlelements/layer_nochildren_1.js')
-      }
-    });
+  ViewsCommonViewTests('layer_nochildren_1.js', function() {
+    return {
+      ViewType: LayerView,
+      htmlElement: require('./htmlelements/layer_nochildren_1.js')
+    }
+  });
 
-    ViewsCommon_renderChildPositionTests('simple_layer_1.js', function() {
-      return {
-        htmlElement: require('./htmlelements/simple_layer_1.js'),
-        ViewType: LayerView
-      };
-    });
+  ViewsCommon_renderChildPositionTests('simple_layer_1.js', function() {
+    return {
+      htmlElement: require('./htmlelements/simple_layer_1.js'),
+      ViewType: LayerView
+    };
+  });
 
-    ViewsCommonIdentifyTests('div data-lj-type="layer"', LayerView, function() {
-      var element = document.createElement('div');
-      element.setAttribute('data-lj-type', 'layer');
+  ViewsCommonIdentifyTests('div data-lj-type="layer"', LayerView, function() {
+    var element = document.createElement('div');
+    element.setAttribute('data-lj-type', 'layer');
 
-      return element;
-    }, true);
+    return element;
+  }, true);
 
-    ViewsCommonIdentifyTests('div', LayerView, function() {
-      return document.createElement('div');
-    }, false);
+  ViewsCommonIdentifyTests('div', LayerView, function() {
+    return document.createElement('div');
+  }, false);
 
   it('the Parse method will set nativeScroll to true if the DOM element has a data-lj-native-scroll attribute equals true', function() {
     var element = utilities.appendChildHTML('<div lj-native-scroll="true"><div lj-helper="scroller"></div></div>');
@@ -59,51 +59,53 @@ describe("LayerView", function() {
   /*
     jsdom has some problems with this test. Add as comment for future references
     */
-    it('show frame will trigger events', function(done) {
-      var html = "<div data-lj-type='stage' id='stage1'>" +
-        "<div data-lj-type='layer' id='layer1' data-lj-default-frame='frame1'>" +
-        "<div data-lj-type='frame' id='frame1' data-lj-name='frame1' lj-width='1280px' lj-height='500px'></div>" +
-        "<div data-lj-type='frame' id='frame2' data-lj-name='frame2' lj-width='1280px' lj-height='500px'></div>" +
-        "</div>" +
-        "</div>";
+  it('show frame will trigger events', function(done) {
+    var html = "<div data-lj-type='stage' id='stage1'>" +
+      "<div data-lj-type='layer' id='layer1' data-lj-default-frame='frame1'>" +
+      "<div data-lj-type='frame' id='frame1' data-lj-name='frame1' lj-width='1280px' lj-height='500px'></div>" +
+      "<div data-lj-type='frame' id='frame2' data-lj-name='frame2' lj-width='1280px' lj-height='500px'></div>" +
+      "</div>" +
+      "</div>";
 
-      var element = utilities.appendChildHTML(html);
+    var element = utilities.appendChildHTML(html);
 
-      var stageView1 = new StageView({
-        el: element
-      });
-
-      var layerView1 = document.getElementById('layer1')._ljView;
-      var beforeTransition = false;
-      var transitionStarted = false;
-      var transitionFinished = false;
-
-      layerView1.on('beforeTransition', function() {
-        beforeTransition = true;
-      });
-      layerView1.on('transitionStarted', function() {
-        transitionStarted = true;
-      });
-      layerView1.on('transitionFinished', function() {
-        transitionFinished = true;
-      });
-      layerView1.showFrame('frame2').then(function() {
-        expect(beforeTransition).toBeTruthy();
-        expect(transitionStarted).toBeTruthy();
-        //TODO: Check
-        //expect(transitionFinished).toBeTruthy();
-        done();
-      });
+    var stageView1 = new StageView({
+      el: element
     });
 
+    var layerView1 = document.getElementById('layer1')._ljView;
+    var beforeTransition = false;
+    var transitionStarted = false;
+    var transitionFinished = false;
 
-    ViewsCommon_parseChildrenTests(function() {
-      return {
-        ViewType: LayerView,
-        htmlElement: require('./htmlelements/simple_layer_1.js'),
-        expectedChildren: ['simple_frame_1']
-      }
+    layerView1.on('beforeTransition', function() {
+      beforeTransition = true;
     });
+    layerView1.on('transitionStarted', function() {
+      transitionStarted = true;
+    });
+    layerView1.on('transitionFinished', function() {
+      transitionFinished = true;
+    });
+    layerView1.showFrame('frame2');
+
+    setTimeout(function() {
+      expect(beforeTransition).toBeTruthy();
+      expect(transitionStarted).toBeTruthy();
+      //TODO: Check
+      //expect(transitionFinished).toBeTruthy();
+      done();
+    }, 500);
+  });
+
+
+  ViewsCommon_parseChildrenTests(function() {
+    return {
+      ViewType: LayerView,
+      htmlElement: require('./htmlelements/simple_layer_1.js'),
+      expectedChildren: ['simple_frame_1']
+    }
+  });
 
   describe('can transition to special frame name', function() {
 
@@ -118,14 +120,16 @@ describe("LayerView", function() {
 
       layerView1.transitionTo(specialFrameName, {
         duration: ''
-      }).then(function() {
+      });
+
+      setTimeout(function() {
         if (null === expectedFrameName) {
           expect(layerView1.currentFrame).toBe(null);
         } else {
           expect(layerView1.currentFrame.name()).toBe(expectedFrameName);
         }
         done();
-      });
+      }, 250);
     }
 
     it('!none', function(done) {
@@ -218,14 +222,16 @@ describe("LayerView", function() {
 
       var layerView1 = document.getElementById('layer1')._ljView;
 
-      layerView1.showFrame(specialFrameName).then(function() {
+      layerView1.showFrame(specialFrameName);
+
+      setTimeout(function() {
         if (null === expectedFrameName) {
           expect(layerView1.currentFrame).toBe(null);
         } else {
           expect(layerView1.currentFrame.name()).toBe(expectedFrameName);
         }
         done();
-      });
+      }, 250);
     }
 
     it('!none', function(done) {
