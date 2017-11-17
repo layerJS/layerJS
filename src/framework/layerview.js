@@ -648,13 +648,13 @@ var LayerView = BaseView.extend({
     if (addToQueue) {
       return this.transitionQueue.add(transition.isEvent && 'event').then(function() {
         try {
-          transitionFunction();
+          return transitionFunction();
         } catch (e) {
           that.transitionQueue.continue();
           throw e;
         }
       });
-    } else {
+    } else { // if more than one transition should happen per layer in a group we can't queue (because the sync would hang). This can happen when we go back in history and a interstage transition is reversed (via non-activating transition) and at the same time a regular transition must take place.
       return transitionFunction();
     }
   },
