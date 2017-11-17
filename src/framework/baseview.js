@@ -585,7 +585,8 @@ var BaseView = DOMObserver.extend({
     gridName = gridName || this.gridName();
     var grid = {
       columns: '*',
-      rows: '*'
+      rows: '*',
+      direction: 'vertical'
     };
 
     var attributeValue = (this.getAttributeLJ('grid-' + gridName) || '*,*').split(',');
@@ -596,6 +597,10 @@ var BaseView = DOMObserver.extend({
 
     if (attributeValue.length > 1 && '*' !== attributeValue[1]) {
       grid.rows = parseInt(attributeValue[1]);
+    }
+
+    if (attributeValue.length > 2 && '' !== attributeValue[2]) {
+      grid.direction = attributeValue[2];
     }
 
     return grid;
