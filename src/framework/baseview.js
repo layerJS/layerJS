@@ -310,7 +310,7 @@ var BaseView = DOMObserver.extend({
    */
   x: function() {
     var x = this.getAttributeLJ('x');
-    x = (x !== null && (this.outerEl.style.left = $.parseDimension(x) + 'px') && x) || this.outerEl.offsetLeft || this.outerEl.style.left || 0;
+    x = x || this.outerEl.offsetLeft || this.outerEl.style.left || 0;
     return $.parseDimension(x, this.outerEl);
   },
   /**
@@ -321,7 +321,7 @@ var BaseView = DOMObserver.extend({
    */
   y: function() {
     var y = this.getAttributeLJ('y');
-    y = (y !== null && (this.outerEl.style.top = $.parseDimension(y) + 'px') && y) || this.outerEl.offsetTop || this.outerEl.style.top || 0;
+    y = y || this.outerEl.offsetTop || this.outerEl.style.top || 0;
     return $.parseDimension(y);
   },
   /**
