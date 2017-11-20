@@ -132,10 +132,13 @@ var SlideLayout = LayerLayout.extend({
 
       var frameToTransition = frame || currentFrame; // is there at least on frame to transition?
       if (frameToTransition && transition.duration !== '') {
-        frameToTransition.outerEl.addEventListener("transitionend", function f(e) { // FIXME needs webkitTransitionEnd etc
-          e.target.removeEventListener(e.type, f); // remove event listener for transitionEnd.
-          transitionEnd();
-        });
+        var f = function(e) { // FIXME needs webkitTransitionEnd etc
+          if (e.target === frameToTransition.outerEl) {
+            e.target.removeEventListener(e.type, f); // remove event listener for transitionEnd.
+            transitionEnd();
+          }
+        };
+        frameToTransition.outerEl.addEventListener("transitionend", f);
       }
       // wait for semaphore as there may be more transitions that need to be setup
       transition.semaphore.sync().then(function() {

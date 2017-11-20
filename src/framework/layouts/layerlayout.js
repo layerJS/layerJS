@@ -89,7 +89,7 @@ var LayerLayout = Kern.EventManager.extend({
           top: '0px',
           left: '0px'
         });
-
+        $.debug("moved " + frame.id() + " to layer " + this.layer.id());
         // wait until rendered;
         $.postAnimationFrame(function() {
           finished.resolve();
