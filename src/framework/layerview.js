@@ -3,7 +3,7 @@ var $ = require('./domhelpers.js');
 var Kern = require('../kern/Kern.js');
 var pluginManager = require('./pluginmanager.js');
 var layoutManager = require('./layoutmanager.js');
-var ScrollTransformer = require('./scrolltransformer.js');
+var ScrollTransformer = require('./scrolltransformers/scrolltransformer.js');
 var gestureManager = require('./gestures/gesturemanager.js');
 var defaults = require('./defaults.js');
 var BaseView = require('./baseview.js');
@@ -264,7 +264,7 @@ var LayerView = BaseView.extend({
     this.setNativeScroll(nativeScrolling);
 
     if (this.currentFrame) {
-      this.showFrame(this.currentFrame.name(), this.currentFrame.getScrollData());
+      this.showFrame(this.currentFrame.name(), this.getCurrentScroll());
     }
 
     this.startObserving();
@@ -275,10 +275,7 @@ var LayerView = BaseView.extend({
    * @returns {Object} {scrollX: scrollX scrollY: scrollY}
    */
   getCurrentScroll: function() {
-    return {
-      scrollX: this.currentFrameTransformData.scrollX,
-      scrollY: this.currentFrameTransformData.scrollY
-    };
+    return this._transformer.getCurrentScroll();
   },
   /**
    * scrolls to a specified x,y position or a predefined postions using startPosition
@@ -826,7 +823,7 @@ var LayerView = BaseView.extend({
   render: function() {
     var childViews = this.getChildViews();
     var length = childViews.length;
-    var scrollData = this.currentFrame !== null ? this.currentFrame.getScrollData() : {};
+    var scrollData = this.currentFrame !== null ? this.getCurrentScroll() : {};
     scrollData.isEvent = true;
 
     for (var i = 0; i < length; i++) {

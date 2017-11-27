@@ -600,7 +600,7 @@ var BaseView = DOMObserver.extend({
     }
 
     if (attributeValue.length > 2 && '' !== attributeValue[2]) {
-      grid.direction = attributeValue[2];
+      grid.direction = attributeValue[2].toLowerCase();
     }
 
     return grid;

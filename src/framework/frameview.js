@@ -104,8 +104,8 @@ var FrameView = BaseView.extend({
    */
   calculateTransformData: function(layer, transitionStartPosition) {
     var stage = layer.parent;
-    var stageWidth = stage ? stage.width() : 0;
-    var stageHeight = stage ? stage.height() : 0;
+    var stageWidth = stage ? layer.width() : 0;
+    var stageHeight = stage ? layer.height() : 0;
     // data record contianing transformation and scrolling information of frame within given stage
     var d = this.transformData = {};
     d.stage = stage;

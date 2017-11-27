@@ -1,6 +1,6 @@
 'use strict';
-var Kern = require('../kern/Kern.js');
-var $ = require('./domhelpers.js');
+var Kern = require('../../kern/Kern.js');
+var $ = require('../domhelpers.js');
 
 /**
  * this is the ScrollTransformer which handles native and transform scrolling for Layers.
@@ -28,7 +28,7 @@ var ScrollTransformer = Kern.EventManager.extend({
    * Will be invoked when a scroll event is triggered
    *
    */
-  _scrollListener: function(){
+  _scrollListener: function() {
     if (this.layer.nativeScroll()) {
       var tfd = this.layer.currentFrameTransformData;
       tfd.scrollX = this.layer.outerEl.scrollLeft / tfd.scale;
@@ -228,11 +228,8 @@ var ScrollTransformer = Kern.EventManager.extend({
       return this.scrollTransform(-tfd.scrollX * tfd.scale, -tfd.scrollY * tfd.scale);
     }
   },
-  getCurrentScroll : function(){
-    return {
-      scrollX: this.layer.currentFrameTransformData.scrollX,
-      scrollY: this.layer.currentFrameTransformData.scrollY
-    };
+  getCurrentScroll: function() {
+    return this.layer.currentFrame && this.layer.currentFrame !== null ? this.layer.currentFrame.getScrollData() : {};
   }
 });
 
