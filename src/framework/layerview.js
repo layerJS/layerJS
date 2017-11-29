@@ -104,7 +104,9 @@ var LayerView = BaseView.extend({
       this.currentFrame = currentFrame;
       this.showFrame(currentFrame.name(), {
         lastFrameName: '',
-        applyCurrentPostPosition: false
+        applyCurrentPostPosition: false,
+        scrollX: undefined,
+        scrollY: undefined
       });
     }
 
@@ -143,7 +145,7 @@ var LayerView = BaseView.extend({
       that.autoTrigger();
     });
 
-    this.on('childrenChanged', function(){
+    this.on('childrenChanged', function() {
       that.render();
     });
   },

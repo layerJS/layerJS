@@ -144,7 +144,6 @@ var GridLayout = LayerLayout.extend({
       page = Math.floor(i / framesPerPage);
 
       var css = {};
-      //var counter = i - (page * framesPerPage);
       var currentRow = Math.floor(i / maxColumns) - (page * maxRows);
       var currentColumn = (i - (currentRow * maxColumns)) % maxColumns;
 
@@ -187,9 +186,6 @@ var GridLayout = LayerLayout.extend({
           }
         }
 
-        //positionTransform = this._calculateTransform2(childFrame, transformData, posTop * -1, posLeft * -1);
-
-
         positionTransform = {
           top: posTop * -1,
           left: posLeft * -1,
@@ -198,7 +194,6 @@ var GridLayout = LayerLayout.extend({
           page: page
         };
       }
-
     }
 
     this.isScrollY = this.isScrollX = false;
@@ -209,21 +204,36 @@ var GridLayout = LayerLayout.extend({
       this.isScrollX = pages > 0;
     }
 
+    /*
+        console.log('maxRows:' + maxRows);
+        console.log('maxCols:' + maxColumns);
+        console.log('rowHeight:' + rowHeight);
+        console.log('colWidth:' + colWidth);
+        console.log('pageWidth:' + pageWidth);
+        console.log('pageHeight:' + pageHeight);
+        console.log('pages:' + pages);*/
+
+    var rowsDown = 0;
+    var columnsRight = 0;
+
     if (this.isScrollY) {
-      var rowsDown = Math.ceil(framesLength / maxColumns);
-      console.log('total rows down ' + rowsDown);
-      this.maxScrollY = (rowsDown * rowHeight);
+      rowsDown = Math.ceil(framesLength / maxColumns);
+      rowsDown = ((rowsDown % Math.floor(rowsDown)) * maxColumns) + Math.floor(rowsDown);
 
       if (!this.layer.nativeScroll()) {
-        this.maxScrollY -= (rowHeight * maxRows);
+        rowsDown = rowsDown > maxColumns ? rowsDown - maxRows : 0;
       }
-      console.log('total scrollY ' + this.maxScrollY);
     } else if (this.isScrollX) {
-      var columnsLeft = (framesLength / maxRows);
-      console.log('total columns left ' + this.columnsLeft);
-      this.maxScrollX = columnsLeft * colWidth;
-      console.log('total scrollX ' + this.maxScrollX);
+      columnsRight = (framesLength / maxRows);
+      columnsRight = ((columnsRight % Math.floor(columnsRight)) * maxColumns) + Math.floor(columnsRight);
+
+      if (!this.layer.nativeScroll()) {
+        columnsRight = columnsRight > maxColumns ? columnsRight - maxColumns : 0;
+      }
     }
+
+    this.maxScrollY = (rowsDown * rowHeight);
+    this.maxScrollX = columnsRight * colWidth;
 
     if (positionTransform) {
       if (this.layer.nativeScroll()) {

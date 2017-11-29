@@ -11,16 +11,13 @@
     <title>title</title>
 </head>
 <body lj-type="stage">
-    <div lj-type="layer" class="layer" id="grid" lj-native-scroll="false" lj-layout="grid" lj-name="grid" lj-default-frame='card1' data-lj-fit-to="height" data-lj-grid-l="3,3,vertical">
+    <div lj-type="layer" class="layer" id="grid" lj-native-scroll="false" lj-layout="grid" lj-name="grid" lj-default-frame='card1' data-lj-fit-to="responsive" data-lj-grid-l="3,3,vertical">
         <!--<div v-for="c in cards" lj-type="frame" id="card{{ c.nr }}">
             <div class="cardcontainer">
                 <a href="#top.card{{ c.nr }}&t=.5s"><img class="cardimg" src="profile.png" /></a>
                 <h2>{{ c.hl }}</h2>
             </div>
         </div>-->
-    </div>
-    <div lj-type="layer" lj-native-scroll="false" lj-name="top" lj-default-frame="!none" lj-fit-to="responsive">
-
     </div>
     <script>
         var grid = document.getElementById('grid');
@@ -29,7 +26,9 @@
             var frame = document.createElement('div');
             frame.id = 'card' + i;
             frame.setAttribute('lj-type', 'frame');
-            frame.innerHTML = '<div class="cardcontainer">' +
+            frame.setAttribute('lj-name', frame.id);
+            frame.className = 'cardcontainer';
+            frame.innerHTML = '<div>' +
                               '<a href="#top.card'+ i +'&t=.5s"><img class="cardimg" src="profile.png" /></a>' +
                               '<h2>Card '+ i +'</h2>' +
           '</div>';
@@ -40,7 +39,7 @@
 
         var cards = [];
 
-        for (var i = 0; i < 20; i++) {
+        for (var i = 0; i < 10; i++) {
             cards[i] = {
                 nr: i,
                 hl: "Card " + i
