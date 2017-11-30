@@ -39,12 +39,14 @@ var ParseManager = function() {
     var stageElements = root.querySelectorAll("[data-lj-type='stage'],[lj-type='stage']");
     var length = stageElements.length;
     options = options || {};
+    var state = layerJS.getState(doc);
 
     for (var index = 0; index < length; index++) {
-      pluginManager.createView($.getAttributeLJ(stageElements[index], 'type'), Kern._extend(options, {
+      var stageView = pluginManager.createView($.getAttributeLJ(stageElements[index], 'type'), Kern._extend(options, {
         el: stageElements[index],
         document: doc
       }));
+      state.registerView(stageView); // register view with state recursively
     }
   };
 };

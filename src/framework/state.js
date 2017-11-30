@@ -44,11 +44,16 @@ var State = Kern.EventManager.extend({
       });
       if (view.type() === 'layer') this.layers.push(id);
       view.on('childRemoved', function(child) {
-        that.unregisterView(child);
+        if (child.parent && view.id() === child.parent.id()) { // only unregister if the parent of the child is still (WARN: this assumes, that the parent hasn't been removed yet)
+          that.unregisterView(child);
+        }
       }, {
         context: this
       });
       view.on('childAdded', function(child) {
+        if (that.views[child.id()]) { // need to unregister view, happens with interstage, where the childAdded comes before childRemoved
+          that.unregisterView(child);
+        }
         that.registerView(child);
       }, {
         context: this
@@ -76,6 +81,9 @@ var State = Kern.EventManager.extend({
       });
       view.on('attributesChanged', this._attributesChangedEvent(view), {
         context: this
+      });
+      view.getChildViews().forEach(function(v) {
+        that.registerView(v);
       });
     }
   },
