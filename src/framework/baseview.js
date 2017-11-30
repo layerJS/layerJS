@@ -232,7 +232,13 @@ var BaseView = DOMObserver.extend({
    * @return {String} the name of the view
    */
   name: function() {
-    return this.getAttributeLJ('name') || this.outerEl.id || this.id();
+    var name = this.getAttributeLJ('name') || this.id();
+    if (name.match(/\./)) {
+      if (this._name) return this._name;
+      console.warn('unsuitable layerJS name "' + name + '" replaced by "' + (this._name = name = $.uniqueID(this.type(), this.document)) + '"');
+    }
+    if (this._name) this._name = name;
+    return name;
   },
   /**
    * Will return the type of the view
