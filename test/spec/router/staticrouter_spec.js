@@ -2,7 +2,6 @@ describe('staticRouter', function() {
 
   var StaticRouter = require('../../../src/framework/router/staticRouter.js');
   var utilities = require('../helpers/utilities.js');
-  var StageView = require('../../../src/framework/stageview.js');
   var state = require('../../../src/framework/state.js');
 
   var staticRouter;
@@ -42,10 +41,6 @@ describe('staticRouter', function() {
       "</div>";
 
     utilities.setHtml(html);
-
-    new StageView({
-      el: document.getElementById('stage1')
-    });
 
     var promise = staticRouter.handle(options);
 

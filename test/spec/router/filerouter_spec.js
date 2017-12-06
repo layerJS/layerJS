@@ -2,7 +2,6 @@ describe('Filerouter', function() {
   var FileRouter= require('../../../src/framework/router/filerouter.js');
   var nock = require('nock');
   var utilities = require('../helpers/utilities.js');
-  var StageView = require('../../../src/framework/stageview.js');
 
   beforeEach(function() {
     state = require('../../../src/framework/state.js').getState();
@@ -39,11 +38,6 @@ describe('Filerouter', function() {
 
   it('will load a frame from another page', function(done) {
     var scope = prepareSomePage();
-
-    new StageView({
-      el: document.getElementById('contentstage')
-    });
-
     var layerView = document.getElementById('contentlayer')._ljView;
 
     var fileRouter = new FileRouter();
@@ -78,10 +72,6 @@ describe('Filerouter', function() {
         '</div>' +
         '</div>');
 
-    new StageView({
-      el: document.getElementById('contentstage')
-    });
-
     var layerView = document.getElementById('contentlayer')._ljView;
 
     var fileRouter = new FileRouter();
@@ -115,9 +105,6 @@ describe('Filerouter', function() {
         '</div>' +
         '</div>');
 
-    new StageView({
-      el: document.getElementById('contentstage')
-    });
     var layerView = document.getElementById('contentlayer')._ljView;
 
     var fileRouter = new FileRouter();
@@ -137,10 +124,6 @@ describe('Filerouter', function() {
   });
 
   it('will return false when an error occured', function(done) {
-    new StageView({
-      el: document.getElementById('contentstage')
-    });
-
     var fileRouter = new FileRouter();
     var promise = fileRouter.handle({
       location: 'http://localhost/somePage.html',
@@ -157,11 +140,6 @@ describe('Filerouter', function() {
 
   it('will keep the state of a loaded page in it\'s cache', function(done) {
     var scope = prepareSomePage();
-
-    new StageView({
-      el: document.getElementById('contentstage')
-    });
-
     var layerView = document.getElementById('contentlayer')._ljView;
     var transitionOptions = {
       duration: '0s',
@@ -188,7 +166,7 @@ describe('Filerouter', function() {
   }, 5000);
 
   it('will load the cached state of an already requested page', function(done) {
-    utilities.setHtml('<div data-lj-type="stage" id="contentstage">' +
+    /*utilities.setHtml('<div data-lj-type="stage" id="contentstage">' +
       '<div data-lj-type="layer" id="contentlayer" data-lj-default-frame="frame1" data-lj-layout-type="canvas">' +
       '<div data-lj-type="frame" data-lj-name="frame1" data-lj-fit-to="responsive">' +
       'this is frame 1.' +
@@ -198,11 +176,7 @@ describe('Filerouter', function() {
       '</div>' +
       '</div>' +
       '</div>');
-
-    new StageView({
-      el: document.getElementById('contentstage')
-    });
-
+*/
     var transitionOptions = {
       duration: '50ms',
       type: 'left'
@@ -231,16 +205,11 @@ describe('Filerouter', function() {
 
   xit('can cache current page', function() {
     //window.location.href = "http://localhost/";
-    //console.log('jasmine:' + window.location.href);
-    new StageView({
-      el: document.getElementById('contentstage')
-    });
 
     var layerView = document.getElementById('contentlayer')._ljView;
     var fileRouter = new FileRouter({
       cacheCurrent: true
     });
-    console.log(fileRouter.routes);
     expect(fileRouter.routes['http://localhost/']).toEqual(state.exportState());
   });
 

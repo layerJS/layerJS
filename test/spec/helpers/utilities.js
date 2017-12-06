@@ -31,6 +31,8 @@ utilities._beforeAll = function() {
   state._transitionGroup = {};
   state._transitionGroupId = 0;
   state.previousState = undefined;
+
+  layerJS.router._init(document);
 }
 
 utilities._beforeEachNodeJS = function() {
@@ -52,6 +54,7 @@ utilities._beforeEachBrowser = function() {
 }
 
 utilities.beforeEach = function() {
+
   if (this.isNodeContext()) {
     this._beforeEachNodeJS();
   } else {
@@ -99,6 +102,10 @@ utilities.setHtml = function(html) {
   }
   container = this._getTestContainer();
   container.innerHTML = html;
+  if (html !== '') {
+    var parseManager = require("../../../src/framework/parsemanager.js");
+    parseManager.parseElement(container);
+  }
 }
 
 utilities.appendChildHTML = function(childHTML) {

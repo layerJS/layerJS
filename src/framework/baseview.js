@@ -24,7 +24,9 @@ var BaseView = DOMObserver.extend({
     this.parent = options.parent;
     this.innerEl = this.innerEl || options.el;
     // backlink from DOM to object
-    if (this.innerEl._ljView) throw "trying to initialialize view on element that already has a view";
+    if (this.innerEl._ljView){
+       throw "trying to initialialize view on element that already has a view";
+     }
     this.innerEl._ljView = this;
     // possible wrapper element
     this.outerEl = this.outerEl || options.el || this.innerEl;

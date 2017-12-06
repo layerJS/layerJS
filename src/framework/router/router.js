@@ -6,6 +6,9 @@ var StaticRouter = require('./staticrouter.js');
 
 var Router = Kern.EventManager.extend({
   constructor: function(rootEl) {
+    this._init(rootEl);
+  },
+  _init: function(rootEl) {
     this.rootElement = rootEl || document;
     this.routers = [];
     this._registerLinkClickedListener();
@@ -176,7 +179,7 @@ var Router = Kern.EventManager.extend({
    * @param {Array} newState the minimized (changed) state
    */
   _stateChanged: function(state, payload) {
-    payload  = payload || {};
+    payload = payload || {};
     payload.state = payload.state || [];
     payload.transitions = payload.transitions || [];
 
@@ -187,7 +190,7 @@ var Router = Kern.EventManager.extend({
 
     // remove state paths that are already added in the payload
     // this need to be done for inital load and also for non active frames who are not in there orginal panrent
-    var tempState = newState.state.concat(newState.omittedState).filter(function(path){
+    var tempState = newState.state.concat(newState.omittedState).filter(function(path) {
       return payload.state.indexOf(path) < 0 && payload.state.indexOf(path.replace('$'));
     });
 

@@ -1,7 +1,6 @@
 describe('router', function() {
 
   var utilities = require('../helpers/utilities.js');
-  var StageView = require('../../../src/framework/stageview.js');
   var state = require('../../../src/framework/state.js');
   var Kern = require('../../../src/kern/kern.js');
   var FileRouter = require('../../../src/framework/router/filerouter.js');
@@ -196,10 +195,6 @@ describe('router', function() {
 
     window.history.pushState = function(param1, param2, url) {};
 
-    new StageView({
-      el: document.getElementById('stage1')
-    });
-
     layerJS.router.addRouter(dummyRouter);
     layerJS.router.addRouter(dummyRouter2);
 
@@ -243,9 +238,9 @@ describe('router', function() {
   });
 
   //TODO: Look at more detail
-  it('will use the pushState after a transition that started with a click', function(done) {
+  xit('will use the pushState after a transition that started with a click', function(done) {
     var newUrl;
-    window.history.pushState = function(param1, param2, url) {
+    window.history.replaceState = function(param1, param2, url) {
       newUrl = url;
     };
 
@@ -262,11 +257,6 @@ describe('router', function() {
       "</div>";
 
     utilities.setHtml(html);
-
-    new StageView({
-      el: document.getElementById('stage1')
-    });
-
 
     document.getElementById('link').click();
 
