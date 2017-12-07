@@ -54,9 +54,11 @@ var CanvasLayout = LayerLayout.extend({
 
     if (transition.duration !== '') {
       lastFrameToTransition.outerEl.addEventListener("transitionend", function f(e) { // FIXME needs webkitTransitionEnd etc
-        e.target.removeEventListener(e.type, f); // remove event listener for transitionEnd.
-        // console.log("canvaslayout transitionend", transition.transitionID);
-        transitionEnd();
+        if (lastFrameToTransition.outerEl === e.target) {
+          e.target.removeEventListener(e.type, f); // remove event listener for transitionEnd.
+          // console.log("canvaslayout transitionend", transition.transitionID);
+          transitionEnd();
+        }
       });
     }
     // wait for semaphore as there may be more transitions that need to be setup
