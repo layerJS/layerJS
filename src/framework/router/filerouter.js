@@ -72,8 +72,6 @@ var FileRouter = StaticRouter.extend({
                     // this should never happen because structure is tranversered in DOM order
                     throw "filerouter: didn't find '" + parentPath + "' in current document to add new '" + path + "'";
                   }
-                } else {
-                    addedHash.push(path);
                 }
               }
             });
