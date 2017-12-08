@@ -60,9 +60,9 @@ describe('state', function() {
         url: 'http://localhost'
       });
 
-    var stageView1 = new StageView({
-      el: customDocument.getElementById('stage1')
-    });
+    var parseManager = layerJS.parseManager;
+    parseManager.parseDocument(customDocument);
+
 
     var customState = layerJS.getState(customDocument);
 
@@ -88,13 +88,10 @@ describe('state', function() {
       "</div>" +
       "</body></html>";
 
-    var stageView1 = new StageView({
-      el: customDocument1.getElementById('stage1')
-    });
+    var parseManager = layerJS.parseManager;
+    parseManager.parseDocument(customDocument1);
+    parseManager.parseDocument(customDocument2);
 
-    var stageView2 = new StageView({
-      el: customDocument2.getElementById('stage1')
-    });
     var customDocument1State = layerJS.getState(customDocument1);
     var customDocument2State = layerJS.getState(customDocument2);
 
@@ -180,8 +177,6 @@ describe('state', function() {
 
     utilities.setHtml(html);
 
-    layerJS.parseManager.parseDocument();
-
     var stageView1 = document.getElementById('stage1')._ljView;
 
     var layerView1 = document.getElementById('layer1')._ljView;
@@ -206,10 +201,6 @@ describe('state', function() {
 
     utilities.setHtml(html);
 
-    var stageView1 = new StageView({
-      el: document.getElementById('stage1')
-    });
-
     var layerView1 = document.getElementById('layer1')._ljView;
     layerView1.showFrame('frame2');
 
@@ -223,9 +214,6 @@ describe('state', function() {
   function transitionTo(html, states, expectedState, expectedFrameName, done) {
     utilities.setHtml(html);
 
-    var stageView1 = new StageView({
-      el: document.querySelector("[data-lj-type='stage']")
-    });
     var layerView1 = document.querySelector("[data-lj-type='layer']")._ljView;
 
     state.transitionTo(states);
@@ -238,7 +226,7 @@ describe('state', function() {
       }
       expect(state.exportState()).toEqual(expectedState);
       done();
-    }, 100);
+    }, 1000);
   }
 
   describe('can transition to a named state', function() {
@@ -325,9 +313,6 @@ describe('state', function() {
   function showState(html, states, expectedState, expectedFrameName, done) {
     utilities.setHtml(html);
 
-    var stageView1 = new StageView({
-      el: document.querySelector("[data-lj-type='stage']")
-    });
     var layerView1 = document.querySelector("[data-lj-type='layer']")._ljView;
 
     state.showState(states);
@@ -468,9 +453,7 @@ describe('state', function() {
 
     utilities.setHtml(html);
 
-    var stageView = new StageView({
-      el: document.getElementById('stage1')
-    });
+
     var layerView = document.getElementById('layer1')._ljView;
 
     var newFrame = document.createElement('div');
@@ -495,9 +478,6 @@ describe('state', function() {
 
     utilities.setHtml(html);
 
-    var stageView = new StageView({
-      el: document.getElementById('stage1')
-    });
     var layerView = document.getElementById('layer1')._ljView;
 
     layerView.innerEl.removeChild(layerView.innerEl.children[0]);
@@ -519,12 +499,7 @@ describe('state', function() {
     "</div>";
 
     utilities.setHtml(html);
-
-    var stageView = new StageView({
-      el: document.getElementById('stage1')
-    });
-
-
+    var stageView = document.getElementById('stage1')._ljView;
     var newlayer = document.createElement('div');
     newlayer.setAttribute('data-lj-type', 'layer');
     newlayer.setAttribute('data-lj-name', 'newLayer');
@@ -547,9 +522,7 @@ describe('state', function() {
 
     utilities.setHtml(html);
 
-    var stageView = new StageView({
-      el: document.getElementById('stage1')
-    });
+    var stageView = document.getElementById('stage1')._ljView;
     stageView.innerEl.removeChild(stageView.innerEl.children[0]);
 
     setTimeout(function() {
@@ -569,9 +542,6 @@ describe('state', function() {
 
     utilities.setHtml(html);
 
-    var stageView = new StageView({
-      el: document.getElementById('stage1')
-    });
     var frameView = document.getElementById('frame1')._ljView;
 
     var newStage = document.createElement('div');
@@ -602,15 +572,15 @@ describe('state', function() {
       "</div>";
 
     utilities.setHtml(html);
-    layerJS.parseManager.parseDocument(document);
+    //layerJS.parseManager.parseDocument(document);
 
     var stageView = document.getElementById('stage1')._ljView;
     var frameView = document.getElementById('frame1')._ljView;
 
     frameView.innerEl.removeChild(frameView.innerEl.children[0]);
 
-    setTimeout(function() {
-      var exportedState = state.exportStructure();
+    setTimeout(function() {    
+      var exportedState = layerJS.getState().exportStructure();
       expect(exportedState).toEqual(['stage1', 'stage1.layer1', 'stage1.layer1.frame1']);
       done();
     }, 500);
@@ -625,10 +595,6 @@ describe('state', function() {
       "</div>";
 
     utilities.setHtml(html);
-
-    var stageView = new StageView({
-      el: document.getElementById('stage1')
-    });
 
     var newFrame = document.createElement('div');
     newFrame.setAttribute('data-lj-name', 'frame2');
@@ -657,10 +623,7 @@ describe('state', function() {
 
     utilities.setHtml(html);
 
-    var stageView = new StageView({
-      el: document.getElementById('stage1')
-    });
-
+    var stageView = document.getElementById('stage1')._ljView;
     var el = document.createElement('div');
     el.id = 'layer1';
     el.setAttribute('data-lj-type', 'layer');
@@ -698,10 +661,6 @@ describe('state', function() {
 
     utilities.setHtml(html);
 
-    var stageView = new StageView({
-      el: document.getElementById('stage1')
-    });
-
     var newFrame = document.getElementById('frame1');
     newFrame.setAttribute('data-lj-name', 'frame2');
 
@@ -728,10 +687,6 @@ describe('state', function() {
       "</div>";
 
     utilities.setHtml(html);
-
-    var stageView = new StageView({
-      el: document.getElementById('stage1')
-    });
 
     var state = layerJS.getState();
     var invoked = 0;
@@ -769,10 +724,6 @@ describe('state', function() {
 
     utilities.setHtml(html);
 
-    var stageView = new StageView({
-      el: document.getElementById('stage1')
-    });
-
     var state = layerJS.getState();
     var invoked = 0;
     state.on('stateChanged', function() {
@@ -805,10 +756,6 @@ describe('state', function() {
 
     utilities.setHtml(html);
 
-    var stageView = new StageView({
-      el: document.getElementById('stage1')
-    });
-
     var state = layerJS.getState();
     var invoked = 0;
     state.on('stateChanged', function() {
@@ -835,9 +782,6 @@ describe('state', function() {
         "<div data-lj-type='frame' id='frame1' data-lj-name='frame1'></div>" +
         "</div></div>");
 
-      var stageView = new StageView({
-        el: document.getElementById('stage1')
-      });
       var state = layerJS.getState();
       var exportedState = state.exportMinimizedState();
       expect(exportedState.state).toEqual([]);
@@ -850,10 +794,6 @@ describe('state', function() {
         "<div data-lj-type='frame' id='frame1' data-lj-name='frame1'></div>" +
         "<div data-lj-type='frame' id='frame2' data-lj-name='frame2'></div>" +
         "</div></div>");
-
-      var stageView = new StageView({
-        el: document.getElementById('stage1')
-      });
 
 
       document.getElementById('layer1')._ljView.transitionTo('frame2', {
@@ -875,9 +815,6 @@ describe('state', function() {
         "<div data-lj-type='frame' id='frame1' data-lj-name='frame1'></div>" +
         "</div></div>");
 
-      var stageView = new StageView({
-        el: document.getElementById('stage1')
-      });
       var state = layerJS.getState();
       var exportedState = state.exportMinimizedState();
       expect(exportedState.state).toEqual([]);
@@ -890,9 +827,6 @@ describe('state', function() {
         "<div data-lj-type='frame' id='frame1' data-lj-name='frame1'></div>" +
         "</div></div>");
 
-      var stageView = new StageView({
-        el: document.getElementById('stage1')
-      });
       var state = layerJS.getState();
       var state = layerJS.getState();
       var exportedState = state.exportMinimizedState();
@@ -907,9 +841,6 @@ describe('state', function() {
         "</div>" +
         "<div data-lj-type='layer' id='layer2' data-lj-default-frame='!none'>" + "</div></div>");
 
-      var stageView = new StageView({
-        el: document.getElementById('stage1')
-      });
 
       document.getElementById('frame1')._ljView.originalParent = document.getElementById('layer2')._ljView;
 
@@ -971,10 +902,6 @@ describe('state', function() {
         "<div data-lj-type='frame' id='frame1' data-lj-name='frame1'></div>" +
         "</div>" +
         "<div data-lj-type='layer' id='layer2' data-lj-default-frame='!none'>" + "</div></div>");
-
-      var stageView = new StageView({
-        el: document.getElementById('stage1')
-      });
 
       document.getElementById('frame1')._ljView.originalParent = document.getElementById('layer2')._ljView;
 
