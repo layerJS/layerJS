@@ -238,9 +238,9 @@ describe('router', function() {
   });
 
   //TODO: Look at more detail
-  xit('will use the pushState after a transition that started with a click', function(done) {
+  it('will use the pushState after a transition that started with a click', function(done) {
     var newUrl;
-    window.history.replaceState = function(param1, param2, url) {
+    window.history.pushState = function(param1, param2, url) {
       newUrl = url;
     };
 
