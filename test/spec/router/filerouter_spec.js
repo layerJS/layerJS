@@ -4,7 +4,7 @@ describe('Filerouter', function() {
   var utilities = require('../helpers/utilities.js');
 
   beforeEach(function() {
-    state = require('../../../src/framework/state.js').getState();
+    state = layerJS.getState();
 //    window.location.href = "http://localhost/";
 
     utilities.setHtml('<div data-lj-type="stage" id="contentstage">' +
@@ -203,8 +203,8 @@ describe('Filerouter', function() {
     });
   });
 
-  xit('can cache current page', function() {
-    //window.location.href = "http://localhost/";
+  it('can cache current page', function() {
+    window.location.href = "http://localhost/";
 
     var layerView = document.getElementById('contentlayer')._ljView;
     var fileRouter = new FileRouter({
