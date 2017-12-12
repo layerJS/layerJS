@@ -44,7 +44,7 @@ var State = Kern.EventManager.extend({
       });
       if (view.type() === 'layer') this.layers.push(id);
       view.on('childRemoved', function(child) {
-        if (child.parent && view.id() === child.parent.id()) { // only unregister if the parent of the child is still (WARN: this assumes, that the parent hasn't been removed yet)
+        if ((child.parent && view.id() === child.parent.id()) || undefined === child.parent) { // only unregister if the parent of the child is still (WARN: this assumes, that the parent hasn't been removed yet)
           that.unregisterView(child);
         }
       }, {
