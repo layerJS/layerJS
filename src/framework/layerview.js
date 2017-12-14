@@ -534,6 +534,7 @@ var LayerView = BaseView.extend({
         duration: '1s',
         lastFrameName: (that.currentFrame && that.currentFrame.name()) || "!none",
         applyTargetPrePosition: !transition.noActivation && (transition.applyTargetPrePosition || (frame && frame.parent && frame.parent === that)) || false, // we need to set this here for interstage transitions; loadframe doesn't know about the transition record.
+        interStage: frame && frame.parent && frame.parent !== that,
         applyCurrentPostPosition: ((transition.applyCurrentPostPosition !== true && (that.currentFrame && that.currentFrame.parent && that.currentFrame.parent === that)) && !transition.noActivation) || false,
         applyCurrentPrePosition: ((transition.applyCurrentPrePosition !== true && (that.currentFrame && that.currentFrame.parent && that.currentFrame.parent === that)) && !transition.noActivation) || false
         // FIXME: add more default values like timing
@@ -555,7 +556,7 @@ var LayerView = BaseView.extend({
       }
       // add listener to the sempahore to get the moment the animation really startsWith
       transition.semaphore.listen(true).then(function(num) {
-        if (num > 0 && transition.applyTargetPrePosition !== false) that.trigger('transitionPrepared'); // notify listeners about prepared state. (unless all have skipped, e.g. delayed transitions)
+        if (num > 0 && (transition.applyTargetPrePosition !== false || transition.interStage)) that.trigger('transitionPrepared'); // notify listeners about prepared state. (unless all have skipped, e.g. delayed transitions)
       });
       transition.semaphore.listen().then(function() {
         if (!transition.wasInTransition) {
