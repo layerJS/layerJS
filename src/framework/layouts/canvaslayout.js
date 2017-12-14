@@ -37,12 +37,12 @@ var CanvasLayout = LayerLayout.extend({
     // them jump to the final positions (hopefully jump will not be visible)
 
     // NOTE: Maybe this is a solution for not stopping the transitions
-    var lastFrameToTransition = frames[framesLength - 1];
+    var lastFrameToTransition = transition.noActivation ? frame : frames[framesLength - 1];
 
     var transitionEnd = function() {
       if (transition.transitionID === that.layer.transitionID) {
-        for (var i = 0; i < framesLength; i++) {
-          childFrame = frames[i];
+        for (var i = 0; i < (transition.noActivation ? framesLength : 1); i++) {
+          childFrame = transition.noActivation ? frame : frames[i];
           // console.log("canvaslayout transition off", transition.transitionID);
           childFrame.applyStyles({
             transition: 'none' // deactivate transitions for all frames
