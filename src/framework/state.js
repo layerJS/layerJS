@@ -286,14 +286,15 @@ var State = Kern.EventManager.extend({
 
           seenLayers[layer] = layerframe.path;
         }
-
-        paths[layerframe.path] = { // ignore currently active frames
-          layer: layerframe.layer,
-          frameName: layerframe.frameName,
-          transition: Kern._extend({
-            noActivation: layerframe.noActivation
-          }, seenTransition, transition)
-        };
+        if (layerframe.noActivation !== true || layerframe.isInterStage) { // only do the transition if its an activating transitions or an non activating transition that actually really leads to a frame moving to a new layer -> reason: the history machanism will do transitions to the full state which will create a lot on "non-sense" interstage transitons (frames should move to layer in which they already are)
+          paths[layerframe.path] = { // ignore currently active frames
+            layer: layerframe.layer,
+            frameName: layerframe.frameName,
+            transition: Kern._extend({
+              noActivation: layerframe.noActivation
+            }, seenTransition, transition)
+          };
+        }
 
       }
     });
