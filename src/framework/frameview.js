@@ -40,7 +40,21 @@ var FrameView = BaseView.extend({
 
     this.on('sizeChanged', function() {
       if (that.parent) {
-        that.trigger('renderRequired', that.name());
+        if (that.inTransition) {// defer renderrequired after the transition finishes
+          if (!that.inTransitionListening) {
+            setTimeout(function f() {
+              if (!that.inTransition) {
+                that.inTransitionListening = false;
+                that.trigger('renderRequired', that.name());
+              } else {
+                setTimeout(f, 100);
+              }
+            }, 100);
+          }
+          that.inTransitionListening = true;
+        } else {
+          that.trigger('renderRequired', that.name());
+        }
       }
     });
 

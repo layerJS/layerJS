@@ -613,7 +613,7 @@ var LayerView = BaseView.extend({
             return p;
           }
         }
-
+        if (frame) frame.inTransition = true;
         var layoutPromise = that._layout.transitionTo(frame, transition, targetFrameTransformData, targetTransform).then(function() {
           // is that still the active transition?
           if (transition.transitionID === that.transitionID) {
@@ -627,6 +627,7 @@ var LayerView = BaseView.extend({
               that.trigger('transitionFinished', framename);
             });
             that.updateClasses();
+            if (frame) frame.inTransition = false;
           }
         });
 
