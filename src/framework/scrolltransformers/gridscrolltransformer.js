@@ -24,8 +24,8 @@ var GridScrollTransformer = ScrollTransformer.extend({
    */
   _scrollListener: function() {
     if (this.layer.nativeScroll()) {
-      this.scrollX = this.layer.outerEl.scrollLeft;
-      this.scrollY = this.layer.outerEl.scrollTop;
+      this._layout.scrollX = this.layer.outerEl.scrollLeft;
+      this._layout.scrollY = this.layer.outerEl.scrollTop;
       this.layer.trigger("scroll");
     }
   },
@@ -50,8 +50,8 @@ var GridScrollTransformer = ScrollTransformer.extend({
   scrollGestureListener: function(gesture) {
 
     if (gesture.first) {
-      this.scrollStartX = this.scrollX;
-      this.scrollStartY = this.scrollY;
+      this.scrollStartX = this._layout.scrollX;
+      this.scrollStartY = this._layout.scrollY;
       return true;
     }
     // detect nested scrolling
@@ -65,13 +65,13 @@ var GridScrollTransformer = ScrollTransformer.extend({
       if (Math.abs(gesture.shift.x) + Math.abs(gesture.shift.y) < 10) return true;
       if (axis === 'y') {
         if (gesture.shift.y > 0) { // Note: gesture.shift is negative
-          return this.scrollY > 0; // return true if can scroll; false otherwise
+          return this._layout.scrollY > 0; // return true if can scroll; false otherwise
         } else {
           return (this.layer.outerEl.scrollHeight - this.layer.outerEl.clientHeight - 1 > this.layer.outerEl.scrollTop);
         }
       } else if (axis === 'x') {
         if (gesture.shift.x > 0) {
-          return this.scrollX > 0;
+          return this._layout.scrollX > 0;
         } else {
           return (this.layer.outerEl.scrollWidth - this.layer.outerEl.clientWidth - 1 > this.layer.outerEl.scrollLeft);
         }
@@ -79,26 +79,26 @@ var GridScrollTransformer = ScrollTransformer.extend({
     } else {
       if (axis === 'y') {
         if (gesture.shift.y > 0) { // Note: gesture.shift is negative
-          if (this.scrollY === 0) return false; // return false if cannot scroll
+          if (this._layout.scrollY === 0) return false; // return false if cannot scroll
         } else {
-          if (this.maxScrollY() - this.scrollY < 1) return false;
+          if (this.maxScrollY() - this._layout.scrollY < 1) return false;
         }
       } else if (axis === 'x') {
         if (gesture.shift.x > 0) {
-          if (this.scrollX === 0) return false;
+          if (this._layout.scrollX === 0) return false;
         } else {
-          if (this.maxScrollX() - this.scrollX < 1) return false;
+          if (this.maxScrollX() - this._layout.scrollX < 1) return false;
         }
       }
-      this.scrollX = this.scrollStartX - gesture.shift.x;
-      this.scrollY = this.scrollStartY - gesture.shift.y;
-      if (!this.isScrollX()) this.scrollX = this.scrollStartX;
-      if (!this.isScrollY()) this.scrollY = this.scrollStartY;
-      if (this.scrollX < 0) this.scrollX = 0;
-      if (this.scrollX > this.maxScrollX()) this.scrollX = this.maxScrollX();
-      if (this.scrollY < 0) this.scrollY = 0;
-      if (this.scrollY > this.maxScrollY()) this.scrollY = this.maxScrollY();
-      return this.scrollTransform(-this.scrollX, -this.scrollY);
+      this._layout.scrollX = this.scrollStartX - gesture.shift.x;
+      this._layout.scrollY = this.scrollStartY - gesture.shift.y;
+      if (!this.isScrollX()) this._layout.scrollX = this.scrollStartX;
+      if (!this.isScrollY()) this._layout.scrollY = this.scrollStartY;
+      if (this._layout.scrollX < 0) this._layout.scrollX = 0;
+      if (this._layout.scrollX > this.maxScrollX()) this._layout.scrollX = this.maxScrollX();
+      if (this._layout.scrollY < 0) this._layout.scrollY = 0;
+      if (this._layout.scrollY > this.maxScrollY()) this._layout.scrollY = this.maxScrollY();
+      return this.scrollTransform(-this._layout.scrollX, -this._layout.scrollY);
     }
   },
   /**
@@ -113,29 +113,34 @@ var GridScrollTransformer = ScrollTransformer.extend({
    */
   getScrollTransform: function(tfd, transition, intermediate) {
 
-    var scrollX = transition.scrollX || this.scrollX;
-    var scrollY = transition.scrollY || this.scrollY;
+    var scrollX = this._layout.scrollX;
+    var scrollY = this._layout.scrollY;
 
-    if (!intermediate) {
+    if (transition) {
+      scrollX = transition.scrollX || this._layout.scrollX;
+      scrollY = transition.scrollY || this._layout.scrollY;
+    }
+
+    /*if (!intermediate) {
       scrollX = transition.scrollX || tfd.initialScrollX;
       scrollY = transition.scrollY || tfd.initialScrollY;
-    }
+    }*/
 
     // update frameTransformData
-    this.scrollX = scrollX !== undefined ? scrollX : tfd.scrollX;
-    this.scrollY = scrollY !== undefined ? scrollY : tfd.scrollY;
+    this._layout.scrollX = scrollX !== undefined ? scrollX : tfd.scrollX;
+    this._layout.scrollY = scrollY !== undefined ? scrollY : tfd.scrollY;
     // limit scrolling to [0,maxScroll]
-    if (this.scrollX > this.maxScrollX()) {
-      this.scrollX = this.maxScrollX();
+    if (this._layout.scrollX > this.maxScrollX()) {
+      this._layout.scrollX = this.maxScrollX();
     }
-    if (this.scrollY > this.maxScrollY()) {
-      this.scrollY = this.maxScrollY();
+    if (this._layout.scrollY > this.maxScrollY()) {
+      this._layout.scrollY = this.maxScrollY();
     }
-    if (this.scrollX < 0) {
-      this.scrollX = 0;
+    if (this._layout.scrollX < 0) {
+      this._layout.scrollX = 0;
     }
-    if (this.scrollY < 0) {
-      this.scrollY = 0;
+    if (this._layout.scrollY < 0) {
+      this._layout.scrollY = 0;
     }
     if (this.layer.nativeScroll()) {
       if (intermediate) {
@@ -143,8 +148,8 @@ var GridScrollTransformer = ScrollTransformer.extend({
         var shiftX = 0;
         var shiftY = 0;
 
-        shiftX = (this.layer.outerEl.scrollLeft || 0) - (this.scrollX || 0);
-        shiftY = (this.layer.outerEl.scrollTop || 0) - (this.scrollY || 0);
+        shiftX = (this.layer.outerEl.scrollLeft || 0) - (this._layout.scrollX || 0);
+        shiftY = (this.layer.outerEl.scrollTop || 0) - (this._layout.scrollY || 0);
 
         return this.scrollTransform(shiftX, shiftY);
       } else {
@@ -181,13 +186,13 @@ var GridScrollTransformer = ScrollTransformer.extend({
       }
     } else {
       // in transformscroll we add a transform representing the scroll position.
-      return this.scrollTransform(-this.scrollX, -this.scrollY);
+      return this.scrollTransform(-this._layout.scrollX, -this._layout.scrollY);
     }
   },
   getCurrentScroll: function() {
     return {
-      scrollX: this.scrollX,
-      scrollY: this.scrollY
+      scrollX: this._layout.scrollX,
+      scrollY: this._layout.scrollY
     };
   }
 });

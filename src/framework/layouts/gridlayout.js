@@ -104,7 +104,7 @@ var GridLayout = LayerLayout.extend({
         cssTransition.opacity = 0;
       }*/
 
-      that.setLayerTransform(targetTransform, cssTransition, frame);
+      that.setLayerTransform(targetTransform, cssTransition, frame, (!transition || true === transition.isEvent));
 
       if (transition.duration === '') {
         transitionEnd();
@@ -113,7 +113,7 @@ var GridLayout = LayerLayout.extend({
 
     return finished;
   },
-  _calculateFrameTransforms: function(frame, transition) {
+  _calculateFrameTransforms: function(frame, transition, keepCurrentScrolling) {
     var frames = this.layer.getChildViews();
     //var gridName = this.layer.gridName();
     var framesLength = frames.length;
@@ -235,17 +235,17 @@ var GridLayout = LayerLayout.extend({
     this.maxScrollY = (rowsDown * rowHeight);
     this.maxScrollX = columnsRight * colWidth;
 
-    if (positionTransform) {
+    if (positionTransform && !keepCurrentScrolling) {
       if (this.layer.nativeScroll()) {
         this.scrollX = positionTransform.left;
         this.scrollY = positionTransform.top;
       } else {
-        this.scrollX = positionTransform.left;
-        this.scrollY = positionTransform.top;
-        for (i = 0; i < framesLength; i++) {
+        this.scrollX = positionTransform.left * -1;
+        this.scrollY = positionTransform.top * -1;
+        /*for (i = 0; i < framesLength; i++) {
           childFrame = frames[i];
           this._frameStyles[childFrame.id()].transform += 'translate3d(' + positionTransform.left + 'px,' + positionTransform.top + 'px,0px)';
-        }
+        }*/
       }
     }
   },
@@ -293,13 +293,13 @@ var GridLayout = LayerLayout.extend({
    * @param {string} transform - the scrolling transform
    * @param {Object} cssTransiton - css object containing the transition info (currently only single time -> transition: 2s)
    */
-  setLayerTransform: function(transform, cssTransition, frame) {
+  setLayerTransform: function(transform, cssTransition, frame, keepScrolling) {
     var frames = this.layer.getChildViews();
     var framesLength = frames.length;
     var childFrame;
     var p = new Kern.Promise();
 
-    this._calculateFrameTransforms(frame, cssTransition.transition);
+    this._calculateFrameTransforms(frame, cssTransition, keepScrolling === true || undefined === keepScrolling);
 
     if (cssTransition.transition) { // FIXME is this sufficient? should we rather pipe duration here, but what about other transtion properties like easing
       this.layer.currentFrame.outerEl.addEventListener("transitionend", function f(e) { // FIXME needs webkitTransitionEnd etc
