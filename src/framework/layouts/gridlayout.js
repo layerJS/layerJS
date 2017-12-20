@@ -66,31 +66,8 @@ var GridLayout = LayerLayout.extend({
   transitionTo: function(frame, transition, targetFrameTransformData, targetTransform) {
     var finished = new Kern.Promise();
     var that = this;
-    var frames = this.layer.getChildViews();
-    var framesLength = frames.length;
-    var lastFrameToTransition = frames[framesLength - 1];
-    var childFrame;
 
-    var transitionEnd = function() {
-      if (transition.transitionID === that.layer.transitionID) {
-        for (var i = 0; i < framesLength; i++) {
-          childFrame = frames[i];
-          // console.log("canvaslayout transition off", transition.transitionID);
-          childFrame.applyStyles({
-            transition: 'none' // deactivate transitions for all frames
-          });
-        }
-      }
-      finished.resolve();
-    };
 
-    if (transition.duration !== '') {
-      lastFrameToTransition.outerEl.addEventListener("transitionend", function f(e) { // FIXME needs webkitTransitionEnd etc
-        e.target.removeEventListener(e.type, f); // remove event listener for transitionEnd.
-        // console.log("canvaslayout transitionend", transition.transitionID);
-        transitionEnd();
-      });
-    }
     // wait for semaphore as there may be more transitions that need to be setup
     transition.semaphore.sync().then(function() {
 
@@ -103,13 +80,16 @@ var GridLayout = LayerLayout.extend({
       /*if (null === frame) {
         cssTransition.opacity = 0;
       }*/
+      that.setLayerTransform(targetTransform, cssTransition, frame, (!transition || true === transition.isEvent)).then(function(){
+        finished.resolve();
+      });
 
-      that.setLayerTransform(targetTransform, cssTransition, frame, (!transition || true === transition.isEvent));
-
+    });
+/*
       if (transition.duration === '') {
         transitionEnd();
-      }
-    });
+      }*/
+  /*  });*/
 
     return finished;
   },
@@ -176,14 +156,14 @@ var GridLayout = LayerLayout.extend({
           posTop = top;
         if (grid.direction === 'vertical') {
           posLeft = 0;
-          if (posTop - pageHeight > 0) {
+          /*if (posTop - pageHeight > 0) {
             posTop -= pageHeight;
-          }
+          }*/
         } else {
           posTop = 0;
-          if (posLeft - pageWidth > 0) {
+          /*if (posLeft - pageWidth > 0) {
             posLeft -= pageWidth;
-          }
+          }*/
         }
 
         positionTransform = {
@@ -237,8 +217,8 @@ var GridLayout = LayerLayout.extend({
 
     if (positionTransform && !keepCurrentScrolling) {
       if (this.layer.nativeScroll()) {
-        this.scrollX = positionTransform.left;
-        this.scrollY = positionTransform.top;
+        this.scrollX = positionTransform.left * -1;
+        this.scrollY = positionTransform.top * -1;
       } else {
         this.scrollX = positionTransform.left * -1;
         this.scrollY = positionTransform.top * -1;
@@ -301,16 +281,13 @@ var GridLayout = LayerLayout.extend({
 
     this._calculateFrameTransforms(frame, cssTransition, keepScrolling === true || undefined === keepScrolling);
 
-    if (cssTransition.transition) { // FIXME is this sufficient? should we rather pipe duration here, but what about other transtion properties like easing
+  /*  if (cssTransition.transition && cssTransition.duration !== '') { // FIXME is this sufficient? should we rather pipe duration here, but what about other transtion properties like easing
       this.layer.currentFrame.outerEl.addEventListener("transitionend", function f(e) { // FIXME needs webkitTransitionEnd etc
         e.target.removeEventListener(e.type, f); // remove event listener for transitionEnd.
         p.resolve();
       });
-    } else {
-      p.resolve();
     }
-
-
+*/
     for (var i = 0; i < framesLength; i++) {
       childFrame = frames[i];
       var frameTransform = this._frameStyles[childFrame.id()].transform;
@@ -318,6 +295,13 @@ var GridLayout = LayerLayout.extend({
 
       this._applyTransform(childFrame, frameTransform, transform, css);
     }
+
+  /*  if (!cssTransition.transition || cssTransition.duration === '') {
+      p.resolve();
+    }*/
+
+    p.resolve();
+
     return p;
   },
   /**

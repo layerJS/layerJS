@@ -166,8 +166,8 @@ var GridScrollTransformer = ScrollTransformer.extend({
           this.layer.innerEl.style.width = "100%";
         }
         // apply inital scroll position
-        this.layer.outerEl.scrollLeft = this.scrollX;
-        this.layer.outerEl.scrollTop = this.scrollY;
+        this.layer.outerEl.scrollLeft = this._layout.scrollX;
+        this.layer.outerEl.scrollTop = this._layout.scrollY;
         // fix ios scroll bug
         if ($.browser === 'ios') {
           // ios safari will by default not have inertial scrolling on nested scrolling divs
