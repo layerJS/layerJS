@@ -28,7 +28,8 @@ module.exports = function(scenario, initFunction) {
       expect(cv).not.toBeUndefined();
     });
 
-    it('will register itself with the state', function() {
+    // this is not happening anymore as we register in parseManager after the tree is initialized
+    xit('will register itself with the state', function() {
       spyOn(state, 'registerView');
       var view = new ViewType({
         el: sourceElement

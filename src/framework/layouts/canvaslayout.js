@@ -1,4 +1,5 @@
 'use strict';
+var $ = require('../domhelpers.js');
 var Kern = require('../../kern/Kern.js');
 var layoutManager = require('../layoutmanager.js');
 var LayerLayout = require('./layerlayout.js');
@@ -53,9 +54,11 @@ var CanvasLayout = LayerLayout.extend({
 
     if (transition.duration !== '') {
       lastFrameToTransition.outerEl.addEventListener("transitionend", function f(e) { // FIXME needs webkitTransitionEnd etc
-        e.target.removeEventListener(e.type, f); // remove event listener for transitionEnd.
-        // console.log("canvaslayout transitionend", transition.transitionID);
-        transitionEnd();
+        if (lastFrameToTransition.outerEl === e.target) {
+          e.target.removeEventListener(e.type, f); // remove event listener for transitionEnd.
+          // console.log("canvaslayout transitionend", transition.transitionID);
+          transitionEnd();
+        }
       });
     }
     // wait for semaphore as there may be more transitions that need to be setup
@@ -125,7 +128,7 @@ var CanvasLayout = LayerLayout.extend({
     }
     this._currentRotation = rotation;
 
-    var transform = "translate3d(" + parseInt(-targetFrameTransformData.shiftX, 10) + "px," + parseInt(-targetFrameTransformData.shiftY, 10) + "px,0px) scale(" + targetFrameTransformData.scale / (frame.scaleX() || 1) + "," + targetFrameTransformData.scale / (frame.scaleY() || 1) + ") rotate(" + (-rotation || 0) + "deg) translate3d(" + (-targetFrameX) + "px," + (-targetFrameY) + "px,0px)";
+    var transform = "translate3d(" + parseInt(-targetFrameTransformData.shiftX, 10) + "px," + parseInt(-targetFrameTransformData.shiftY, 10) + "px,0px) scale(" + targetFrameTransformData.scale / (frame.scaleX() || 1) + "," + targetFrameTransformData.scale / (frame.scaleY() || 1) + ") rotate(" + (-rotation || 0) + "deg)  translate3d(" + (-targetFrameX) + "px," + (-targetFrameY) + "px,0px)";
     return transform;
   },
   /**
@@ -167,7 +170,7 @@ var CanvasLayout = LayerLayout.extend({
     delete this._frameTransforms[frame.id()]; // this will be recalculated in _applyTransform
     if (this._reverseTransform && transform) {
       // currentFrame is initialized -> we need to render the frame at new position
-      this._applyTransform(frame, this._currentReverseTransform, this.layer.currentTransform, {});
+      this._applyTransform(frame, this._reverseTransform, this.layer.currentTransform, {});
     }
     //}
   },
@@ -183,6 +186,11 @@ var CanvasLayout = LayerLayout.extend({
   _applyTransform: function(frame, reverseTransform, addedTransform, styles) {
     // console.log('canvaslayout: applystyles', frame.data.attributes.name, styles.transition);
     // we need to add the frame transform (x,y,rot,scale) the reverse transform (that moves the current frame into the stage) and the transform representing the current scroll/displacement
+    styles = styles || {};
+    var x = frame.x();
+    var y = frame.y();
+    if (x !== undefined) styles.left = $.parseDimension(x) + 'px';
+    if (y !== undefined) styles.top = $.parseDimension(y) + 'px';
     frame.applyStyles(styles || {}, {
       transform: "translate3d(" + (-frame.x() || 0) + "px," + (-frame.y() || 0) + "px,0px)" + addedTransform + " " + reverseTransform + " " + (this._frameTransforms[frame.id()] = "translate3d(" + (frame.x() || 0) + "px," + (frame.y() || 0) + "px,0px) rotate(" + (frame.rotation() || 0) + "deg) scale(" + frame.scaleX() + "," + frame.scaleY() + ")")
     });

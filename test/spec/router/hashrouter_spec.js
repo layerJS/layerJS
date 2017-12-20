@@ -2,7 +2,6 @@ describe('HashRouter', function() {
 
   var HashRouter = require('../../../src/framework/router/hashRouter.js');
   var utilities = require('../helpers/utilities.js');
-  var StageView = require('../../../src/framework/stageview.js');
   var state = require('../../../src/framework/state.js');
 
   var hashRouter;
@@ -23,9 +22,6 @@ describe('HashRouter', function() {
 
     utilities.setHtml(html);
 
-    new StageView({
-      el: document.getElementById('stage1')
-    });
     var options = {
       url: url,
       location: 'http://localhost/',
@@ -82,10 +78,6 @@ describe('HashRouter', function() {
         "</div>" +
         "</div>");
 
-      var stageView = new StageView({
-        el: document.getElementById('stage1')
-      });
-
       var options = {
         location: 'http://localhost/index.html',
         state: ['stage1.layer1.frame1', 'stage1.layer2.frame2']
@@ -102,10 +94,6 @@ describe('HashRouter', function() {
         "<div data-lj-type='layer' id='layer1' data-lj-default-frame='frame1'>" +
         "<div data-lj-type='frame' id='frame1' data-lj-name='frame1'></div>" +
         "</div></div>");
-
-      var stageView = new StageView({
-        el: document.getElementById('stage1')
-      });
 
       var options = {
         location: 'http://localhost/index.html',
@@ -126,10 +114,6 @@ describe('HashRouter', function() {
         "<div data-lj-type='frame' id='frame2' data-lj-name='frame1'></div>" +
         "</div></div>");
 
-      var stageView = new StageView({
-        el: document.getElementById('stage1')
-      });
-
       var options = {
         location: 'http://localhost/index.html',
         state: ['stage1.layer1.frame1']
@@ -146,10 +130,6 @@ describe('HashRouter', function() {
         "<div data-lj-type='layer' id='layer1' data-lj-default-frame='frame1'>" +
         "<div data-lj-type='frame' id='frame1' data-lj-name='frame1'></div>" +
         "</div></div>");
-
-      var stageView = new StageView({
-        el: document.getElementById('stage1')
-      });
 
       var options = {
         location: 'http://localhost/index.html',
@@ -179,9 +159,6 @@ describe('HashRouter', function() {
 
       utilities.setHtml(html);
 
-      new StageView({
-        el: document.getElementById('stage1')
-      });
       var options = {
         url: url,
         location: 'http://localhost/',
@@ -215,10 +192,6 @@ describe('HashRouter', function() {
         "<div data-lj-type='layer' id='layer2' >" +
         "</div></div>");
 
-      var stageView = new StageView({
-        el: document.getElementById('stage1')
-      });
-
       var frame1 = document.getElementById('frame1')._ljView;
       var layer2 = document.getElementById('layer2')._ljView;
       frame1.originalParent = layer2;
@@ -249,9 +222,6 @@ describe('HashRouter', function() {
 
       utilities.setHtml(html);
 
-      new StageView({
-        el: document.getElementById('stage1')
-      });
       var options = {
         url: url,
         location: 'http://localhost/',

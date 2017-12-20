@@ -48,6 +48,7 @@ var FileRouter = StaticRouter.extend({
             var fileState = layerJS.getState(doc);
             var addedHash = [];
 
+
             fileState.exportStructure().forEach(function(path) {
               // check if new path exists in current state
               if (!globalStructureHash[path]) {
@@ -55,7 +56,6 @@ var FileRouter = StaticRouter.extend({
                 var found = addedHash.filter(function(addedPath) {
                   return path.startsWith(addedPath);
                 }).length > 0;
-
                 if (!found) {
                   // Path not yet added
                   var isRoot = !(path.match(/\./)); // is the new path a root path (a root stage)?

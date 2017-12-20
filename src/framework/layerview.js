@@ -201,6 +201,7 @@ var LayerView = BaseView.extend({
    * @returns {boolean} inTranstion or not
    */
   inTransition: function(_inTransition, duration) {
+    duration = duration ? 50 + Number.parseFloat(duration) : 0; // add a safety time as the actual transition may start a bit later (syncing etc) and we don't want to interrupt the transition by a size-changed transition that doesn't know that a transition is still going on. If a transition is interupted, all the transitionend listeners will be called after the next successful transition only<
     if (_inTransition) {
       var that = this;
       this._inTransitionTimestamp = Date.now();
@@ -231,7 +232,7 @@ var LayerView = BaseView.extend({
    */
   getRemainingTransitionTime: function() {
     if (this._inTransition) {
-      return Math.max(0, this._inTransitionDuration - (Date.now() - this._inTransitionTimestamp));
+      return Math.max(1, this._inTransitionDuration - (Date.now() - this._inTransitionTimestamp) - 50); // the 50 were added in inTransition()
     } else {
       return false;
     }
@@ -535,10 +536,10 @@ var LayerView = BaseView.extend({
         previousType: transition && transition.type ? undefined : (that.currentFrame && that.currentFrame.defaultTransition()) || undefined,
         duration: '1s',
         lastFrameName: (that.currentFrame && that.currentFrame.name()) || "!none",
-        applyTargetPrePosition: !transition.noActivation && (transition.applyTargetPrePosition || (frame && frame.parent && frame.parent === that)), // we need to set this here for interstage transitions; loadframe doesn't know about the transition record.
-        applyCurrentPostPosition: (transition.applyCurrentPostPosition !== true && (that.currentFrame && that.currentFrame.parent && that.currentFrame.parent === that)) && !transition.noActivation,
-        applyCurrentPrePosition: (transition.applyCurrentPrePosition !== true && (that.currentFrame && that.currentFrame.parent && that.currentFrame.parent === that)) && !transition.noActivation
-          // FIXME: add more default values like timing
+        applyTargetPrePosition: !transition.noActivation && (transition.applyTargetPrePosition || (frame && frame.parent && frame.parent === that)) || false, // we need to set this here for interstage transitions; loadframe doesn't know about the transition record.
+        applyCurrentPostPosition: ((transition.applyCurrentPostPosition !== true && (that.currentFrame && that.currentFrame.parent && that.currentFrame.parent === that)) && !transition.noActivation) || false,
+        applyCurrentPrePosition: ((transition.applyCurrentPrePosition !== true && (that.currentFrame && that.currentFrame.parent && that.currentFrame.parent === that)) && !transition.noActivation) || false
+        // FIXME: add more default values like timing
       }, transition || {});
 
       // check for reverse transition; remove "r:"/"reverse:" indicator and set transition.reverse instead

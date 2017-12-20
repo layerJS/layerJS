@@ -1,7 +1,9 @@
 var utilities = {};
 
+utilities.isNodeJs = false;
+
 utilities.isNodeContext = function() {
-  return (typeof global.window === 'undefined');
+  return (typeof global.window === 'undefined' || this.isNodeJs);
 }
 
 utilities._init = function() {
@@ -29,6 +31,8 @@ utilities._beforeAll = function() {
   state._transitionGroup = {};
   state._transitionGroupId = 0;
   state.previousState = undefined;
+
+  layerJS.router._init(document);
 }
 
 utilities._beforeEachNodeJS = function() {
@@ -40,6 +44,7 @@ utilities._beforeEachNodeJS = function() {
   $ = document.querySelector;
 
   global.XMLHttpRequest = require('xmlhttprequest').XMLHttpRequest;
+  this.isNodeJs = true;
 }
 
 utilities._beforeEachBrowser = function() {
@@ -49,6 +54,7 @@ utilities._beforeEachBrowser = function() {
 }
 
 utilities.beforeEach = function() {
+
   if (this.isNodeContext()) {
     this._beforeEachNodeJS();
   } else {
@@ -90,7 +96,16 @@ utilities._getTestContainer = function() {
 
 utilities.setHtml = function(html) {
   var container = this._getTestContainer();
+  if (container) {
+    container.remove();
+    container = null;
+  }
+  container = this._getTestContainer();
   container.innerHTML = html;
+  if (html !== '') {
+    var parseManager = require("../../../src/framework/parsemanager.js");
+    parseManager.parseElement(container);
+  }
 }
 
 utilities.appendChildHTML = function(childHTML) {

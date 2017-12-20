@@ -102,41 +102,29 @@ var SlideLayout = LayerLayout.extend({
     var currentFrame = that.layer.currentFrame;
     return this.prepareTransition(frame, transition, targetFrameTransformData, targetTransform).then(function(t) {
       var finished = new Kern.Promise();
-
-      var transitionEnd = function() {
-
-        if (currentFrame && transition.applyCurrentPostPosition !== false) {
-          currentFrame.applyStyles(t.fix_css, {
+      var transitionEnds = 0; // number of transitions to wait for
+      var transitionEnd = function(frame, oldcurrent) {
+        if (!frame.transitionID || transition.transitionID === frame.transtionID) {
+          frame.applyStyles(t.fix_css, oldcurrent ? {
             transition: 'none',
             display: 'none',
             'z-index': 'initial'
-          });
-          $.debug('slidelayout: fix c');
-        }
-
-        if (frame) {
-          frame.applyStyles(t.fix_css, {
+          } : {
             transition: 'none',
             'z-index': 'initial'
           });
-          $.debug('slidelayout: fix t');
+          $.debug('slidelayout: fix ' + (oldcurrent ? 'c' : 't'));
         }
-
-
-        finished.resolve(); // do we need to wait here until it is rendered?
+        transitionEnds--;
+        if (transitionEnds === 0) {
+          finished.resolve(); // do we need to wait here until it is rendered?
+        }
         // wait until above styles are applied;
         // $.postAnimationFrame(function() {
         //   finished.resolve();
         // });
       };
 
-      var frameToTransition = frame || currentFrame; // is there at least on frame to transition?
-      if (frameToTransition && transition.duration !== '') {
-        frameToTransition.outerEl.addEventListener("transitionend", function f(e) { // FIXME needs webkitTransitionEnd etc
-          e.target.removeEventListener(e.type, f); // remove event listener for transitionEnd.
-          transitionEnd();
-        });
-      }
       // wait for semaphore as there may be more transitions that need to be setup
       transition.semaphore.sync().then(function() {
         var otherCss = {
@@ -155,6 +143,17 @@ var SlideLayout = LayerLayout.extend({
         }
 
         if (!transition.noActivation) {
+          // we need to listen for each frame individually because different frames may be affected by a later (but partially parallel) transition
+          if (frame && transition.duration !== '') {
+            frame.outerEl.addEventListener("transitionend", function f(e) { // FIXME needs webkitTransitionEnd etc
+              if (e.target === frame.outerEl) {
+                e.target.removeEventListener(e.type, f); // remove event listener for transitionEnd.
+                transitionEnd(frame);
+              }
+            });
+            frame.transitionID = transition.transitionID;
+            transitionEnds++;
+          }
           that._applyTransform(frame, that._currentFrameTransform = t.t1, targetTransform, otherCss);
           $.debug('slidelayout: apply t1');
         } else {
@@ -164,6 +163,17 @@ var SlideLayout = LayerLayout.extend({
           }, {}, {});
         }
         if (transition.applyCurrentPostPosition !== false) {
+          // we need to listen for each frame individually because different frames may be affected by a later (but partially parallel) transition
+          if (currentFrame && transition.duration !== '' && (transition.applyCurrentPostPosition !== false)) {
+            currentFrame.outerEl.addEventListener("transitionend", function g(e) { // FIXME needs webkitTransitionEnd etc
+              if (e.target === currentFrame.outerEl) {
+                e.target.removeEventListener(e.type, g); // remove event listener for transitionEnd.
+                transitionEnd(currentFrame, true);
+              }
+            });
+            currentFrame.transitionID = transition.transitionID;
+            transitionEnds++;
+          }
           that._applyTransform(currentFrame, t.c1, targetTransform, {
             transition: transition.duration,
             top: "0px",
@@ -172,8 +182,14 @@ var SlideLayout = LayerLayout.extend({
           $.debug('slidelayout: apply c1');
         }
 
-        if (transition.duration === '' || !frameToTransition) { // execute transitionend immediately if not transition is going on
-          transitionEnd();
+        if (transition.duration === '') { // execute transitionend immediately if not transition is going on
+          transitionEnds=(currentFrame && frame ? 2 : 1);
+          if (currentFrame) {
+            transitionEnd(currentFrame);
+          }
+          if (frame) {
+            transitionEnd(frame);
+          }
         }
 
         that._preparedTransitions = {};

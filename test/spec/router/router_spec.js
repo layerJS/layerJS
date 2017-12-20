@@ -1,7 +1,6 @@
 describe('router', function() {
 
   var utilities = require('../helpers/utilities.js');
-  var StageView = require('../../../src/framework/stageview.js');
   var state = require('../../../src/framework/state.js');
   var Kern = require('../../../src/kern/kern.js');
   var FileRouter = require('../../../src/framework/router/filerouter.js');
@@ -196,10 +195,6 @@ describe('router', function() {
 
     window.history.pushState = function(param1, param2, url) {};
 
-    new StageView({
-      el: document.getElementById('stage1')
-    });
-
     layerJS.router.addRouter(dummyRouter);
     layerJS.router.addRouter(dummyRouter2);
 
@@ -245,8 +240,10 @@ describe('router', function() {
   //TODO: Look at more detail
   it('will use the pushState after a transition that started with a click', function(done) {
     var newUrl;
+   var newState;
     window.history.pushState = function(param1, param2, url) {
       newUrl = url;
+      newState = param1.state;
     };
 
     layerJS.router.addRouter(new FileRouter());
@@ -263,15 +260,44 @@ describe('router', function() {
 
     utilities.setHtml(html);
 
-    new StageView({
-      el: document.getElementById('stage1')
-    });
-
-
     document.getElementById('link').click();
 
     setTimeout(function() {
       expect(newUrl).toBe('http://localhost/#frame2');
+      expect(document.getElementById('layer1')._ljView.currentFrame.id()).toBe('frame2');
+      expect(newState).toEqual(['stage1.layer1.frame2','stage1.layer1.frame1$' ])
+      done();
+    }, 2000);
+  });
+
+  it('will use the pushState after a transition that started with a click (no-url)', function(done) {
+    var newUrl;
+    var newState;
+    window.history.pushState = function(param1, param2, url) {
+      newUrl = url;
+      newState = param1.state;
+    };
+
+    layerJS.router.addRouter(new FileRouter());
+    layerJS.router.addRouter(new HashRouter());
+
+    var html = "<div data-lj-type='stage' id='stage1'>" +
+      "<div data-lj-type='layer' id='layer1' data-lj-default-frame='frame1' data-lj-no-url='true'>" +
+      "<div data-lj-type='frame' id='frame1' data-lj-name='frame1'>" +
+      "<a href='/#frame2' id='link'>click me </a>" +
+      "</div>" +
+      "<div data-lj-type='frame' id='frame2' data-lj-name='frame2'></div>" +
+      "</div>" +
+      "</div>";
+
+    utilities.setHtml(html);
+
+    document.getElementById('link').click();
+
+    setTimeout(function() {
+      expect(newUrl).toBe('http://localhost/');
+      expect(document.getElementById('layer1')._ljView.currentFrame.id()).toBe('frame2');
+      expect(newState).toEqual(['stage1.layer1.frame2','stage1.layer1.frame1$' ])
       done();
     }, 2000);
   });

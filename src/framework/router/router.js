@@ -6,6 +6,9 @@ var StaticRouter = require('./staticrouter.js');
 
 var Router = Kern.EventManager.extend({
   constructor: function(rootEl) {
+    this._init(rootEl);
+  },
+  _init: function(rootEl) {
     this.rootElement = rootEl || document;
     this.routers = [];
     this._registerLinkClickedListener();
@@ -125,14 +128,16 @@ var Router = Kern.EventManager.extend({
           that.state.showState(options.paths, [], {
             paths: options.paths,
             transitions: [],
-            noHistory: noHistory
+            noHistory: noHistory,
+            originalUrl: href
           });
         } else {
           // do a transition
           that.state.transitionTo(options.paths, options.transitions, {
             paths: options.paths,
             transitions: options.transitions,
-            noHistory: noHistory
+            noHistory: noHistory,
+            originalUrl: href
           });
         }
       }
@@ -176,7 +181,7 @@ var Router = Kern.EventManager.extend({
    * @param {Array} newState the minimized (changed) state
    */
   _stateChanged: function(state, payload) {
-    payload  = payload || {};
+    payload = payload || {};
     payload.state = payload.state || [];
     payload.transitions = payload.transitions || [];
 
@@ -187,7 +192,7 @@ var Router = Kern.EventManager.extend({
 
     // remove state paths that are already added in the payload
     // this need to be done for inital load and also for non active frames who are not in there orginal panrent
-    var tempState = newState.state.concat(newState.omittedState).filter(function(path){
+    var tempState = newState.state.concat(newState.omittedState).filter(function(path) {
       return payload.state.indexOf(path) < 0 && payload.state.indexOf(path.replace('$'));
     });
 
@@ -206,12 +211,14 @@ var Router = Kern.EventManager.extend({
 
     var url = $.joinUrl(options);
 
-    if (window.history && (!payload || !payload.noHistory) && window.location.href !== url) {
+    // If the original url is different from the new url (no-url="true") we should do a push
+    if (window.history && (!payload || !payload.noHistory) && (window.location.href !== url || (payload && url !== payload.originalUrl))) {
       window.history.pushState({
         state: stateToSave,
         transitions: transitions,
       }, "", url);
-    } else if (window.history) {
+    } else if (window.history && (!payload || !payload.noHistory)) {
+      // keep in account of the payload noHistory. This is imported when the a onpopstate event is fired. This event should not add anything to the history
       window.history.replaceState({
         state: stateToSave,
         transitions: transitions,

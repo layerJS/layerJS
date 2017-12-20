@@ -24,18 +24,20 @@ var BaseView = DOMObserver.extend({
     this.parent = options.parent;
     this.innerEl = this.innerEl || options.el;
     // backlink from DOM to object
-    if (this.innerEl._ljView) throw "trying to initialialize view on element that already has a view";
+    if (this.innerEl._ljView){
+       throw "trying to initialialize view on element that already has a view";
+     }
     this.innerEl._ljView = this;
     // possible wrapper element
     this.outerEl = this.outerEl || options.el || this.innerEl;
     this.outerEl._ljView = this;
 
-    if (!this.parent && this.outerEl._state && this.outerEl._state.view) {
-      this.parent = this.outerEl._state.parent.view;
-    }
-
-    var state = layerJS.getState(this.document);
-    state.registerView(this);
+    // if (!this.parent && this.outerEl._state && this.outerEl._state.view) {
+    //   this.parent = this.outerEl._state.parent.view;
+    // }
+    //
+    // var state = layerJS.getState(this.document);
+    // state.registerView(this);
 
     this.setOriginalHeight();
     this.setOriginalWidth();
@@ -89,7 +91,7 @@ var BaseView = DOMObserver.extend({
         }
       });
     }
-
+    var parsedNew = {}; // need to store newly parsed element to avoid double "childAdded" event
     if (this.childType) {
       for (var i = 0; i < this.innerEl.children.length; i++) {
         var child = this.innerEl.children[i];
@@ -100,7 +102,8 @@ var BaseView = DOMObserver.extend({
             document: this.document
           });
           this._renderChildPosition(child._ljView);
-          childrenAdded.push(child._ljView);
+          this.trigger('childAdded', child._ljView);
+          parsedNew[child._ljView.id()] = 1;
         }
         if (child._ljView && child._ljView.type() === this.childType) {
           var cv = child._ljView;
@@ -110,22 +113,25 @@ var BaseView = DOMObserver.extend({
         }
       }
     }
-
+    var parsed = false;
     if (options.addedNodes && options.addedNodes.length > 0) {
       var length = options.addedNodes.length;
       for (var x = 0; x < length; x++) {
         // check if added nodes don't already have a view defined.
         if (options.addedNodes[x].parentElement !== this.innerEl) continue;
         if (!options.addedNodes[x]._ljView) {
-          parseManager.parseElement(options.addedNodes[x].parentNode, {
-            parent: this
-          });
+          if (!parsed) {// we only need to parse once as we start parsing at the parent
+            parseManager.parseElement(options.addedNodes[x].parentNode, {
+              parent: this
+            });
+            parsed = true;
+          }
         } else if (options.addedNodes[x]._ljView.parent !== this) {
           // check if added node has the same parent
           options.addedNodes[x]._ljView.parent = this;
         }
-        if (options.addedNodes[x]._ljView) {
-          childrenAdded.push(options.addedNodes[x]._ljView);
+        if (options.addedNodes[x]._ljView && !parsedNew[options.addedNodes[x]._ljView.id()]) {
+          this.trigger('childAdded', options.addedNodes[x]._ljView);
         }
       }
     }
@@ -244,7 +250,13 @@ var BaseView = DOMObserver.extend({
    * @return {String} the name of the view
    */
   name: function() {
-    return this.getAttributeLJ('name') || this.outerEl.id || this.id();
+    var name = this.getAttributeLJ('name') || this.id();
+    if (name.match(/\./)) {
+      if (this._name) return this._name;
+      console.warn('unsuitable layerJS name "' + name + '" replaced by "' + (this._name = name = $.uniqueID(this.type(), this.document)) + '"');
+    }
+    if (this._name) this._name = name;
+    return name;
   },
   /**
    * Will return the type of the view
@@ -322,7 +334,7 @@ var BaseView = DOMObserver.extend({
    */
   x: function() {
     var x = this.getAttributeLJ('x');
-    x = (x !== null && (this.outerEl.style.left = $.parseDimension(x) + 'px') && x) || this.outerEl.offsetLeft || this.outerEl.style.left || 0;
+    x = x || this.outerEl.offsetLeft || this.outerEl.style.left || 0;
     return $.parseDimension(x, this.outerEl);
   },
   /**
@@ -333,7 +345,7 @@ var BaseView = DOMObserver.extend({
    */
   y: function() {
     var y = this.getAttributeLJ('y');
-    y = (y !== null && (this.outerEl.style.top = $.parseDimension(y) + 'px') && y) || this.outerEl.offsetTop || this.outerEl.style.top || 0;
+    y = y || this.outerEl.offsetTop || this.outerEl.style.top || 0;
     return $.parseDimension(y);
   },
   /**
