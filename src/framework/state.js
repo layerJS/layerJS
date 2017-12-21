@@ -72,7 +72,8 @@ var State = Kern.EventManager.extend({
           trigger = this._transitionGroup[transition.groupId].length === 0 && this._transitionGroup[transition.groupId].changed;
           payload = this._transitionGroup[transition.groupId].payload;
         }
-        if (trigger) {
+        if (trigger && (!transition || (transition && !transition.isEvent))) {
+          // statechanged should not be triggered it the transition is triggered by an event
           // trigger the event and keep a copy of the new state to compare it to next time
           this.trigger("stateChanged", this, payload);
         }
