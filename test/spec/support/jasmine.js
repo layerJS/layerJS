@@ -8,7 +8,7 @@ var reporter = new JasmineConsoleReporter({
     cleanStack: 1,       // (0|false)|(1|true)|2|3
     verbosity: 4,        // (0|false)|1|2|(3|true)|4
     listStyle: 'indent', // "flat"|"indent"
-    activity: true
+    activity: false
 });
 
 jasmine.addReporter(reporter);

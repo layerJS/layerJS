@@ -497,7 +497,7 @@ var LayerView = BaseView.extend({
     this.lastgroupId = newGroupId;
 
     if (transition.delay) { // handle delayed transition
-      transition.semaphore.skip();
+      if (transition.semaphore) transition.semaphore.skip();
       setTimeout(function() {
         if (transition.groupId !== that.lastgroupId) return; // skip if there was another transition triggered in between
         delete transition.semaphore;
@@ -619,16 +619,20 @@ var LayerView = BaseView.extend({
           // is that still the active transition?
           if (transition.transitionID === that.transitionID) {
             $.debug('transition finished', transition.transitionID);
-            // that will now calculate the currect layer transform and set up scroll positions in native scroll
-            that.currentTransform = that._transformer.getScrollTransform(targetFrameTransformData, transition, false);
-            // apply new transform (will be 0,0 in case of native scrolling)
+            if (!transition.noActivation) {
+              // that will now calculate the currect layer transform and set up scroll positions in native scroll
+              that.currentTransform = that._transformer.getScrollTransform(targetFrameTransformData, transition, false);
+              // apply new transform (will be 0,0 in case of native scrolling)
+            }
             that.inTransition(false);
-            that.setLayerTransform(that.currentTransform);
+            if (!transition.noActivation) {
+              that.setLayerTransform(that.currentTransform);
+              that.updateClasses();
+            }
+            if (frame) frame.inTransition = false;
             $.postAnimationFrame(function() {
               that.trigger('transitionFinished', framename);
             });
-            that.updateClasses();
-            if (frame) frame.inTransition = false;
           }
         });
 

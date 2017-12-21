@@ -226,7 +226,7 @@ describe('state', function() {
       }
       expect(state.exportState()).toEqual(expectedState);
       done();
-    }, 1000);
+    }, 100);
   }
 
   describe('can transition to a named state', function() {
@@ -579,7 +579,7 @@ describe('state', function() {
 
     frameView.innerEl.removeChild(frameView.innerEl.children[0]);
 
-    setTimeout(function() {    
+    setTimeout(function() {
       var exportedState = layerJS.getState().exportStructure();
       expect(exportedState).toEqual(['stage1', 'stage1.layer1', 'stage1.layer1.frame1']);
       done();

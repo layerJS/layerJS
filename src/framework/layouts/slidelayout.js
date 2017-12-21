@@ -104,7 +104,7 @@ var SlideLayout = LayerLayout.extend({
       var finished = new Kern.Promise();
       var transitionEnds = 0; // number of transitions to wait for
       var transitionEnd = function(frame, oldcurrent) {
-        if (!frame.transitionID || transition.transitionID === frame.transtionID) {
+        if (!frame.transitionID || transition.transitionID === frame.transitionID) {
           frame.applyStyles(t.fix_css, oldcurrent ? {
             transition: 'none',
             display: 'none',
@@ -141,37 +141,37 @@ var SlideLayout = LayerLayout.extend({
         if (targetFrameTransformData.applyHeight) {
           otherCss.height = targetFrameTransformData.frameHeight + "px";
         }
+        if (frame) frame.transitionID = transition.transitionID;
 
-        if (!transition.noActivation) {
-          // we need to listen for each frame individually because different frames may be affected by a later (but partially parallel) transition
-          if (frame && transition.duration !== '') {
-            frame.outerEl.addEventListener("transitionend", function f(e) { // FIXME needs webkitTransitionEnd etc
-              if (e.target === frame.outerEl) {
-                e.target.removeEventListener(e.type, f); // remove event listener for transitionEnd.
-                transitionEnd(frame);
-              }
-            });
-            frame.transitionID = transition.transitionID;
-            transitionEnds++;
-          }
-          that._applyTransform(frame, that._currentFrameTransform = t.t1, targetTransform, otherCss);
-          $.debug('slidelayout: apply t1');
-        } else {
+        // we need to listen for each frame individually because different frames may be affected by a later (but partially parallel) transition
+        if (frame && transition.duration !== '') {
+          frame.outerEl.addEventListener("transitionend", function f(e) { // FIXME needs webkitTransitionEnd etc
+            if (e.target === frame.outerEl) {
+              e.target.removeEventListener(e.type, f); // remove event listener for transitionEnd.
+              transitionEnd(frame, !!transition.noActivation);
+            }
+          });
+          transitionEnds++;
+        }
+        if (transition.noActivation) {
           that._applyTransform(frame, {
             opacity: 0,
             transition: transition.duration,
           }, {}, {});
+        } else {
+          that._applyTransform(frame, that._currentFrameTransform = t.t1, targetTransform, otherCss);
         }
+        $.debug('slidelayout: apply t1');
         if (transition.applyCurrentPostPosition !== false) {
+          if (currentFrame) currentFrame.transitionID = transition.transitionID;
           // we need to listen for each frame individually because different frames may be affected by a later (but partially parallel) transition
-          if (currentFrame && transition.duration !== '' && (transition.applyCurrentPostPosition !== false)) {
+          if (currentFrame && transition.duration !== '') {
             currentFrame.outerEl.addEventListener("transitionend", function g(e) { // FIXME needs webkitTransitionEnd etc
               if (e.target === currentFrame.outerEl) {
                 e.target.removeEventListener(e.type, g); // remove event listener for transitionEnd.
                 transitionEnd(currentFrame, true);
               }
             });
-            currentFrame.transitionID = transition.transitionID;
             transitionEnds++;
           }
           that._applyTransform(currentFrame, t.c1, targetTransform, {
@@ -183,9 +183,9 @@ var SlideLayout = LayerLayout.extend({
         }
 
         if (transition.duration === '') { // execute transitionend immediately if not transition is going on
-          transitionEnds=(currentFrame && frame ? 2 : 1);
-          if (currentFrame) {
-            transitionEnd(currentFrame);
+          transitionEnds = ((currentFrame && currentFrame !== frame) && frame ? 2 : 1);
+          if (currentFrame && currentFrame !== frame) {
+            transitionEnd(currentFrame, true);
           }
           if (frame) {
             transitionEnd(frame);
@@ -299,7 +299,7 @@ var SlideLayout = LayerLayout.extend({
   setLayerTransform: function(transform, cssTransition) {
     cssTransition = cssTransition || {};
     var p = new Kern.Promise();
-    if (cssTransition.transition) { // FIXME is this sufficient? should we rather pipe duration here, but what about other transtion properties like easing
+    if (cssTransition.transition) { // FIXME is this sufficient? should we rather pipe duration here, but what about other transition properties like easing
       this.layer.currentFrame.outerEl.addEventListener("transitionend", function f(e) { // FIXME needs webkitTransitionEnd etc
         e.target.removeEventListener(e.type, f); // remove event listener for transitionEnd.
         p.resolve();
