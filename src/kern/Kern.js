@@ -316,6 +316,7 @@
         this.state = true;
         this.value = value;
         this.execute();
+        return this;
       },
       /**
        * reject the promise
@@ -331,6 +332,7 @@
         this.state = false;
         this.reason = reason;
         this.execute();
+        return this;
       },
       /**
        * internal fulfilemnt function. Will pass the promise behaviour of the resolve function to the Promise returned in then()
