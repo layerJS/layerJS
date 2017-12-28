@@ -1,0 +1,4 @@
+echo "// layerJS "`node -e "var p=require('./package.json');console.log(p.version)"`
+echo "// branch: "`git rev-parse --abbrev-ref HEAD`
+echo "// commit: "`git rev-parse HEAD`
+git status -s | grep M | awk '{print "//"$0}'
