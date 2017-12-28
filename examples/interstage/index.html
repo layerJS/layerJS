@@ -19,8 +19,8 @@
     </div>
     <div v-for="c in cards" lj-type="frame" class="card" id="card{{ c.nr }}" lj-x="{{ 200 * (c.nr-1) }}" lj-y="0">
       <div class="cardcontainer">
-        <a href="#top.card{{ c.nr }}&t=.5s"><img class="cardimg" src="profile.png" /></a>
-        <a style="float:right" href="#canvas.card{{ c.nr }}$">close</a>
+        <a href="#top.card{{ c.nr }}&t=5s"><img class="cardimg" src="profile.png" /></a>
+        <a style="float:right" href="#canvas.card{{ c.nr }}$&t=5s">close</a>
         <h2>{{ c.hl }}</h2>
         <h3>Lorem ipsum</h3>
         <hr style="clear: both">

@@ -33,6 +33,7 @@ body {
   float: left;
   margin-right: 30px;
   margin-bottom: 30px;
+  transition: 5s;
 
 }
 
@@ -47,5 +48,5 @@ body {
 
 .card.lj-active .cardimg {
   width: 300px;
-  transition: .5s;
+  transition: 5s;
 }
