@@ -127,7 +127,7 @@ var TimeoutObserver = ElementObserver.extend({
       var that = this;
       this.myTimeout = setTimeout(function() {
         that.elementModified();
-      }, this.options.timeout || 5);
+      }, this.options.timeout || 25);
     }
   },
   /**
