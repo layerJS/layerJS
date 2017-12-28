@@ -27,21 +27,22 @@ var HashRouter = Kern.EventManager.extend({
       var state = layerJS.getState();
 
       for (var i = 0; i < hashPaths.length; i++) {
-        var hashPath = hashPaths[i].split('?')[0].split('&')[0].replace('(' ,'').replace(')', '');
+        var hashPath = hashPaths[i].split('?')[0].split('&')[0].replace('(', '').replace(')', '');
         var parsed = $.parseStringForTransitions(hashPaths[i]);
-        var resolvedPaths = state.resolvePath(hashPath);
+        try {
+          var resolvedPaths = state.resolvePath(hashPath);
 
-        for (var x = 0; x < resolvedPaths.length; x++) {
-          var resolvedPath = resolvedPaths[x];
-          // if a frame and layer is found, add it to the list
-          if (resolvedPath.hasOwnProperty('frameName') && resolvedPath.hasOwnProperty('layer')) {
-            // push layer path and frameName ( can't use directly the view because !right will not resolve in a view)
-            paths.push(resolvedPath.path);
-            transitions.push(Kern._extend(options.globalTransition, parsed.transition));
+          for (var x = 0; x < resolvedPaths.length; x++) {
+            var resolvedPath = resolvedPaths[x];
+            // if a frame and layer is found, add it to the list
+            if (resolvedPath.hasOwnProperty('frameName') && resolvedPath.hasOwnProperty('layer')) {
+              // push layer path and frameName ( can't use directly the view because !right will not resolve in a view)
+              paths.push(resolvedPath.path);
+              transitions.push(Kern._extend(options.globalTransition, parsed.transition));
+            }
           }
-        }
-        // if we didn't find any frame try to find a matching anchor element
-        if (resolvedPaths.length === 0 && i === 0) {
+        } catch (e) {
+          // if we didn't find any frame try to find a matching anchor element
           // an anchorId will be the first one in the list
           // check if it is an anchor element
           var anchor = document.getElementsByName(hashPath);
