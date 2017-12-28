@@ -1,7 +1,7 @@
 'use strict';
 var defaults = require('./defaults.js');
 var TMat = require('./tmat.js');
-
+var _debug = null;
 var DomHelpers = {
   /**
    * wrap all children of element into a wrapper element
@@ -296,7 +296,11 @@ var DomHelpers = {
    * @param {...} ... - arguments to console.log
    */
   debug: function() {
-    if (!window || (window.location.protocol.match(/file/i)) || (window.location.host.match(/localhost/i)) || (window.location.host.match(/127\.0\./i))) {
+    if (_debug === null) {
+      _debug = document && document.body && DomHelpers.getAttributeLJ(document.body, "debug") ? true : false;
+    }
+    //if (!window || (window.location.protocol.match(/file/i)) || (window.location.host.match(/localhost/i)) || (window.location.host.match(/127\.0\./i))) {
+    if (_debug) {
       console.log.apply(console, arguments);
     }
   },
