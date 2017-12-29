@@ -59,23 +59,25 @@ var StageView = BaseView.extend({
    */
   _parseChildren: function(options) {
     var that = this;
-    var autoLength = this.autoWidth() || this.autoHeight();
+    var autoLength = this.autoWidth() || this.autoHeight() || this.autoLength();
 
     var layerTransitioned = function(layerView) {
       return function(frameName, transition) {
         transition = transition || {};
-        var currentFrameTransformData = layerView.currentFrameTransformData;
         var style = {
           transition: transition.duration || ''
         };
         if (that.autoWidth()) {
           //that.setWidth(currentFrameTransformData.width);
-          style.width = currentFrameTransformData.width;
+          style.width = layerView.getCurrentFrameWidth();
           //style.transform = 'scaleX(' + (1 / that.width()) * currentFrameTransformData.width + ')';
         } else if (that.autoHeight()) {
           //that.setHeight(currentFrameTransformData.height);
-          style.height = currentFrameTransformData.height;
+          style.height = layerView.getCurrentFrameHeight();
           //style.transform = 'scaleY(' + (1 / that.height()) * currentFrameTransformData.height + ')';
+        } else if (that.autoLength()) {
+          style.width = layerView.getCurrentFrameWidth();
+          style.height = layerView.getCurrentFrameHeight();
         }
         that.applyStyles(style);
 

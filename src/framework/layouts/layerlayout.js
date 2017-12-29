@@ -131,6 +131,22 @@ var LayerLayout = Kern.EventManager.extend({
   transitionTo: function() {
     throw "transitionTo() not implemented";
   },
+  /**
+  * get the height of the current frame
+  *
+  * @returns {number} the height of the currentFrame
+  */
+  getCurrentFrameHeight: function() {
+    return this.layer.currentFrameTransformData.height;
+  },
+  /**
+  * get the width of the current frame
+  *
+  * @returns {number} the width of the currentFrame
+  */
+  getCurrentFrameWidth: function() {
+    return this.layer.currentFrameTransformData.width;
+  },
   // jshint ignore:start
   prepareTransition: function() {},
   // jshint ignore:end

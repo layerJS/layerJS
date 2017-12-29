@@ -14,6 +14,7 @@ var GridLayout = LayerLayout.extend({
   constructor: function(layer) {
     LayerLayout.call(this, layer);
     this._frameStyles = {};
+    this._framePositions = {};
     this.isScrollX = this.isScrollY = false;
     this.maxScrollY = this.maxScrollX = 0;
   },
@@ -23,13 +24,20 @@ var GridLayout = LayerLayout.extend({
    * @returns {number} the width
    */
   getStageWidth: function() {
+    var colWidth;
     var grid = this.layer.grid();
-    var framesLength = this.layer.getChildViews().length;
     var width = LayerLayout.prototype.getStageWidth.call(this);
-    var colWidth = width;
 
     if (grid.columns === '*' || grid.columns === undefined) {
-      colWidth = width / framesLength;
+      if (this.layer.stage.gridWidth()) {
+        colWidth = this.layer.stage.gridWidth();
+      } else if (this.layer.stage.autoLength() || this.layer.stage.autoWidth()) {
+        // find biggeste frame
+        colWidth = Math.max(this.layer.getChildViews().map(frame => frame.Width()));
+      } else {
+        colWidth = width;
+      }
+
     } else {
       colWidth = width / grid.columns;
     }
@@ -47,7 +55,15 @@ var GridLayout = LayerLayout.extend({
     var colHeight = height;
 
     if (grid.rows === '*' || grid.rows === undefined) {
-      colHeight = height;
+      if (this.layer.stage.gridHeight()) {
+        // a height is defined
+        colHeight = this.layer.stage.gridHeight();
+      } else if (this.layer.stage.autoLength() || this.layer.stage.autoHeight()) {
+        // find biggeste frame
+        colHeight = Math.max(this.layer.getChildViews().map(frame => frame.heigth()));
+      } else {
+        colHeight = height;
+      }
     } else {
       colHeight = height / grid.rows;
     }
@@ -80,154 +96,18 @@ var GridLayout = LayerLayout.extend({
       /*if (null === frame) {
         cssTransition.opacity = 0;
       }*/
-      that.setLayerTransform(targetTransform, cssTransition, frame, (!transition || true === transition.isEvent)).then(function(){
+      that.setLayerTransform(targetTransform, cssTransition, frame, (!transition || true === transition.isEvent)).then(function() {
         finished.resolve();
       });
 
     });
-/*
-      if (transition.duration === '') {
-        transitionEnd();
-      }*/
-  /*  });*/
+    /*
+          if (transition.duration === '') {
+            transitionEnd();
+          }*/
+    /*  });*/
 
     return finished;
-  },
-  _calculateFrameTransforms: function(frame, transition, keepCurrentScrolling) {
-    var frames = this.layer.getChildViews();
-    //var gridName = this.layer.gridName();
-    var framesLength = frames.length;
-    //var gridCol = 0;
-    //var gridRow = 0;
-    var colWidth = this.getStageWidth();
-    var rowHeight = this.getStageHeight();
-    var grid = this.layer.grid();
-    var maxColumns = grid.columns === "*" ? framesLength : grid.columns;
-    var maxRows = grid.rows === "*" ? Math.round(framesLength / maxColumns) : grid.rows;
-    var framesPerPage = maxColumns * maxRows;
-    var pages = framesLength / framesPerPage;
-    var page = 0;
-    //var previousPage = 0;
-    var pageHeight = maxRows * rowHeight;
-    var pageWidth = maxColumns * colWidth;
-    var childFrame;
-    var positionTransform;
-    var left = 0,
-      top = 0;
-
-
-    for (var i = 0; i < framesLength; i++) {
-      childFrame = frames[i];
-      childFrame.transformData = undefined;
-      var transformData = childFrame.getTransformData(this.layer); // this will initialize dimensions for the frame
-
-      page = Math.floor(i / framesPerPage);
-
-      var css = {};
-      var currentRow = Math.floor(i / maxColumns) - (page * maxRows);
-      var currentColumn = (i - (currentRow * maxColumns)) % maxColumns;
-
-      top = rowHeight * currentRow;
-      left = colWidth * currentColumn;
-
-      if (grid.direction === 'vertical') {
-        top += (page * pageHeight);
-      } else if (grid.direction === 'horizontal') {
-        left += page * pageWidth;
-      }
-
-      css.width = transformData.applyWidth ? colWidth + 'px' : childFrame.getOriginalWidth();
-      css.height = transformData.applyHeight ? rowHeight + 'px' : childFrame.getOriginalHeight();
-
-      if (transition && transition.duration) {
-        css.duration = transition.duration;
-      }
-
-      this._frameStyles[childFrame.id()] = {
-        css: css,
-        transform: this._calculateTransform2(childFrame, transformData, top, left),
-        row: currentRow,
-        column: currentColumn,
-        page: page
-      };
-
-      if (childFrame === frame || (undefined === frame && childFrame === this.layer.currentFrame)) {
-        var posLeft = left,
-          posTop = top;
-        if (grid.direction === 'vertical') {
-          posLeft = 0;
-          /*if (posTop - pageHeight > 0) {
-            posTop -= pageHeight;
-          }*/
-        } else {
-          posTop = 0;
-          /*if (posLeft - pageWidth > 0) {
-            posLeft -= pageWidth;
-          }*/
-        }
-
-        positionTransform = {
-          top: posTop * -1,
-          left: posLeft * -1,
-          row: currentRow,
-          column: currentColumn,
-          page: page
-        };
-      }
-    }
-
-    this.isScrollY = this.isScrollX = false;
-    this.maxScrollY = this.maxScrollX = 0;
-    if (grid.direction === 'vertical') {
-      this.isScrollY = pages > 0;
-    } else if (grid.direction === 'horizontal') {
-      this.isScrollX = pages > 0;
-    }
-
-    /*
-        console.log('maxRows:' + maxRows);
-        console.log('maxCols:' + maxColumns);
-        console.log('rowHeight:' + rowHeight);
-        console.log('colWidth:' + colWidth);
-        console.log('pageWidth:' + pageWidth);
-        console.log('pageHeight:' + pageHeight);
-        console.log('pages:' + pages);*/
-
-    var rowsDown = 0;
-    var columnsRight = 0;
-
-    if (this.isScrollY) {
-      rowsDown = Math.ceil(framesLength / maxColumns);
-      rowsDown = ((rowsDown % Math.floor(rowsDown)) * maxColumns) + Math.floor(rowsDown);
-
-      if (!this.layer.nativeScroll()) {
-        rowsDown = rowsDown > maxColumns ? rowsDown - maxRows : 0;
-      }
-    } else if (this.isScrollX) {
-      columnsRight = (framesLength / maxRows);
-      columnsRight = ((columnsRight % Math.floor(columnsRight)) * maxColumns) + Math.floor(columnsRight);
-
-      if (!this.layer.nativeScroll()) {
-        columnsRight = columnsRight > maxColumns ? columnsRight - maxColumns : 0;
-      }
-    }
-
-    this.maxScrollY = (rowsDown * rowHeight);
-    this.maxScrollX = columnsRight * colWidth;
-
-    if (positionTransform && !keepCurrentScrolling) {
-      if (this.layer.nativeScroll()) {
-        this.scrollX = positionTransform.left * -1;
-        this.scrollY = positionTransform.top * -1;
-      } else {
-        this.scrollX = positionTransform.left * -1;
-        this.scrollY = positionTransform.top * -1;
-        /*for (i = 0; i < framesLength; i++) {
-          childFrame = frames[i];
-          this._frameStyles[childFrame.id()].transform += 'translate3d(' + positionTransform.left + 'px,' + positionTransform.top + 'px,0px)';
-        }*/
-      }
-    }
   },
 
   /**
@@ -273,34 +153,44 @@ var GridLayout = LayerLayout.extend({
    * @param {string} transform - the scrolling transform
    * @param {Object} cssTransiton - css object containing the transition info (currently only single time -> transition: 2s)
    */
-  setLayerTransform: function(transform, cssTransition, frame, keepScrolling) {
+  setLayerTransform: function(transform, cssTransition, frame) {
     var frames = this.layer.getChildViews();
     var framesLength = frames.length;
     var childFrame;
     var p = new Kern.Promise();
 
-    this._calculateFrameTransforms(frame, cssTransition, keepScrolling === true || undefined === keepScrolling);
+    var framePositions = this._calculateFramePositions(frame);
 
-  /*  if (cssTransition.transition && cssTransition.duration !== '') { // FIXME is this sufficient? should we rather pipe duration here, but what about other transtion properties like easing
+    //this._calculateFrameTransforms(frame, cssTransition, keepScrolling === true || undefined === keepScrolling);
+
+    /*  if (cssTransition.transition && cssTransition.duration !== '') { // FIXME is this sufficient? should we rather pipe duration here, but what about other transtion properties like easing
       this.layer.currentFrame.outerEl.addEventListener("transitionend", function f(e) { // FIXME needs webkitTransitionEnd etc
         e.target.removeEventListener(e.type, f); // remove event listener for transitionEnd.
         p.resolve();
       });
     }
 */
+    if (cssTransition.transition) { // FIXME is this sufficient? should we rather pipe duration here, but what about other transtion properties like easing
+      this.layer.currentFrame.outerEl.addEventListener("transitionend", function f(e) { // FIXME needs webkitTransitionEnd etc
+        e.target.removeEventListener(e.type, f); // remove event listener for transitionEnd.
+        p.resolve();
+      });
+    } else {
+      p.resolve();
+    }
+
     for (var i = 0; i < framesLength; i++) {
       childFrame = frames[i];
-      var frameTransform = this._frameStyles[childFrame.id()].transform;
-      var css = Kern._extend(cssTransition, this._frameStyles[childFrame.id()].css);
+      var frameTransform = framePositions[childFrame.id()].transform;
+      var css = Kern._extend(cssTransition, framePositions[childFrame.id()].css);
 
       this._applyTransform(childFrame, frameTransform, transform, css);
     }
 
-  /*  if (!cssTransition.transition || cssTransition.duration === '') {
-      p.resolve();
-    }*/
+    /*  if (!cssTransition.transition || cssTransition.duration === '') {
+        p.resolve();
+      }*/
 
-    p.resolve();
 
     return p;
   },
@@ -313,14 +203,11 @@ var GridLayout = LayerLayout.extend({
    */
   renderFramePosition: function(frame, transform) {
     LayerLayout.prototype.renderFramePosition.call(this, frame, transform);
+    var framePositions = this._calculateFramePositions(frame);
 
-    if (undefined === this._frameStyles[frame.id()]) {
-      this._calculateFrameTransforms();
-    }
-
-    if (this._frameStyles[frame.id()] && transform) {
+    if (framePositions[frame.id()] && transform) {
       // currentFrame is initialized -> we need to render the frame at new position
-      this._applyTransform(frame, this._frameStyles[frame.id()].transform, this.layer.currentTransform, this._frameStyles[frame.id()].css);
+      this._applyTransform(frame, framePositions[frame.id()].transform, this.layer.currentTransform, framePositions[frame.id()].css);
     }
   },
   /**
@@ -339,6 +226,155 @@ var GridLayout = LayerLayout.extend({
   },
   getScrollTransformer: function() {
     return new GridScrollTransformer(this);
+  },
+  /**
+   * get the height of the current frame
+   *
+   * @returns {number} the height of the currentFrame
+   */
+  getCurrentFrameHeight: function() {
+    return this.height;
+  },
+  /**
+   * get the width of the current frame
+   *
+   * @returns {number} the width of the currentFrame
+   */
+  getCurrentFrameWidth: function() {
+    return this.width;
+  },
+  /**
+   * make sure frame is rendered (i.e. has display: block)
+   * Later: make sure frame is loaded and added to document
+   * FIXME: should that go into layout?
+   *
+   * @param {Type} Name - Description
+   * @returns {Type} Description
+   */
+  loadFrame: function(frame) {
+    var result = LayerLayout.prototype.loadFrame.call(this, frame);
+    this._calculateFramePositions();
+    return result;
+  },
+
+  _calculateFramePositions: function(frame) {
+    var grid = this.layer.grid();
+    var frames = this.layer.getChildViews();
+    var framesLength = frames.length;
+    var colWidth = this.getStageWidth();
+    var rowHeight = this.getStageHeight();
+    var maxColumns = grid.columns === "*" ? framesLength : grid.columns;
+    var maxRows = grid.rows === "*" ? Math.round(framesLength / maxColumns) : grid.rows;
+    var framesPerPage = maxColumns * maxRows;
+    var pages = framesLength / framesPerPage;
+    var page = 0;
+    //var previousPage = 0;
+    var pageHeight = maxRows * rowHeight;
+    var pageWidth = maxColumns * colWidth;
+    var childFrame;
+    var left = 0,
+      top = 0;
+
+    var framePosition = {};
+    if (this._framePositions.hasOwnProperty(grid.gridName)) {
+      framePosition = this._framePositions[grid.gridName];
+    } else {
+      this._framePositions[grid.gridName] = framePosition;
+    }
+
+    if (framePosition.framesLength === framesLength && framePosition.colWidth === colWidth && framePosition.rowHeight === rowHeight && framePosition.maxColumns === maxColumns && framePosition.maxRows === maxRows && framePosition.framesPerPage === framesPerPage && framePosition.pages === pages && framePosition.pageHeight === pageHeight && framePosition.pageWidth === pageWidth && (frame === undefined || undefined !== framePosition[frame.id()])) {
+      return framePosition;
+    }
+
+    // store for reference, can be used to determine scroll transform
+    framePosition.framesLength = framesLength;
+    framePosition.colWidth = colWidth;
+    framePosition.rowHeight = rowHeight;
+    framePosition.maxColumns = maxColumns;
+    framePosition.maxRows = maxRows;
+    framePosition.framesPerPage = framesPerPage;
+    framePosition.pages = pages;
+    framePosition.pageHeight = pageHeight;
+    framePosition.pageWidth = pageWidth;
+
+    for (var i = 0; i < framesLength; i++) {
+      childFrame = frames[i];
+      childFrame.transformData = undefined;
+      var transformData = childFrame.getTransformData(this.layer); // this will initialize dimensions for the frame
+
+      page = Math.floor(i / framesPerPage);
+
+      var css = {};
+      var currentRow = Math.floor(i / maxColumns) - (page * maxRows);
+      var currentColumn = (i - (currentRow * maxColumns)) % maxColumns;
+
+      top = rowHeight * currentRow;
+      left = colWidth * currentColumn;
+
+      if (grid.direction === 'vertical') {
+        top += (page * pageHeight);
+      } else if (grid.direction === 'horizontal') {
+        left += page * pageWidth;
+      }
+
+      css.width = transformData.applyWidth ? colWidth + 'px' : childFrame.getOriginalWidth();
+      css.height = transformData.applyHeight ? rowHeight + 'px' : childFrame.getOriginalHeight();
+
+      framePosition[childFrame.id()] = {
+        css: css,
+        transform: this._calculateTransform2(childFrame, transformData, top, left),
+        row: currentRow,
+        column: currentColumn,
+        page: page,
+        top: top,
+        left: left
+      };
+    }
+
+    framePosition.isScrollY = framePosition.isScrollX = false;
+    framePosition.maxScrollY = framePosition.maxScrollX = 0;
+    if (grid.direction === 'vertical') {
+      framePosition.isScrollY = pages > 0;
+    } else if (grid.direction === 'horizontal') {
+      framePosition.isScrollX = pages > 0;
+    }
+
+    /*
+        console.log('maxRows:' + maxRows);
+        console.log('maxCols:' + maxColumns);
+        console.log('rowHeight:' + rowHeight);
+        console.log('colWidth:' + colWidth);
+        console.log('pageWidth:' + pageWidth);
+        console.log('pageHeight:' + pageHeight);
+        console.log('pages:' + pages);*/
+
+    var rowsDown = 0;
+    var columnsRight = 0;
+
+    if (framePosition.isScrollY) {
+      rowsDown = Math.ceil(framesLength / maxColumns);
+      rowsDown = ((rowsDown % Math.floor(rowsDown)) * maxColumns) + Math.floor(rowsDown);
+
+      if (!this.layer.nativeScroll()) {
+        rowsDown = rowsDown > maxColumns ? rowsDown - maxRows : 0;
+      }
+    } else if (framePosition.isScrollX) {
+      columnsRight = (framesLength / maxRows);
+      columnsRight = ((columnsRight % Math.floor(columnsRight)) * maxColumns) + Math.floor(columnsRight);
+
+      if (!this.layer.nativeScroll()) {
+        columnsRight = columnsRight > maxColumns ? columnsRight - maxColumns : 0;
+      }
+    }
+
+    framePosition.maxScrollY = (rowsDown * rowHeight);
+    framePosition.maxScrollX = columnsRight * colWidth;
+
+    // ???
+    framePosition.height = this.maxScrollX;
+    framePosition.width = this.maxScrollY;
+
+    return framePosition;
   }
 });
 

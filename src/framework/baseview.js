@@ -24,9 +24,9 @@ var BaseView = DOMObserver.extend({
     this.parent = options.parent;
     this.innerEl = this.innerEl || options.el;
     // backlink from DOM to object
-    if (this.innerEl._ljView){
-       throw "trying to initialialize view on element that already has a view";
-     }
+    if (this.innerEl._ljView) {
+      throw "trying to initialialize view on element that already has a view";
+    }
     this.innerEl._ljView = this;
     // possible wrapper element
     this.outerEl = this.outerEl || options.el || this.innerEl;
@@ -120,7 +120,7 @@ var BaseView = DOMObserver.extend({
         // check if added nodes don't already have a view defined.
         if (options.addedNodes[x].parentElement !== this.innerEl) continue;
         if (!options.addedNodes[x]._ljView) {
-          if (!parsed) {// we only need to parse once as we start parsing at the parent
+          if (!parsed) { // we only need to parse once as we start parsing at the parent
             parseManager.parseElement(options.addedNodes[x].parentNode, {
               parent: this
             });
@@ -598,7 +598,8 @@ var BaseView = DOMObserver.extend({
     var grid = {
       columns: '*',
       rows: '*',
-      direction: 'vertical'
+      direction: 'vertical',
+      gridName: gridName
     };
 
     var attributeValue = (this.getAttributeLJ('grid-' + gridName) || '*,*').split(',');
@@ -625,6 +626,35 @@ var BaseView = DOMObserver.extend({
   gridName: function() {
     return this.cssContent();
   },
+
+  /**
+   * returns the value for lj-auto-length
+   *
+   * @returns {boolean} the value of the lj-auto-lenght attribute
+   */
+  autoLength: function() {
+    return this.getAttributeLJ('auto-length') === 'true';
+  },
+
+  /**
+   * returns the value for lj-auto-height
+   *
+   * @returns {boolean} the value of the lj-grid-height attribute
+   */
+  gridHeight: function() {
+    var gridHeight = this.getAttributeLJ('grid-height');
+    return gridHeight ? parseFloat(gridHeight) : gridHeight;
+  },
+  /**
+   * returns the value for lj-grid-width
+   *
+   * @returns {boolean} the value of the lj-grid-width attribute
+   */
+  gridWidth: function() {
+    var gridWidth = this.getAttributeLJ('grid-width');
+    return gridWidth ? parseFloat(gridWidth) : gridWidth;
+  },
+
   /**
   Save the original width of the outer element
   */

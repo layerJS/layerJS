@@ -584,6 +584,7 @@ var LayerView = BaseView.extend({
         // a compensatory transform for the target scroll position.
         var currentScroll = that.getCurrentScroll(); // get current scroll position before recalculating it for that frame
         var targetFrameTransformData = null === frame ? that.noFrameTransformdata(transition.startPosition) : frame.getTransformData(that, transition.startPosition);
+        // KENNY : Calulate scroll position from gridlayout
         var targetTransform = that._transformer.getScrollTransform(targetFrameTransformData, transition, true);
 
 
@@ -912,7 +913,23 @@ var LayerView = BaseView.extend({
    */
   autoWidth: function() {
     return this.parent.autoWidth();
-  }
+  },
+  /**
+  * get the height of the current frame
+  *
+  * @returns {number} the height of the currentFrame
+  */
+  getCurrentFrameHeight: function() {
+    return this._layout.getCurrentFrameHeight();
+  },
+  /**
+  * get the width of the current frame
+  *
+  * @returns {number} the width of the currentFrame
+  */
+  getCurrentFrameWidth: function() {
+    return this._layout.getCurrentFrameWidth();
+  },
 }, {
   defaultProperties: {
     type: 'layer'
