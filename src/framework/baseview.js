@@ -643,7 +643,7 @@ var BaseView = DOMObserver.extend({
    */
   gridHeight: function() {
     var gridHeight = this.getAttributeLJ('grid-height');
-    return gridHeight ? parseFloat(gridHeight) : gridHeight;
+    return $.parseDimension(gridHeight, this.outerEl);
   },
   /**
    * returns the value for lj-grid-width
@@ -652,7 +652,7 @@ var BaseView = DOMObserver.extend({
    */
   gridWidth: function() {
     var gridWidth = this.getAttributeLJ('grid-width');
-    return gridWidth ? parseFloat(gridWidth) : gridWidth;
+    return $.parseDimension(gridWidth, this.outerEl);
   },
 
   /**

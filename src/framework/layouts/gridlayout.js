@@ -29,11 +29,12 @@ var GridLayout = LayerLayout.extend({
     var width = LayerLayout.prototype.getStageWidth.call(this);
 
     if (grid.columns === '*' || grid.columns === undefined) {
-      if (this.layer.stage.gridWidth()) {
-        colWidth = this.layer.stage.gridWidth();
+      if (this.layer.gridWidth()) {
+        colWidth = this.layer.gridWidth();
       } else if (this.layer.stage.autoLength() || this.layer.stage.autoWidth()) {
         // find biggeste frame
-        colWidth = Math.max(this.layer.getChildViews().map(frame => frame.Width()));
+        var widths = this.layer.getChildViews().map(frame => frame.width());
+        colWidth = Math.max.apply(null, widths);
       } else {
         colWidth = width;
       }
@@ -55,12 +56,12 @@ var GridLayout = LayerLayout.extend({
     var colHeight = height;
 
     if (grid.rows === '*' || grid.rows === undefined) {
-      if (this.layer.stage.gridHeight()) {
+      if (this.layer.gridHeight()) {
         // a height is defined
-        colHeight = this.layer.stage.gridHeight();
+        colHeight = this.layer.gridHeight();
       } else if (this.layer.stage.autoLength() || this.layer.stage.autoHeight()) {
         // find biggeste frame
-        colHeight = Math.max(this.layer.getChildViews().map(frame => frame.heigth()));
+        colHeight = Math.max.apply(null, this.layer.getChildViews().map(frame => frame.height()));
       } else {
         colHeight = height;
       }
@@ -228,22 +229,6 @@ var GridLayout = LayerLayout.extend({
     return new GridScrollTransformer(this);
   },
   /**
-   * get the height of the current frame
-   *
-   * @returns {number} the height of the currentFrame
-   */
-  getCurrentFrameHeight: function() {
-    return this.height;
-  },
-  /**
-   * get the width of the current frame
-   *
-   * @returns {number} the width of the currentFrame
-   */
-  getCurrentFrameWidth: function() {
-    return this.width;
-  },
-  /**
    * make sure frame is rendered (i.e. has display: block)
    * Later: make sure frame is loaded and added to document
    * FIXME: should that go into layout?
@@ -264,7 +249,7 @@ var GridLayout = LayerLayout.extend({
     var colWidth = this.getStageWidth();
     var rowHeight = this.getStageHeight();
     var maxColumns = grid.columns === "*" ? framesLength : grid.columns;
-    var maxRows = grid.rows === "*" ? Math.round(framesLength / maxColumns) : grid.rows;
+    var maxRows = grid.rows === "*" ? Math.ceil(framesLength / maxColumns) : grid.rows;
     var framesPerPage = maxColumns * maxRows;
     var pages = framesLength / framesPerPage;
     var page = 0;
@@ -371,10 +356,26 @@ var GridLayout = LayerLayout.extend({
     framePosition.maxScrollX = columnsRight * colWidth;
 
     // ???
-    framePosition.height = this.maxScrollX;
-    framePosition.width = this.maxScrollY;
+    framePosition.height = top + rowHeight + "px";
+    framePosition.width = left + colWidth + "px";
 
     return framePosition;
+  },
+  /**
+   * get the height of the current frame
+   *
+   * @returns {number} the height of the currentFrame
+   */
+  getCurrentFrameHeight: function() {
+    return this._calculateFramePositions().height;
+  },
+  /**
+   * get the width of the current frame
+   *
+   * @returns {number} the width of the currentFrame
+   */
+  getCurrentFrameWidth: function() {
+    return this._calculateFramePositions().width;
   }
 });
 
