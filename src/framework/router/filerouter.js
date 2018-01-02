@@ -42,6 +42,7 @@ var FileRouter = StaticRouter.extend({
             var state = that._state;
             // create a hash that contains all paths for the current document
             state.exportStructure().forEach(function(path) {
+              path = path.replace(/\$$/, '');
               globalStructureHash[path] = {};
             });
 
@@ -51,6 +52,7 @@ var FileRouter = StaticRouter.extend({
 
             fileState.exportStructure().forEach(function(path) {
               // check if new path exists in current state
+              path = path.replace(/\$$/, '');
               if (!globalStructureHash[path]) {
                 // check if the parent is already added in this run
                 var found = addedHash.filter(function(addedPath) {
