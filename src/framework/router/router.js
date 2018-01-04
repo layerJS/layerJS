@@ -212,7 +212,7 @@ var Router = Kern.EventManager.extend({
     var url = $.joinUrl(options);
 
     // If the original url is different from the new url (no-url="true") we should do a push
-    if (window.history && (!payload || !payload.noHistory) && (window.location.href !== url || (payload && url !== payload.originalUrl))) {
+    if (window.history && (!payload || !payload.noHistory) && window.location.href !== url) {
       window.history.pushState({
         state: stateToSave,
         transitions: transitions,

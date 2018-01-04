@@ -270,10 +270,10 @@ describe('router', function() {
     }, 2000);
   });
 
-  it('will use the pushState after a transition that started with a click (no-url)', function(done) {
+  it('will use the replacestate after a transition that started with a click (no-url)', function(done) {
     var newUrl;
     var newState;
-    window.history.pushState = function(param1, param2, url) {
+    window.history.replaceState = function(param1, param2, url) {
       newUrl = url;
       newState = param1.state;
     };
