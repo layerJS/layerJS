@@ -129,7 +129,8 @@ var Router = Kern.EventManager.extend({
             paths: options.paths,
             transitions: [],
             noHistory: noHistory,
-            originalUrl: href
+            originalUrl: href,
+            initial: initial
           });
         } else {
           // do a transition
@@ -217,7 +218,7 @@ var Router = Kern.EventManager.extend({
         state: stateToSave,
         transitions: transitions,
       }, "", url);
-    } else if (window.history && (!payload || !payload.noHistory)) {
+    } else if (window.history && (!payload || !payload.noHistory || payload.initial)) {
       // keep in account of the payload noHistory. This is imported when the a onpopstate event is fired. This event should not add anything to the history
       window.history.replaceState({
         state: stateToSave,
