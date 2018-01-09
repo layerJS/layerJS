@@ -248,8 +248,8 @@ var GridLayout = LayerLayout.extend({
     var framesLength = frames.length;
     var colWidth = this.getStageWidth();
     var rowHeight = this.getStageHeight();
-    var maxColumns = grid.columns === "*" ? framesLength : grid.columns;
-    var maxRows = grid.rows === "*" ? Math.ceil(framesLength / maxColumns) : grid.rows;
+    var maxColumns = grid.columns === "*" ? Math.floor(LayerLayout.prototype.getStageWidth.call(this) / colWidth) : grid.columns;
+    var maxRows = grid.rows === "*" ? Math.floor(LayerLayout.prototype.getStageHeight.call(this) / rowHeight) : grid.rows;
     var framesPerPage = maxColumns * maxRows;
     var pages = framesLength / framesPerPage;
     var page = 0;
@@ -267,7 +267,7 @@ var GridLayout = LayerLayout.extend({
       this._framePositions[grid.gridName] = framePosition;
     }
 
-    if (framePosition.framesLength === framesLength && framePosition.colWidth === colWidth && framePosition.rowHeight === rowHeight && framePosition.maxColumns === maxColumns && framePosition.maxRows === maxRows && framePosition.framesPerPage === framesPerPage && framePosition.pages === pages && framePosition.pageHeight === pageHeight && framePosition.pageWidth === pageWidth && (frame === undefined || undefined !== framePosition[frame.id()])) {
+    if (framePosition.framesLength === framesLength && framePosition.colWidth === colWidth && framePosition.rowHeight === rowHeight && framePosition.maxColumns === maxColumns && framePosition.maxRows === maxRows && framePosition.framesPerPage === framesPerPage && framePosition.pages === pages && framePosition.pageHeight === pageHeight && framePosition.pageWidth === pageWidth && (frame === undefined || null === frame || undefined !== framePosition[frame.id()])) {
       return framePosition;
     }
 
@@ -341,7 +341,7 @@ var GridLayout = LayerLayout.extend({
       rowsDown = ((rowsDown % Math.floor(rowsDown)) * maxColumns) + Math.floor(rowsDown);
 
       if (!this.layer.nativeScroll()) {
-        rowsDown = rowsDown > maxColumns ? rowsDown - maxRows : 0;
+        rowsDown = rowsDown > maxRows ? rowsDown - maxRows : 0;
       }
     } else if (framePosition.isScrollX) {
       columnsRight = (framesLength / maxRows);
