@@ -9,54 +9,66 @@ body {
   background-color: #fff;
 }
 
-#overview {
-  width: 1440px;
-  height: 100vh;
-}
-
 .layer {
   content: 'l';
 }
 
-.cardcontainer
-{
+.card {
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+/*  max-width: 300px;*/
+  padding: 20px;
   text-align: center;
-  border-color: red;
-  border-style: dashed;
+  font-family: arial;
 }
 
+
+/*
 .card {
   overflow: hidden;
   width: 180px;
-  height: 180px;
-  border-radius: 50%;
+
+
   background-color: white;
   box-shadow: 1px 1px 5px 1px rgba(136, 136, 136, 0.5);
-}
+}*/
 
 .card>div{
-  width:96vw;
+  /*width:96vw;*/
   float: left; // unclear why this is needed to align div to top
 }
 
 .cardimg {
-  width: 180px;
+  width: 50%;
+  height: 50%;
   float: left;
-  margin-right: 30px;
-  margin-bottom: 30px;
-
+  margin-right: 25%;
+  margin-left: 25%;
 }
 
-.card.lj-active {
-  border-radius: 0px;
-  border: 1px solid white;
-  padding: 20px;
-}
-.card.lj-active>div{
-
+.title {
+  color: grey;
+  font-size: 18px;
 }
 
-.card.lj-active .cardimg {
-  width: 300px;
-  transition: .5s;
+button {
+  border: none;
+  outline: 0;
+  display: inline-block;
+  padding: 8px;
+  color: white;
+  background-color: #000;
+  text-align: center;
+  cursor: pointer;
+  width: 100%;
+  font-size: 18px;
+}
+
+a {
+  text-decoration: none;
+  font-size: 22px;
+  color: black;
+}
+
+button:hover, a:hover {
+  opacity: 0.7;
 }

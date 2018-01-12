@@ -1,59 +1,59 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html>
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width,initial-scale=1">
-    <meta name="description" content="interstage example">
-    <script src="../../dist/layerjs.js"></script>
-    <link href="../../dist/layerjs.css" type="text/css" rel="stylesheet" />
-    <link href="your-style.css" type="text/css" rel="stylesheet" />
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/1.0.28/vue.min.js"></script>
-    <title>title</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="interstage example">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+  <script src="../../dist/layerjs.js"></script>
+  <link href="../../dist/layerjs.css" type="text/css" rel="stylesheet" />
+  <link href="your-style.css" type="text/css" rel="stylesheet" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/1.0.28/vue.min.js"></script>
+  <title>title</title>
 </head>
-<body lj-type="stage">
-    <div lj-type="layer" class="layer" id="grid" lj-native-scroll="false" lj-layout="grid" lj-name="grid" lj-default-frame='card10' data-lj-fit-to="responsive" data-lj-grid-l="3,3,vertical">
-        <!--<div v-for="c in cards" lj-type="frame" id="card{{ c.nr }}">
-            <div class="cardcontainer">
-                <a href="#top.card{{ c.nr }}&t=.5s"><img class="cardimg" src="profile.png" /></a>
-                <h2>{{ c.hl }}</h2>
-            </div>
-        </div>-->
+
+<body lj-type="stage" data-lj-auto >
+  <div lj-type="layer" class="layer" id="grid" lj-native-scroll="false" lj-layout="grid" lj-name="grid" lj-default-frame='card0' data-lj-fit-to="responsive" data-lj-grid-l="3,3,vertical" >
+
+    <div v-for="c in cards" class="card" lj-type="frame" id="card{{ c.id }}">
+      <img src="{{ c.image  }}" alt="{{ c.name}} {{ c.lastname }}" class="cardimg">
+      <h1>{{ c.name }} {{c.lastname}}</h1>
+      <p class="title">{{ c.title }}</p>
+     <p></p>
+      <p>
+        <a href="#"><i class="fa fa-dribbble"></i></a>
+        <a href="#"><i class="fa fa-twitter"></i></a>
+        <a href="#"><i class="fa fa-linkedin"></i></a>
+        <a href="#"><i class="fa fa-facebook"></i></a>
+      </p>
+      <p>
+        <button>Contact</button>
+      </p>
     </div>
-    <script>
-        var grid = document.getElementById('grid');
+  </div>
+  <script>
+    var cards = [];
 
-        for (var i = 0; i < 20; i++) {
-            var frame = document.createElement('div');
-            frame.id = 'card' + i;
-            frame.setAttribute('lj-type', 'frame');
-            frame.setAttribute('lj-name', frame.id);
-            frame.className = 'cardcontainer';
-            frame.innerHTML = '<div>' +
-                              '<a href="#card'+ i +'&t=.5s"><img class="cardimg" src="profile.png" /></a>' +
-                              '<h2>Card '+ i +'</h2>' +
-          '</div>';
+    for (var i = 0; i < 20; i++) {
+      cards[i] = {
+        id: i,
+        name: "John",
+        lastname: "Doe " + i,
+        title: "Frond-end engineer",
+        image: "profile.png"
+      };
+    }
+    var app4 = new Vue({
+      el: 'body',
+      data: {
+        cards: cards
+      }
+    });
 
-            grid.appendChild(frame);
-        }
-
-
-        var cards = [];
-
-        for (var i = 0; i < 10; i++) {
-            cards[i] = {
-                nr: i,
-                hl: "Card " + i
-            };
-        }
-        var app4 = new Vue({
-            el: 'body',
-            data: {
-                cards: cards
-            }
-        });
-    </script>
-    <script>
-        layerJS.init(); // Initialize layerJS
-    </script>
+    // Initialize layerJS
+    layerJS.init();
+  </script>
 </body>
+
 </html>
