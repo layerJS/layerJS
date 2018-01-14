@@ -26,8 +26,11 @@ var href = window.location.href;
 var FileRouter = require("./framework/router/filerouter.js");
 var HashRouter = require("./framework/router/hashrouter.js");
 var $ = require('./framework/domhelpers.js');
+var initialized = false;
 
 layerJS.init = function() {
+  if (initialized) return;
+  initialized = true;
   layerJS.parseManager.parseDocument();
 
   var routerAttribute = $.getAttributeLJ(document.body, 'router');
@@ -45,4 +48,14 @@ layerJS.init = function() {
     // layerJS.router.cache = true;
   });
 };
+// initialze layerjs
+if (!$.getAttributeLJ(document.body, "no-init") && !initialized) {
+  if (document.readyState === "interactive") { // dom is ready -> initialize
+    layerJS.init();
+  } else {
+    document.addEventListener("DOMContentLoaded", function() {
+      layerJS.init();
+    });
+  }
+}
 console.log('*** layerJS *** checkout http://layerjs.org *** happy to help you: developers@layerjs.org ***');
