@@ -489,18 +489,15 @@ var State = Kern.EventManager.extend({
   //
   //   return result;
   // }
-}, {
-  /**
-   * Resolves the state for a specific document
-   *
-   * @param {object} doc - A document where the state needs to be retrieved, if undefined the global document will be used
-   * @returns {object} The current state object for the document
-   */
-  getState: function(doc) {
-    doc = doc || document;
-    return doc._ljState || new State(doc);
-  }
 });
-
-layerJS.getState = State.getState;
+/**
+ * Resolves the state for a specific document
+ *
+ * @param {object} doc - A document where the state needs to be retrieved, if undefined the global document will be used
+ * @returns {object} The current state object for the document
+ */
+layerJS.getState = function(doc) {
+  doc = doc || document;
+  return doc._ljState || new State(doc);
+};
 module.exports = State;

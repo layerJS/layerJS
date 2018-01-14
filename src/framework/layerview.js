@@ -450,7 +450,6 @@ var LayerView = BaseView.extend({
       case 'responsive':
       case 'contain':
       case 'cover':
-      case 'responsive':
         d.frameWidth = d.width;
         d.frameHeight = d.height;
         break;

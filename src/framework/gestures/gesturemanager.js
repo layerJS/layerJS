@@ -93,8 +93,8 @@ var GestureManager = Kern.EventManager.extend({
       this.gesture.start.y = this.gesture.position.y = this._yPosition(event);
       this.element = element;
       this._raiseGesture(event, callback); // first
-    } else {
-      this.gesture.startTime = new Date().getTime();
+//    } else {
+//      this.gesture.startTime = new Date().getTime();
     }
     this.gesture.first = false;
     this.gesture.wheelDelta = this._wheelDelta(event);
