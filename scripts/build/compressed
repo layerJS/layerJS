@@ -1,2 +1,4 @@
 npm run build:scripts
-uglifyjs src/layerjs.js -c -m -o build/layerjs.js
+npm run package
+google-closure-compiler --js=dist/layerjs.js --js_output_file=dist/layerjs.min.js || echo "warnings ... but continuing"
+cp dist/layerjs.js dist/layerjs-$npm_package_version.js

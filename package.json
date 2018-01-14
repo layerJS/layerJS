@@ -3,7 +3,7 @@
   "description": "layerJS, a lean javascript UX framework",
   "author": "LayerJs",
   "version": "0.5.0",
-  "devDependencies": {
+  "dependencies": {
     "browserify": "latest",
     "jasmine": "latest",
     "jasmine-expect": "latest",
@@ -16,48 +16,38 @@
     "jshint": "latest",
     "protractor": "latest",
     "perfcollector.js": "latest",
-    "globule" : "latest",
+    "globule": "latest",
     "xmlhttprequest": "latest",
     "nock": "latest",
-    "scripty" : "latest",
-    "uglifyjs" : "latest",
-    "istanbul" : "latest",
+    "scripty": "latest",
+    "istanbul": "latest",
     "lite-server": "latest",
-    "jasmine-reporters" : "latest",
-    "jasmine-console-reporter" : "latest"
+    "jasmine-reporters": "latest",
+    "jasmine-console-reporter": "latest",
+    "google-closure-compiler": "latest"
   },
   "scripts": {
     "clean": "rimraf build/* dist/*",
     "jshint": "jshint src",
-
     "postinstall": "webdriver-manager update --standalone && webdriver-manager update --ie",
-
     "prebuild": "npm run clean && npm run test",
     "build": "npm run build:scripts -s",
     "build:scripts": "scripty && npm run package",
-    "build:compressed": "scripty && npm run package",
+    "build:compressed": "scripty",
     "package": "scripty",
     "zip": "scripty",
     "lite": "lite-server",
-
     "buildExamples": "scripty",
-
     "pretest": "npm run jshint",
-
     "test": "node ./test/spec/support/jasmine.js",
     "debugtest": "node debug `which jasmine` JASMINE_CONFIG_PATH=./test/spec/support/jasmine.json",
-    "browsertest" : "browserify ./test/specs.js > ./test/jasmine/lib/specs.js",
-
+    "browsertest": "browserify ./test/specs.js > ./test/jasmine/lib/specs.js",
     "webdriverManagerStart": "webdriver-manager start",
     "e2eTest": "./node_modules/.bin/protractor protractorconfig.js",
     "e2e": "scripty",
-
     "buildSpecs": "scripty",
-
     "deployCDN": "scp ./dist/layerjs-$npm_package_version.js ./dist/layerjs-$npm_package_version.css www-data@layerjs.org:cdn/layerjs.org/libs/layerjs/",
-
     "deployExamples": "rsync -uaxv ./dist/examples/ www-data@layerjs.org:cdn/layerjs.org/examples/",
-
-    "coverage" : "istanbul cover --include-all-sources node_modules/jasmine/bin/jasmine.js JASMINE_CONFIG_PATH=./test/spec/support/jasmine.json"
+    "coverage": "istanbul cover --include-all-sources node_modules/jasmine/bin/jasmine.js JASMINE_CONFIG_PATH=./test/spec/support/jasmine.json"
   }
 }
