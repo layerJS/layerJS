@@ -116,7 +116,7 @@ var LayerView = BaseView.extend({
    * Specifies what will need to be observed on the DOM element. (Attributes, Children and size)
    */
   startObserving: function() {
-    BaseView.prototype.observe.call(this, this.innerEl, {
+    BaseView.prototype.observe.call(this, this.outerEl, {
       attributes: true,
       attributeFilter: ['name', 'lj-name', 'id', 'lj-layout-type', 'lj-native-scroll', 'lj-no-scrolling'],
       children: true
