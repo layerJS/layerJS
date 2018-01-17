@@ -15,91 +15,82 @@
 
 <body>
   <div style="height:24%">
-    <div>
-      native scroll :
-      <select id="nativeScroll">
-        <option value="true">true</option>
-        <option value="false">false</option>
-      </select>
-    </div>
-    <div>
-      Fit to :
-      <select id="fittingMode">
-        <option value="responsive">responsive</option>
-        <option value="width">width</option>
-        <option value="height">height</option>
-        <option value="fixed">fixed</option>
-        <option value="contain">contain</option>
-        <option value="cover">cover</option>
-        <option value="elastic-width">elastic-width</option>
-        <option value="elastic-height">elastic-height</option>
-        <option value="responsive-width">responsive-width</option>
-        <option value="responsive-height">responsive-height</option>
-      </select>
-    </div>
-    <div>
-      grid rows :
-      <select id="rows">
-        <option value="*">*</option>
-        <option value="1">1</option>
-        <option value="2">2</option>
-        <option value="3">3</option>
-        <option value="4">4</option>
-      </select>
-    </div>
-    <div>
-      grid columns :
-      <select id="columns">
-        <option value="*">*</option>
-        <option value="1">1</option>
-        <option value="2">2</option>
-        <option value="3">3</option>
-        <option value="4">4</option>
-      </select>
-    </div>
-    <div>
-      grid direction :
-      <select id="direction">
-        <option value="vertical">vertical</option>
-        <option value="horizontal">horizontal</option>
-      </select>
-    </div>
-    <div>
-      grid width :
-      <input type="text" id="width" />
-    </div>
-    <div>
-      grid height :
-      <input type="text" id="height" />
-    </div>
-    <div>
-      autoLength :
-      <input type="checkbox" id="autoLength" />
+    <div style="width:50%;float:left">
+      <div>
+        native scroll :
+        <select id="nativeScroll">
+          <option value="true">true</option>
+          <option value="false">false</option>
+        </select>
+      </div>
+      <div>
+        Fit to :
+        <select id="fittingMode">
+          <option value="responsive">responsive</option>
+          <option value="width">width</option>
+          <option value="height">height</option>
+          <option value="fixed">fixed</option>
+          <option value="contain">contain</option>
+          <option value="cover">cover</option>
+          <option value="elastic-width">elastic-width</option>
+          <option value="elastic-height">elastic-height</option>
+          <option value="responsive-width">responsive-width</option>
+          <option value="responsive-height">responsive-height</option>
+        </select>
+      </div>
+      <div>
+        grid rows :
+        <select id="rows">
+          <option value="*">*</option>
+          <option value="1">1</option>
+          <option value="2">2</option>
+          <option value="3">3</option>
+          <option value="4">4</option>
+        </select>
+      </div>
+      <div>
+        grid columns :
+        <select id="columns">
+          <option value="*">*</option>
+          <option value="1">1</option>
+          <option value="2">2</option>
+          <option value="3">3</option>
+          <option value="4">4</option>
+        </select>
+      </div>
+      <div>
+        grid direction :
+        <select id="direction">
+          <option value="vertical">vertical</option>
+          <option value="horizontal">horizontal</option>
+        </select>
+      </div>
+      <div>
+        grid width :
+        <input type="text" id="width" />
+      </div>
+      <div>
+        grid height :
+        <input type="text" id="height" />
+      </div>
+      <div>
+        autoLength :
+        <input type="checkbox" id="autoLength" />
+      </div>
+
+      <div>
+        <input type="button" id="createGrid" value="Create Grid" />
+      </div>
     </div>
 
-    <div>
-      <input type="button" id="createGrid" value="Create Grid" />
+    <div style="width:50%;height:100%;float:right;overflow:auto">
+      Go to:
+      <div v-for="c in cards">
+        <a href="#card{{c.id}}"> {{c.name}} {{c.lastname}} </a>
+      </div>
     </div>
   </div>
-  <!--  <div>
-    <div v-for="c in cards">
-      <div class="card">
-        <img src="{{ c.image  }}" alt="{{ c.name}} {{ c.lastname }}" class="cardimg">
-        <h1>{{ c.name }} {{c.lastname}}</h1>
-        <div class="title">{{ c.title }}</div>
-        <div>
-          <a href="#"><i class="fa fa-dribbble"></i></a>
-          <a href="#"><i class="fa fa-twitter"></i></a>
-          <a href="#"><i class="fa fa-linkedin"></i></a>
-          <a href="#"><i class="fa fa-facebook"></i></a>
-        </div>
-        <p>
-          <button>Contact</button>
-        </p>
-      </div>
-   </div>
- </div>
-  </div>-->
+
   <div lj-type="stage" style="height:75%;overflow:hidden" id="stage">
     <div lj-type="layer" class="layer" id="grid" lj-native-scroll="false" lj-layout="grid" lj-name="grid" lj-default-frame='card0' lj-fit-to="responsive" lj-grid-l="3,3,vertical">
 
@@ -111,7 +102,7 @@
             </a>
           </div>
           <div class="container">
-            <b>Jane Doe</b>
+            <b>{{c.name}} {{c.lastName }} {{ c.id }}</b>
             <p>Interior Designer</p>
             <div>
               <a href="#"><i class="fa fa-dribbble"></i></a>

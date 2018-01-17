@@ -248,6 +248,8 @@ var GridLayout = LayerLayout.extend({
     var framesLength = frames.length;
     var colWidth = this.getStageWidth();
     var rowHeight = this.getStageHeight();
+    var stageHeight = LayerLayout.prototype.getStageHeight.call(this);
+    var stageWidth = LayerLayout.prototype.getStageWidth.call(this);
     var maxColumns = grid.columns === "*" ? Math.floor(LayerLayout.prototype.getStageWidth.call(this) / colWidth) : grid.columns;
     var maxRows = grid.rows === "*" ? Math.floor(LayerLayout.prototype.getStageHeight.call(this) / rowHeight) : grid.rows;
     var framesPerPage = maxColumns * maxRows;
@@ -267,10 +269,9 @@ var GridLayout = LayerLayout.extend({
       this._framePositions[grid.gridName] = framePosition;
     }
 
-    if (framePosition.framesLength === framesLength && framePosition.colWidth === colWidth && framePosition.rowHeight === rowHeight && framePosition.maxColumns === maxColumns && framePosition.maxRows === maxRows && framePosition.framesPerPage === framesPerPage && framePosition.pages === pages && framePosition.pageHeight === pageHeight && framePosition.pageWidth === pageWidth && (frame === undefined || null === frame || undefined !== framePosition[frame.id()])) {
+    if (framePosition.stageHeight === stageHeight && framePosition.stageWidth === stageWidth && framePosition.framesLength === framesLength && framePosition.colWidth === colWidth && framePosition.rowHeight === rowHeight && framePosition.maxColumns === maxColumns && framePosition.maxRows === maxRows && framePosition.framesPerPage === framesPerPage && framePosition.pages === pages && framePosition.pageHeight === pageHeight && framePosition.pageWidth === pageWidth && (frame === undefined || null === frame || undefined !== framePosition[frame.id()])) {
       return framePosition;
     }
-
     // store for reference, can be used to determine scroll transform
     framePosition.framesLength = framesLength;
     framePosition.colWidth = colWidth;
@@ -281,6 +282,8 @@ var GridLayout = LayerLayout.extend({
     framePosition.pages = pages;
     framePosition.pageHeight = pageHeight;
     framePosition.pageWidth = pageWidth;
+    framePosition.stageWidth = stageWidth;
+    framePosition.stageHeight = stageHeight;
 
     for (var i = 0; i < framesLength; i++) {
       childFrame = frames[i];
@@ -352,10 +355,11 @@ var GridLayout = LayerLayout.extend({
       }
     }
 
+
     framePosition.maxScrollY = (rowsDown * rowHeight);
     framePosition.maxScrollX = columnsRight * colWidth;
 
-    // ???
+
     framePosition.height = top + rowHeight + "px";
     framePosition.width = left + colWidth + "px";
 

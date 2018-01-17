@@ -140,8 +140,8 @@ var GridScrollTransformer = ScrollTransformer.extend({
       scrollY = transition.scrollY || this.scrollY();
     }
 
+    var framePositions = this._layout._calculateFramePositions(tfd.frame);
     if (!transition.isEvent && transition.noActivation !== true && tfd.frame) {
-      var framePositions = this._layout._calculateFramePositions(tfd.frame);
       var framePosition = framePositions[tfd.frame.id()];
       scrollX = framePosition.left;
       scrollY = framePosition.top;
@@ -161,12 +161,15 @@ var GridScrollTransformer = ScrollTransformer.extend({
     // update frameTransformData
     this.scrollX(scrollX !== undefined ? scrollX : tfd.scrollX);
     this.scrollY(scrollY !== undefined ? scrollY : tfd.scrollY);
+
+    var add = this.layer.nativeScroll() ? 1 : 0;
+
     // limit scrolling to [0,maxScroll]
-    if (this.scrollX() > this.maxScrollX()) {
-      this.scrollX(this.maxScrollX());
+    if (this.scrollX() > this.maxScrollX() - framePositions.pageWidth * add) {
+      this.scrollX(this.maxScrollX()- framePositions.pageWidth * add);
     }
-    if (this.scrollY() > this.maxScrollY()) {
-      this.scrollY(this.maxScrollY());
+    if (this.scrollY() > this.maxScrollY() - framePositions.pageHeight * add) {
+      this.scrollY(this.maxScrollY() - framePositions.pageHeight *add);
     }
     if (this.scrollX() < 0) {
       this.scrollX(0);
