@@ -8,31 +8,173 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
   <script src="../../dist/layerjs.js"></script>
   <link href="../../dist/layerjs.css" type="text/css" rel="stylesheet" />
-  <link href="your-style.css" type="text/css" rel="stylesheet" />
+  <link href="your-style0.css" type="text/css" rel="stylesheet" />
   <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/1.0.28/vue.min.js"></script>
   <title>title</title>
 </head>
 
-<body lj-type="stage" data-lj-auto >
-  <div lj-type="layer" class="layer" id="grid" lj-native-scroll="false" lj-layout="grid" lj-name="grid" lj-default-frame='card0' data-lj-fit-to="responsive" data-lj-grid-l="3,3,vertical" >
+<body>
+  <div style="height:24%">
+    <div>
+      native scroll :
+      <select id="nativeScroll">
+        <option value="true">true</option>
+        <option value="false">false</option>
+      </select>
+    </div>
+    <div>
+      Fit to :
+      <select id="fittingMode">
+        <option value="responsive">responsive</option>
+        <option value="width">width</option>
+        <option value="height">height</option>
+        <option value="fixed">fixed</option>
+        <option value="contain">contain</option>
+        <option value="cover">cover</option>
+        <option value="elastic-width">elastic-width</option>
+        <option value="elastic-height">elastic-height</option>
+        <option value="responsive-width">responsive-width</option>
+        <option value="responsive-height">responsive-height</option>
+      </select>
+    </div>
+    <div>
+      grid rows :
+      <select id="rows">
+        <option value="*">*</option>
+        <option value="1">1</option>
+        <option value="2">2</option>
+        <option value="3">3</option>
+        <option value="4">4</option>
+      </select>
+    </div>
+    <div>
+      grid columns :
+      <select id="columns">
+        <option value="*">*</option>
+        <option value="1">1</option>
+        <option value="2">2</option>
+        <option value="3">3</option>
+        <option value="4">4</option>
+      </select>
+    </div>
+    <div>
+      grid direction :
+      <select id="direction">
+        <option value="vertical">vertical</option>
+        <option value="horizontal">horizontal</option>
+      </select>
+    </div>
+    <div>
+      grid width :
+      <input type="text" id="width" />
+    </div>
+    <div>
+      grid height :
+      <input type="text" id="height" />
+    </div>
+    <div>
+      autoLength :
+      <input type="checkbox" id="autoLength" />
+    </div>
 
-    <div v-for="c in cards" class="card" lj-type="frame" id="card{{ c.id }}">
-      <img src="{{ c.image  }}" alt="{{ c.name}} {{ c.lastname }}" class="cardimg">
-      <h1>{{ c.name }} {{c.lastname}}</h1>
-      <p class="title">{{ c.title }}</p>
-     <p></p>
-      <p>
-        <a href="#"><i class="fa fa-dribbble"></i></a>
-        <a href="#"><i class="fa fa-twitter"></i></a>
-        <a href="#"><i class="fa fa-linkedin"></i></a>
-        <a href="#"><i class="fa fa-facebook"></i></a>
-      </p>
-      <p>
-        <button>Contact</button>
-      </p>
+    <div>
+      <input type="button" id="createGrid" value="Create Grid" />
+    </div>
+  </div>
+  <!--  <div>
+    <div v-for="c in cards">
+      <div class="card">
+        <img src="{{ c.image  }}" alt="{{ c.name}} {{ c.lastname }}" class="cardimg">
+        <h1>{{ c.name }} {{c.lastname}}</h1>
+        <div class="title">{{ c.title }}</div>
+        <div>
+          <a href="#"><i class="fa fa-dribbble"></i></a>
+          <a href="#"><i class="fa fa-twitter"></i></a>
+          <a href="#"><i class="fa fa-linkedin"></i></a>
+          <a href="#"><i class="fa fa-facebook"></i></a>
+        </div>
+        <p>
+          <button>Contact</button>
+        </p>
+      </div>
+   </div>
+ </div>
+  </div>-->
+  <div lj-type="stage" style="height:75%;overflow:hidden" id="stage">
+    <div lj-type="layer" class="layer" id="grid" lj-native-scroll="false" lj-layout="grid" lj-name="grid" lj-default-frame='card0' lj-fit-to="responsive" lj-grid-l="3,3,vertical">
+
+      <div v-for="c in cards" lj-type="frame" id="card{{ c.id }}">
+        <div class="card">
+          <div class="imgContainer">
+            <img src="img_avatar2.png" alt="Avatar">
+          </div>
+          <div class="container">
+            <b>Jane Doe</b>
+            <p>Interior Designer</p>
+            <div>
+              <a href="#"><i class="fa fa-dribbble"></i></a>
+              <a href="#"><i class="fa fa-twitter"></i></a>
+              <a href="#"><i class="fa fa-linkedin"></i></a>
+              <a href="#"><i class="fa fa-facebook"></i></a>
+            </div>
+          </div>
+        </div>
+        <!--  <div class="card">
+          <img src="{{ c.image  }}" alt="{{ c.name}} {{ c.lastname }}" class="cardimg">
+          <h1>{{ c.name }} {{c.lastname}}</h1>
+          <div class="title">{{ c.title }}</div>
+          <div>
+            <a href="#"><i class="fa fa-dribbble"></i></a>
+            <a href="#"><i class="fa fa-twitter"></i></a>
+            <a href="#"><i class="fa fa-linkedin"></i></a>
+            <a href="#"><i class="fa fa-facebook"></i></a>
+          </div>
+          <p>
+            <button>Contact</button>
+          </p>
+        </div>-->
+      </div>
     </div>
   </div>
   <script>
+    function initGrid() {
+      var nativeScroll = document.getElementById('nativeScroll').value;
+      var fittingMode = document.getElementById('fittingMode').value;
+      var rows = document.getElementById('rows').value;
+      var columns = document.getElementById('columns').value;
+      var direction = document.getElementById('direction').value;
+      var width = document.getElementById('width').value;
+      var height = document.getElementById('height').value;
+      var autoLength = document.getElementById('autoLength').checked;
+
+      var stage = document.getElementById('stage');
+      var grid = document.getElementById('grid');
+      grid.setAttribute('lj-grid-l', columns + ',' + rows + ',' + direction);
+      grid.setAttribute('lj-native-scroll', nativeScroll);
+      grid.setAttribute('lj-fit-to', fittingMode);
+
+      if (width && width !== '') {
+        grid.setAttribute('lj-grid-width', width);
+      } else {
+        grid.removeAttribute('lj-grid-width');
+      }
+
+      if (height && height !== '') {
+        grid.setAttribute('lj-grid-height', height);
+      } else {
+        grid.removeAttribute('lj-grid-height');
+      }
+
+      if (autoLength) {
+        stage.setAttribute('lj-auto-length', grid._ljView.name());
+      } else {
+        stage.removeAttribute('lj-auto-length');
+      }
+
+
+      grid._ljView.showFrame(grid._ljView.currentFrame ? grid._ljView.currentFrame.id() : undefined);
+    }
+
     var cards = [];
 
     for (var i = 0; i < 20; i++) {
@@ -51,8 +193,12 @@
       }
     });
 
+    document.getElementById("createGrid").onclick = initGrid;
+
     // Initialize layerJS
     layerJS.init();
+
+    initGrid();
   </script>
 </body>
 
