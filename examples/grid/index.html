@@ -14,7 +14,7 @@
 </head>
 
 <body>
-  <div style="height:24%">
+  <div style="height:30%;overflow:hidden">
     <div style="width:50%;float:left">
       <div>
         native scroll :
@@ -91,7 +91,7 @@
     </div>
   </div>
 
-  <div lj-type="stage" style="height:75%;overflow:hidden" id="stage">
+  <div lj-type="stage" style="height:70%;overflow:hidden" id="stage">
     <div lj-type="layer" class="layer" id="grid" lj-native-scroll="false" lj-layout="grid" lj-name="grid" lj-default-frame='card0' lj-fit-to="responsive" lj-grid-l="3,3,vertical">
 
       <div v-for="c in cards" lj-type="frame" id="card{{ c.id }}">
