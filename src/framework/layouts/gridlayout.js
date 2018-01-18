@@ -269,7 +269,7 @@ var GridLayout = LayerLayout.extend({
       this._framePositions[grid.gridName] = framePosition;
     }
 
-    if (framePosition.stageHeight === stageHeight && framePosition.stageWidth === stageWidth && framePosition.framesLength === framesLength && framePosition.colWidth === colWidth && framePosition.rowHeight === rowHeight && framePosition.maxColumns === maxColumns && framePosition.maxRows === maxRows && framePosition.framesPerPage === framesPerPage && framePosition.pages === pages && framePosition.pageHeight === pageHeight && framePosition.pageWidth === pageWidth && (frame === undefined || null === frame || undefined !== framePosition[frame.id()])) {
+    if (framePosition.direction === grid.direction && framePosition.stageHeight === stageHeight && framePosition.stageWidth === stageWidth && framePosition.framesLength === framesLength && framePosition.colWidth === colWidth && framePosition.rowHeight === rowHeight && framePosition.maxColumns === maxColumns && framePosition.maxRows === maxRows && framePosition.framesPerPage === framesPerPage && framePosition.pages === pages && framePosition.pageHeight === pageHeight && framePosition.pageWidth === pageWidth && (frame === undefined || null === frame || undefined !== framePosition[frame.id()])) {
       return framePosition;
     }
     // store for reference, can be used to determine scroll transform
