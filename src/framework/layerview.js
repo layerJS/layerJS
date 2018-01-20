@@ -246,6 +246,7 @@ var LayerView = BaseView.extend({
   switchScrolling: function(nativeScrolling) {
     this.unobserve();
     var hasScroller = this.outerEl.children.length === 1 && $.getAttributeLJ(this.outerEl.children[0], 'helper') === 'scroller';
+    $.removeClass(this.outerEl, 'nativescroll');
 
     if (nativeScrolling) {
       this.innerEl = hasScroller ? this.outerEl.children[0] : $.wrapChildren(this.outerEl);
@@ -367,7 +368,9 @@ var LayerView = BaseView.extend({
       gesture.preventDefault = false;
       return;
     } else if (layerTransform) {
-      this.setLayerTransform(this.currentTransform = layerTransform);
+      this.setLayerTransform(this.currentTransform = layerTransform, {
+        transition: '1s'
+      });
       // console.log("gestureListener: transformscrolling, prevented default");
       gesture.preventDefault = true;
     } else {
@@ -539,7 +542,7 @@ var LayerView = BaseView.extend({
         applyTargetPrePosition: !transition.noActivation && (transition.applyTargetPrePosition || (frame && frame.parent && frame.parent === that)) || false, // we need to set this here for interstage transitions; loadframe doesn't know about the transition record.
         applyCurrentPostPosition: ((transition.applyCurrentPostPosition !== true && (that.currentFrame && that.currentFrame.parent && that.currentFrame.parent === that)) && !transition.noActivation) || false,
         applyCurrentPrePosition: ((transition.applyCurrentPrePosition !== true && (that.currentFrame && that.currentFrame.parent && that.currentFrame.parent === that)) && !transition.noActivation) || false
-        // FIXME: add more default values like timing
+          // FIXME: add more default values like timing
       }, transition || {});
 
       // check for reverse transition; remove "r:"/"reverse:" indicator and set transition.reverse instead
@@ -915,18 +918,18 @@ var LayerView = BaseView.extend({
     return this.parent.autoWidth();
   },
   /**
-  * get the height of the current frame
-  *
-  * @returns {number} the height of the currentFrame
-  */
+   * get the height of the current frame
+   *
+   * @returns {number} the height of the currentFrame
+   */
   getCurrentFrameHeight: function() {
     return this._layout.getCurrentFrameHeight();
   },
   /**
-  * get the width of the current frame
-  *
-  * @returns {number} the width of the currentFrame
-  */
+   * get the width of the current frame
+   *
+   * @returns {number} the width of the currentFrame
+   */
   getCurrentFrameWidth: function() {
     return this._layout.getCurrentFrameWidth();
   },
