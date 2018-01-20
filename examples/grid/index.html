@@ -39,31 +39,12 @@
         </select>
       </div>
       <div>
-        grid rows :
-        <select id="rows">
-          <option value="*">*</option>
-          <option value="1">1</option>
-          <option value="2">2</option>
-          <option value="3">3</option>
-          <option value="4">4</option>
-        </select>
+        grid-l (min-width:751px) (columns,rows, vertical/horizontal):
+        <input type="text" id="lGrid" value="*,*,horizontal"/>
       </div>
       <div>
-        grid columns :
-        <select id="columns">
-          <option value="*">*</option>
-          <option value="1">1</option>
-          <option value="2">2</option>
-          <option value="3">3</option>
-          <option value="4">4</option>
-        </select>
-      </div>
-      <div>
-        grid direction :
-        <select id="direction">
-          <option value="vertical">vertical</option>
-          <option value="horizontal">horizontal</option>
-        </select>
+        grid-s (max-width:750px) (columns,rows, vertical/horizontal):
+        <input type="text" id="sGrid" value="*,*,horizontal"/>
       </div>
       <div>
         grid width :
@@ -102,7 +83,7 @@
             </a>
           </div>
           <div class="container">
-            <b>{{c.name}} {{c.lastName }} {{ c.id }}</b>
+            <b>{{c.name}} {{c.lastname }} {{ c.id }}</b>
             <p>Interior Designer</p>
             <div>
               <a href="#"><i class="fa fa-dribbble"></i></a>
@@ -133,16 +114,18 @@
     function initGrid() {
       var nativeScroll = document.getElementById('nativeScroll').value;
       var fittingMode = document.getElementById('fittingMode').value;
-      var rows = document.getElementById('rows').value;
-      var columns = document.getElementById('columns').value;
-      var direction = document.getElementById('direction').value;
       var width = document.getElementById('width').value;
       var height = document.getElementById('height').value;
       var autoLength = document.getElementById('autoLength').checked;
 
+      var lGrid = document.getElementById('lGrid').value;
+      var sGrid = document.getElementById('sGrid').value;
+
+
       var stage = document.getElementById('stage');
       var grid = document.getElementById('grid');
-      grid.setAttribute('lj-grid-l', columns + ',' + rows + ',' + direction);
+      grid.setAttribute('lj-grid-l', lGrid);
+      grid.setAttribute('lj-grid-s', sGrid);
       grid.setAttribute('lj-native-scroll', nativeScroll);
       grid.setAttribute('lj-fit-to', fittingMode);
 
@@ -174,7 +157,7 @@
       cards[i] = {
         id: i,
         name: "John",
-        lastname: "Doe " + i,
+        lastname: "Doe",
         title: "Frond-end engineer",
         image: "profile.png"
       };
