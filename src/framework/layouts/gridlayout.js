@@ -120,7 +120,7 @@ var GridLayout = LayerLayout.extend({
     var rotation = frame.rotation() || 0;
 
 
-    var transform = "translate3d(" + (parseInt(transformData.shiftX, 10) + left).toString() + "px," + parseInt(transformData.shiftY, 10) + top + "px,0px) scale(" + transformData.scale / (frame.scaleX() || 1) + "," + transformData.scale / (frame.scaleY() || 1) + ") rotate(" + (rotation || 0) + "deg)";
+    var transform = "translate3d(" + (parseInt(transformData.shiftX, 10) + left).toString() + "px," + parseInt(transformData.shiftY, 10) + top + "px,0px) scale(" + (transformData.scaleX || transformData.scale) / (frame.scaleX() || 1) + "," + (transformData.scaleY || transformData.scale) / (frame.scaleY() || 1) + ") rotate(" + (rotation || 0) + "deg)";
     return transform;
   },
   /**
