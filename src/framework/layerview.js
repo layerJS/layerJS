@@ -7,7 +7,6 @@ var ScrollTransformer = require('./scrolltransformer.js');
 var gestureManager = require('./gestures/gesturemanager.js');
 var defaults = require('./defaults.js');
 var BaseView = require('./baseview.js');
-var State = require('./state.js');
 /**
  * A View which can have child views
  * @param {LayerData} dataModel
@@ -558,9 +557,7 @@ var LayerView = BaseView.extend({
         if (num > 0 && (transition.applyTargetPrePosition !== false || transition.interStage)) that.trigger('transitionPrepared'); // notify listeners about prepared state. (unless all have skipped, e.g. delayed transitions)
       });
       transition.semaphore.listen().then(function() {
-        if (!transition.wasInTransition) {
-          that.updateClasses(); // update classes;
-        }
+        that.updateClasses(); // update classes;
         that.transitionQueue.continue(); // allow processing of next transition from queue
       });
 
@@ -626,8 +623,8 @@ var LayerView = BaseView.extend({
             that.inTransition(false);
             if (!transition.noActivation) {
               that.setLayerTransform(that.currentTransform);
-              that.updateClasses();
             }
+            that.updateClasses();
             if (frame) frame.inTransition = false;
             $.postAnimationFrame(function() {
               that.trigger('transitionFinished', framename);
