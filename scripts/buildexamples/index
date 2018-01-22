@@ -6,7 +6,7 @@ path=`dirname $i`;
 path=`echo $path | sed 's/\.\///'`;
 echo $path;
 cat $i.sve |
-sed 's/[\.\/]*dist\/layerjs.js/https:\/\/cdn.layerjs.org\/libs\/layerjs\/layerjs-'$npm_package_version.js'/g' |
+sed 's/[\.\/]*dist\/layerjs.js/https:\/\/cdn.layerjs.org\/libs\/layerjs\/layerjs-'$npm_package_version.min.js'/g' |
 sed 's/[\.\/]*dist\/layerjs.css/https:\/\/cdn.layerjs.org\/libs\/layerjs\/layerjs-'$npm_package_version.css'/g' |
 sed -E $'/http/! s%(src|href)(=[\\\"\\\'])([a-zA-Z0-9_])%''\1\2https://cdn.layerjs.org/examples/'$path'/\3%g' > $i;
 rm $i.sve;
