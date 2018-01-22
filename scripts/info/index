@@ -1,4 +1,9 @@
 echo "// layerJS "`node -e "var p=require('./package.json');console.log(p.version)"`
+echo "// https://github.com/layerJS/layerJS"
+echo "// contact us at developers@layerjs.org"
+echo "// (c) 2017 - 2018"
+echo "// this is open-source software. some restrictions apply."
+echo "// see https://github.com/layerJS/layerJS/blob/master/LICENSE"
 echo "// branch: "`git rev-parse --abbrev-ref HEAD`
 echo "// commit: "`git rev-parse HEAD`
 git status -s | grep M | awk '{print "//"$0}'
