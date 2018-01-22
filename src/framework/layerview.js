@@ -717,7 +717,7 @@ var LayerView = BaseView.extend({
       frameView = this.getChildViewByName(frameName);
 
       if (undefined === frameView && undefined !== frameName) {
-        var paths = State.getState().resolvePath(frameName);
+        var paths = layerJS.getState().resolvePath(frameName);
 
         if (paths.length > 1) throw 'only 1 path should be expected';
         if (paths.length > 0) {
