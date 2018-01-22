@@ -368,9 +368,7 @@ var LayerView = BaseView.extend({
       gesture.preventDefault = false;
       return;
     } else if (layerTransform) {
-      this.setLayerTransform(this.currentTransform = layerTransform, {
-        transition: '1s'
-      });
+      this.setLayerTransform(this.currentTransform = layerTransform);
       // console.log("gestureListener: transformscrolling, prevented default");
       gesture.preventDefault = true;
     } else {
