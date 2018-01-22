@@ -1,4 +1,6 @@
 npm run build:scripts
 npm run package
 google-closure-compiler --js=dist/layerjs.js --js_output_file=dist/layerjs.min.js || echo "warnings ... but continuing"
-cp dist/layerjs.js dist/layerjs-$npm_package_version.js
+concat -o dist/layerjs.min.js.tmp build/info dist/layerjs.min.js
+mv dist/layerjs.min.js.tmp dist/layerjs.min.js
+cp dist/layerjs.min.js dist/layerjs-$npm_package_version.min.js
