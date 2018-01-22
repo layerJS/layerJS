@@ -246,16 +246,17 @@ var LayerView = BaseView.extend({
   switchScrolling: function(nativeScrolling) {
     this.unobserve();
     var hasScroller = this.outerEl.children.length === 1 && $.getAttributeLJ(this.outerEl.children[0], 'helper') === 'scroller';
-    $.removeClass(this.outerEl, 'nativescroll');
 
     if (nativeScrolling) {
-      this.innerEl = hasScroller ? this.outerEl.children[0] : $.wrapChildren(this.outerEl);
-      $.setAttributeLJ(this.innerEl, 'helper', 'scroller');
-      if (!this.innerEl._ljView) {
-        this.innerEl._ljView = this.outerEl._ljView;
-        this.innerEl._state = this.outerEl._state;
+      if (!hasScroller) {
+        this.innerEl = hasScroller ? this.outerEl.children[0] : $.wrapChildren(this.outerEl);
+        $.setAttributeLJ(this.innerEl, 'helper', 'scroller');
+        if (!this.innerEl._ljView) {
+          this.innerEl._ljView = this.outerEl._ljView;
+          this.innerEl._state = this.outerEl._state;
+        }
+        $.addClass(this.outerEl, 'nativescroll');
       }
-      $.addClass(this.outerEl, 'nativescroll');
     } else {
       if (hasScroller) {
         $.unwrapChildren(this.outerEl);

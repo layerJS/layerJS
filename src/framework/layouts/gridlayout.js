@@ -261,6 +261,7 @@ var GridLayout = LayerLayout.extend({
     var childFrame;
     var left = 0,
       top = 0;
+    var nativeScroll = this.layer.nativeScroll();
 
     var framePosition = {};
     if (this._framePositions.hasOwnProperty(grid.gridName)) {
@@ -269,7 +270,7 @@ var GridLayout = LayerLayout.extend({
       this._framePositions[grid.gridName] = framePosition;
     }
 
-    if (framePosition.direction === grid.direction && framePosition.stageHeight === stageHeight && framePosition.stageWidth === stageWidth && framePosition.framesLength === framesLength && framePosition.colWidth === colWidth && framePosition.rowHeight === rowHeight && framePosition.maxColumns === maxColumns && framePosition.maxRows === maxRows && framePosition.framesPerPage === framesPerPage && framePosition.pages === pages && framePosition.pageHeight === pageHeight && framePosition.pageWidth === pageWidth && (frame === undefined || null === frame || undefined !== framePosition[frame.id()])) {
+    if (framePosition.nativeScroll === nativeScroll && framePosition.direction === grid.direction && framePosition.stageHeight === stageHeight && framePosition.stageWidth === stageWidth && framePosition.framesLength === framesLength && framePosition.colWidth === colWidth && framePosition.rowHeight === rowHeight && framePosition.maxColumns === maxColumns && framePosition.maxRows === maxRows && framePosition.framesPerPage === framesPerPage && framePosition.pages === pages && framePosition.pageHeight === pageHeight && framePosition.pageWidth === pageWidth && (frame === undefined || null === frame || undefined !== framePosition[frame.id()])) {
       return framePosition;
     }
     // store for reference, can be used to determine scroll transform
@@ -284,6 +285,7 @@ var GridLayout = LayerLayout.extend({
     framePosition.pageWidth = pageWidth;
     framePosition.stageWidth = stageWidth;
     framePosition.stageHeight = stageHeight;
+    framePosition.nativeScroll = nativeScroll;
 
     for (var i = 0; i < framesLength; i++) {
       childFrame = frames[i];
