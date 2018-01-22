@@ -49,13 +49,16 @@ layerJS.init = function() {
   });
 };
 // initialze layerjs
-if (!$.getAttributeLJ(document.body, "no-init") && !initialized) {
-  if (document.readyState === "interactive") { // dom is ready -> initialize
+if (document.readyState === "interactive") { // dom is ready -> initialize
+  if (!$.getAttributeLJ(document.body, "no-init") && !initialized) {
     layerJS.init();
-  } else {
-    document.addEventListener("DOMContentLoaded", function() {
-      layerJS.init();
-    });
   }
+} else {
+  document.addEventListener("DOMContentLoaded", function() {
+    if (!$.getAttributeLJ(document.body, "no-init") && !initialized) {
+      layerJS.init();
+    }
+  });
 }
+
 console.log('*** layerJS *** checkout http://layerjs.org *** happy to help you: developers@layerjs.org ***');
