@@ -158,9 +158,13 @@ var FrameView = BaseView.extend({
         if (d.scaleX > d.scaleY) {
           d.scale = d.scaleX;
           d.isScrollY = true;
+      /*    d.frameHeight = stageHeight;
+          d.applyHeight = true;*/
         } else {
           d.scale = d.scaleY;
           d.isScrollX = true;
+        /*  d.frameWidth = stageWidth;
+          d.applyWidth = true;*/
         }
         break;
       case 'elastic-width':
