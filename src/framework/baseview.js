@@ -630,16 +630,16 @@ var BaseView = DOMObserver.extend({
   /**
    * returns the value for lj-auto-length
    *
-   * @returns {boolean} the value of the lj-auto-lenght attribute
+   * @returns {string} the value of the lj-auto-lenght attribute
    */
   autoLength: function() {
-    return this.getAttributeLJ('auto-length') === 'true';
+    return this.getAttributeLJ('auto-length');
   },
 
   /**
    * returns the value for lj-auto-height
    *
-   * @returns {boolean} the value of the lj-grid-height attribute
+   * @returns {number} the value of the lj-grid-height attribute
    */
   gridHeight: function() {
     var gridHeight = this.getAttributeLJ('grid-height');
@@ -648,7 +648,7 @@ var BaseView = DOMObserver.extend({
   /**
    * returns the value for lj-grid-width
    *
-   * @returns {boolean} the value of the lj-grid-width attribute
+   * @returns {number} the value of the lj-grid-width attribute
    */
   gridWidth: function() {
     var gridWidth = this.getAttributeLJ('grid-width');

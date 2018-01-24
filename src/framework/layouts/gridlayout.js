@@ -26,7 +26,7 @@ var GridLayout = LayerLayout.extend({
   getStageWidth: function() {
     var colWidth;
     var grid = this.layer.grid();
-    var width = LayerLayout.prototype.getStageWidth.call(this);
+    var width = this.layer.width(); //LayerLayout.prototype.getStageWidth.call(this);
 
     if (grid.columns === '*' || grid.columns === undefined) {
       if (this.layer.gridWidth()) {
@@ -52,7 +52,7 @@ var GridLayout = LayerLayout.extend({
    */
   getStageHeight: function() {
     var grid = this.layer.grid();
-    var height = LayerLayout.prototype.getStageHeight.call(this);
+    var height = this.layer.height();//LayerLayout.prototype.getStageHeight.call(this);
     var colHeight = height;
 
     if (grid.rows === '*' || grid.rows === undefined) {
@@ -243,6 +243,7 @@ var GridLayout = LayerLayout.extend({
   },
 
   _calculateFramePositions: function(frame) {
+    //var autoLength = this.layer.autoLength() || this.layer.autoWidth() || this.layer.autoHeight();
     var grid = this.layer.grid();
     var frames = this.layer.getChildViews();
     var framesLength = frames.length;
@@ -277,6 +278,7 @@ var GridLayout = LayerLayout.extend({
     framePosition.framesLength = framesLength;
     framePosition.colWidth = colWidth;
     framePosition.rowHeight = rowHeight;
+
     framePosition.maxColumns = maxColumns;
     framePosition.maxRows = maxRows;
     framePosition.framesPerPage = framesPerPage;
@@ -286,6 +288,7 @@ var GridLayout = LayerLayout.extend({
     framePosition.stageWidth = stageWidth;
     framePosition.stageHeight = stageHeight;
     framePosition.nativeScroll = nativeScroll;
+    framePosition.direction = grid.direction;
 
     for (var i = 0; i < framesLength; i++) {
       childFrame = frames[i];
