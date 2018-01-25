@@ -26,19 +26,18 @@ var GridLayout = LayerLayout.extend({
   getStageWidth: function() {
     var colWidth;
     var grid = this.layer.grid();
-    var width = this.layer.width(); //LayerLayout.prototype.getStageWidth.call(this);
+    var width = LayerLayout.prototype.getStageWidth.call(this);
 
-    if (grid.columns === '*' || grid.columns === undefined) {
-      if (this.layer.gridWidth()) {
-        colWidth = this.layer.gridWidth();
-      } else if (this.layer.stage.autoLength() || this.layer.stage.autoWidth()) {
+    if (this.layer.gridWidth()) {
+      colWidth = this.layer.gridWidth();
+    } else if (grid.columns === '*' || grid.columns === undefined) {
+      if (this.layer.stage.autoLength() || this.layer.stage.autoWidth()) {
         // find biggeste frame
         var widths = this.layer.getChildViews().map(frame => frame.width());
         colWidth = Math.max.apply(null, widths);
       } else {
         colWidth = width;
       }
-
     } else {
       colWidth = width / grid.columns;
     }
@@ -52,14 +51,14 @@ var GridLayout = LayerLayout.extend({
    */
   getStageHeight: function() {
     var grid = this.layer.grid();
-    var height = this.layer.height();//LayerLayout.prototype.getStageHeight.call(this);
+    var height = LayerLayout.prototype.getStageHeight.call(this);
     var colHeight = height;
 
-    if (grid.rows === '*' || grid.rows === undefined) {
-      if (this.layer.gridHeight()) {
-        // a height is defined
-        colHeight = this.layer.gridHeight();
-      } else if (this.layer.stage.autoLength() || this.layer.stage.autoHeight()) {
+    if (this.layer.gridHeight()) {
+      // a height is defined
+      colHeight = this.layer.gridHeight();
+    } else if (grid.rows === '*' || grid.rows === undefined) {
+      if (this.layer.stage.autoLength() || this.layer.stage.autoHeight()) {
         // find biggeste frame
         colHeight = Math.max.apply(null, this.layer.getChildViews().map(frame => frame.height()));
       } else {
@@ -244,6 +243,15 @@ var GridLayout = LayerLayout.extend({
 
   _calculateFramePositions: function(frame) {
     //var autoLength = this.layer.autoLength() || this.layer.autoWidth() || this.layer.autoHeight();
+    if (this.layer.autoWidth() && undefined === this.layer.gridWidth()) {
+      throw 'In order to uses autowidth a grid width needs to be defined';
+    }
+
+    if (this.layer.autoHeight() && undefined === this.layer.gridHeight()) {
+      throw 'In order to uses autoheight a grid height needs to be defined';
+    }
+
+
     var grid = this.layer.grid();
     var frames = this.layer.getChildViews();
     var framesLength = frames.length;
@@ -271,7 +279,7 @@ var GridLayout = LayerLayout.extend({
       this._framePositions[grid.gridName] = framePosition;
     }
 
-    if (framePosition.nativeScroll === nativeScroll && framePosition.direction === grid.direction && framePosition.stageHeight === stageHeight && framePosition.stageWidth === stageWidth && framePosition.framesLength === framesLength && framePosition.colWidth === colWidth && framePosition.rowHeight === rowHeight && framePosition.maxColumns === maxColumns && framePosition.maxRows === maxRows && framePosition.framesPerPage === framesPerPage && framePosition.pages === pages && framePosition.pageHeight === pageHeight && framePosition.pageWidth === pageWidth && (frame === undefined || null === frame || undefined !== framePosition[frame.id()])) {
+    if (framePosition.nativeScroll === nativeScroll && framePosition.direction === grid.direction && framePosition.framesLength === framesLength && framePosition.stageHeight === stageHeight && framePosition.stageWidth === stageWidth && framePosition.colWidth === colWidth && framePosition.rowHeight === rowHeight && framePosition.maxColumns === maxColumns && framePosition.maxRows === maxRows && framePosition.framesPerPage === framesPerPage && framePosition.pages === pages && framePosition.pageHeight === pageHeight && framePosition.pageWidth === pageWidth && (frame === undefined || null === frame || undefined !== framePosition[frame.id()])) {
       return framePosition;
     }
     // store for reference, can be used to determine scroll transform

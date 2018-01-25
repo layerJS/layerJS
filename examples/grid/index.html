@@ -55,8 +55,12 @@
         <input type="text" id="height" />
       </div>
       <div>
-        autoLength :
-        <input type="checkbox" id="autoLength" />
+        auto width :
+        <input type="checkbox" id="autoWidth" />
+      </div>
+      <div>
+        auto height :
+        <input type="checkbox" id="autoHeight" />
       </div>
 
       <div>
@@ -116,7 +120,8 @@
       var fittingMode = document.getElementById('fittingMode').value;
       var width = document.getElementById('width').value;
       var height = document.getElementById('height').value;
-      var autoLength = document.getElementById('autoLength').checked;
+      var autoHeight = document.getElementById('autoHeight').checked;
+      var autoWidth = document.getElementById('autoWidth').checked;
 
       var lGrid = document.getElementById('lGrid').value;
       var sGrid = document.getElementById('sGrid').value;
@@ -141,10 +146,16 @@
         grid.removeAttribute('lj-grid-height');
       }
 
-      if (autoLength) {
-        stage.setAttribute('lj-auto-length', grid._ljView.name());
+      if (autoWidth) {
+        stage.setAttribute('lj-auto-width', grid._ljView.name());
       } else {
-        stage.removeAttribute('lj-auto-length');
+        stage.removeAttribute('lj-auto-width');
+      }
+
+      if (autoHeight) {
+        stage.setAttribute('lj-auto-height', grid._ljView.name());
+      } else {
+        stage.removeAttribute('lj-auto-height');
       }
 
 /*
@@ -154,7 +165,7 @@
 
     var cards = [];
 
-    for (var i = 0; i < 20; i++) {
+    for (var i = 0; i < 10; i++) {
       cards[i] = {
         id: i,
         name: "John",
