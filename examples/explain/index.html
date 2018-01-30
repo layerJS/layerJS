@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="description" content="lightbox example">
+  <script src="../../dist/layerjs.js"></script>
+  <link href="../../dist/layerjs.css" type="text/css" rel="stylesheet" />
+  <link href="icomoon-style.css" type="text/css" rel="stylesheet" />
+  <link href="explain.css" type="text/css" rel="stylesheet" />
+  <script src="explain.js"></script>
+</head>
+
+<body>
+  <!-- Add a stage. -->
+  <div id="principle" class="section">
+    <div id="explainer">
+      <div id="explainer-text">
+        <b>layerJS</b> lets you animate your user interface in pure HTML and CSS.
+      </div>
+    </div>
+    <div id="window">
+      <div class="windowbar">
+        <i class="windowbar icon-cancel-circle"></i>
+        <i class="windowbar icon-circle-down"></i>
+        <i class="windowbar icon-circle-up"></i>
+      </div>
+      <div lj-type="stage" id="stage">
+        <div lj-type="layer" lj-default-frame="content1" lj-native-scroll="false" id="clayer" lj-no-url="true">
+          <!-- The layer for the main content -->
+          <div lj-type="frame" class="content" id="content1" lj-fit-to="responsive-width" lj-neighbors.r="content2" lj-neighbors.l="content4">
+            <p>
+              ▄▄▄▄▄▄▄ ▄▄▄▄ ▄▄▄▄▄▄▄▄▄ ▄▄▄▄ ▄▄▄▄ ▄▄▄▄▄ ▄▄▄▄▄▄▄ ▄▄▄ ▄▄▄▄▄
+              <br />
+              <br />
+              <br />
+              <br />
+            </p>
+          </div>
+          <div lj-type="frame" class="content" id="content2" lj-fit-to="responsive-width" lj-neighbors.r="content3" lj-neighbors.l="content1">
+            <p>
+              ▄▄▄▄▄▄▄▄▄ ▄▄▄▄▄▄▄▄▄ ▄▄▄▄▄▄ ▄▄ ▄▄▄▄▄▄▄
+            </p>
+            <p>
+              ▄▄▄▄▄▄▄ ▄▄▄▄▄ ▄▄▄ ▄▄▄▄▄
+            </p>
+          </div>
+          <div lj-type="frame" class="content" id="content3" lj-fit-to="responsive-width" lj-neighbors.r="content4" lj-neighbors.l="content2">
+            <p>
+              ▄▄▄▄▄▄▄ ▄▄▄▄ ▄▄▄▄▄▄▄▄▄ ▄▄▄▄ ▄▄▄▄ ▄▄▄▄▄ ▄▄▄▄▄▄▄ ▄▄▄ ▄▄▄▄▄
+            </p>
+            <div lj-type="stage" class="nestedstage" id="sslider">
+              <div lj-type="layer" lj-native-scroll="false" lj-fit-to="cover" id="slayer" lj-no-url="true">
+                <img id="i1" lj-type="frame" lj-start-position="center" lj-no-scrolling="true" src="img/angel-leon-271147.jpg" lj-neighbors.r="i2" lj-neighbors.l="i3" />
+                <img id="i2" lj-type="frame" lj-start-position="center" lj-no-scrolling="true" src="img/dimitri-yakymuk-107955.jpg" lj-neighbors.r="i3" lj-neighbors.l="i1" />
+                <img id="i3" lj-type="frame" lj-start-position="center" lj-no-scrolling="true" src="img/jordan-sanchez-46261.jpg" lj-neighbors.r="i1" lj-neighbors.l="i2" />
+              </div>
+              <div class="hl tl"></div>
+              <div class="hl tr"></div>
+              <div class="hl bl"></div>
+              <div class="hl br"></div>
+            </div>
+            <p>
+              ▄▄▄▄ ▄▄▄▄ ▄▄▄▄ ▄▄▄▄▄ ▄▄▄▄▄▄▄ ▄▄▄ ▄▄▄▄▄ ▄▄▄ ▄ ▄▄▄ ▄▄▄ ▄▄▄
+            </p>
+          </div>
+          <div lj-type="frame" class="content" id="content4" lj-fit-to="responsive-width" lj-neighbors.r="content1" lj-neighbors.l="content3">
+            <div lj-type="stage" id="scards">
+              <div lj-type="layer" lj-native-scroll="false" lj-layout="canvas" id="canvas" lj-default-frame="overview" lj-fit-to="width" lj-no-url="true">
+                <div lj-type="frame" id="overview" lj-x="0" lj-y="0" class="lj-active">
+                </div>
+                <div lj-type="frame" class="card" lj-y="20" id="card1" lj-x="20">
+                  <div class="cardcontainer">
+                    <a href="#top.card1&amp;t=0.5s"><img class="cardimg" src="img/profile.png"></a>
+                    <a style="float:right" href="#canvas.card1$&amp;t=0.5s" class="icon-cancel-circle"></a>
+                    <h2>▄▄▄▄</h2>
+                    <h3>▄▄▄▄▄▄▄</h3>
+                    <hr style="clear: both">
+                    <p>
+                      ▄▄▄▄ ▄▄▄▄ ▄▄▄▄ ▄▄▄▄▄ ▄▄▄▄▄▄▄ ▄▄▄ ▄▄▄▄▄ ▄▄▄ ▄ ▄▄▄ ▄▄▄ ▄▄▄
+                    </p>
+
+                  </div>
+
+                </div>
+                <div lj-type="frame" class="card" lj-y="20" id="card2" lj-x="160">
+                  <div class="cardcontainer">
+                    <a href="#top.card2&amp;t=0.5s"><img class="cardimg" src="img/profile.png"></a>
+                    <a style="float:right" href="#canvas.card2$&amp;t=0.5s" class="icon-cancel-circle"></a>
+                    <h2>▄▄▄▄</h2>
+                    <h3>▄▄▄▄▄▄▄</h3>
+                    <hr style="clear: both">
+                    <p>
+                      ▄▄▄▄ ▄▄▄▄ ▄▄▄▄ ▄▄▄▄▄ ▄▄▄▄▄▄▄ ▄▄▄ ▄▄▄▄▄ ▄▄▄ ▄ ▄▄▄ ▄▄▄ ▄▄▄
+                    </p>
+
+                  </div>
+
+                </div>
+                <div lj-type="frame" class="card" lj-y="160" id="card3" lj-x="20">
+                  <div class="cardcontainer">
+                    <a href="#top.card3&amp;t=0.5s"><img class="cardimg" src="img/profile.png"></a>
+                    <a style="float:right" href="#canvas.card3$&amp;t=0.5s" class="icon-cancel-circle"></a>
+                    <h2>▄▄▄▄</h2>
+                    <h3>▄▄▄▄▄▄▄</h3>
+                    <hr style="clear: both">
+                    <p>
+                      ▄▄▄▄ ▄▄▄▄ ▄▄▄▄ ▄▄▄▄▄ ▄▄▄▄▄▄▄ ▄▄▄ ▄▄▄▄▄ ▄▄▄ ▄ ▄▄▄ ▄▄▄ ▄▄▄
+                    </p>
+
+                  </div>
+
+                </div>
+
+              </div>
+            </div>
+          </div>
+        </div>
+        <div lj-type="layer" lj-default-frame="!none" id="mlayer" lj-native-scroll="false" lj-no-url="true">
+          <div lj-type="frame" id="hmenu" class="nav" lj-fit-to="responsive-width" lj-transition="down" lj-neighbors.l="menu">
+            <!-- The frame for the menu in the closed state -->
+            ▄▄▄▄ ▄▄
+          </div>
+          <div lj-type="frame" id="menu" class="nav menu" lj-fit-to="responsive-height" lj-neighbors.r="hmenu" lj-transition="slideOverRight">
+            ▄▄▄ <br /> ▄▄▄ <br />▄▄▄<br /> ▄▄▄
+          </div>
+        </div>
+        <div lj-type="layer" lj-default-frame="!none" id="top" lj-native-scroll="false" lj-fit-to="responsive" lj-no-url="true">
+          <!-- The layer for the lightbox. The initial frame is the special frame "!none" which repesents an empty layer. -->
+          <div lj-type="frame" id="box1" lj-fit-to="responsive" lj-transition="fade">
+            <!-- The content of the modal. -->
+          </div>
+        </div>
+        <div class="hl tl"></div>
+        <div class="hl tr"></div>
+        <div class="hl bl"></div>
+        <div class="hl br"></div>
+
+      </div>
+    </div>
+  </div>
+</body>
+
+</html>
