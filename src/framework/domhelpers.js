@@ -484,13 +484,27 @@ var DomHelpers = {
     if (tr === 'none' || undefined === tr || 'FAIL' === tr) {
       array = [1, 0, 0, 1, 0, 0];
     } else {
-      var values = tr.split('(')[1].split(')')[0].split(',');
-      var a = parseFloat(values[0].replace(/\s+/g, ''));
-      var b = parseFloat(values[1].replace(/\s+/g, ''));
-      var c = parseFloat(values[2].replace(/\s+/g, ''));
-      var d = parseFloat(values[3].replace(/\s+/g, ''));
-      var e = parseFloat(values[4].replace(/\s+/g, ''));
-      var f = parseFloat(values[5].replace(/\s+/g, ''));
+
+      tr = tr.toLowerCase();
+      var values = tr.split('(')[1].split(')')[0].split(',').map(function(value) {
+        return parseFloat(value.replace(/\s+/g, ''));
+      });
+
+      var a = values[0];
+      var b = values[1];
+      var c = values[2];
+      var d = values[3];
+      var e = values[4];
+      var f = values[5];
+
+      if (tr.startsWith('matrix3d(')) {
+        a = values[0];
+        b = values[1];
+        c = values[4];
+        d = values[5];
+        e = values[12];
+        f = values[13];
+      }
 
       array = [a, b, c, d, e, f];
     }

@@ -43,7 +43,7 @@ TMat.prototype = {
     var transl = this.get_translation_equal();
     var scale = this.get_scale_equal();
     var rot = this.get_rotation_equal();
-    transl = TMat.Tscale(1 / scale).prod(TMat.Trot(-rot)).transform_vec(transl);
+    transl = TMat.Tscale(scale > 0 ? (1 / scale) : scale).prod(TMat.Trot(-rot)).transform_vec(transl);
     // avoid 1.xe-xxx numbers
     if (Math.abs(transl.x) < 0.000001) transl.x = 0;
     // avoid 1.xe-xxx numbers
@@ -60,7 +60,7 @@ TMat.prototype = {
   },
   invert: function() {
     // inverse matrix of an affine transform matrix
-    var D = 1 / (this.a * this.d - this.b * this.c);
+    var D = 1 / ((this.a * this.d - this.b * this.c) || 1);
     var a = D * this.d;
     var b = -D * this.b;
     var c = -D * this.c;
@@ -77,7 +77,7 @@ TMat.prototype = {
   },
   get_rotation_equal: function() { // WARNING only works for equal x and y scale
     //https://css-tricks.com/get-value-of-css-rotation-through-javascript/
-    return (Math.atan2(this.b, this.a) * (180/Math.PI));
+    return (Math.atan2(this.b, this.a) * (180 / Math.PI));
     /*var s = this.get_scale_equal();
     var phi = 180 * Math.acos(this.a / s) / Math.PI;
     if (this.c < 0) phi = 360 - phi;
