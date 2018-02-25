@@ -785,7 +785,7 @@ describe('state', function() {
       var state = layerJS.getState();
       var exportedState = state.exportMinimizedState();
       expect(exportedState.state).toEqual([]);
-      expect(exportedState.omittedState).toEqual(['stage1.layer1.frame1']);
+      expect(exportedState.defaultState).toEqual(['stage1.layer1.frame1']);
     });
 
     it('when the layer has no url defined', function(done) {

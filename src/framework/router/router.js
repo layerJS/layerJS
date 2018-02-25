@@ -188,12 +188,13 @@ var Router = Kern.EventManager.extend({
 
     var newState = (state && state.exportMinimizedState()) || {
       state: [],
+      defaultState: [],
       omittedState: []
     };
 
     // remove state paths that are already added in the payload
     // this need to be done for inital load and also for non active frames who are not in there orginal panrent
-    var tempState = newState.state.concat(newState.omittedState).filter(function(path) {
+    var tempState = newState.state.concat(newState.omittedState).concat(newState.defaultState).filter(function(path) {
       return payload.state.indexOf(path) < 0 && payload.state.indexOf(path.replace('$'));
     });
 

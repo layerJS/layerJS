@@ -137,6 +137,7 @@ var State = Kern.EventManager.extend({
     minimize = minimize || false;
     var result = {
       state: [],
+      defaultState: [],
       omittedState: []
     };
     var that = this;
@@ -159,9 +160,11 @@ var State = Kern.EventManager.extend({
       var frame = that.views[frames[0]].view;
       var layer = frame.parent;
       if (frame === layer.currentFrame) {
-        if ((true === minimize) && (layer.noUrl() || layer.currentFrame.name() === layer.defaultFrame() ||
+        if ((true === minimize) && (layer.noUrl() ||
             (null === layer.defaultFrame() && null === layer.currentFrame.outerEl.previousElementSibling))) {
           result.omittedState.push(framePath);
+        } else if ((true === minimize) && (layer.currentFrame.name() === layer.defaultFrame())) {
+          result.defaultState.push(framePath);
         } else {
           result.state.push(framePath);
         }

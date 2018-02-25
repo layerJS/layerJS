@@ -69,7 +69,7 @@ var StaticRouter = Kern.EventManager.extend({
    * @returns {Promise} a promise that will return the HTML document
    */
   buildUrl: function(options) {
-    var state = options.state.concat(options.omittedState);
+    var state = options.state.concat(options.defaultState); //we only check state and defaultState but not omitted state for equivalence with router states
     var that = this;
     var foundUrl;
     var url = $.joinUrl(options, true);
@@ -103,7 +103,7 @@ var StaticRouter = Kern.EventManager.extend({
       if (index !== -1) {
         options.state.splice(index, 1);
       } else {
-        options.omittedState.splice(options.omittedState.indexOf(path), 1);
+        options.defaultState.splice(options.defaultState.indexOf(path), 1);
       }
     });
   }
