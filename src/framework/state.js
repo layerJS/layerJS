@@ -160,10 +160,10 @@ var State = Kern.EventManager.extend({
       var frame = that.views[frames[0]].view;
       var layer = frame.parent;
       if (frame === layer.currentFrame) {
-        if ((true === minimize) && (layer.noUrl() ||
-            (null === layer.defaultFrame() && null === layer.currentFrame.outerEl.previousElementSibling))) {
+        if ((true === minimize) && (layer.noUrl())) {
           result.omittedState.push(framePath);
-        } else if ((true === minimize) && (layer.currentFrame.name() === layer.defaultFrame())) {
+        } else if ((true === minimize) && (layer.currentFrame.name() === layer.defaultFrame() ||
+            (null === layer.defaultFrame() && null === layer.currentFrame.outerEl.previousElementSibling))) {
           result.defaultState.push(framePath);
         } else {
           result.state.push(framePath);
@@ -181,8 +181,10 @@ var State = Kern.EventManager.extend({
     }).filter(function(layer) {
       return layer.currentFrame === null || layer.currentFrame === undefined;
     }).forEach(function(layer) {
-      if (true === minimize && (layer.noUrl() || layer.defaultFrame() === '!none')) {
+      if (true === minimize && layer.noUrl()) {
         result.omittedState.push(that.views[layer.id()].path + ".!none");
+      } else if (true === minimize && (layer.defaultFrame() === '!none')){
+        result.defaultState.push(that.views[layer.id()].path + ".!none");
       } else {
         result.state.push(that.views[layer.id()].path + ".!none");
       }

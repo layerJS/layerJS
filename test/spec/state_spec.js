@@ -818,7 +818,7 @@ describe('state', function() {
       var state = layerJS.getState();
       var exportedState = state.exportMinimizedState();
       expect(exportedState.state).toEqual([]);
-      expect(exportedState.omittedState).toEqual(['stage1.layer1.frame1']);
+      expect(exportedState.defaultState).toEqual(['stage1.layer1.frame1']);
     });
 
     it('when the default frame is a none frame', function() {
@@ -829,9 +829,11 @@ describe('state', function() {
 
       var state = layerJS.getState();
       var state = layerJS.getState();
+      debugger;
       var exportedState = state.exportMinimizedState();
       expect(exportedState.state).toEqual([]);
-      expect(exportedState.omittedState).toEqual(['stage1.layer1.frame1$', 'stage1.layer1.!none']);
+      expect(exportedState.defaultState).toEqual(['stage1.layer1.!none']);
+      expect(exportedState.omittedState).toEqual(['stage1.layer1.frame1$']);
     });
 
     it('frames with frames that our outside there default layers should be added', function() {
@@ -845,10 +847,9 @@ describe('state', function() {
       document.getElementById('frame1')._ljView.originalParent = document.getElementById('layer2')._ljView;
 
       var state = layerJS.getState();
-      var state = layerJS.getState();
       var exportedState = state.exportMinimizedState();
       expect(exportedState.state).toEqual(['stage1.layer1.frame1$']);
-      expect(exportedState.omittedState).toEqual(['stage1.layer1.!none', 'stage1.layer2.!none']);
+      expect(exportedState.defaultState).toEqual(['stage1.layer1.!none', 'stage1.layer2.!none']);
     });
 
 
