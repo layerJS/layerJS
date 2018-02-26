@@ -29,6 +29,7 @@ var HashRouter = Kern.EventManager.extend({
       for (var i = 0; i < hashPaths.length; i++) {
         var hashPath = hashPaths[i].split('?')[0].split('&')[0].replace('(', '').replace(')', '');
         var parsed = $.parseStringForTransitions(hashPaths[i]);
+        var resolved=false;
         try {
           var resolvedPaths = state.resolvePath(hashPath);
 
@@ -39,9 +40,13 @@ var HashRouter = Kern.EventManager.extend({
               // push layer path and frameName ( can't use directly the view because !right will not resolve in a view)
               paths.push(resolvedPath.path);
               transitions.push(Kern._extend(options.globalTransition, parsed.transition));
+              resolved=true;
             }
           }
         } catch (e) {
+
+        }
+        if (!resolved) {
           // if we didn't find any frame try to find a matching anchor element
           // an anchorId will be the first one in the list
           // check if it is an anchor element
