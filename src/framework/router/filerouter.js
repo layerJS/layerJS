@@ -69,6 +69,17 @@ var FileRouter = StaticRouter.extend({
                     var parentHTML = isRoot ? document.body : state.resolvePath(parentPath)[0].view.innerEl;
                     parentHTML.insertAdjacentHTML('beforeend', html);
                     parentHTML.lastChild.style.display = "none"; // don't show currently added element (this should be done by the layerview/layout code)
+                    // execute scripts manually (as we use insertAdjacentHTML those will not be executed)
+                    var scripts = parentHTML.lastChild.getElementsByTagName('script');
+                    for (var n = 0; n < scripts.length; n++) {
+                      var oldScript = scripts[n];
+                      var newScript = document.createElement("script");
+                      newScript.text = oldScript.innerHTML;
+                      for (var i = oldScript.attributes.length - 1; i >= 0; i--) {
+                        newScript.setAttribute(oldScript.attributes[i].name, oldScript.attributes[i].value);
+                      }
+                      oldScript.parentNode.replaceChild(newScript, oldScript);
+                    }
                     addedHash.push(path);
                   } else {
                     // this should never happen because structure is tranversered in DOM order
