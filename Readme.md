@@ -26,7 +26,7 @@ In layerJS you will define stages, layers and frames simply by adding HTML-attri
     </div>
 </div>
 ```
-Find examples and live demos on our project website [layerjs.org](http://layerjs.org). 
+Find examples and live demos on our project website [layerjs.org](http://layerjs.org/examples.html). 
 
 Check out the [Wiki](https://github.com/layerJS/layerJS/wiki) for more details. 
 
