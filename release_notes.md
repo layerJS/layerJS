@@ -1,5 +1,30 @@
 # Release notes #
 
+## New in 0.5.2
+
+ * fix: interstage: calculate pre-position correctly if 3d transform is applied (using 3d matrix)
+ * filerouter & state: minimized state now distinguishes between relevant state, default state and omitted state
+ * filerouter: scripts in loaded sub pages are now executed
+ * linking to new sub page (filerouter) and using scroll anchor (hashrouter) now works simultaneously
+ * defaults are available in layerJS.default
+ * layerJS.defaults.defaultDuration can be set (default duration of transitions)
+ * fix: frame length was possibly wrongly determined when wrapping occurs in native scrolling
+
+## New in 0.5.1
+
+ * layerjs will inialize on its own (no layerJS.init() necessary)
+ * creating minified version of layerJS with closure compiler
+ * fix: update classes is now also fired in all interstage transitions
+
+## New in 0.5.0
+
+ * interstage transitions. you can send frames between stages using otherlayer.frameName
+ * state now also contains inactive frames with a trailing '$'
+ * interstage transitions can also work with inactive frames
+ * showframe and scrollto now use generic transitionTo
+ * now each frame has its own transitionEnd. this allows transforms on other frames already be started while the first one is ending.
+ * refactored registration of view in state
+
 ## New in 0.4.4
  * The layer now has a transition queue. Events and transition are now getting queued. This gets a more defined behavior if gestures/trigger overlap. The queue is freed after the "transitionPrepared" event is triggered.
  * Refactoring showFrame and scrollTo methods of a layer. Both now use the transitionTo method for showing frames and scrolling. This also puts them into the queue
