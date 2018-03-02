@@ -26,10 +26,16 @@ var HashRouter = Kern.EventManager.extend({
       var transitions = [];
       var state = layerJS.getState();
 
+      var filterFramesWithSameLayer = function(layerPath) {
+        return function(framePath) {
+          return layerPath === framePath.replace(/\.[^\.]*$/, '');
+        };
+      };
+
       for (var i = 0; i < hashPaths.length; i++) {
         var hashPath = hashPaths[i].split('?')[0].split('&')[0].replace('(', '').replace(')', '');
         var parsed = $.parseStringForTransitions(hashPaths[i]);
-        var resolved=false;
+        var resolved = false;
         try {
           var resolvedPaths = state.resolvePath(hashPath);
 
@@ -40,7 +46,7 @@ var HashRouter = Kern.EventManager.extend({
               // push layer path and frameName ( can't use directly the view because !right will not resolve in a view)
               paths.push(resolvedPath.path);
               transitions.push(Kern._extend(options.globalTransition, parsed.transition));
-              resolved=true;
+              resolved = true;
             }
           }
         } catch (e) {
@@ -65,7 +71,45 @@ var HashRouter = Kern.EventManager.extend({
               if (index !== -1) {
                 // path found, reuse transition record
                 transition = transitions[index];
-              } else if (frameView.parent.currentFrame === frameView) {
+              } else if (index === -1) {
+                // check is the layer is getting a new current frame an verify if anchor also exists
+                // in the new frame
+                var layerPath = path.replace(/\.[^\.]*$/, '');
+                var framesWithSameLayer = options.paths.filter(filterFramesWithSameLayer(layerPath));
+
+                if (framesWithSameLayer.length === 1) {
+                  var frameViewTemp = state.resolvePath(framesWithSameLayer[0])[0].view;
+                  var anchorTemp = frameViewTemp.outerEl.querySelectorAll('[name=' + hashPath + '], #' + hashPath);
+                  anchorTemp = anchorTemp && anchorTemp[0];
+
+                  if (anchorTemp && window.getComputedStyle(anchorTemp).display !== 'none') {
+                    var hidden = window.getComputedStyle(frameViewTemp.outerEl).display === 'none';
+
+                    if ( hidden)
+                    {
+                      frameViewTemp.outerEl.style.opacity = 0;
+                      frameViewTemp.outerEl.style.display = '';
+                    }
+
+                      anchor = anchorTemp;
+                      index = options.paths.indexOf(framesWithSameLayer[0]);
+                      transition = options.transitions[index];
+
+                      anchor = {
+                        offsetTop: anchorTemp.offsetTop,
+                        offsetLeft: anchorTemp.offsetLeft
+                      };
+
+                      if (hidden)
+                      {
+                        frameViewTemp.outerEl.style.display = 'none';
+                        frameViewTemp.outerEl.style.opacity = 1;
+                      }
+                  }
+                }
+              }
+
+              if (index === -1 && frameView.parent.currentFrame === frameView) {
                 // if frame is active, add path and transition record
                 paths.push(state.buildPath(frameView.outerEl, false));
                 transition = Kern._extend({}, options.globalTransition, parsed.transition);

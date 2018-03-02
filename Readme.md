@@ -12,8 +12,8 @@ layerJS supports directional touch and touchpad gestures to trigger transitions.
 
 layerJS can be included into your site from our CDN. Simply include the following tags into the head of your HTML document.
 ```
-<script src="http://cdn.layerjs.org/libs/layerjs/layerjs-0.4.4.js"></script>
-<link href="http://cdn.layerjs.org/libs/layerjs/layerjs-0.4.4.css" type="text/css" rel="stylesheet" />
+<script src="http://cdn.layerjs.org/libs/layerjs/layerjs-0.5.2.min.js"></script>
+<link href="http://cdn.layerjs.org/libs/layerjs/layerjs-0.5.2.css" type="text/css" rel="stylesheet" />
 ```
 
 In layerJS you will define stages, layers and frames simply by adding HTML-attributes to `<div>`s. Here is an example structure:
@@ -26,7 +26,7 @@ In layerJS you will define stages, layers and frames simply by adding HTML-attri
     </div>
 </div>
 ```
-Find examples and live demos on our project website [layerjs.org](http://layerjs.org). 
+Find examples and live demos on our project website [layerjs.org](http://layerjs.org/examples.html). 
 
 Check out the [Wiki](https://github.com/layerJS/layerJS/wiki) for more details. 
 
