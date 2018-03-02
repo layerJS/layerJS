@@ -529,7 +529,7 @@ var LayerView = BaseView.extend({
       transition = Kern._extend({
         type: transition && transition.type ? 'default' : (frame && frame.defaultTransition()) || that.defaultTransition() || autotransition || 'default',
         previousType: transition && transition.type ? undefined : (that.currentFrame && that.currentFrame.defaultTransition()) || undefined,
-        duration: '1s',
+        duration: defaults.defaultDuration,
         lastFrameName: (that.currentFrame && that.currentFrame.name()) || "!none",
         applyTargetPrePosition: !transition.noActivation && (transition.applyTargetPrePosition || (frame && frame.parent && frame.parent === that)) || false, // we need to set this here for interstage transitions; loadframe doesn't know about the transition record.
         interStage: frame && frame.parent && frame.parent !== that,

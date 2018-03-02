@@ -1,5 +1,6 @@
 module.exports = {
   version: 'default',
+  defaultDuration: '1s',
   transitionParameters: {
     duration: 't',
     type: 'p',
