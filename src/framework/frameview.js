@@ -40,7 +40,7 @@ var FrameView = BaseView.extend({
 
     this.on('sizeChanged', function() {
       if (that.parent) {
-        if (that.inTransition) {// defer renderrequired after the transition finishes
+        if (that.inTransition) { // defer renderrequired after the transition finishes
           if (!that.inTransitionListening) {
             setTimeout(function f() {
               if (!that.inTransition) {
@@ -87,7 +87,10 @@ var FrameView = BaseView.extend({
     if (!d || d.isDirty || d.layer !== layer || (transitionStartPosition && transitionStartPosition !== d.startPosition)) {
       // calculate transformData
       if (d) delete d.isDirty;
-      return (this.transformData = this.calculateTransformData(layer, transitionStartPosition));
+      this.unobserve();
+      this.transformData = this.calculateTransformData(layer, transitionStartPosition);
+      this.startObserving();
+      return this.transformData;
     }
     if (!keepScroll) {
       d.scrollX = d.initialScrollX;
