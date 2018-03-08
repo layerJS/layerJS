@@ -142,6 +142,7 @@ var FrameView = BaseView.extend({
     // indicate whether scrolling in x or y directions is active
     d.isScrollX = false;
     d.isScrollY = false;
+    d.margin = this.getMargin();
 
     var fitTo = this.fitTo(false) || layer.fitTo();
     switch (fitTo) {

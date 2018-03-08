@@ -75,8 +75,8 @@ var CanvasLayout = LayerLayout.extend({
             display: 'block'
           };
 
-          otherCss.width = tfd.applyWidth ? tfd.frameWidth + 'px' : childFrame.getOriginalWidth();
-          otherCss.height = tfd.applyHeight ? tfd.frameHeight + 'px' : childFrame.getOriginalHeight();
+          otherCss.width = tfd.applyWidth ? (tfd.frameWidth - tfd.margin.left - tfd.margin.right) + 'px' : childFrame.getOriginalWidth();
+          otherCss.height = tfd.applyHeight ? (tfd.frameHeight - tfd.margin.top - tfd.margin.bottom) + 'px' : childFrame.getOriginalHeight();
 
           that._applyTransform(childFrame, that._reverseTransform, targetTransform, otherCss);
         };

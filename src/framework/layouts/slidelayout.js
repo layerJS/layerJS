@@ -135,11 +135,11 @@ var SlideLayout = LayerLayout.extend({
         };
 
         if (targetFrameTransformData.applyWidth) {
-          otherCss.width = targetFrameTransformData.frameWidth + "px";
+          otherCss.width = (targetFrameTransformData.frameWidth - targetFrameTransformData.margin.left - targetFrameTransformData.margin.right) + "px";
         }
 
         if (targetFrameTransformData.applyHeight) {
-          otherCss.height = targetFrameTransformData.frameHeight + "px";
+          otherCss.height = (targetFrameTransformData.frameHeight - targetFrameTransformData.margin.top - targetFrameTransformData.margin.bottom) + "px";
         }
         if (frame) frame.transitionID = transition.transitionID;
 
@@ -266,8 +266,8 @@ var SlideLayout = LayerLayout.extend({
         visibility: 'inital'
       };
       // apply frame dimensions. this should be the dimensions of the pre position, but in slide layout the pre position should have same frame dimensions as post position. (in all cases where this is not true [sizechanged, interstage, ?] applyTargetPrePosition would be false)
-      if (targetFrameTransformData.applyWidth) otherCss.width = targetFrameTransformData.frameWidth + "px";
-      if (targetFrameTransformData.applyHeight) otherCss.height = targetFrameTransformData.frameHeight + "px";
+      if (targetFrameTransformData.applyWidth) otherCss.width = (targetFrameTransformData.frameWidth - targetFrameTransformData.margin.left - targetFrameTransformData.margin.right) + "px";
+      if (targetFrameTransformData.applyHeight) otherCss.height = (targetFrameTransformData.frameHeight - targetFrameTransformData.margin.top - targetFrameTransformData.margin.bottom) + "px";
       if (transition.applyTargetPrePosition !== false) {
         // apply pre position to target frame
         this._applyTransform(frame, prep.t0, this.layer.currentTransform, otherCss);
