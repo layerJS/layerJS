@@ -1,5 +1,7 @@
 # Introduction #
 
+[![Join the chat at https://gitter.im/layerJS/layerJS](https://badges.gitter.im/layerJS/layerJS.svg)](https://gitter.im/layerJS/layerJS?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 layerJS is an open source Javascript UI/UX library allowing intuitive, visually intense, mobile app-like experiences for web apps and websites.
 
 [layerjs.org](https://layerjs.org)
