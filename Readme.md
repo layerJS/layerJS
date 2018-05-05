@@ -1,6 +1,10 @@
 # Introduction #
 
+[![Join the chat at https://gitter.im/layerJS/layerJS](https://badges.gitter.im/layerJS/layerJS.svg)](https://gitter.im/layerJS/layerJS?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 layerJS is an open source Javascript UI/UX library allowing intuitive, visually intense, mobile app-like experiences for web apps and websites.
+
+[layerjs.org](https://layerjs.org)
 
 layerJS follows the idea that any kind of interactive web content is composed of media elements on moving layers. Unlike existing UI frameworks, layerJS does not provide various UI elements (use your favorite framework for that) but focusses on how larger blocks are put together to form websites and apps and how these blocks will behave upon user interaction.
 
