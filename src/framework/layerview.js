@@ -71,6 +71,7 @@ var LayerView = BaseView.extend({
     // listen to scroll events
     this.on('scroll', function() { // jshint ignore:line
       //that._layout.updateTransitions(); // FIXME: notify layout about scroll and that prepared transitions may be outdated
+      this.trigger('scrolled');
     });
     /*
     // register for gestures
@@ -364,6 +365,7 @@ var LayerView = BaseView.extend({
       return;
     } else if (layerTransform) {
       this.setLayerTransform(this.currentTransform = layerTransform);
+      this.trigger('scrolled');
       // console.log("gestureListener: transformscrolling, prevented default");
       gesture.preventDefault = true;
     } else {
