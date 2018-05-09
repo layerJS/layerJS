@@ -55,7 +55,11 @@ var transitions = {
   slideOverUpFade: [partials.bottom, partials.fade, 1],
   slideOverDownFade: [partials.top, partials.fade, 1],
   zoomout: [partials.zoomin, partials.zoomout, 1],
-  zoomin: [partials.zoomout, partials.zoomin, -1]
+  zoomin: [partials.zoomout, partials.zoomin, -1],
+  inouttop: [partials.top, partials.top, 1],
+  inoutleft: [partials.left, partials.left, 1],
+  inoutright: [partials.right, partials.right, 1],
+  inoutbottom: [partials.bottom, partials.bottom, 1]
 };
 
 var SlideLayout = LayerLayout.extend({
