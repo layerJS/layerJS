@@ -10,7 +10,7 @@ var BaseView = require('./baseview.js');
  * @extends GroupView
  */
 var StageView = BaseView.extend({
-  constructor: function(options) {
+  constructor: function (options) {
     options = options || {};
     options.childType = 'layer';
     BaseView.call(this, options);
@@ -19,10 +19,10 @@ var StageView = BaseView.extend({
    * Will add eventhandlers to specific events. It will handle a 'childrenChanged', 'sizeChanged' and
    * 'attributesChanged' event. It will also handle it's parent 'renderRequired' event.
    */
-  registerEventHandlers: function() {
+  registerEventHandlers: function () {
     var that = this;
 
-    var onResize = function() {
+    var onResize = function () {
       that.trigger('renderRequired');
     };
 
@@ -35,7 +35,7 @@ var StageView = BaseView.extend({
   /**
    * Specifies what will need to be observed on the DOM element. (Attributes, Children and size)
    */
-  startObserving: function() {
+  startObserving: function () {
     BaseView.prototype.observe.call(this, this.innerEl, {
       attributes: true,
       children: true,
@@ -45,7 +45,7 @@ var StageView = BaseView.extend({
   /** Will place a child view at the correct position.
    * @param {Object} childView - the childView
    */
-  _renderChildPosition: function(childView) {
+  _renderChildPosition: function (childView) {
     if (childView.nodeType() === 1) {
       childView.unobserve();
       childView.outerEl.style.left = "0px";
@@ -57,12 +57,12 @@ var StageView = BaseView.extend({
    * Will parse the current DOM Element it's children.
    * @param {object} options - optional: includes addedNodes
    */
-  _parseChildren: function(options) {
+  _parseChildren: function (options) {
     var that = this;
     var autoLength = this.autoWidth() || this.autoHeight();
 
-    var layerTransitioned = function(layerView) {
-      return function(frameName, transition) {
+    var layerTransitioned = function (layerView) {
+      return function (frameName, transition) {
         transition = transition || {};
         var currentFrameTransformData = layerView.currentFrameTransformData;
         var style = {
@@ -85,21 +85,30 @@ var StageView = BaseView.extend({
     BaseView.prototype._parseChildren.call(this, options);
 
     if (autoLength) {
+      var found = null;
       for (var x = 0; x < this._cache.children.length; x++) {
         if (this._cache.children[x].name() === autoLength) {
           this._cache.children[x].on('transitionStarted', layerTransitioned(this._cache.children[x]));
+          found = this._cache.children[x];
         }
       }
+      if (!found && this._cache.children[0]) {
+        this._cache.children[0].on('transitionStarted', layerTransitioned(this._cache.children[0]));
+        found = this._cache.children[0];
+      }
+      // initial call to set autolength 
+      if (found) (layerTransitioned(found))(); // Note this should work w/o parameters
+
     }
   },
 }, {
-  defaultProperties: {
-    type: 'stage'
-  },
-  identify: function(element) {
-    var type = $.getAttributeLJ(element, 'type');
-    return null !== type && type.toLowerCase() === StageView.defaultProperties.type;
-  }
-});
+    defaultProperties: {
+      type: 'stage'
+    },
+    identify: function (element) {
+      var type = $.getAttributeLJ(element, 'type');
+      return null !== type && type.toLowerCase() === StageView.defaultProperties.type;
+    }
+  });
 pluginManager.registerType('stage', StageView, defaults.identifyPriority.normal);
 module.exports = StageView;
