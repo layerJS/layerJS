@@ -1,0 +1,27 @@
+@npm test results
+
+/*
+ * Issue #75 :: Anchor tag attribute target="{my value}" seems to be ignored
+ * as at 9-May-2018
+ * 
+ * Spec :: We should should add in router.js -> $.addDelegtedListener(function()) 
+ * a check to the if clause:
+ *
+ *    if 
+ *      a target is given AND the target is not "_self", 
+ *    then
+ *      navigate shouldn't be called AND default should not be prevented
+ *
+ **/
+
+Behaviors
+1. When <a> has target !== '_self', typical link action occurs opening new window/tab.
+2. When <a> has target === '_self' or NO target attr, layerjs handles link processing.
+
+==> npm test
+Summary:
+
+Suites:  62 of 62
+Specs:   257 of 263 (6 pending)
+Expects: 486 (0 failures)
+Finished in 40.546 seconds

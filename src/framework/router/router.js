@@ -71,6 +71,38 @@ var Router = Kern.EventManager.extend({
     // register link listener
     $.addDelegtedListener(this.rootElement, 'click', 'a:not([data-lj-nolink=\'true\']):not([lj-nolink=\'true\'])', function(event) {
       //delete that.ignoreUrl;
+      
+      var _navigationHandler = function(result) {
+        if (!result) {
+          setTimeout(function() { // why do we have to get at the end of the queue?
+              that.ignoreUrl = $.getAbsoluteUrl(href);
+              window.location.href = href;
+          }, 1);
+        }
+      };
+  
+      if (this.href !== '' && !this.href.startsWith('javascript:')) { // jshint ignore:line
+        // get the explicitly given href (that is not extended) to see the intention of the user
+        var href = this.getAttribute('href');
+  
+        // check for target attr
+        var tget = this.getAttribute('target');
+        // if target is != '_self', honor it as user intention
+        if( tget && tget !== '_self' ) {
+          return;
+        }
+        else {
+  
+          event.preventDefault(); // prevent default action, i.e. going to link target
+          // do not stop propagation; other libraries may listen to link clicks
+          that.navigate(href, $.findParentViewOfType(this, 'layer')).then( _navigationHandler );
+        }    
+      }
+    });
+  },
+
+    /**$.addDelegtedListener(this.rootElement, 'click', 'a:not([data-lj-nolink=\'true\']):not([lj-nolink=\'true\'])', function(event) {
+      //delete that.ignoreUrl;
       if (this.href !== '' && !this.href.startsWith('javascript:')) { // jshint ignore:line
         var href = this.getAttribute('href'); // get the explicitly given href (that is not extended) to see the intention of the user
 
@@ -86,7 +118,8 @@ var Router = Kern.EventManager.extend({
         });
       }
     });
-  },
+  }, */
+
   /**
    * When the router can navigate to the url, it will do this.
    * @param {string} Url where to navigate
