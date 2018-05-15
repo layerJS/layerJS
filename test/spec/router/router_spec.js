@@ -99,6 +99,30 @@ describe('router', function() {
     expect(called).toBeFalsy();
   });
 
+  it('will ignore links with target attribute !== _self', function() {
+    var called = false;
+    var dummyRouter = {
+      handle: function(url) {
+        var promise = new Kern.Promise();
+        promise.resolve({
+          handled: true,
+          stop: true
+        });
+        called = true;
+        return promise;
+      }
+    };
+
+    layerJS.router.addRouter(dummyRouter);
+    var element = document.createElement('a');
+    element.setAttribute('target','_new');
+    element.href = '#';
+    document.body.appendChild(element);
+    element.click();
+
+    expect(called).toBeFalsy();
+  });
+
 
   it('will not add a new entry to the history when url can not be handled', function(done) {
     var dummyRouter = {
