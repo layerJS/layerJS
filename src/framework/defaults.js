@@ -38,6 +38,7 @@ module.exports = {
     next  :'!next',
     previous : '!prev',
     default : '!default',
-    current: '!current'
+    current: '!current',
+    toggle: '!toggle'
   }
 };

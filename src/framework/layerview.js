@@ -15,7 +15,7 @@ var BaseView = require('./baseview.js');
  */
 
 var LayerView = BaseView.extend({
-  constructor: function(options) {
+  constructor: function (options) {
     options = options || {};
     options.childType = 'frame';
     this.transitionQueue = new Kern.Queue();
@@ -47,7 +47,7 @@ var LayerView = BaseView.extend({
 
     var that = this;
 
-    this.onResizeCallBack = function() {
+    this.onResizeCallBack = function () {
       // when doing a transform, the callback should not be called
       //   if (!that.inTransition()) {
       that.render();
@@ -69,7 +69,7 @@ var LayerView = BaseView.extend({
     });
 */
     // listen to scroll events
-    this.on('scroll', function() { // jshint ignore:line
+    this.on('scroll', function () { // jshint ignore:line
       //that._layout.updateTransitions(); // FIXME: notify layout about scroll and that prepared transitions may be outdated
       this.trigger('scrolled');
     });
@@ -113,7 +113,7 @@ var LayerView = BaseView.extend({
   /**
    * Specifies what will need to be observed on the DOM element. (Attributes, Children and size)
    */
-  startObserving: function() {
+  startObserving: function () {
     BaseView.prototype.observe.call(this, this.innerEl, {
       attributes: true,
       attributeFilter: ['name', 'lj-name', 'id', 'lj-layout-type', 'lj-native-scroll', 'lj-no-scrolling'],
@@ -124,14 +124,14 @@ var LayerView = BaseView.extend({
    * Will add eventhandlers to specific events. It will handle a 'childrenChanged', 'sizeChanged' and
    * 'attributesChanged' event. It will also handle it's parent 'renderRequired' event.
    */
-  registerEventHandlers: function() {
+  registerEventHandlers: function () {
     var that = this;
     BaseView.prototype.registerEventHandlers.call(this);
 
     this.on('attributesChanged', this.attributesChanged);
 
     if (this.parent) {
-      this.parent.on('renderRequired', function() {
+      this.parent.on('renderRequired', function () {
         // this check can be disabled
         //if (!that.inTransition()) {
         that.render();
@@ -139,7 +139,7 @@ var LayerView = BaseView.extend({
       });
     }
 
-    this.on('transitionStarted', function() {
+    this.on('transitionStarted', function () {
       that.autoTrigger();
     });
   },
@@ -147,7 +147,7 @@ var LayerView = BaseView.extend({
    * Will be invoked the an 'attributesChanged' event is triggered.
    * @param {Object} attributes - a hash object the contains the changed attributes
    */
-  attributesChanged: function(attributes) {
+  attributesChanged: function (attributes) {
 
     if (attributes['lj-native-scroll'] || attributes['data-lj-native-scroll'] !== -1) {
       this.switchScrolling(this.nativeScroll());
@@ -168,7 +168,7 @@ var LayerView = BaseView.extend({
    * @param {Type} Name - Description
    * @returns {Type} Description
    */
-  autoTrigger: function() {
+  autoTrigger: function () {
     var timerRoute = this.timer();
     if (timerRoute) {
       if (timerRoute.match(/^[0-9]/)) timerRoute = "#!next&d=" + timerRoute; // interprete tie values (e.g. 2s) as #!next&d=2s
@@ -179,7 +179,7 @@ var LayerView = BaseView.extend({
    * Will place a child view at the correct position.
    * @param {Object} childView - the childView
    */
-  renderChildPosition: function(childView) {
+  renderChildPosition: function (childView) {
     // function is called when children are getting parsed. At that point, the layout can still be undefined
     if (!this._layout) {
       this.switchLayout(this.layoutType());
@@ -194,7 +194,7 @@ var LayerView = BaseView.extend({
    * @param {number} duration - specify the expected length of the transition.
    * @returns {boolean} inTranstion or not
    */
-  inTransition: function(_inTransition, duration) {
+  inTransition: function (_inTransition, duration) {
     duration = duration ? 50 + Number.parseFloat(duration) : 0; // add a safety time as the actual transition may start a bit later (syncing etc) and we don't want to interrupt the transition by a size-changed transition that doesn't know that a transition is still going on. If a transition is interupted, all the transitionend listeners will be called after the next successful transition only<
     if (_inTransition) {
       var that = this;
@@ -203,7 +203,7 @@ var LayerView = BaseView.extend({
       this._inTransitionDuration = duration;
       this._intransitionID = tID;
       this._inTransition = true;
-      setTimeout(function() {
+      setTimeout(function () {
         if (tID === that.transitionID) {
           delete that._inTransitionTimestamp;
           delete that._inTransitionDuration;
@@ -224,7 +224,7 @@ var LayerView = BaseView.extend({
    *
    * @returns {number/boolean} duration left in ms or false
    */
-  getRemainingTransitionTime: function() {
+  getRemainingTransitionTime: function () {
     if (this._inTransition) {
       return Math.max(1, this._inTransitionDuration - (Date.now() - this._inTransitionTimestamp) - 50); // the 50 were added in inTransition()
     } else {
@@ -237,7 +237,7 @@ var LayerView = BaseView.extend({
    * @param {boolean} nativeScrolling
    * @returns {void}
    */
-  switchScrolling: function(nativeScrolling) {
+  switchScrolling: function (nativeScrolling) {
     this.unobserve();
     var hasScroller = this.outerEl.children.length === 1 && $.getAttributeLJ(this.outerEl.children[0], 'helper') === 'scroller';
 
@@ -271,7 +271,7 @@ var LayerView = BaseView.extend({
    *
    * @returns {Object} {scrollX: scrollX scrollY: scrollY}
    */
-  getCurrentScroll: function() {
+  getCurrentScroll: function () {
     return {
       scrollX: this.currentFrameTransformData.scrollX,
       scrollY: this.currentFrameTransformData.scrollY
@@ -285,7 +285,7 @@ var LayerView = BaseView.extend({
    * @param {object} transition - optional: includes duration: and optional scrollX, scrollY or startPosition
    * @returns {Promise} a promise that resolves when transition is finished
    */
-  scrollTo: function(scrollX, scrollY, transition) {
+  scrollTo: function (scrollX, scrollY, transition) {
     if (this.currentFrame === null) return;
     transition = transition || {};
     if (transition.startPosition) { // need to recalculate transform data if startPosition has changed
@@ -319,8 +319,8 @@ var LayerView = BaseView.extend({
    * @param {string} layoutType - the name of the layout type
    * @returns {void}
    */
-  switchLayout: function(layoutType) {
-    this._layout = new(layoutManager.get(layoutType))(this);
+  switchLayout: function (layoutType) {
+    this._layout = new (layoutManager.get(layoutType))(this);
     this._transformer = this._layout.getScrollTransformer() || new ScrollTransformer(this);
 
     if (this.currentFrame) {
@@ -334,7 +334,7 @@ var LayerView = BaseView.extend({
    * @param {Object} css - set the transitions property here
    * @returns {Promise} fullfilled after trnaisiton ends
    */
-  setLayerTransform: function(transform, cssTransition) {
+  setLayerTransform: function (transform, cssTransition) {
     var d = 0;
     if (cssTransition && cssTransition.transition) {
       d = $.timeToMS(cssTransition.transition); // FIXME there could be other values in transition and the duration may be set through transition-duration
@@ -345,7 +345,7 @@ var LayerView = BaseView.extend({
       transition: d
     });
   },
-  gestureListener: function(gesture) {
+  gestureListener: function (gesture) {
     if (gesture.event._ljEvtHndld && gesture.event._ljEvtHndld !== this) return; // check if some inner layer has already dealt with the gesture/event
     gesture.event._ljEvtHndld = this;
     if (this.currentFrame === null) { //this actually shouldn't happen as null frames don't have a DOM element that could receive a gesture. However it happens when the gesture still continues from before the transition. Still we can't do anything here as we can't define neighbors for null frames (maybe later)
@@ -406,7 +406,7 @@ var LayerView = BaseView.extend({
    * transition object where only startPosition, scrollX and scrollY is considered
    * @returns {Kern.Promise} a promise fullfilled after the show frame has finished.
    */
-  showFrame: function(framename, scrollData) {
+  showFrame: function (framename, scrollData) {
     if (!this.stage) {
       return;
     }
@@ -424,7 +424,7 @@ var LayerView = BaseView.extend({
 
     return this.transitionTo(framename, scrollData);
   },
-  noFrameTransformdata: function(transitionStartPosition) {
+  noFrameTransformdata: function (transitionStartPosition) {
     if (this._noframetd && this._noframetd.startPosition === transitionStartPosition) return this._noframetd;
     var d = this._noframetd = {};
     d.stage = this.stage;
@@ -481,7 +481,7 @@ var LayerView = BaseView.extend({
    * @param {Object} [transition] - (optional) transition object
    * @returns {Kern.Promise} a promise fullfilled after the transition finished. Note: if you start another transition before the first one finished, this promise will not be resolved.
    */
-  transitionTo: function(framename, transition) {
+  transitionTo: function (framename, transition) {
     var that = this;
     transition = transition || {};
     // is framename  omitted?
@@ -498,7 +498,7 @@ var LayerView = BaseView.extend({
 
     if (transition.delay) { // handle delayed transition
       if (transition.semaphore) transition.semaphore.skip();
-      setTimeout(function() {
+      setTimeout(function () {
         if (transition.groupId !== that.lastgroupId) return; // skip if there was another transition triggered in between
         delete transition.semaphore;
         delete transition.delay;
@@ -509,7 +509,7 @@ var LayerView = BaseView.extend({
     }
 
 
-    var transitionFunction = function() {
+    var transitionFunction = function () {
       if (!framename && null !== framename) throw "transformTo: no frame given";
       // lookup frame by framename
       var frame = framename ? that._getFrame(framename, transition) : null;
@@ -555,10 +555,10 @@ var LayerView = BaseView.extend({
         transition.semaphore = (new Kern.Semaphore()).register();
       }
       // add listener to the sempahore to get the moment the animation really startsWith
-      transition.semaphore.listen(true).then(function(num) {
+      transition.semaphore.listen(true).then(function (num) {
         if (num > 0 && (transition.applyTargetPrePosition !== false || transition.interStage)) that.trigger('transitionPrepared'); // notify listeners about prepared state. (unless all have skipped, e.g. delayed transitions)
       });
-      transition.semaphore.listen().then(function() {
+      transition.semaphore.listen().then(function () {
         that.updateClasses(); // update classes;
         that.transitionQueue.continue(); // allow processing of next transition from queue
       });
@@ -574,7 +574,7 @@ var LayerView = BaseView.extend({
       $.debug('running new transition', transition.transitionID, transition, framename, that.id());
 
       // make sure frame is there such that we can calculate dimensions and transform data
-      return that._layout.loadFrame(frame).then(function() {
+      return that._layout.loadFrame(frame).then(function () {
         // calculate the layer transform for the target frame. Note: that will automatically consider native scrolling
         // getScrollIntermediateTransform will not change the current native scroll position but will calculate
         // a compensatory transform for the target scroll position.
@@ -600,7 +600,7 @@ var LayerView = BaseView.extend({
 
             var p = new Kern.Promise();
             that.trigger('transitionStarted', framename, transition);
-            transition.semaphore.sync().then(function() {
+            transition.semaphore.sync().then(function () {
 
               if (!transition.wasInTransition) {
                 that.trigger('transitionFinished', framename);
@@ -613,7 +613,7 @@ var LayerView = BaseView.extend({
           }
         }
         if (frame) frame.inTransition = true;
-        var layoutPromise = that._layout.transitionTo(frame, transition, targetFrameTransformData, targetTransform).then(function() {
+        var layoutPromise = that._layout.transitionTo(frame, transition, targetFrameTransformData, targetTransform).then(function () {
           // is that still the active transition?
           if (transition.transitionID === that.transitionID) {
             $.debug('transition finished', transition.transitionID);
@@ -628,7 +628,7 @@ var LayerView = BaseView.extend({
             }
             that.updateClasses();
             if (frame) frame.inTransition = false;
-            $.postAnimationFrame(function() {
+            $.postAnimationFrame(function () {
               that.trigger('transitionFinished', framename);
             });
           }
@@ -647,7 +647,7 @@ var LayerView = BaseView.extend({
     };
 
     if (addToQueue) {
-      return this.transitionQueue.add(transition.isEvent && 'event').then(function() {
+      return this.transitionQueue.add(transition.isEvent && 'event').then(function () {
         try {
           return transitionFunction();
         } catch (e) {
@@ -666,7 +666,7 @@ var LayerView = BaseView.extend({
    * @param {Object} [transition] - (optional) transition object
    * @returns {Object} a frame
    */
-  _getFrame: function(frameName, transition) {
+  _getFrame: function (frameName, transition) {
     if (frameName === defaults.specialFrames.left || frameName === defaults.specialFrames.right || frameName === defaults.specialFrames.top || frameName === defaults.specialFrames.bottom) {
 
       if (null !== this.currentFrame) {
@@ -700,7 +700,13 @@ var LayerView = BaseView.extend({
         }
       }
     }
-
+    if (frameName === defaults.specialFrames.toggle) {
+      if (null === this.currentFrame) {
+        frameName = defaults.specialFrames.next;
+      } else {
+        frameName = defaults.specialFrames.none;
+      }
+    }
     if (frameName === defaults.specialFrames.next) {
       frameName = this._getNextFrameName();
     } else if (frameName === defaults.specialFrames.previous) {
@@ -732,7 +738,7 @@ var LayerView = BaseView.extend({
    *
    * @returns {string} a framename
    */
-  _getNextFrameName: function() {
+  _getNextFrameName: function () {
     var frameName;
     var childViews = this.getChildViews();
 
@@ -759,7 +765,7 @@ var LayerView = BaseView.extend({
    *
    * @returns {string} a framename
    */
-  _getPreviousFrameName: function() {
+  _getPreviousFrameName: function () {
     var frameName;
     var childViews = this.getChildViews();
 
@@ -781,7 +787,7 @@ var LayerView = BaseView.extend({
 
     return frameName;
   },
-  getCurrentTransform: function() {
+  getCurrentTransform: function () {
     return this.currentTransform;
   },
   /**
@@ -790,7 +796,7 @@ var LayerView = BaseView.extend({
    * @param {Type} Name - Description
    * @returns {Type} Description
    */
-  updateClasses: function() {
+  updateClasses: function () {
     var childViews = this.getChildViews();
     var length = childViews.length;
     for (var i = 0; i < length; i++) {
@@ -812,7 +818,7 @@ var LayerView = BaseView.extend({
    * @param {ElementView} childView - the child view that has changed
    * @returns {Type} Description
    */
-  _renderChildPosition: function(childView) {
+  _renderChildPosition: function (childView) {
     if (!this._layout) {
       this.switchLayout(this.layoutType());
     }
@@ -824,7 +830,7 @@ var LayerView = BaseView.extend({
   /**
    * Method will render the layer
    */
-  render: function() {
+  render: function () {
     var childViews = this.getChildViews();
     var length = childViews.length;
     var scrollData = this.currentFrame !== null ? this.currentFrame.getScrollData() : {};
@@ -843,7 +849,7 @@ var LayerView = BaseView.extend({
    * Will parse the current DOM Element it's children.
    * @param {object} options - optional: includes addedNodes
    */
-  _parseChildren: function(options) {
+  _parseChildren: function (options) {
 
     BaseView.prototype._parseChildren.call(this, options);
 
@@ -851,7 +857,7 @@ var LayerView = BaseView.extend({
     var that = this;
 
     if (options && options.removedNodes && options.removedNodes.length > 0) {
-      options.removedNodes.forEach(function(removedNode) {
+      options.removedNodes.forEach(function (removedNode) {
         if (removedNode._ljView) {
           removedNode._ljView.off('renderRequired', undefined, that);
         }
@@ -869,7 +875,7 @@ var LayerView = BaseView.extend({
     }
 
 
-    var renderRequiredEventHandler = function(name) {
+    var renderRequiredEventHandler = function (name) {
       if (that.currentFrame && null !== that.currentFrame && that.currentFrame.name() === name) {
         that._renderChildPosition(that._cache.childNames[name]);
         that.render();
@@ -883,14 +889,14 @@ var LayerView = BaseView.extend({
     }
   }
 }, {
-  defaultProperties: {
-    type: 'layer'
-  },
-  identify: function(element) {
-    var type = $.getAttributeLJ(element, 'type');
-    return null !== type && type.toLowerCase() === LayerView.defaultProperties.type;
-  }
-});
+    defaultProperties: {
+      type: 'layer'
+    },
+    identify: function (element) {
+      var type = $.getAttributeLJ(element, 'type');
+      return null !== type && type.toLowerCase() === LayerView.defaultProperties.type;
+    }
+  });
 
 pluginManager.registerType('layer', LayerView, defaults.identifyPriority.normal);
 
