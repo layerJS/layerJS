@@ -197,7 +197,7 @@ var LayerView = BaseView.extend({
   inTransition: function(_inTransition, transition) {
     if (_inTransition) {
       var that = this;
-      var duration = transition.duration ? 50 + Number.parseFloat(transition.duration) : 0; // add a safety time as the actual transition may start a bit later (syncing etc) and we don't want to interrupt the transition by a size-changed transition that doesn't know that a transition is still going on. If a transition is interupted, all the transitionend listeners will be called after the next successful transition only<
+      var duration =  (transition && transition.duration) ? 50 + Number.parseFloat(transition.duration) : 0; // add a safety time as the actual transition may start a bit later (syncing etc) and we don't want to interrupt the transition by a size-changed transition that doesn't know that a transition is still going on. If a transition is interupted, all the transitionend listeners will be called after the next successful transition only<
       this._inTransitionTimestamp = Date.now();
       this._inTransitionDuration = duration;
       this._intransitionID = transition.transitionID;

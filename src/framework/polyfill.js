@@ -22,3 +22,8 @@ if (!String.prototype.startsWith) {
     }
   });
 }
+
+if (!Number.parseFloat) {
+  //not all browsers support Number.parseFloat
+  Number.parseFloat = parseFloat;
+}
