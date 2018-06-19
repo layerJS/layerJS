@@ -233,12 +233,14 @@ var Router = Kern.EventManager.extend({
         state: stateToSave,
         transitions: transitions,
       }, "", url);
+      document.title = options.pageTitle;
     } else if (window.history && (!payload || !payload.noHistory || payload.initial)) {
       // keep in account of the payload noHistory. This is imported when the a onpopstate event is fired. This event should not add anything to the history
       window.history.replaceState({
         state: stateToSave,
         transitions: transitions,
       }, "", url);
+      document.title = options.pageTitle;
     }
   }
 });

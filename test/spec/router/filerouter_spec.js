@@ -1,11 +1,11 @@
 describe('Filerouter', function() {
-  var FileRouter= require('../../../src/framework/router/filerouter.js');
+  var FileRouter = require('../../../src/framework/router/filerouter.js');
   var nock = require('nock');
   var utilities = require('../helpers/utilities.js');
 
   beforeEach(function() {
     state = layerJS.getState();
-//    window.location.href = "http://localhost/";
+    //    window.location.href = "http://localhost/";
 
     utilities.setHtml('<div data-lj-type="stage" id="contentstage">' +
       '<div data-lj-type="layer" id="contentlayer" data-lj-default-frame="frame1">' +
@@ -43,7 +43,7 @@ describe('Filerouter', function() {
     var fileRouter = new FileRouter();
     var options = {
       location: 'http://localhost/somePage.html',
-      queryString : '',
+      queryString: '',
       transitions: [],
       globalTransition: {
         type: 'left'
@@ -110,7 +110,7 @@ describe('Filerouter', function() {
     var fileRouter = new FileRouter();
     var promise = fileRouter.handle({
       location: 'http://localhost/somePage.html',
-      queryString : '',
+      queryString: '',
       transitions: [],
       globalTransition: {}
     });
@@ -148,7 +148,7 @@ describe('Filerouter', function() {
 
     var options = {
       location: 'http://localhost/somePage.html',
-      queryString : '',
+      queryString: '',
       transitions: [],
       globalTransition: transitionOptions
     };
@@ -159,7 +159,10 @@ describe('Filerouter', function() {
 
     promise.then(function(result) {
       expect(fileRouter.routes['http://localhost/somePage.html']).toBeDefined();
-      expect(fileRouter.routes['http://localhost/somePage.html']).toEqual(result.paths);
+      expect(fileRouter.routes['http://localhost/somePage.html']).toEqual({
+        pageTitle: '',
+        state: result.paths
+      });
       expect(result.transitions.length).toBe(1);
       done();
     });
@@ -185,7 +188,10 @@ describe('Filerouter', function() {
     var layerView = document.getElementById('contentlayer')._ljView;
 
     var fileRouter = new FileRouter();
-    fileRouter.routes['http://localhost/somePage.html'] = ['contentstage.contentlayer.frame2'];
+    fileRouter.routes['http://localhost/somePage.html'] = {
+      pageTitle: '',
+      state: ['contentstage.contentlayer.frame2']
+    };
     var options = {
       location: 'http://localhost/somePage.html',
       queryString: '',
@@ -210,14 +216,20 @@ describe('Filerouter', function() {
     var fileRouter = new FileRouter({
       cacheCurrent: true
     });
-    expect(fileRouter.routes['http://localhost/']).toEqual(state.exportState());
+    expect(fileRouter.routes['http://localhost/'].state).toEqual(state.exportState());
   });
 
-  it('can build an url based on it\'s cached states', function() {
+  it('can build an url based on it\'s cached routes', function() {
     var fileRouter = new FileRouter();
 
-    fileRouter.routes['http://localhost/index.html?id=1&a=4'] = ['stage1.layer1.frame1', 'stage1.layer2.frame2', 'stage1.layer3.frame3'];
-    fileRouter.routes['http://localhost/index2.html'] = ['stage1.layer1.frame1', 'stage1.layer2.frame3'];
+    fileRouter.routes['http://localhost/index.html?id=1&a=4'] = {
+      pageTitle: 'index',
+      state: ['stage1.layer1.frame1', 'stage1.layer2.frame2', 'stage1.layer3.frame3']
+    };
+    fileRouter.routes['http://localhost/index2.html'] = {
+      pageTitle: 'index2',
+      state: ['stage1.layer1.frame1', 'stage1.layer2.frame3']
+    };
 
     var options = {
       url: '',
@@ -225,24 +237,32 @@ describe('Filerouter', function() {
     };
 
     fileRouter.buildUrl(options);
+    expect(options.pageTitle).toBe('index');
     expect(options.location).toBe('http://localhost/index.html');
     expect(options.queryString).toBe('id=1&a=4');
     expect(options.state).toEqual(['stage1.layer4.frame2']);
   });
 
-it('can build an url based on it\'s cached states (and will take omittedStates into account)', function() {
+  it('can build an url based on it\'s cached routes (and will take omittedStates into account)', function() {
     var fileRouter = new FileRouter();
 
-    fileRouter.routes['http://localhost/index.html?id=1&a=4'] = ['stage1.layer1.frame1', 'stage1.layer2.frame2', 'stage1.layer3.frame3'];
-    fileRouter.routes['http://localhost/index2.html'] = ['stage1.layer1.frame1', 'stage1.layer2.frame3'];
+    fileRouter.routes['http://localhost/index.html?id=1&a=4'] = {
+      pageTitle: 'index',
+      state: ['stage1.layer1.frame1', 'stage1.layer2.frame2', 'stage1.layer3.frame3']
+    };
+    fileRouter.routes['http://localhost/index2.html'] = {
+      pageTitle: 'index2',
+      state: ['stage1.layer1.frame1', 'stage1.layer2.frame3']
+    };
 
     var options = {
       url: '',
       state: ['stage1.layer1.frame1', 'stage1.layer4.frame2'],
-      omittedStates : ['stage1.layer2.frame2']
+      omittedStates: ['stage1.layer2.frame2']
     };
 
     fileRouter.buildUrl(options);
+    expect(options.pageTitle).toBe('index');
     expect(options.location).toBe('http://localhost/index.html');
     expect(options.queryString).toBe('id=1&a=4');
     expect(options.state).toEqual(['stage1.layer4.frame2']);

@@ -10,14 +10,14 @@ var StaticRouter = Kern.EventManager.extend({
    * add a static route to the routers
    *
    * @param {string} url - the url of the route
-   * @param {Array} state - the state of the route
+   * @param {object} options - contains the state and page title of the route
    * @param {boolean} nomodify - don't modify route if already set
    * @returns {Type} Description
    */
-  addRoute: function(url, state, nomodify) {
+  addRoute: function(url, options, nomodify) {
     url = $.getAbsoluteUrl(url); // make url absolute
     if (!nomodify || !this.routes.hasOwnProperty(url)) {
-      this.routes[url] = state;
+      this.routes[url] = options;
     }
   },
   /**
@@ -46,7 +46,7 @@ var StaticRouter = Kern.EventManager.extend({
     var transitions = [];
 
     if (result) {
-      activeFrames = this.routes[url];
+      activeFrames = this.routes[url].state;
       activeFrames.forEach(function() {
         transitions.push(Kern._extend({}, options.globalTransition)); // we need to add a transition record for each path, otherwise we get in trouble if other routers will add paths and transitions as well
       });
@@ -75,14 +75,14 @@ var StaticRouter = Kern.EventManager.extend({
     var url = $.joinUrl(options, true);
     foundUrl = url;
     var find = function(path) {
-      return that.routes[url] && that.routes[url].indexOf(path) !== -1;
+      return that.routes[url] && that.routes[url].state.indexOf(path) !== -1;
     };
     // check how many state paths can be explained by the current url (we need to prefer the current url over other urls)
     var foundPaths = state.filter(find);
     var foundPathsLength = foundPaths.length;
     // search how many of the current state's paths can be explained by the state stored for each url in the routes hash
     for (url in this.routes) {
-      if (this.routes.hasOwnProperty(url) && this.routes[url].length > foundPathsLength) {
+      if (this.routes.hasOwnProperty(url) && this.routes[url].state.length > foundPathsLength) {
         var found = state.filter(find);
         var count = found.length;
         if (count > foundPathsLength) {
@@ -92,10 +92,13 @@ var StaticRouter = Kern.EventManager.extend({
         }
       }
     }
+
+    options.pageTitle = this.routes[foundUrl].pageTitle;
     // update URL to be shown later on
     foundUrl = $.splitUrl(foundUrl);
     options.location = foundUrl.location;
     options.queryString = foundUrl.queryString; // NOTE: this removes all other query params, not sure this is good or not.
+
 
     // remove paths from state that are already explained by the cached URL
     foundPaths.forEach(function(path) {

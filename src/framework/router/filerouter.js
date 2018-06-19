@@ -16,7 +16,10 @@ var FileRouter = StaticRouter.extend({
       var parsed = $.splitUrl(window.location.href);
       parsed.queryString = $.parseStringForTransitions(parsed.queryString, true).string;
       // FIXME: this need to wait for state.initialized
-      this.addRoute($.joinUrl(parsed, true), this._state.exportState());
+      this.addRoute($.joinUrl(parsed, true), {
+        pageTitle: document.title,
+        state: this._state.exportState()
+      });
     }
   },
   /**
@@ -111,7 +114,10 @@ var FileRouter = StaticRouter.extend({
               return Kern._extend({}, options.globalTransition);
             });
             // cache the new state so that we don't need to request the same page again.
-            that.addRoute($.joinUrl(options, true), exportedState);
+            that.addRoute($.joinUrl(options, true), {
+              state: exportedState,
+              pageTitle: doc.title
+            });
 
             // we modified HTML. need to wait for rerender and mutation observers
             $.postAnimationFrame(function() {
