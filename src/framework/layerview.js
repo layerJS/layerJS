@@ -83,12 +83,12 @@ var LayerView = BaseView.extend({
     // set the initial frame if possible
     var currentFrame;
     var defaultFrame = this.defaultFrame();
-    if (defaultFrame && defaultFrame !== '!none') {
+    if (defaultFrame && defaultFrame !== defaults.specialFrames.none) {
       currentFrame = this._getFrame(defaultFrame) || null;
       if (!currentFrame) console.warn("layerJS: layer '" + this.name() + "': could not find defaultframe: '" + defaultFrame + "'");
     }
     // set first frame if possible
-    if (!currentFrame && defaultFrame !== '!none') {
+    if (!currentFrame && defaultFrame !== defaults.specialFrames.none) {
       currentFrame = this._getFrame(defaults.specialFrames.next) || null;
     }
 
@@ -415,7 +415,7 @@ var LayerView = BaseView.extend({
     scrollData = Kern._extend({
       scrollX: 0,
       scrollY: 0,
-      lastFrameName: (this.currentFrame && this.currentFrame.name()) || "!none",
+      lastFrameName: (this.currentFrame && this.currentFrame.name()) || defaults.specialFrames.none,
       applyTargetPrePosition: false,
       applyCurrentPostPosition: this.currentFrame ? framename !== this.currentFrame.name() && framename !== defaults.specialFrames.current : false,
       applyCurrentPrePosition: false,
@@ -533,7 +533,7 @@ var LayerView = BaseView.extend({
         type: transition && transition.type ? 'default' : (frame && frame.defaultTransition()) || that.defaultTransition() || autotransition || 'default',
         previousType: transition && transition.type ? undefined : (that.currentFrame && that.currentFrame.defaultTransition()) || undefined,
         duration: defaults.defaultDuration,
-        lastFrameName: (that.currentFrame && that.currentFrame.name()) || "!none",
+        lastFrameName: (that.currentFrame && that.currentFrame.name()) || defaults.specialFrames.none,
         frame: frame,
         framename : framename,
         applyTargetPrePosition: !transition.noActivation && (transition.applyTargetPrePosition || (frame && frame.parent && frame.parent === that)) || false, // we need to set this here for interstage transitions; loadframe doesn't know about the transition record.
