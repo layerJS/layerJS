@@ -71,7 +71,7 @@ var Router = Kern.EventManager.extend({
     // register link listener
     $.addDelegtedListener(this.rootElement, 'click', 'a:not([data-lj-nolink=\'true\']):not([lj-nolink=\'true\'])', function(event) {
       //delete that.ignoreUrl;
-      
+
       var _navigationHandler = function(result) {
         if (!result) {
           setTimeout(function() { // why do we have to get at the end of the queue?
@@ -80,11 +80,11 @@ var Router = Kern.EventManager.extend({
           }, 1);
         }
       };
-  
+
       if (this.href !== '' && !this.href.startsWith('javascript:')) { // jshint ignore:line
         // get the explicitly given href (that is not extended) to see the intention of the user
         var href = this.getAttribute('href');
-  
+
         // check for target attr
         var tget = this.getAttribute('target');
         // if target is != '_self', honor it as user intention
@@ -92,11 +92,11 @@ var Router = Kern.EventManager.extend({
           return;
         }
         else {
-  
+
           event.preventDefault(); // prevent default action, i.e. going to link target
           // do not stop propagation; other libraries may listen to link clicks
           that.navigate(href, $.findParentViewOfType(this, 'layer')).then( _navigationHandler );
-        }    
+        }
       }
     });
   },
@@ -139,9 +139,9 @@ var Router = Kern.EventManager.extend({
         // determine is it was a clickevent and if we need to add this to the history
         if (initial === true) {
           // this is the initial navigation ( page just loaded) so we should do a show
-          that.state.showState(options.paths, [], {
+          that.state.showState(options.paths, options.transitions, {
             paths: options.paths,
-            transitions: [],
+            transitions: options.transitions,
             noHistory: noHistory,
             originalUrl: href,
             initial: initial
