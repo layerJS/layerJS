@@ -535,5 +535,12 @@ utilities.exportState = function() {
   });
 };
 
+utilities.getFitTo = function(ljViewId) {
+  return browser.driver.executeAsyncScript(function(ljViewId, callBack) {
+    var ljView = document.getElementById(ljViewId)._ljView;
+    callBack(ljView.fitTo());
+  }, ljViewId);
+};
+
 
 module.exports = utilities;

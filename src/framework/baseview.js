@@ -24,9 +24,9 @@ var BaseView = DOMObserver.extend({
     this.parent = options.parent;
     this.innerEl = this.innerEl || options.el;
     // backlink from DOM to object
-    if (this.innerEl._ljView){
-       throw "trying to initialialize view on element that already has a view";
-     }
+    if (this.innerEl._ljView) {
+      throw "trying to initialialize view on element that already has a view";
+    }
     this.innerEl._ljView = this;
     // possible wrapper element
     this.outerEl = this.outerEl || options.el || this.innerEl;
@@ -117,7 +117,7 @@ var BaseView = DOMObserver.extend({
         // check if added nodes don't already have a view defined.
         if (options.addedNodes[x].parentElement !== this.innerEl) continue;
         if (!options.addedNodes[x]._ljView) {
-          if (!parsed) {// we only need to parse once as we start parsing at the parent
+          if (!parsed) { // we only need to parse once as we start parsing at the parent
             parseManager.parseElement(options.addedNodes[x].parentNode, {
               parent: this
             });
@@ -201,7 +201,11 @@ var BaseView = DOMObserver.extend({
    * @param {String} data - the value of the attribute
    */
   setAttributeLJ: function(name, data) {
-    $.setAttributeLJ(this.outerEl, name, data);
+    if ($.hasCssAttributeLJ(this.outerEl,name)) {
+      $.setCssAttributeLJ(this.outerEl, name, data);
+    } else {
+      $.setAttributeLJ(this.outerEl, name, data);
+    }
   },
   /**
    * Will get the value of an lj-* attribute on the outer element
@@ -210,7 +214,7 @@ var BaseView = DOMObserver.extend({
    * @return {String} the value of the attribute
    */
   getAttributeLJ: function(name) {
-    return $.getAttributeLJ(this.outerEl, name);
+    return $.getCssAttributeLJ(this.outerEl, name) || $.getAttributeLJ(this.outerEl, name);
   },
   /**
    * Will get the value of an attribute on the outer element

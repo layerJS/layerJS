@@ -189,6 +189,20 @@ var DomHelpers = {
   getAttributeLJ: function(element, name) {
     return element.getAttribute('data-lj-' + name) || element.getAttribute('lj-' + name);
   },
+
+  /**
+   * Will get the value for a --lj-* from the css
+   *
+   * @param {HTMLElement} element
+   * @param {string} name - the attribute name
+   * @returns {string}
+   */
+  getCssAttributeLJ: function(element, name) {
+    var result = getComputedStyle(element).getPropertyValue('--lj-' + name);
+
+    return result ? result.trim() : result;
+  },
+
   /**
    * Check if the element has a data-lj-* or lj-* attribute defined
    *
@@ -198,6 +212,17 @@ var DomHelpers = {
    */
   hasAttributeLJ: function(element, name) {
     return element.hasAttribute('data-lj-' + name) || element.hasAttribute('lj-' + name);
+  },
+
+  /**
+   * Check if the element has a --lj-* in the css
+   *
+   * @param {HTMLElement} element
+   * @param {string} name - the attribute name
+   * @returns {boolean}
+   */
+  hasCssAttributeLJ: function(element, name) {
+    return getComputedStyle(element).getPropertyValue('--lj-' + name);
   },
   /**
    * Set the data-lj-* or lj-* attribute
@@ -213,6 +238,17 @@ var DomHelpers = {
     } else {
       element.setAttribute(name, value);
     }
+  },
+  /**
+   * Set the --lj-* in css
+   *
+   * @param {HTMLElement} element
+   * @param {string} name - the attribute name
+   * @param {string} value - the attribute value
+   */
+  setCssAttributeLJ: function(element, name, value) {
+    var style = element.style;
+    style['--lj-' + name] = value;
   },
   /**
    * Will try to find a parent view of a specific type
