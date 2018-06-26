@@ -198,7 +198,7 @@ var DomHelpers = {
    * @returns {string}
    */
   getCssAttributeLJ: function(element, name) {
-    var result = getComputedStyle(element).getPropertyValue('--lj-' + name);
+    var result = window.getComputedStyle(element, null).getPropertyValue('--lj-' + name);
 
     return result ? result.trim() : result;
   },
@@ -222,7 +222,7 @@ var DomHelpers = {
    * @returns {boolean}
    */
   hasCssAttributeLJ: function(element, name) {
-    return getComputedStyle(element).getPropertyValue('--lj-' + name);
+    return window.getComputedStyle(element, null).getPropertyValue('--lj-' + name);
   },
   /**
    * Set the data-lj-* or lj-* attribute
