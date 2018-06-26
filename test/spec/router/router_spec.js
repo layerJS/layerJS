@@ -295,6 +295,7 @@ describe('router', function() {
   });
 
   it('will use the replacestate after a transition that started with a click (no-url)', function(done) {
+    debugger;
     var newUrl;
     var newState;
     window.history.replaceState = function(param1, param2, url) {
@@ -324,7 +325,7 @@ describe('router', function() {
       expect(newState).toEqual(['stage1.layer1.frame2','stage1.layer1.frame1$' ])
       done();
     }, 2000);
-  });
+  },5000);
 
   it('layerJS.init() will call the navigate function', function() {
     var promise = new Kern.Promise();
