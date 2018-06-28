@@ -144,7 +144,7 @@ describe("LayerView", function() {
         "<div data-lj-type='frame' id='frame2' data-lj-name='frame2'></div>" +
         "</div>" +
         "</div>", '!next', 'frame2', done);
-    }, 1000);
+    });
 
     it('!prev', function(done) {
       check("<div data-lj-type='stage' id='stage1'>" +
