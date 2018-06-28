@@ -226,7 +226,7 @@ describe('state', function() {
       }
       expect(state.exportState()).toEqual(expectedState);
       done();
-    }, 100);
+    }, 1000);
   }
 
   describe('can transition to a named state', function() {
@@ -238,7 +238,7 @@ describe('state', function() {
       "</div>";
 
     it('full path', function(done) {
-      transitionTo(html, ['stage1.layer1.frame2'], ['stage1.layer1.frame2'], 'frame2', done);
+        transitionTo(html, ['stage1.layer1.frame2'], ['stage1.layer1.frame2'], 'frame2', done);
     });
 
     it('none', function(done) {
@@ -327,7 +327,7 @@ describe('state', function() {
       var exportedState = state.exportState();
       expect(exportedState).toEqual(expectedState);
       done();
-    }, 200);
+    }, 1000);
   }
 
   describe('can show to a named state', function() {
