@@ -197,21 +197,24 @@ var LayerView = BaseView.extend({
   inTransition: function(_inTransition, transition) {
     if (_inTransition) {
       var that = this;
-      var duration =  (transition && transition.duration) ? 50 + Number.parseFloat(transition.duration) : 0; // add a safety time as the actual transition may start a bit later (syncing etc) and we don't want to interrupt the transition by a size-changed transition that doesn't know that a transition is still going on. If a transition is interupted, all the transitionend listeners will be called after the next successful transition only<
+      var duration = (transition && transition.duration) ? 50 + Number.parseFloat(transition.duration) : 0; // add a safety time as the actual transition may start a bit later (syncing etc) and we don't want to interrupt the transition by a size-changed transition that doesn't know that a transition is still going on. If a transition is interupted, all the transitionend listeners will be called after the next successful transition only<
+
       this._inTransitionTimestamp = Date.now();
       this._inTransitionDuration = duration;
       this._intransitionID = transition.transitionID;
       this._inTransition = true;
-      setTimeout(function() {
-        that._transitionEnd(transition);
-        /*
-        if (tID === that.transitionID) {
-          delete that._inTransitionTimestamp;
-          delete that._inTransitionDuration;
-          delete that._intransitionID;
-          that._inTransition = false;
-        }*/
-      }, duration);
+      if (duration > 0) {
+        setTimeout(function() {
+          that._transitionEnd(transition);
+          /*
+          if (tID === that.transitionID) {
+            delete that._inTransitionTimestamp;
+            delete that._inTransitionDuration;
+            delete that._intransitionID;
+            that._inTransition = false;
+          }*/
+        }, duration);
+      }
     } else if (_inTransition === false && this.transitionID === this._intransitionID) {
       delete this._inTransitionTimestamp;
       delete this._inTransitionDuration;
@@ -535,7 +538,7 @@ var LayerView = BaseView.extend({
         duration: defaults.defaultDuration,
         lastFrameName: (that.currentFrame && that.currentFrame.name()) || defaults.specialFrames.none,
         frame: frame,
-        framename : framename,
+        framename: framename,
         applyTargetPrePosition: !transition.noActivation && (transition.applyTargetPrePosition || (frame && frame.parent && frame.parent === that)) || false, // we need to set this here for interstage transitions; loadframe doesn't know about the transition record.
         interStage: frame && frame.parent && frame.parent !== that,
         applyCurrentPostPosition: ((transition.applyCurrentPostPosition !== true && (that.currentFrame && that.currentFrame.parent && that.currentFrame.parent === that)) && !transition.noActivation) || false,
@@ -572,7 +575,7 @@ var LayerView = BaseView.extend({
       if (transition.duration === '0ms') transition.duration = '';
       that.trigger('beforeTransition', framename);
       transition.transitionID = that.transitionID = ++that._transitionIDcounter; // inc transition ID and save new ID into transition record; keep exiting transitionID if existing (delayed transitions)
-      that.inTransition(true,transition);
+      that.inTransition(true, transition);
 
       $.debug('running new transition', transition.transitionID, transition, framename, that.id());
 
