@@ -2,6 +2,7 @@
 var defaults = require('./defaults.js');
 var TMat = require('./tmat.js');
 var _debug = null;
+var _cs_cc=0;
 var DomHelpers = {
   /**
    * wrap all children of element into a wrapper element
@@ -198,6 +199,7 @@ var DomHelpers = {
    * @returns {string}
    */
   getCssAttributeLJ: function(element, name) {
+    console.log('computedStyle:',_cs_cc++, element.tagName, element.id, name);
     var result = window.getComputedStyle(element, null).getPropertyValue('--lj-' + name);
 
     return result ? result.trim() : result;
