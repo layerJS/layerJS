@@ -17,6 +17,7 @@ var BaseView = DOMObserver.extend({
     DOMObserver.call(this);
 
     this._cache = {}; // this will cache some properties. The cache can be deleted an the method will need to rebuild the data. Therefore don't query the _cache directly, but use the accessor functions.
+    this._pcache = {}; // cache for properties. will only hold for current js stack;
     this.childType = options.childType;
     this._setDocument(options);
 
@@ -201,7 +202,7 @@ var BaseView = DOMObserver.extend({
    * @param {String} data - the value of the attribute
    */
   setAttributeLJ: function(name, data) {
-    if ($.hasCssAttributeLJ(this.outerEl,name)) {
+    if ($.hasCssAttributeLJ(this.outerEl, name)) {
       $.setCssAttributeLJ(this.outerEl, name, data);
     } else {
       $.setAttributeLJ(this.outerEl, name, data);
@@ -214,7 +215,16 @@ var BaseView = DOMObserver.extend({
    * @return {String} the value of the attribute
    */
   getAttributeLJ: function(name) {
-    return $.getCssAttributeLJ(this.outerEl, name) || $.getAttributeLJ(this.outerEl, name);
+    this.clearCache();
+    return this._pcache.hasOwnProperty(name) && this._pcache[name] || (this._pcache[name] = $.getCssAttributeLJ(this.outerEl, name)) || (this._pcache[name] = $.getAttributeLJ(this.outerEl, name));
+  },
+  clearCache: function() {
+    if (this._willClear) return;
+    this._willClear = true;
+    setTimeout(function() {
+      this._pcache = {};
+      delete this._willClear;
+    },1);
   },
   /**
    * Will get the value of an attribute on the outer element
