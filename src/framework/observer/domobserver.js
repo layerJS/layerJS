@@ -57,7 +57,7 @@ var DOMObserver = Kern.EventManager.extend({
       this._observer.observe();
     }
 
-    if (options.size) {
+    if (false && options.size) {
       this._sizeObserver = observerFactory.getSizeObserver(domElement, {
         timeout: options.timeout,
         callback: function() {
