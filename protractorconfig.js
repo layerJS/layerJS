@@ -8,6 +8,7 @@ exports.config = {
     showColors: true,
     defaultTimeoutInterval: 30000
   },
+  directConnect:true,
   multiCapabilities: [{
       'browserName': 'chrome'
     }/*, {

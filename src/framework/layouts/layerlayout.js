@@ -41,11 +41,13 @@ var LayerLayout = Kern.EventManager.extend({
    * @returns {Type} Description
    */
   loadFrame: function(frame) {
+    $.debug('layerlayout.loadFrame begin', frame === null || frame === undefined ? "NULLFRAME" : frame.outerEl);
     var finished = new Kern.Promise();
     var computedStyle = (null !== frame && frame.document.defaultView && frame.document.defaultView.getComputedStyle) || function(el) {
       return el.style;
     };
     if (frame === null || (frame.document.body.contains(frame.outerEl) && computedStyle(frame.outerEl).display !== 'none' && frame.parent === this.layer)) {
+      $.debug('layerlayout.loadFrame end', frame === null || frame === undefined ? "NULLFRAME" :  frame.outerEl);
       finished.resolve();
     } else {
 
@@ -92,6 +94,7 @@ var LayerLayout = Kern.EventManager.extend({
         $.debug("moved " + frame.id() + " to layer " + this.layer.id());
         // wait until rendered;
         $.postAnimationFrame(function() {
+          $.debug('layerlayout.loadFrame end', frame === null || frame === undefined ? "NULLFRAME" : frame.outerEl);
           finished.resolve();
         });
 
@@ -104,6 +107,7 @@ var LayerLayout = Kern.EventManager.extend({
 
         // wait until rendered;
         $.postAnimationFrame(function() {
+          $.debug('layerlayout.loadFrame end');
           finished.resolve();
         });
       }

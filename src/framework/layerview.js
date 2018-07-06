@@ -97,15 +97,15 @@ var LayerView = BaseView.extend({
     // set none otherwise
     if (!currentFrame) {
       this.currentFrame = null;
-      this.showFrame(defaults.specialFrames.none, {
+      /*this.showFrame(defaults.specialFrames.none, {
         lastFrameName: ''
-      });
+      });*/
     } else {
       this.currentFrame = currentFrame;
-      this.showFrame(currentFrame.name(), {
+    /*  this.showFrame(currentFrame.name(), {
         lastFrameName: '',
         applyCurrentPostPosition: false
-      });
+      });*/
     }
 
     this.autoTrigger();
@@ -486,6 +486,7 @@ var LayerView = BaseView.extend({
    * @returns {Kern.Promise} a promise fullfilled after the transition finished. Note: if you start another transition before the first one finished, this promise will not be resolved.
    */
   transitionTo: function(framename, transition) {
+
     var that = this;
     transition = transition || {};
     // is framename  omitted?
@@ -512,7 +513,7 @@ var LayerView = BaseView.extend({
       return;
     }
 
-
+    $.debug("transitionTo begin", "layerId " + this.id() + ",frame: "+ framename);
     var transitionFunction = function() {
       if (!framename && null !== framename) throw "transformTo: no frame given";
       // lookup frame by framename

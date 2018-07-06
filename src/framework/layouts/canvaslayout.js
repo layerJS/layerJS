@@ -25,6 +25,7 @@ var CanvasLayout = LayerLayout.extend({
    * @returns {Kern.Promise} a promise fullfilled after the transition finished. Note: if you start another transtion before the first one finished, this promise will not be resolved.
    */
   transitionTo: function(frame, transition, targetFrameTransformData, targetTransform) {
+    $.debug("canvaslayout.transitionTo begin");
     var finished = new Kern.Promise();
     var that = this;
 
@@ -49,6 +50,7 @@ var CanvasLayout = LayerLayout.extend({
           });
         }
       }
+      $.debug("canvaslayout.transitionTo end");
       finished.resolve();
     };
 
@@ -186,6 +188,7 @@ var CanvasLayout = LayerLayout.extend({
   _applyTransform: function(frame, reverseTransform, addedTransform, styles) {
     // console.log('canvaslayout: applystyles', frame.data.attributes.name, styles.transition);
     // we need to add the frame transform (x,y,rot,scale) the reverse transform (that moves the current frame into the stage) and the transform representing the current scroll/displacement
+    $.debug("canvaslayout._applyTransform begin", frame === null || frame === undefined ? "NULLFRAME" : frame.outerEl);
     styles = styles || {};
     var x = frame.x();
     var y = frame.y();
@@ -194,6 +197,8 @@ var CanvasLayout = LayerLayout.extend({
     frame.applyStyles(styles || {}, {
       transform: "translate3d(" + (-frame.x() || 0) + "px," + (-frame.y() || 0) + "px,0px)" + addedTransform + " " + reverseTransform + " " + (this._frameTransforms[frame.id()] = "translate3d(" + (frame.x() || 0) + "px," + (frame.y() || 0) + "px,0px) rotate(" + (frame.rotation() || 0) + "deg) scale(" + frame.scaleX() + "," + frame.scaleY() + ")")
     });
+    $.debug("canvaslayout._applyTransform end", frame === null || frame === undefined ? "NULLFRAME" : frame.outerEl);
+
   },
 });
 

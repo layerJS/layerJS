@@ -83,6 +83,7 @@ var FrameView = BaseView.extend({
    */
   getTransformData: function(layer, transitionStartPosition, keepScroll) {
     // check if we can return cached version of transfromData
+    $.debug('frame.getTransformData begin', this.outerEl);
     var d = this.transformData;
     if (!d || d.isDirty || d.layer !== layer || (transitionStartPosition && transitionStartPosition !== d.startPosition)) {
       // calculate transformData
@@ -96,6 +97,7 @@ var FrameView = BaseView.extend({
       d.scrollX = d.initialScrollX;
       d.scrollY = d.initialScrollY;
     }
+    $.debug('frame.getTransformData end', this.outerEl);
     return d;
   },
   /**
@@ -120,6 +122,7 @@ var FrameView = BaseView.extend({
    * @returns {TransformData} the transform data
    */
   calculateTransformData: function(layer, transitionStartPosition) {
+    $.debug('frame.calculateTransformData begin', this.outerEl);
     var stage = layer.parent;
     var stageWidth = stage ? stage.width() : 0;
     var stageHeight = stage ? stage.height() : 0;
@@ -357,6 +360,9 @@ var FrameView = BaseView.extend({
     d.initialScrollX = d.scrollX;
     d.initialScrollY = d.scrollY;
     d.frame = this;
+
+    $.debug('frame.calculateTransformData end', this.outerEl);
+
     return (this.transformData = d);
   },
   /**
