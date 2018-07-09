@@ -272,6 +272,7 @@ var DomHelpers = {
     return found ? parent._ljView : undefined;
   },
   timeToMS: function(time) {
+    if (isFinite(time)) return time; // if number interprete as ms
     var match = time && time.match(/^([\d\.]*)(s|ms|min|h)$/);
     if (!match) return 0;
     switch (match[2]) {
