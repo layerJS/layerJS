@@ -1,5 +1,18 @@
 # Release notes #
 
+## New in 0.5.3
+
+ * new slide layout transition types: inouttop, inoutleft, inoutright, inoutbottom: will transition in and out at the same side
+ * autoWidth/autoHeight: now you can provide a simple "true" which will just adapt stage dimensions to first layer frames
+ * added special frame "!toggle" which will set the !none frame if a there is a current acgtive frame or the first frame if the current frame is !none. Useful for collapsibles together with autoHeight
+ * added "scrolled" event which fires upon scrolling in native and transform scrolling modes
+ * filerouter: the title tag is now read from the loaded document and set to the current page
+ * fix: linking to anchors from external did not work (issue #79)
+ * fix: when transition was disrupted by external scripts the transitionEnd handling wasn't called which lead to incorrect scroll borders (issue #76)
+ * fix: margin was not considered when setting width and height in responsive modes
+ * fix: target attribute for links was ignored (issue #75)
+
+
 ## New in 0.5.2
 
  * fix: interstage: calculate pre-position correctly if 3d transform is applied (using 3d matrix)
