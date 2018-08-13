@@ -586,7 +586,7 @@ var LayerView = BaseView.extend({
         // a compensatory transform for the target scroll position.
         var currentScroll = that.getCurrentScroll(); // get current scroll position before recalculating it for that frame
         var targetFrameTransformData = transition.targetFrameTransformData = null === frame ? that.noFrameTransformdata(transition.startPosition) : frame.getTransformData(that, transition.startPosition);
-        var targetTransform = that._transformer.getScrollTransform(targetFrameTransformData, transition, true);
+        var targetTransform = that._transformer.getScrollTransform(that._layout.getScrollTransformData(targetFrameTransformData), transition, true);
 
 
         // check if transition goes to exactly the same position

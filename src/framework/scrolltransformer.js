@@ -82,7 +82,7 @@ var ScrollTransformer = Kern.EventManager.extend({
    * @returns {string} the transform or false to indicate no scrolling
    */
   scrollGestureListener: function(gesture) {
-    var tfd = this.layer.currentFrameTransformData;
+    var tfd = this.layer._layout.getScrollTransformData();
     if (gesture.first) {
       this.scrollStartX = tfd.scrollX;
       this.scrollStartY = tfd.scrollY;

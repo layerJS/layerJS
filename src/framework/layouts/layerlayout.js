@@ -139,6 +139,9 @@ var LayerLayout = Kern.EventManager.extend({
   },
   getScrollTransformer: function() {
     return undefined;
+  },
+  getScrollTransformData: function(tfd){
+    return tfd || this.layer.currentFrameTransformData;
   }
 });
 
