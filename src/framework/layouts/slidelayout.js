@@ -135,7 +135,9 @@ var SlideLayout = LayerLayout.extend({
           transition: transition.duration,
           top: "0px",
           left: "0px",
-          opacity: "1"
+          opacity: "1",
+          width : targetFrameTransformData.frameOriginalWidth,
+          height :  targetFrameTransformData.frameOriginalHeight
         };
 
         if (targetFrameTransformData.applyWidth) {
@@ -145,6 +147,7 @@ var SlideLayout = LayerLayout.extend({
         if (targetFrameTransformData.applyHeight) {
           otherCss.height = (targetFrameTransformData.frameHeight - targetFrameTransformData.margin.top - targetFrameTransformData.margin.bottom) + "px";
         }
+
         if (frame) frame.transitionID = transition.transitionID;
 
         // we need to listen for each frame individually because different frames may be affected by a later (but partially parallel) transition
@@ -270,7 +273,12 @@ var SlideLayout = LayerLayout.extend({
         visibility: 'inital'
       };
       // apply frame dimensions. this should be the dimensions of the pre position, but in slide layout the pre position should have same frame dimensions as post position. (in all cases where this is not true [sizechanged, interstage, ?] applyTargetPrePosition would be false)
-      if (targetFrameTransformData.applyWidth) otherCss.width = (targetFrameTransformData.frameWidth - targetFrameTransformData.margin.left - targetFrameTransformData.margin.right) + "px";
+      if (targetFrameTransformData.applyWidth){
+         otherCss.width = (targetFrameTransformData.frameWidth - targetFrameTransformData.margin.left - targetFrameTransformData.margin.right) + "px";
+       }
+       else {
+         otherCss.width = targetFrameTransformData.frame.getOriginalWidth() + "px";
+       }
       if (targetFrameTransformData.applyHeight) otherCss.height = (targetFrameTransformData.frameHeight - targetFrameTransformData.margin.top - targetFrameTransformData.margin.bottom) + "px";
       if (transition.applyTargetPrePosition !== false) {
         // apply pre position to target frame

@@ -131,6 +131,8 @@ var FrameView = BaseView.extend({
     d.scale = 1;
     d.frameWidth = this.width();
     d.frameHeight = this.height();
+    d.frameOriginalHeight = this.getOriginalHeight();
+    d.frameOriginalWidth = this.getOriginalWidth();
 
     // d.shiftX/Y indicate how much the top-left corner of the frame should be shifted from
     // the stage top-left corner (in stage space)
