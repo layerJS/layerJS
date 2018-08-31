@@ -2,7 +2,7 @@
   "name": "layerJS",
   "description": "layerJS, a lean javascript UX framework",
   "author": "LayerJs",
-  "version": "0.6.0",
+  "version": "0.6.1",
   "dependencies": {
     "browserify": "^13.3.0",
     "concat": "^1.0.3",
