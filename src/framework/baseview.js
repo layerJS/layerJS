@@ -39,8 +39,6 @@ var BaseView = DOMObserver.extend({
     // var state = layerJS.getState(this.document);
     // state.registerView(this);
 
-    this.setOriginalHeight();
-    this.setOriginalWidth();
     this._parseChildren();
     this.registerEventHandlers();
     this.startObserving();
