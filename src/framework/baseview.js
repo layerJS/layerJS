@@ -12,7 +12,7 @@ var BaseView = DOMObserver.extend({
   /**
    * Will initialise the view
    */
-  constructor: function(options) {
+  constructor: function (options) {
     options = options || {};
     DOMObserver.call(this);
 
@@ -48,7 +48,7 @@ var BaseView = DOMObserver.extend({
    *  Will start observing the current DOM Element. This is an abstract method and should be implemented
    *  by views who inherit from this class.
    */
-  startObserving: function() {
+  startObserving: function () {
 
   },
   /* jshint ignore:end */
@@ -56,8 +56,8 @@ var BaseView = DOMObserver.extend({
    * Will add eventhandlers to specific events. By default is will call the _parseChildren when a
    * 'childrenChanged' event is triggered.
    */
-  registerEventHandlers: function() {
-    this.on('childrenChanged', function(result) {
+  registerEventHandlers: function () {
+    this.on('childrenChanged', function (result) {
       if ((result.addedNodes && result.addedNodes.length > 0) || (result.removedNodes && result.removedNodes.length > 0)) {
         this._parseChildren({
           addedNodes: result.addedNodes,
@@ -71,7 +71,7 @@ var BaseView = DOMObserver.extend({
    * Will trigger childAdded and/or childRemoved.
    * @param {object} options - optional: includes addedNodes, removedNodes
    */
-  _parseChildren: function(options) {
+  _parseChildren: function (options) {
     options = options || {};
     var that = this;
     this._cache.children = [];
@@ -80,7 +80,7 @@ var BaseView = DOMObserver.extend({
 
     // trigger remove nodes first. this is important for inter stage transitions
     if (options.removedNodes && options.removedNodes.length > 0) {
-      options.removedNodes.forEach(function(removedNode) {
+      options.removedNodes.forEach(function (removedNode) {
         if (removedNode._ljView) {
           that.trigger('childRemoved', removedNode._ljView);
         }
@@ -137,7 +137,7 @@ var BaseView = DOMObserver.extend({
    * @param {String} name - the name of the child view to get
    * @returns {Object} a child view
    */
-  getChildViewByName: function(name) {
+  getChildViewByName: function (name) {
     if (!this._cache.childNames) this._parseChildren();
     return this._cache.childNames[name];
   },
@@ -145,7 +145,7 @@ var BaseView = DOMObserver.extend({
    * Will return the child views of the view
    * @returns {Object} a hashed object with child views
    */
-  getChildViews: function() {
+  getChildViews: function () {
     if (!this._cache.children) this._parseChildren();
     return this._cache.children;
   },
@@ -154,7 +154,7 @@ var BaseView = DOMObserver.extend({
    * @param {result} an object that contains what has been changed on the DOM element
    * @return {void}
    */
-  _setDocument: function(options) {
+  _setDocument: function (options) {
     this.document = document;
 
     if (options) {
@@ -171,7 +171,7 @@ var BaseView = DOMObserver.extend({
    *  by views who inherit from this class.
    * @param {Object} childView - the childView
    */
-  _renderChildPosition: function(childView) {
+  _renderChildPosition: function (childView) {
 
   },
   /* jshint ignore:end */
@@ -181,7 +181,7 @@ var BaseView = DOMObserver.extend({
    * @param {Object} arguments - List of styles that should be applied
    * @returns {Type} Description
    */
-  applyStyles: function() {
+  applyStyles: function () {
     var len = arguments.length;
     for (var j = 0; j < len; j++) {
       var props = Object.keys(arguments[j]); // this does not run through the prototype chain; also does not return special
@@ -198,8 +198,8 @@ var BaseView = DOMObserver.extend({
    * @param {String} name - the name of the attribute (without lj prefix)
    * @param {String} data - the value of the attribute
    */
-  setAttributeLJ: function(name, data) {
-    if ($.hasCssAttributeLJ(this.outerEl,name)) {
+  setAttributeLJ: function (name, data) {
+    if ($.hasCssAttributeLJ(this.outerEl, name)) {
       $.setCssAttributeLJ(this.outerEl, name, data);
     } else {
       $.setAttributeLJ(this.outerEl, name, data);
@@ -211,7 +211,7 @@ var BaseView = DOMObserver.extend({
    * @param {String} name - the name of the attribute (without lj prefix)
    * @return {String} the value of the attribute
    */
-  getAttributeLJ: function(name) {
+  getAttributeLJ: function (name) {
     return $.getCssAttributeLJ(this.outerEl, name) || $.getAttributeLJ(this.outerEl, name);
   },
   /**
@@ -220,7 +220,7 @@ var BaseView = DOMObserver.extend({
    * @param {String} name - the name of the attribute
    * @return {String} the value of the attribute
    */
-  getAttribute: function(name) {
+  getAttribute: function (name) {
     return this.outerEl.getAttribute(name);
   },
   /**
@@ -228,7 +228,7 @@ var BaseView = DOMObserver.extend({
    *
    * @return {String} the id of the view
    */
-  id: function() {
+  id: function () {
     if (!this._id) {
       this._id = this.getAttributeLJ('id') || this.outerEl.id || $.uniqueID(this.type(), this.document);
     }
@@ -239,7 +239,7 @@ var BaseView = DOMObserver.extend({
    *
    * @return {String} the name of the view
    */
-  name: function() {
+  name: function () {
     var name = this.getAttributeLJ('name') || this.id();
     if (name.match(/\./)) {
       if (this._name) return this._name;
@@ -253,7 +253,7 @@ var BaseView = DOMObserver.extend({
    *
    * @return {String} the type of the view
    */
-  type: function() {
+  type: function () {
     return this.getAttributeLJ('type');
   },
   /**
@@ -261,7 +261,7 @@ var BaseView = DOMObserver.extend({
    *
    * @return {String} the node type of the outer element
    */
-  nodeType: function() {
+  nodeType: function () {
     return this.outerEl && this.outerEl.nodeType;
   },
   /**
@@ -269,7 +269,7 @@ var BaseView = DOMObserver.extend({
    *
    * @return {Number} the width of the view
    */
-  width: function() {
+  width: function () {
     var width = this.getAttributeLJ('width') || this.getAttribute('width'); // prefer explicit width
     if (width !== null) {
       this.setWidth(width); // if we had an explicit width we need to apply this.
@@ -283,7 +283,7 @@ var BaseView = DOMObserver.extend({
    *
    * @return {Number} the height of the view
    */
-  height: function() {
+  height: function () {
     var height = this.getAttributeLJ('height') || this.getAttribute('height'); // prefer explicit height
     if (height !== null) {
       this.setHeight(height); // if we had an explicit height we need to apply this.
@@ -297,7 +297,7 @@ var BaseView = DOMObserver.extend({
    *
    * @param {Number} width
    */
-  setWidth: function(width) {
+  setWidth: function (width) {
     width = $.parseDimension(width, this.outerEl);
     var margin = this.getMargin();
     var marginToSubtract = margin.left + margin.right;
@@ -309,7 +309,7 @@ var BaseView = DOMObserver.extend({
    *
    * @param {Number} height
    */
-  setHeight: function(height) {
+  setHeight: function (height) {
     height = $.parseDimension(height, this.outerEl);
     var margin = this.getMargin();
     var marginToSubtract = margin.top + margin.bottom;
@@ -322,7 +322,7 @@ var BaseView = DOMObserver.extend({
    *
    * @return {Number} the x (left) of the outer element
    */
-  x: function() {
+  x: function () {
     var x = this.getAttributeLJ('x');
     x = x || this.outerEl.offsetLeft || this.outerEl.style.left || 0;
     return $.parseDimension(x, this.outerEl);
@@ -333,7 +333,7 @@ var BaseView = DOMObserver.extend({
    *
    * @return {Number} the y (top) of the outer element
    */
-  y: function() {
+  y: function () {
     var y = this.getAttributeLJ('y');
     y = y || this.outerEl.offsetTop || this.outerEl.style.top || 0;
     return $.parseDimension(y);
@@ -343,7 +343,7 @@ var BaseView = DOMObserver.extend({
    *
    * @return {string} the value of the lj-scale-x attribute
    */
-  scaleX: function() {
+  scaleX: function () {
     var scaleX = this.getAttributeLJ('scale') || this.getAttributeLJ('scale-x');
 
     return scaleX ? parseFloat(scaleX) : 1;
@@ -353,7 +353,7 @@ var BaseView = DOMObserver.extend({
    *
    * @return {string} the value of the lj-scale-y attribute
    */
-  scaleY: function() {
+  scaleY: function () {
     var scaleY = this.getAttributeLJ('scale') || this.getAttributeLJ('scale-y');
 
     return scaleY ? parseFloat(scaleY) : 1;
@@ -365,7 +365,7 @@ var BaseView = DOMObserver.extend({
    * @param {boolean} useFallBack (optional) when false, the fallback value will not be used
    * @return {string} the value of the lj-fit-to attribute
    */
-  fitTo: function(useFallBack) {
+  fitTo: function (useFallBack) {
     var fitTo = this.getAttributeLJ('fit-to');
 
     if (useFallBack !== false && !fitTo) {
@@ -379,7 +379,7 @@ var BaseView = DOMObserver.extend({
    *
    * @return {string} the value of the lj-elastic-left attribute
    */
-  elasticLeft: function() {
+  elasticLeft: function () {
     return this.getAttributeLJ('elastic-left');
   },
   /**
@@ -387,7 +387,7 @@ var BaseView = DOMObserver.extend({
    *
    * @return {string} the value of the lj-elastic-right attribute
    */
-  elasticRight: function() {
+  elasticRight: function () {
     return this.getAttributeLJ('elastic-right');
   },
   /**
@@ -395,7 +395,7 @@ var BaseView = DOMObserver.extend({
    *
    * @return {string} the value of the lj-elastic-top attribute
    */
-  elasticTop: function() {
+  elasticTop: function () {
     return this.getAttributeLJ('elastic-top');
   },
   /**
@@ -403,7 +403,7 @@ var BaseView = DOMObserver.extend({
    *
    * @return {string} the value of the lj-elastic-bottom attribute
    */
-  elasticBottom: function() {
+  elasticBottom: function () {
     return this.getAttributeLJ('elastic-bottom');
   },
   /**
@@ -412,7 +412,7 @@ var BaseView = DOMObserver.extend({
    *
    * @return {string} the value of the lj-start-position attribute
    */
-  startPosition: function() {
+  startPosition: function () {
     return this.getAttributeLJ('start-position') || 'top-left';
   },
   /**
@@ -421,7 +421,7 @@ var BaseView = DOMObserver.extend({
    *
    * @return {Boolean} the value of the lj-no-scrolling attribute
    */
-  noScrolling: function() {
+  noScrolling: function () {
     var noScrolling = this.getAttributeLJ('no-scrolling');
     return noScrolling ? noScrolling === 'true' : false;
   },
@@ -430,7 +430,7 @@ var BaseView = DOMObserver.extend({
    *
    * @return {String} the value of the lj-rotation attribute
    */
-  rotation: function() {
+  rotation: function () {
     return this.getAttributeLJ('rotation');
   },
   /**
@@ -438,7 +438,7 @@ var BaseView = DOMObserver.extend({
    *
    * @return {Object} object that returns the l,r,t,b neighbors of the view
    */
-  neighbors: function() {
+  neighbors: function () {
     var neighbors = {
       l: this.getAttributeLJ('neighbors.l'),
       r: this.getAttributeLJ('neighbors.r'),
@@ -455,7 +455,7 @@ var BaseView = DOMObserver.extend({
    *
    * @return {string} the value of the lj-layout-type attribute
    */
-  layoutType: function() {
+  layoutType: function () {
     return this.getAttributeLJ('layout-type') || this.getAttributeLJ('layout') || 'slide';
   },
   /**
@@ -463,7 +463,7 @@ var BaseView = DOMObserver.extend({
    *
    * @return {string} the value of the lj-default-frame attribute
    */
-  defaultFrame: function() {
+  defaultFrame: function () {
     return this.getAttributeLJ('default-frame');
   },
   /**
@@ -471,7 +471,7 @@ var BaseView = DOMObserver.extend({
    *
    * @returns {string} transition type
    */
-  defaultTransition: function() {
+  defaultTransition: function () {
     return this.getAttributeLJ('transition');
   },
   /**
@@ -480,7 +480,7 @@ var BaseView = DOMObserver.extend({
    *
    * @return {Boolean} the value of the lj-native-scroll attribute
    */
-  nativeScroll: function() {
+  nativeScroll: function () {
     var nativeScroll = this.getAttributeLJ('native-scroll');
     return nativeScroll ? nativeScroll === 'true' : true;
   },
@@ -489,7 +489,7 @@ var BaseView = DOMObserver.extend({
    *
    * @param {Boolean} nativeScrolling - the value to set
    */
-  setNativeScroll: function(nativeScroll) {
+  setNativeScroll: function (nativeScroll) {
     this.setAttributeLJ('native-scroll', nativeScroll);
   },
   /**
@@ -497,8 +497,8 @@ var BaseView = DOMObserver.extend({
    *
    * @return {Object}
    */
-  getMargin: function() {
-    var computedStyle = window.getComputedStyle(this.outerEl, null);
+  getMargin: function () {
+    var computedStyle = this.getComputedStyle();
 
     return {
       top: $.parseDimension(computedStyle.getPropertyValue('margin-top') || '0'),
@@ -512,7 +512,7 @@ var BaseView = DOMObserver.extend({
    *
    * @return {Boolean} the value of the lj-no-url attribute
    */
-  noUrl: function() {
+  noUrl: function () {
     var noUrl = this.getAttributeLJ('no-url');
 
     return noUrl === 'true' ? true : false;
@@ -523,7 +523,7 @@ var BaseView = DOMObserver.extend({
    * @param {Type} Name - Description
    * @returns {Type} Description
    */
-  timer: function() {
+  timer: function () {
     return this.getAttributeLJ('timer');
   },
   /**
@@ -531,7 +531,7 @@ var BaseView = DOMObserver.extend({
    *
    * @returns {string} A layername
    */
-  autoHeight: function() {
+  autoHeight: function () {
     return this.getAttributeLJ('auto-height');
   },
   /**
@@ -539,7 +539,7 @@ var BaseView = DOMObserver.extend({
    *
    * @returns {string} A layername
    */
-  autoWidth: function() {
+  autoWidth: function () {
     return this.getAttributeLJ('auto-width');
   },
 
@@ -547,7 +547,7 @@ var BaseView = DOMObserver.extend({
    *
    * @return {Boolean} the value of the lj-draggable attribute
    */
-  draggable: function() {
+  draggable: function () {
     var draggable = this.getAttributeLJ('draggable');
     return draggable === 'true' ? true : false;
   },
@@ -558,35 +558,62 @@ var BaseView = DOMObserver.extend({
    * will remove the DOM elements connected to this element.
    * @return {void}
    */
-  destroy: function() {
+  destroy: function () {
     this.unobserve();
     this.outerEl.parentNode.removeChild(this.outerEl);
   },
   /**
-  Save the original width of the outer element
+  Save the style width  and computed width of the outer element
   */
-  setOriginalWidth: function() {
-    this.originalWidth = this.outerEl.style.width;
+  setOriginalWidth: function () {
+    this.originalWidth = {
+      width: '' === this.outerEl.style.width ? '' : this.outerEl.style.width,
+      computedStyleWidth: $.parseDimension(this.getComputedStyle().getPropertyValue('width'), this.outerEl)
+    };
   },
   /**
-  Gets the original width of the outer element
+  Gets the original style width and computed width of the outer element
   @return {string}
   */
-  getOriginalWidth: function() {
-    return this.originalWidth || '';
+  getOriginalWidth: function () {
+    return this.originalWidth;
   },
   /**
-  Save the original height of the outer element
+  Save the original style height and computed style height of the outer element
   */
-  setOriginalHeight: function() {
-    this.originalHeight = this.outerEl.style.height;
+  setOriginalHeight: function () {
+    this.originalHeight = {
+      height: '' === this.outerEl.style.height ? '' : this.outerEl.style.height,
+      computedStyleHeight: $.parseDimension(this.getComputedStyle().getPropertyValue('height'), this.outerEl)
+    };
   },
   /**
-  Gets the original height of the outer element
+  Gets the original style height and computed style height of the outer element
   @return {string}
   */
-  getOriginalHeight: function() {
-    return this.originalHeight || '';
+  getOriginalHeight: function () {
+    return this.originalHeight;
+  },
+  /**
+  Gets the computedStyle off the outerEl
+  @return {Object}
+  */
+  getComputedStyle: function () {
+    return window.getComputedStyle(this.outerEl, null);
+  },
+  widthSet: function (set) {
+    if (undefined !== set) {
+      this.widthSetByLJ = set;
+    }
+
+    return this.widthSetByLJ;
+  },
+  heightSet: function (set) {
+    if (undefined !== set) {
+      this.heightSetByLJ = set;
+    }
+
+    return this.heightSetByLJ;
   }
 });
 

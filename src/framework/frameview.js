@@ -145,6 +145,22 @@ var FrameView = BaseView.extend({
     d.margin = this.getMargin();
 
     var fitTo = this.fitTo(false) || layer.fitTo();
+
+    if(-1 === ['responsive', 'responsive-width'].indexOf(fitTo) && this.widthSet())
+    {
+      d.frameWidth = this.getOriginalWidth().computedStyleWidth;
+      d.frameOriginalWidth = this.getOriginalWidth().width;
+      this.widthSet(false);
+    }
+
+    if(-1 === ['responsive', 'responsive-height'].indexOf(fitTo) && this.heightSet())
+    {
+      d.frameHeight = this.getOriginalHeight().computedStyleHeight;
+      d.frameOriginalHeight = this.getOriginalHeight().height;
+      this.heightSet(false);
+    }
+
+
     switch (fitTo) {
       case 'width':
         d.scale = stageWidth / d.frameWidth;
@@ -358,18 +374,14 @@ var FrameView = BaseView.extend({
     d.initialScrollY = d.scrollY;
     d.frame = this;
 
-    if (d.applyWidth && !this.getOriginalWidth()) {
+    if (d.applyWidth && !this.widthSet()) {
       this.setOriginalWidth();
-    } else if (!d.applyWidth && this.getOriginalWidth()) {
-      d.frameOriginalWidth = this.getOriginalWidth();
-      delete this.frameOriginalWidth;
-    }
+      this.widthSet(true);
+    } 
 
-    if (d.applyHeight && !this.getOriginalHeight()) {
+    if (d.applyHeight && !this.heightSet()) {
       this.setOriginalHeight();
-    } else if (!d.applyHeight && this.getOriginalHeight()) {
-      d.frameOriginalHeight = this.getOriginalHeight();
-      delete this.frameOriginalHeight;
+      this.heightSet(true);
     }
 
     return (this.transformData = d);
