@@ -1,5 +1,13 @@
 # Release notes #
 
+## New in 0.6.1
+
+ * fixed: when switching from a repsonsive fitting mode back to another fitting mode that is based on the original frame width/height, the width/height of the responsive frame was kept. This was a problem for example when switching from fixed to responsive and back depending on mediaquery. 
+
+## New in 0.6.0
+
+ * introducing CSS custom properties. Most layerJS attributes can now be configured as custom CSS properties starting with '--lj-'. This allows responsive behaviour with mediaqueries. https://blog.logrocket.com/custom-responsive-behaviour-using-custom-css-properties-14e2ed8a578f
+
 ## New in 0.5.3
 
  * new slide layout transition types: inouttop, inoutleft, inoutright, inoutbottom: will transition in and out at the same side
