@@ -33,6 +33,21 @@ var LayerLayout = Kern.EventManager.extend({
     frame.height();
   },
   /**
+   * virtual method which is called before a new frame is inserted. Only implemented by 
+   * layouts that let the browser determine frame posiitioning and need to record pre positions
+   * @param {Frame} frame the frame that will be loaded
+   */
+  preLoad: function(frame){
+    return; 
+  },
+  /**
+   * virtual method called after a new frame is inserted. Note, this is called immindeately, 
+   * even before the resolve is called. Needed by some layouts to record the post position
+   */
+  postLoad: function(){
+
+  },
+  /**
    * make sure frame is rendered (i.e. has display: block)
    * Later: make sure frame is loaded and added to document
    * FIXME: should that go into layout?
@@ -42,6 +57,7 @@ var LayerLayout = Kern.EventManager.extend({
    */
   loadFrame: function(frame) {
     var finished = new Kern.Promise();
+    this.preLoad(frame);
     var computedStyle = (null !== frame && frame.document.defaultView && frame.document.defaultView.getComputedStyle) || function(el) {
       return el.style;
     };
@@ -107,10 +123,10 @@ var LayerLayout = Kern.EventManager.extend({
           finished.resolve();
         });
       }
-
-
     }
     return finished;
+    this.postLoad();
+
   },
   /**
    * get the width of associated stage. Use this method in sub classes to be compatible with changing interfaces in layer/stage
