@@ -1,6 +1,6 @@
 'use strict';
 
-require("./kern/kern.js");
+require("./kern/Kern.js");
 require("./framework/layerjs.js");
 require("./framework/state.js");
 

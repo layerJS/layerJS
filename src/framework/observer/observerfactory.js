@@ -1,5 +1,5 @@
 'use strict';
-var Kern = require('../../kern/kern.js');
+var Kern = require('../../kern/Kern.js');
 var MutationsObserver = require('./mutationsobserver.js');
 var TimeoutObserver = require('./timeoutobserver.js');
 var SizeObserver = require('./sizeobserver.js');

@@ -2,7 +2,7 @@ describe('router', function() {
 
   var utilities = require('../helpers/utilities.js');
   var state = require('../../../src/framework/state.js');
-  var Kern = require('../../../src/kern/kern.js');
+  var Kern = require('../../../src/kern/Kern.js');
   var FileRouter = require('../../../src/framework/router/filerouter.js');
   var HashRouter = require('../../../src/framework/router/hashrouter.js');
   var StaticRouter = require('../../../src/framework/router/staticrouter.js');

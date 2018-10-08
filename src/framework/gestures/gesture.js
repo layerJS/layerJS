@@ -1,5 +1,5 @@
 'use strict';
-var Kern = require('../../kern/kern.js');
+var Kern = require('../../kern/Kern.js');
 
 var Gesture = Kern.Base.extend({
   constructor: function() {

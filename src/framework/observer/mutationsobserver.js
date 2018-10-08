@@ -1,5 +1,5 @@
 'use strict';
-var ElementObserver = require('./ElementObserver.js');
+var ElementObserver = require('./elementobserver.js');
 
 /**
  * Class that will observe a DOM Element using a MutationObserver

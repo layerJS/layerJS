@@ -1,5 +1,5 @@
 'use strict';
-var Kern = require('../../kern/kern.js');
+var Kern = require('../../kern/Kern.js');
 var $ = require('../domhelpers.js');
 
 var StaticRouter = Kern.EventManager.extend({
