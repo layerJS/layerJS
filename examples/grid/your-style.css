@@ -1,0 +1,37 @@
+* {
+  box-sizing: border-box;
+}
+body
+{
+    padding: 0px;
+    margin: 0px;
+    background-color: white;
+}
+
+[lj-type="stage"]
+{
+    width: 100%;
+    height: 100%;
+    background-color: white;
+}
+[lj-type="frame"] {
+  padding: 20px;
+}
+
+#lgrid.nativescroll>*, #lgrid:not(.nativescroll) {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-rows: 600px 600px;
+  grid-template-areas:
+    "side header header"
+    "side left right";
+}
+#frame1 {
+  grid-area: header;
+}
+#frame2 {
+  grid-area: left;
+}
+#frame3 {
+  grid-area: right;
+}
