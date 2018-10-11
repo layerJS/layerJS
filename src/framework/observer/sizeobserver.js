@@ -52,21 +52,22 @@ var SizeObserver = Observer.extend({
   checkSize: function() {
 
     var el = this.element;
-    var iwidth = el.scrollWidth;
-    var iheight = el.scrollHeight;
+    // var iwidth = el.scrollWidth;
+    // var iheight = el.scrollHeight;
     var width = el.clientWidth;
     var height = el.clientHeight;
-    if (width !== this.dimensions.size.width || height !== this.dimensions.size.height || iwidth !== this.dimensions.size_inner.width || iheight !== this.dimensions.size_inner.height) {
-      // $.debug(`sizeChanged: inner: (${this.dimensions.size_inner.width},${this.dimensions.size_inner.height})->(${iwidth},${iheight}), outer: (${this.dimensions.size.width},${this.dimensions.size.height})->(${width},${height})`);
+//    if (width !== this.dimensions.size.width || height !== this.dimensions.size.height || iwidth !== this.dimensions.size_inner.width || iheight !== this.dimensions.size_inner.height) {
+    if (width !== this.dimensions.size.width || height !== this.dimensions.size.height) {
+        // $.debug(`sizeChanged: inner: (${this.dimensions.size_inner.width},${this.dimensions.size_inner.height})->(${iwidth},${iheight}), outer: (${this.dimensions.size.width},${this.dimensions.size.height})->(${width},${height})`);
       // WARN this debug message accesses methods from sub classes. BAD! It uses ES6.
       this.dimensions.size = {
         width: width,
         height: height
       };
-      this.dimensions.size_inner = {
-        width: iwidth,
-        height: iheight
-      };
+      // this.dimensions.size_inner = {
+      //   width: iwidth,
+      //   height: iheight
+      // };
       this._invokeCallBack();
 
     }
