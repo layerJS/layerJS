@@ -1,5 +1,6 @@
 'use strict';
 var pluginManager = require('./pluginmanager.js');
+var gestureManager = require('./gestures/gesturemanager.js');
 var defaults = require('./defaults.js');
 var $ = require('./domhelpers.js');
 var BaseView = require('./baseview.js');
@@ -14,6 +15,22 @@ var StageView = BaseView.extend({
     options = options || {};
     options.childType = 'layer';
     BaseView.call(this, options);
+        // get upper layer where unuseable gestures should be sent to.
+    // this.parentLayer = this.getParentOfType('layer');
+    // register for gestures
+    gestureManager.register(this.outerEl, this.gestureListener.bind(this), {
+      dragging: true,
+      mouseDragging: true
+    });
+  },
+  /**
+   * send gestures to child layers or send them up
+   * @param {object} gesture 
+   */
+  gestureListener(gesture){
+    console.log('stage gesture listener');
+    // if (gesture.event._ljEvtHndld) return; // check if some inner layer has already dealt with the gesture/event
+    this.getChildViews()[0].gestureListener(gesture); // FIXME: currently only supports sending to first layer
   },
   /**
    * Will add eventhandlers to specific events. It will handle a 'childrenChanged', 'sizeChanged' and
