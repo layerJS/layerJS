@@ -41,7 +41,7 @@ var CanvasLayout = LayerLayout.extend({
 
     var transitionEnd = function() {
       if (transition.transitionID === that.layer.transitionID) {
-        for (var i = 0; i < (transition.noActivation ? framesLength : 1); i++) {
+        for (var i = 0; i < (transition.noActivation ? 1 : framesLength); i++) {
           childFrame = transition.noActivation ? frame : frames[i];
           // console.log("canvaslayout transition off", transition.transitionID);
           childFrame.applyStyles({
