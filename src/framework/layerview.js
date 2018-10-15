@@ -403,6 +403,22 @@ var LayerView = BaseView.extend({
     }
   },
   /**
+   * simply returns the dimensions of the stage unless the layout defines this function as well and needs special treatments.
+   * used by frame.calculateTransformData
+   * @param {Frame} frame the frame for which the dimensions are needed
+   */
+  getStageDimensions(frame){
+    if (this._layout && this._layout.getStageDimensions){
+      return this._layout.getStageDimensions(frame);
+    }
+    if (this.parent){
+      return {
+        width: this.parent.width(),
+        height: this.parent.height()
+      };
+    }
+  },
+  /**
    * show current frame immidiately without transition/animation
    *
    * @param {string} framename - the frame to be active
@@ -431,7 +447,6 @@ var LayerView = BaseView.extend({
   noFrameTransformdata: function(transitionStartPosition) {
     if (this._noframetd && this._noframetd.startPosition === transitionStartPosition) return this._noframetd;
     var d = this._noframetd = {};
-    d.stage = this.stage;
     d.scale = 1;
 
     d.width = this.stage ? this.stage.width() : 0;

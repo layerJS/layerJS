@@ -121,11 +121,12 @@ var FrameView = BaseView.extend({
    */
   calculateTransformData: function (layer, transitionStartPosition) {
     var stage = layer.parent;
-    var stageWidth = stage ? stage.width() : 0;
-    var stageHeight = stage ? stage.height() : 0;
+    var sDim = layer.getStageDimensions(this);
+
+    var stageWidth = sDim ? sDim.width : 0;
+    var stageHeight = sDim ? sDim.height : 0;
     // data record contianing transformation and scrolling information of frame within given stage
     var d = this.transformData = {};
-    d.stage = stage;
     d.layer = layer;
     // scaling of frame needed to fit frame into stage
     d.scale = 1;
