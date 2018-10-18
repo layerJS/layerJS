@@ -28,7 +28,6 @@ var StageView = BaseView.extend({
    * @param {object} gesture 
    */
   gestureListener(gesture){
-    console.log('stage gesture listener');
     // if (gesture.event._ljEvtHndld) return; // check if some inner layer has already dealt with the gesture/event
     this.getChildViews()[0].gestureListener(gesture); // FIXME: currently only supports sending to first layer
   },
