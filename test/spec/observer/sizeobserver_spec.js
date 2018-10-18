@@ -21,20 +21,12 @@ describe('SizeObserver', function() {
     sizeObserver.observe();
 
     if (window.navigator.userAgent.match(/node.js/i)) { // fake content size change in jsdom
-      element.scrollWidth = 200;
-      element.scrollHeight = 200;
+      element.clientWidth = 200;
+      element.clientHeight = 200;
     }
-
+  
     setTimeout(function() {
       expect(detected).toBe(1);
-
-      if (window.navigator.userAgent.match(/node.js/i)) { // fake content size change in jsdom
-        element.clientWidth = 200;
-        element.clientHeight = 200;
-      }
-    }, 110);
-    setTimeout(function() {
-      expect(detected).toBe(2);
       done();
     }, 250);
   });
