@@ -11,6 +11,7 @@ require("./framework/parsemanager.js");
 require("./framework/layouts/layerlayout.js");
 require("./framework/layouts/slidelayout.js");
 require("./framework/layouts/canvaslayout.js");
+require("./framework/layouts/editorlayout.js");
 require("./framework/gestures/gesturemanager.js");
 require("./framework/router/router.js");
 

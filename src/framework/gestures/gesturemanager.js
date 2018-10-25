@@ -4,7 +4,7 @@ var Gesture = require('./gesture.js');
 var layerJS = require('../layerjs.js');
 
 var GestureManager = Kern.EventManager.extend({
-  constructor: function() {
+  constructor: function () {
     this.gesture = null;
     this.element = null;
     this.gesturecc = 0;
@@ -17,7 +17,7 @@ var GestureManager = Kern.EventManager.extend({
    * @param {callback} The callback method
    * @param {options} additiional options
    */
-  register: function(element, callback, options) {
+  register: function (element, callback, options) {
     options = options || {};
     this._registerTouchEvents(element, callback, options);
     this._registerWheelEvents(element, callback, options);
@@ -28,9 +28,9 @@ var GestureManager = Kern.EventManager.extend({
    * @param {callback} The callback method
    * @param {options} additiional options
    */
-  _registerWheelEvents: function(element, callback, options) {
+  _registerWheelEvents: function (element, callback, options) {
     var that = this;
-    var wheel = function(e) {
+    var wheel = function (e) {
       return that._wheel(e, element, callback, options);
     };
 
@@ -42,15 +42,15 @@ var GestureManager = Kern.EventManager.extend({
    * @param {callback} The callback method
    * @param {options} additiional options
    */
-  _registerTouchEvents: function(element, callback, options) {
+  _registerTouchEvents: function (element, callback, options) {
     var that = this;
-    var tap = function(e) {
+    var tap = function (e) {
       return that._tap(e, element, callback, options);
     };
-    var drag = function(e) {
+    var drag = function (e) {
       return that._drag(e, element, callback, options);
     };
-    var release = function(e) {
+    var release = function (e) {
       return that._release(e, element, callback, options);
     };
 
@@ -77,7 +77,7 @@ var GestureManager = Kern.EventManager.extend({
    * @param {callback} The callback method
    * @param {options} additiional options
    */
-  _wheel: function(event, element, callback, options) { //jshint unused:false
+  _wheel: function (event, element, callback, options) { //jshint unused:false
     var that = this;
 
     if (this.timeoutWheel) {
@@ -87,26 +87,32 @@ var GestureManager = Kern.EventManager.extend({
     // to hanging if gesture canceling is implemented
     if (true || !this.gesture || !this.gesture.wheel || this.element !== element) {
       this.gesture = new Gesture();
-      this.gesture.wheel = true;
+      this.gesture.wheel = !event.ctrlKey;
+      this.gesture.isScale = event.ctrlKey;
       this.gesture.first = true;
       this.gesture.start.x = this.gesture.position.x = this._xPosition(event);
       this.gesture.start.y = this.gesture.position.y = this._yPosition(event);
       this.element = element;
       this._raiseGesture(event, callback); // first
-//    } else {
-//      this.gesture.startTime = new Date().getTime();
+      //    } else {
+      //      this.gesture.startTime = new Date().getTime();
     }
     this.gesture.first = false;
     this.gesture.wheelDelta = this._wheelDelta(event);
 
-    this.gesture.position = {
-      x: this.gesture.position.x + this.gesture.wheelDelta.x * 6,
-      y: this.gesture.position.y + this.gesture.wheelDelta.y * 6
-    };
-    this.gesture.shift = {
-      x: this.gesture.position.x - this.gesture.start.x,
-      y: this.gesture.position.y - this.gesture.start.y
-    };
+    if (this.gesture.isScale) {
+      this.gesture.scale-= 1/((this.gesture.wheelDelta.y < 0 ? 1 : 0) + this.gesture.wheelDelta.y * 0.2); 
+    }
+    else{      
+      this.gesture.position = {
+        x: this.gesture.position.x + this.gesture.wheelDelta.x * 6,
+        y: this.gesture.position.y + this.gesture.wheelDelta.y * 6
+      };
+      this.gesture.shift = {
+        x: this.gesture.position.x - this.gesture.start.x,
+        y: this.gesture.position.y - this.gesture.start.y
+      };
+    }
     // temporary set gesture.last here as gesture continuation has been disabled
     this.gesture.last = true;
     this._raiseGesture(event, callback);
@@ -125,7 +131,7 @@ var GestureManager = Kern.EventManager.extend({
    * return the wheel delta for the x- and y-axis
    * @param {event} Actual dom event
    */
-  _wheelDelta: function(event) {
+  _wheelDelta: function (event) {
     var wheelDelta = {
       x: 0,
       y: 0
@@ -150,7 +156,7 @@ var GestureManager = Kern.EventManager.extend({
    * @param {callback} The callback method
    * @param {options} additiional options
    */
-  _tap: function(event, element, callback, options) { //jshint unused:false
+  _tap: function (event, element, callback, options) { //jshint unused:false
     this.element = element;
     this.gesture = new Gesture();
     this.gesture.first = true;
@@ -169,7 +175,7 @@ var GestureManager = Kern.EventManager.extend({
    * @param {callback} The callback method
    * @param {options} additiional options
    */
-  _release: function(event, element, callback, options) { //jshint unused:false
+  _release: function (event, element, callback, options) { //jshint unused:false
     this.gesture.move = false;
     this.gesture.last = true;
     this.gesture.position.x = this._xPosition(event);
@@ -189,7 +195,7 @@ var GestureManager = Kern.EventManager.extend({
    * @param {callback} The callback method
    * @param {options} additiional options
    */
-  _drag: function(event, element, callback, options) { //jshint unused:false
+  _drag: function (event, element, callback, options) { //jshint unused:false
     if (this.gesture !== null && (this.gesture.click || this.gesture.touch)) {
       this.gesture.first = false;
       this.gesture.move = true;
@@ -206,7 +212,7 @@ var GestureManager = Kern.EventManager.extend({
    * Will get the Y postion (horizontal) of an avent
    * @param {event} Actual dom event
    */
-  _yPosition: function(event) {
+  _yPosition: function (event) {
     // touch event
     if (event.targetTouches && (event.targetTouches.length >= 1)) {
       return event.targetTouches[0].clientY;
@@ -221,7 +227,7 @@ var GestureManager = Kern.EventManager.extend({
    * Will get the X postion (vertical) of an avent
    * @param {event} Actual dom event
    */
-  _xPosition: function(event) {
+  _xPosition: function (event) {
     // touch event
     if (event.targetTouches && (event.targetTouches.length >= 1)) {
       return event.targetTouches[0].clientX;
@@ -236,7 +242,7 @@ var GestureManager = Kern.EventManager.extend({
    * Passes the gesture to the callback method
    * @param {callback} The callback method
    */
-  _raiseGesture: function(event, callback) {
+  _raiseGesture: function (event, callback) {
     if (callback && this.gesture) {
       this.gesture.event = event;
       if (!this.gesture.direction) { // is direction locked?

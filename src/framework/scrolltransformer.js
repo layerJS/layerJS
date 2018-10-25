@@ -13,14 +13,14 @@ var ScrollTransformer = Kern.EventManager.extend({
    * @param {LayerView} layer - the layer this ScrollTransformer belongs to
    * @returns {Type} Description
    */
-  constructor: function(layer) {
+  constructor: function (layer) {
     Kern.EventManager.call(this);
     var that = this;
     if (!layer) throw "provide a layer";
     this.layer = layer;
 
     // listen to scroll events
-    this.layer.outerEl.addEventListener('scroll', function() {
+    this.layer.outerEl.addEventListener('scroll', function () {
       if (that.layer.nativeScroll()) {
         var tfd = that.layer.currentFrameTransformData;
         tfd.scrollX = that.layer.outerEl.scrollLeft / tfd.scale;
@@ -28,6 +28,8 @@ var ScrollTransformer = Kern.EventManager.extend({
         that.layer.trigger("scroll");
       }
     });
+
+    this.scale = 1;
   },
 
   /**
@@ -37,8 +39,8 @@ var ScrollTransformer = Kern.EventManager.extend({
    * @param {Number} scrollY - the scroll in y direction
    * @returns {string} the transform
    */
-  scrollTransform: function(scrollX, scrollY) {
-    return "translate3d(" + scrollX + "px," + scrollY + "px,0px)";
+  scrollTransform: function (scrollX, scrollY) {
+    return "translate3d(" + scrollX + "px," + scrollY + "px,0px) scale(" + this.scale + "," + this.scale + ")";
   },
   /**
    * will check if current gesture would lead to scrolling in a nested element
@@ -47,7 +49,7 @@ var ScrollTransformer = Kern.EventManager.extend({
    * @param {object} gesture - current gesture
    * @returns {Boolean} true if inner scrolling would occur
    */
-  _detectInnerScrolling: function(gesture) {
+  _detectInnerScrolling: function (gesture) {
     var element = gesture.event.target;
     while (element && this.layer.innerEl.contains(element) && element !== this.layer.innerEl) {
       if (Math.abs(gesture.shift.x) > Math.abs(gesture.shift.y)) {
@@ -75,26 +77,50 @@ var ScrollTransformer = Kern.EventManager.extend({
     }
     return false;
   },
+
+  /**
+   * calculate current transform based on gesture
+   *
+   * @param {Gesture} gesture - the input gesture to be interpreted as scroll transform
+   * @returns {string} the transform or false to indicate scaling
+   */
+  scaleGestureListener: function (gesture) {
+    if (gesture.first) {
+      return true;
+    }
+    this.scale *= gesture.scale;
+    return this.scrollTransform(0, 0);
+  },
+
+
   /**
    * calculate current transform based on gesture
    *
    * @param {Gesture} gesture - the input gesture to be interpreted as scroll transform
    * @returns {string} the transform or false to indicate no scrolling
    */
-  scrollGestureListener: function(gesture) {
+  scrollGestureListener: function (gesture) {
+
+    if (gesture.isScale) {
+      return true;
+    }
+
     var tfd = this.layer.currentFrameTransformData;
     if (gesture.first) {
       this.scrollStartX = tfd.scrollX;
       this.scrollStartY = tfd.scrollY;
       return true;
     }
+
     // detect nested scrolling
     if (this._detectInnerScrolling(gesture)) return true;
     // primary direction
     var axis = (Math.abs(gesture.shift.x) > Math.abs(gesture.shift.y) ? "x" : "y");
+
     // check if can't scroll in primary direction
     if (axis === "x" && !tfd.isScrollX) return false;
     if (axis === "y" && !tfd.isScrollY) return false;
+
     if (this.layer.nativeScroll()) {
       if (Math.abs(gesture.shift.x) + Math.abs(gesture.shift.y) < 10) return true;
       if (axis === 'y') {
@@ -135,7 +161,7 @@ var ScrollTransformer = Kern.EventManager.extend({
       return this.scrollTransform(-tfd.scrollX * tfd.scale, -tfd.scrollY * tfd.scale);
     }
   },
-  switchNativeScroll: function(nativeScroll) { //jshint ignore:line
+  switchNativeScroll: function (nativeScroll) { //jshint ignore:line
 
   },
   /**
@@ -148,7 +174,7 @@ var ScrollTransformer = Kern.EventManager.extend({
                                      here, the (possibly wrong/old native scroll position is taken into account)
    * @returns {Type} Description
    */
-  getScrollTransform: function(tfd, transition, intermediate) {
+  getScrollTransform: function (tfd, transition, intermediate) {
 
     var scrollX = transition.scrollX || tfd.scrollX;
     var scrollY = transition.scrollY || tfd.scrollY;
@@ -209,7 +235,7 @@ var ScrollTransformer = Kern.EventManager.extend({
           // when temporarily switching off -webkit-overflow-scrolling this will be fixed.
           this.layer.outerEl.style['-webkit-overflow-scrolling'] = "auto";
           var that = this;
-          setTimeout(function() {
+          setTimeout(function () {
             that.layer.outerEl.style['-webkit-overflow-scrolling'] = "touch";
           }, 1);
         }

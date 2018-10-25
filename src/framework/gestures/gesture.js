@@ -2,7 +2,7 @@
 var Kern = require('../../kern/Kern.js');
 
 var Gesture = Kern.Base.extend({
-  constructor: function() {
+  constructor: function () {
     //this.altKey = false;
     this.buttons = [false, false, false];
     this.cancel = false; //
@@ -39,18 +39,20 @@ var Gesture = Kern.Base.extend({
       x: 0,
       y: 0
     };
+    this.scale = 1;
+    this.isScale = false;
   },
   /**
    * Returns how long a go the event got fired
    */
-  lifeTime: function() {
+  lifeTime: function () {
     return new Date().getTime() - this.startTime;
 
   },
   /**
    * Returns if the gesture has made enough distance to lock a direction
    */
-  enoughDistance: function() {
+  enoughDistance: function () {
     return Math.abs(this.shift.x) + Math.abs(this.shift.y) > 10;
   }
 }, {});

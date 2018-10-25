@@ -1,13 +1,20 @@
+'use strict';
+var $ = require('../domhelpers.js');
 var ScrollTranformer = require('../scrolltransformer');
 
 var EditorTransformer = ScrollTranformer.extend({
-    /**
+  /**
    * calculate current transform based on gesture
    *
    * @param {Gesture} gesture - the input gesture to be interpreted as scroll transform
    * @returns {string} the transform or false to indicate no scrolling
    */
-  scrollGestureListener: function(gesture) {
+  scrollGestureListener: function (gesture) {
+
+    if (gesture.isScale) {
+      return ScrollTranformer.prototype.scaleGestureListener.call(this, gesture);
+    }
+
     var tfd = this.layer.currentFrameTransformData;
     if (gesture.first) {
       this.scrollStartX = tfd.scrollX;
@@ -33,14 +40,14 @@ var EditorTransformer = ScrollTranformer.extend({
         }
       }
     } else {
-//      if (Math.abs(gesture.shift.x) + Math.abs(gesture.shift.y) < 10) return false;
-  
+      //      if (Math.abs(gesture.shift.x) + Math.abs(gesture.shift.y) < 10) return false;
+
       tfd.scrollX = this.scrollStartX - gesture.shift.x / tfd.scale;
       tfd.scrollY = this.scrollStartY - gesture.shift.y / tfd.scale;
       return this.scrollTransform(-tfd.scrollX * tfd.scale, -tfd.scrollY * tfd.scale);
     }
   },
-  getScrollTransform: function(tfd, transition, intermediate) {
+  getScrollTransform: function (tfd, transition, intermediate) {
 
     var scrollX = transition.scrollX || tfd.scrollX;
     var scrollY = transition.scrollY || tfd.scrollY;
@@ -56,6 +63,7 @@ var EditorTransformer = ScrollTranformer.extend({
     // Note: we don't limit scrolling to frame boundaries
     if (this.layer.nativeScroll()) {
       // this shouldn't happen. native scroll is not supported as we want to scroll outside of the frame
+      $.debug("this shouldn't happen. native scroll is not supported as we want to scroll outside of the frame");
     } else {
       // in transformscroll we add a transform representing the scroll position.
       return this.scrollTransform(-tfd.scrollX * tfd.scale, -tfd.scrollY * tfd.scale);

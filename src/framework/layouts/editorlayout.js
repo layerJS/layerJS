@@ -1,3 +1,4 @@
+'use strict';
 var layoutManager = require('../layoutmanager');
 var CanvasLayout = require('./canvaslayout');
 var EditorTransformer = require('./editortransformer');
