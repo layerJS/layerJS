@@ -20,7 +20,7 @@ var StageView = BaseView.extend({
     // register for gestures
     gestureManager.register(this.outerEl, this.gestureListener.bind(this), {
       dragging: true,
-      mouseDragging: true
+      mouseDragging: this.draggable()
     });
   },
   /**
