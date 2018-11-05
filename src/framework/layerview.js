@@ -282,6 +282,27 @@ var LayerView = BaseView.extend({
     };
   },
   /**
+   * resolves transition.scrollElement to actuall scrollX, scrollY coordinates
+   * @param {object} transition the transitionrecord of the current transition
+   */
+  resolveScrollElement: function(transition, tfd) {
+    var element = transition.scrollElement;
+    var frameEl = transition.frame.innerEl;
+    if (element && frameEl.contains(element)) {
+      var ebb;
+      if (element instanceof Text) { // for text nodes its a bit more complicated to get bbox
+        var range = document.createRange();
+        range.selectNodeContents(element);
+        ebb = range.getBoundingClientRect()
+      } else {
+        ebb = element.getBoundingClientRect();
+      }
+      var fbb = frameEl.getBoundingClientRect();
+      transition.scrollX = (ebb.left - fbb.left) / tfd.scale;
+      transition.scrollY = (ebb.top - fbb.top) / tfd.scale;
+    }
+  },
+  /**
    * scrolls to a specified x,y position or a predefined postions using startPosition
    *
    * @param {Number} scrollX - optional: the new scroll x position
@@ -291,15 +312,19 @@ var LayerView = BaseView.extend({
    */
   scrollTo: function(scrollX, scrollY, transition) {
     if (this.currentFrame === null) return;
+    if (scrollX instanceof HTMLElement || scrollX instanceof Text) {
+      transition = scrollY || {};
+      transition.scrollElement = scrollX;
+      scrollX = scrollY = undefined;
+    } else if (typeof scrollX === 'object') {
+      transition = scrollX;
+      scrollX = scrollY = undefined;
+    }
     transition = transition || {};
     if (transition.startPosition) { // need to recalculate transform data if startPosition has changed
       this.currentFrameTransformData = this.currentFrame.getTransformData(this, transition.startPosition);
     }
     var tfd = this.currentFrameTransformData;
-    if (typeof scrollX === 'object') {
-      transition = scrollX;
-      scrollX = 0;
-    }
     scrollX = (scrollX !== undefined ? scrollX : (transition.scrollX !== undefined ? transition.scrollX : tfd.scrollX || 0));
     scrollY = (scrollY !== undefined ? scrollY : (transition.scrollY !== undefined ? transition.scrollY : tfd.scrollY || 0));
 
@@ -324,7 +349,7 @@ var LayerView = BaseView.extend({
    * @returns {void}
    */
   switchLayout: function(layoutType) {
-    this._layout = new(layoutManager.get(layoutType))(this);
+    this._layout = new (layoutManager.get(layoutType))(this);
     this._transformer = this._layout.getScrollTransformer() || new ScrollTransformer(this);
 
     if (this.currentFrame) {
@@ -407,11 +432,11 @@ var LayerView = BaseView.extend({
    * used by frame.calculateTransformData
    * @param {Frame} frame the frame for which the dimensions are needed
    */
-  getStageDimensions(frame){
-    if (this._layout && this._layout.getStageDimensions){
+  getStageDimensions(frame) {
+    if (this._layout && this._layout.getStageDimensions) {
       return this._layout.getStageDimensions(frame);
     }
-    if (this.parent){
+    if (this.parent) {
       return {
         width: this.parent.width(),
         height: this.parent.height()
@@ -558,7 +583,7 @@ var LayerView = BaseView.extend({
         interStage: frame && frame.parent && frame.parent !== that,
         applyCurrentPostPosition: ((transition.applyCurrentPostPosition !== true && (that.currentFrame && that.currentFrame.parent && that.currentFrame.parent === that)) && !transition.noActivation) || false,
         applyCurrentPrePosition: ((transition.applyCurrentPrePosition !== true && (that.currentFrame && that.currentFrame.parent && that.currentFrame.parent === that)) && !transition.noActivation) || false
-          // FIXME: add more default values like timing
+        // FIXME: add more default values like timing
       }, transition || {});
 
       // check for reverse transition; remove "r:"/"reverse:" indicator and set transition.reverse instead
@@ -601,6 +626,7 @@ var LayerView = BaseView.extend({
         // a compensatory transform for the target scroll position.
         var currentScroll = that.getCurrentScroll(); // get current scroll position before recalculating it for that frame
         var targetFrameTransformData = transition.targetFrameTransformData = null === frame ? that.noFrameTransformdata(transition.startPosition) : frame.getTransformData(that, transition.startPosition);
+        if (transition.scrollElement) that.resolveScrollElement(transition, targetFrameTransformData); // if scrollElement is given calculate actual scrollX, scrollY from it
         var targetTransform = that._transformer.getScrollTransform(targetFrameTransformData, transition, true);
 
 
@@ -919,14 +945,14 @@ var LayerView = BaseView.extend({
     }
   }
 }, {
-  defaultProperties: {
-    type: 'layer'
-  },
-  identify: function(element) {
-    var type = $.getAttributeLJ(element, 'type');
-    return null !== type && type.toLowerCase() === LayerView.defaultProperties.type;
-  }
-});
+    defaultProperties: {
+      type: 'layer'
+    },
+    identify: function(element) {
+      var type = $.getAttributeLJ(element, 'type');
+      return null !== type && type.toLowerCase() === LayerView.defaultProperties.type;
+    }
+  });
 
 pluginManager.registerType('layer', LayerView, defaults.identifyPriority.normal);
 
