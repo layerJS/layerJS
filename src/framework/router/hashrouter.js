@@ -57,12 +57,12 @@ var HashRouter = Kern.EventManager.extend({
           // an anchorId will be the first one in the list
           // check if it is an anchor element
           var anchor = document.getElementsByName(hashPath);
-          anchor = anchor && anchor[0] || document.getElementById(hashPath);
+          anchor = anchor && anchor[0] || document.getElementById(hashPath); //anchor name or id
           // only proceed when an element is found and if that element is visible
           if (anchor && window.getComputedStyle(anchor).display !== 'none') {
-            var frameView = $.findParentViewOfType(anchor, 'frame');
+            var frameView = $.findParentViewOfType(anchor, 'frame'); // the frame that contains the anchor
             // parent of the element has to be a frame
-            if (undefined !== frameView) {
+            if (undefined !== frameView) { // is part of a frame
               var transition;
               var path = state.buildPath(frameView.outerEl, false);
               var index = paths.indexOf(path);
@@ -70,22 +70,24 @@ var HashRouter = Kern.EventManager.extend({
               // FIXME: this only works if that path has been found already in this hashrouter run
               if (index !== -1) {
                 // path found, reuse transition record
+                // this happens when you want to go to a new frame and immideately scroll to an anchor. "#framename;#anchorname"
                 transition = transitions[index];
               } else if (index === -1) {
                 // check is the layer is getting a new current frame an verify if anchor also exists
                 // in the new frame
+                // FIXME: i don't know why this branch is here. The index!==-1 branch should already find a new current frame with the anchor inside. Why searching for the anchor again in another frame in the same layer??????
                 var layerPath = path.replace(/\.[^\.]*$/, '');
-                var framesWithSameLayer = options.paths.filter(filterFramesWithSameLayer(layerPath));
+                var framesWithSameLayer = options.paths.filter(filterFramesWithSameLayer(layerPath)); // find frames that will be transitoned to in the same layer as the frame which contains the anchor
 
                 if (framesWithSameLayer.length === 1) {
-                  var frameViewTemp = state.resolvePath(framesWithSameLayer[0])[0].view;
-                  var anchorTemp = frameViewTemp.outerEl.querySelectorAll('[name=' + hashPath + '], #' + hashPath);
-                  anchorTemp = anchorTemp && anchorTemp[0];
+                  var frameViewTemp = state.resolvePath(framesWithSameLayer[0])[0].view; // get the first of those frames
+                  var anchorTemp = frameViewTemp.outerEl.querySelectorAll('[name=' + hashPath + '], #' + hashPath); // get the anchor element in that frame (name or id)
+                  anchorTemp = anchorTemp && anchorTemp[0]; 
 
-                  if (anchorTemp && window.getComputedStyle(anchorTemp).display !== 'none') {
+                  if (anchorTemp && window.getComputedStyle(anchorTemp).display !== 'none') { // if we have an anchor in this frame
                     var hidden = window.getComputedStyle(frameViewTemp.outerEl).display === 'none';
 
-                    if ( hidden)
+                    if ( hidden) // temporarily display the frame if hidden
                     {
                       frameViewTemp.outerEl.style.opacity = 0;
                       frameViewTemp.outerEl.style.display = '';
@@ -93,14 +95,14 @@ var HashRouter = Kern.EventManager.extend({
 
                       anchor = anchorTemp;
                       index = options.paths.indexOf(framesWithSameLayer[0]);
-                      transition = options.transitions[index];
+                      transition = options.transitions[index]; // get the transition record of the new frame
 
-                      anchor = {
+                      anchor = { // create fake anchor element with offsets
                         offsetTop: anchorTemp.offsetTop,
                         offsetLeft: anchorTemp.offsetLeft
                       };
 
-                      if (hidden)
+                      if (hidden) // hide frame again
                       {
                         frameViewTemp.outerEl.style.display = 'none';
                         frameViewTemp.outerEl.style.opacity = 1;
@@ -109,7 +111,7 @@ var HashRouter = Kern.EventManager.extend({
                 }
               }
 
-              if (index === -1 && frameView.parent.currentFrame === frameView) {
+              if (index === -1 && frameView.parent.currentFrame === frameView) { // if nothing is found; wee need to add a new path to the current frame with the transtion to the new sroll positions
                 // if frame is active, add path and transition record
                 paths.push(state.buildPath(frameView.outerEl, false));
                 transition = Kern._extend({}, options.globalTransition, parsed.transition);
