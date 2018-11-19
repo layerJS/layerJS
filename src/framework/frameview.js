@@ -11,7 +11,7 @@ var defaults = require('./defaults.js');
  * @extends GroupView
  */
 var FrameView = BaseView.extend({
-  constructor: function (options) {
+  constructor: function(options) {
     this.renderRequiredAttributes = ['lj-fit-to', 'lj-elastic-left', 'lj-elastic-right', 'lj-elastic-top', 'lj-elastic-bottom', 'lj-width', 'lj-height', 'lj-x', 'lj-y', 'lj-scale-x', 'lj-scale-y', 'lj-rotation', 'lj-start-position'];
     this.transformData = undefined;
 
@@ -21,7 +21,7 @@ var FrameView = BaseView.extend({
   /**
    * Specifies what will need to be observed on the DOM element. (Attributes, Children and size)
    */
-  startObserving: function () {
+  startObserving: function() {
     BaseView.prototype.observe.call(this, this.innerEl, {
       attributes: true,
       attributeFilter: ['name', 'lj-name', 'id'].concat(this.renderRequiredAttributes),
@@ -33,12 +33,12 @@ var FrameView = BaseView.extend({
    * Will add eventhandlers to specific events. It will handle a 'childrenChanged', 'sizeChanged' and
    * 'attributesChanged' event.
    */
-  registerEventHandlers: function () {
+  registerEventHandlers: function() {
     var that = this;
 
     BaseView.prototype.registerEventHandlers.call(this);
 
-    this.on('sizeChanged', function () {
+    this.on('sizeChanged', function() {
       if (that.parent) {
         if (that.inTransition) { // defer renderrequired after the transition finishes
           if (!that.inTransitionListening) {
@@ -64,7 +64,7 @@ var FrameView = BaseView.extend({
    * Will be invoked the an 'attributesChanged' event is triggered. Will trigger a 'renderRequired' when needed.
    * @param {Object} attributes - a hash object the contains the changed attributes
    */
-  attributesChanged: function (attributes) {
+  attributesChanged: function(attributes) {
     for (var i = 0; i < this.renderRequiredAttributes.length; i++) {
       var attributeNames = Object.getOwnPropertyNames(attributes);
       if (attributeNames.indexOf(this.renderRequiredAttributes[i]) !== -1 || attributeNames.indexOf('data-' + this.renderRequiredAttributes[i]) !== -1) {
@@ -81,7 +81,7 @@ var FrameView = BaseView.extend({
    * @param {Boolean} keepScroll - if true, scrollX and scrollY are not reset to their initial positions (unless transitionStartPosition requests a full recalculation)
    * @returns {TransformData} the transform data
    */
-  getTransformData: function (layer, transitionStartPosition, keepScroll) {
+  getTransformData: function(layer, transitionStartPosition, keepScroll) {
     // check if we can return cached version of transfromData
     var d = this.transformData;
     if (!d || d.isDirty || d.layer !== layer || (transitionStartPosition && transitionStartPosition !== d.startPosition)) {
@@ -102,7 +102,7 @@ var FrameView = BaseView.extend({
    * Returns the scroll data for this frame in form of a transition record with only the values for scroll positions and startPosition set.   *
    * @returns {object} contains the scrollX and scrollY
    */
-  getScrollData: function () {
+  getScrollData: function() {
 
     var scrollData = this.transformData ? {
       //  startPosition: this.transformData.startPosition,
@@ -119,14 +119,14 @@ var FrameView = BaseView.extend({
    * @param {string} [transitionStartPosition] - the scroll position at start
    * @returns {TransformData} the transform data
    */
-  calculateTransformData: function (layer, transitionStartPosition) {
+  calculateTransformData: function(layer, transitionStartPosition) {
     var stage = layer.parent;
     var sDim = layer.getStageDimensions(this);
 
-    var stageWidth = sDim ? sDim.width : 0;
-    var stageHeight = sDim ? sDim.height : 0;
     // data record contianing transformation and scrolling information of frame within given stage
     var d = this.transformData = {};
+    var stageWidth = d.stageWidth = sDim ? sDim.width : 0;
+    var stageHeight = d.stageHeight = sDim ? sDim.height : 0;
     d.layer = layer;
     // scaling of frame needed to fit frame into stage
     d.scale = 1;
@@ -147,15 +147,13 @@ var FrameView = BaseView.extend({
 
     var fitTo = this.fitTo(false) || layer.fitTo();
 
-    if(-1 === ['responsive', 'responsive-width'].indexOf(fitTo) && this.widthSet())
-    {
+    if (-1 === ['responsive', 'responsive-width'].indexOf(fitTo) && this.widthSet()) {
       d.frameWidth = this.getOriginalWidth().computedStyleWidth;
       d.frameOriginalWidth = this.getOriginalWidth().width;
       this.widthSet(false);
     }
 
-    if(-1 === ['responsive', 'responsive-height'].indexOf(fitTo) && this.heightSet())
-    {
+    if (-1 === ['responsive', 'responsive-height'].indexOf(fitTo) && this.heightSet()) {
       d.frameHeight = this.getOriginalHeight().computedStyleHeight;
       d.frameOriginalHeight = this.getOriginalHeight().height;
       this.heightSet(false);
@@ -266,9 +264,9 @@ var FrameView = BaseView.extend({
     d.height = d.frameHeight * d.scale;
 
     if (stage && stage.autoWidth()) {
-      stageWidth = d.width;
+      d.stageWidth = stageWidth = d.width;
     } else if (stage && stage.autoHeight()) {
-      stageHeight = d.height;
+      d.stageHeight = stageHeight = d.height;
     }
     // calculate maximum scroll positions (depend on frame and stage dimensions)
     // WARN: allow negative maxScroll for now
@@ -378,7 +376,7 @@ var FrameView = BaseView.extend({
     if (d.applyWidth && !this.widthSet()) {
       this.setOriginalWidth();
       this.widthSet(true);
-    } 
+    }
 
     if (d.applyHeight && !this.heightSet()) {
       this.setOriginalHeight();
@@ -392,7 +390,7 @@ var FrameView = BaseView.extend({
    *
    * @return {Number} the width of the view
    */
-  width: function () {
+  width: function() {
     var margin = this.getMargin();
     var marginToAdd = margin.left + margin.right;
     return BaseView.prototype.width.call(this) + marginToAdd; // we always return width incl. margin to also fit margin into stage
@@ -402,21 +400,21 @@ var FrameView = BaseView.extend({
    *
    * @return {Number} the height of the view
    */
-  height: function () {
+  height: function() {
     var margin = this.getMargin();
     var marginToAdd = margin.top + margin.bottom;
     return BaseView.prototype.height.call(this) + marginToAdd; // we always return height incl. margin to also fit margin into stage
   },
 
 }, {
-  defaultProperties: {
-    type: 'frame'
-  },
-  identify: function (element) {
-    var type = $.getAttributeLJ(element, 'type');
-    return null !== type && type.toLowerCase() === FrameView.defaultProperties.type;
-  }
-});
+    defaultProperties: {
+      type: 'frame'
+    },
+    identify: function(element) {
+      var type = $.getAttributeLJ(element, 'type');
+      return null !== type && type.toLowerCase() === FrameView.defaultProperties.type;
+    }
+  });
 
 pluginManager.registerType('frame', FrameView, defaults.identifyPriority.normal);
 module.exports = FrameView;

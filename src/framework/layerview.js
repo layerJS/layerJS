@@ -290,6 +290,7 @@ var LayerView = BaseView.extend({
     var frameEl = transition.frame.innerEl;
     if (element && frameEl.contains(element)) {
       var ebb;
+      // FIXME: using getBoundingClientBox assumes, that the stage itself is not scaled
       if (element instanceof Text) { // for text nodes its a bit more complicated to get bbox
         var range = document.createRange();
         range.selectNodeContents(element);
@@ -298,8 +299,29 @@ var LayerView = BaseView.extend({
         ebb = element.getBoundingClientRect();
       }
       var fbb = frameEl.getBoundingClientRect();
-      transition.scrollX = (ebb.left - fbb.left) / tfd.scale;
-      transition.scrollY = (ebb.top - fbb.top) / tfd.scale;
+      if (transition.scrollIfNeeded) {
+        // calculate align to top
+        var scrollYt = (ebb.top - fbb.top) / tfd.scale;
+        // calculate algin to bottom
+        var scrollYb = (ebb.bottom - fbb.top - tfd.stageHeight) / tfd.scale + tfd.margin.top;
+        //check if scrolling is necessary at all
+        if (Math.min(scrollYt, scrollYb) > tfd.scrollY || Math.max(scrollYt, scrollYb) < tfd.scrollY) {
+          // chose border which requires minimal scrolling
+          transition.scrollY = (Math.abs(tfd.scrollY - scrollYt) < Math.abs(tfd.scrollY - scrollYb)) ? scrollYt : scrollYb;
+        }
+        // calculate align to left
+        var scrollXl = (ebb.left - fbb.left) / tfd.scale;
+        // calculate algin to right
+        var scrollXr = (ebb.right - fbb.left - tfd.stageWidth) / tfd.scale + tfd.margin.left; 
+        //check if scrolling is necessary at all
+        if (Math.min(scrollXl, scrollXr) > tfd.scrollX || Math.max(scrollXl, scrollXr) < tfd.scrollX) {
+          // chose border which requires minimal scrolling
+          transition.scrollX = (Math.abs(tfd.scrollX - scrollXl) < Math.abs(tfd.scrollX - scrollXr)) ? scrollXl : scrollXr;
+        }
+      } else {
+        transition.scrollX = (ebb.left - fbb.left) / tfd.scale;
+        transition.scrollY = (ebb.top - fbb.top) / tfd.scale;
+      }
     }
   },
   /**
