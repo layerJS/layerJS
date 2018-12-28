@@ -127,6 +127,7 @@ var FrameView = BaseView.extend({
     var d = this.transformData = {};
     var stageWidth = d.stageWidth = sDim ? sDim.width : 0;
     var stageHeight = d.stageHeight = sDim ? sDim.height : 0;
+    if (stageHeight === 0 || stageWidth === 0) d.isDirty = true; //if this happens nothing will be shown, a stage dimension change should happen soon so we need to recalculate
     d.layer = layer;
     // scaling of frame needed to fit frame into stage
     d.scale = 1;
