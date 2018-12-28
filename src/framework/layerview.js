@@ -294,7 +294,7 @@ var LayerView = BaseView.extend({
       if (element instanceof Text) { // for text nodes its a bit more complicated to get bbox
         var range = document.createRange();
         range.selectNodeContents(element);
-        ebb = range.getBoundingClientRect()
+        ebb = range.getBoundingClientRect();
       } else {
         ebb = element.getBoundingClientRect();
       }

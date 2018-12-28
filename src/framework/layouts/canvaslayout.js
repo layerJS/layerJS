@@ -32,6 +32,37 @@ var CanvasLayout = LayerLayout.extend({
     var framesLength = frames.length;
     var childFrame;
 
+    var transformFrame = function(childFrame, duration) {
+      var tfd = childFrame.getTransformData(that.layer); // this will NOT initialize dimensions for the frame; we need to check if we have to set them
+      var otherCss = {
+        transition: duration !== undefined ? duration : transition.duration,
+        opacity: 1,
+        display: 'block'
+      };
+
+      otherCss.width = tfd.applyWidth ? (tfd.frameWidth - tfd.margin.left - tfd.margin.right) + 'px' : tfd.frameOriginalWidth;
+      otherCss.height = tfd.applyHeight ? (tfd.frameHeight - tfd.margin.top - tfd.margin.bottom) + 'px' : tfd.frameOriginalHeight;
+
+      that._applyTransform(childFrame, that._reverseTransform, targetTransform, otherCss);
+    };
+
+    var currentFrame = that.layer.currentFrame;
+    if (currentFrame && currentFrame.transformData.isDirty) { // we need to do a transition to current frame first if current frame isDirty. This may happen if the whole canvas layer was hidden before
+      // now apply all transforms to all frames
+      that._reverseTransform = that._calculateReverseTransform(currentFrame, currentFrame.getTransformData(that.layer, undefined, true));
+      for (var i = 0; i < framesLength; i++) {
+        transformFrame(frames[i],'none');
+      }
+      //force reflow;
+      var reflowed = false;
+      for (i = 0; i < framesLength; i++) {
+        if (window.getComputedStyle(frames[i].outerEl).transform) {
+          reflowed = true;
+        }
+      }
+
+
+    }
     // we only listen to the transitionend of the target frame and hope that's fine
     // NOTE: other frame transitions may end closely afterwards and setting transition time to 0 will let
     // them jump to the final positions (hopefully jump will not be visible)
@@ -65,21 +96,6 @@ var CanvasLayout = LayerLayout.extend({
     transition.semaphore.sync().then(function() {
 
       if (null !== frame) {
-
-
-        var transformFrame = function(childFrame) {
-          var tfd = childFrame.getTransformData(that.layer); // this will NOT initialize dimensions for the frame; we need to check if we have to set them
-          var otherCss = {
-            transition: transition.duration,
-            opacity: 1,
-            display: 'block'
-          };
-
-          otherCss.width = tfd.applyWidth ? (tfd.frameWidth - tfd.margin.left - tfd.margin.right) + 'px' : tfd.frameOriginalWidth;
-          otherCss.height = tfd.applyHeight ? (tfd.frameHeight - tfd.margin.top - tfd.margin.bottom) + 'px' : tfd.frameOriginalHeight;
-
-          that._applyTransform(childFrame, that._reverseTransform, targetTransform, otherCss);
-        };
 
         if (transition.noActivation) {
           transformFrame(frame);
