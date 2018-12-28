@@ -7,6 +7,8 @@ var ScrollTransformer = require('./scrolltransformer.js');
 var gestureManager = require('./gestures/gesturemanager.js');
 var defaults = require('./defaults.js');
 var BaseView = require('./baseview.js');
+var layerJS = require('./layerjs.js');
+
 /**
  * A View which can have child views
  * @param {LayerData} dataModel
@@ -312,7 +314,7 @@ var LayerView = BaseView.extend({
         // calculate align to left
         var scrollXl = (ebb.left - fbb.left) / tfd.scale;
         // calculate algin to right
-        var scrollXr = (ebb.right - fbb.left - tfd.stageWidth) / tfd.scale + tfd.margin.left; 
+        var scrollXr = (ebb.right - fbb.left - tfd.stageWidth) / tfd.scale + tfd.margin.left;
         //check if scrolling is necessary at all
         if (Math.min(scrollXl, scrollXr) > tfd.scrollX || Math.max(scrollXl, scrollXr) < tfd.scrollX) {
           // chose border which requires minimal scrolling
@@ -431,9 +433,14 @@ var LayerView = BaseView.extend({
           gesture.preventDefault = true;
           // console.log("gestureListener: directional gesture, prevented default");
           if (!this.inTransition() && (gesture.last || (gesture.wheel && gesture.enoughDistance()))) {
-            this.transitionTo(neighbors[defaults.directions2neighbors[gesture.direction]], {
-              type: defaults.neighbors2transition[defaults.directions2neighbors[gesture.direction]]
-            });
+            var framename = neighbors[defaults.directions2neighbors[gesture.direction]];
+            if (framename.match(/^#/)) {
+              layerJS.router.navigate(framename);
+            } else {
+              this.transitionTo(neighbors[defaults.directions2neighbors[gesture.direction]], {
+                type: defaults.neighbors2transition[defaults.directions2neighbors[gesture.direction]]
+              });
+            }
           }
         } else { //jshint ignore:line
           // FIXME: escalate/gesture bubbling ; ignore for now
