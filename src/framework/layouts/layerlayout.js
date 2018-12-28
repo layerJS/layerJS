@@ -129,10 +129,10 @@ var LayerLayout = Kern.EventManager.extend({
         frame.outerEl.style.opacity = '0';
         this.postLoad(frame);
 
-        // wait until rendered;
-        $.postAnimationFrame(function() {
+        // wait until rendered; NOTE: we don't need that. the next time we read any dimensions from frames the will cause a reflow and we have the displayed element
+        //$.postAnimationFrame(function() {
           finished.resolve();
-        });
+        //});
       }
     }
     return finished;
