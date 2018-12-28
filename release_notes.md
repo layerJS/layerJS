@@ -1,5 +1,13 @@
 # Release notes #
 
+## New in 0.6.2
+
+ * frame neighbors can now take hasrouter routes, so multiple transitions can be triggered by a gesture. Note: you need to specify the transition type manually, it will not be determined from the gesture direction as when only the framename is specified
+ * fixed: loadFrame doesn't need to wait for next render
+ * canvaslayout: currentFrame positions are corrected before transition, if the whole canvas layout layer wasn't shown before.
+ * allow scrolling to an element
+ * added transition option "ScrollIfNeeded"
+
 ## New in 0.6.1
 
  * fixed: when switching from a repsonsive fitting mode back to another fitting mode that is based on the original frame width/height, the width/height of the responsive frame was kept. This was a problem for example when switching from fixed to responsive and back depending on mediaquery. 
