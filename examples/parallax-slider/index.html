@@ -1,0 +1,67 @@
+<html>
+
+<head>
+  <meta name="description" content="parallax effect">
+  <script src="../../dist/layerjs.js"></script>
+  <link href="../../dist/layerjs.css" type="text/css" rel="stylesheet" />
+  <link href="your-style.css" type="text/css" rel="stylesheet" />
+</head>
+
+<body>
+  <div lj-type="stage">
+    <div lj-type="layer" id="slider">
+      <div lj-type="frame" id="f1" lj-fit-to="responsive" lj-neighbors.r="#f2&p=left;l1.left;l2.middle" lj-neighbors.l="#f3&p=right;l1.right;l3.middle">
+        <div lj-type="stage">
+          <div lj-type="layer" id="l1" lj-layout="canvas" lj-fit-to="responsive" lj-default-frame="middle"
+            lj-native-scroll="false">
+            <div lj-type="frame" lj-name="left" lj-x="-50vw"></div>
+            <div lj-type="frame" lj-name="middle"></div>
+            <div lj-type="frame" lj-name="right" lj-x="50vw"></div>
+          </div>
+        </div>
+        <div class="content">Content 1</div>
+      </div>
+      <div lj-type="frame" id="f2" lj-fit-to="responsive" lj-neighbors.r="#f3&p=left;l2.left;l3.middle" lj-neighbors.l="#f1&p=right;l2.right;l1.middle">
+        <div lj-type="stage">
+          <div lj-type="layer" id="l2" lj-layout="canvas" lj-fit-to="responsive" lj-native-scroll="false">
+            <div lj-type="frame" lj-name="left" lj-x="-50vw"></div>
+            <div lj-type="frame" lj-name="middle"></div>
+            <div lj-type="frame" lj-name="right" lj-x="50vw"></div>
+          </div>
+        </div>
+        <div class="content">Content 2</div>
+      </div>
+      <div lj-type="frame" id="f3" lj-fit-to="responsive" lj-neighbors.r="#f1&p=left;l3.left;l1.middle" lj-neighbors.l="#f2&p=right;l3.right;l2.middle">
+        <div lj-type="stage">
+          <div lj-type="layer" id="l3" lj-layout="canvas" lj-fit-to="responsive" lj-native-scroll="false">
+            <div lj-type="frame" lj-name="left" lj-x="-50vw"></div>
+            <div lj-type="frame" lj-name="middle"></div>
+            <div lj-type="frame" lj-name="right" lj-x="50vw"></div>
+          </div>
+        </div>
+        <div class="content">Content 3</div>
+      </div>
+    </div>
+  </div>
+  <script>
+    setTimeout(function() { // get behind layerjs init
+      layerJS.select('#slider').on('transitionStarted', function() {
+        setTimeout(function() { // need setTimeout to get behind the actual start of the transition which is right after the transitionStarted event
+          var prev = layerJS.select('#slider').currentFrame.outerEl.previousElementSibling || layerJS.select('#slider').currentFrame.outerEl.parentElement.lastElementChild;
+          prev && prev.querySelector('[lj-type="layer"]')._ljView.transitionTo('left', { duration: '' });
+          var next = layerJS.select('#slider').currentFrame.outerEl.nextElementSibling || layerJS.select('#slider').currentFrame.outerEl.parentElement.firstElementChild;
+          next && next.querySelector('[lj-type="layer"]')._ljView.transitionTo('right', { duration: '' });
+        }, 1);
+      });
+      slider={}
+      slider.next=function(){
+        layerJS.router.navigate(layerJS.select('#slider').currentFrame.outerEl.getAttribute('lj-neighbors.r'));
+      }
+      slider.prev=function(){
+        layerJS.router.navigate(layerJS.select('#slider').currentFrame.outerEl.getAttribute('lj-neighbors.l'));
+      }
+    })
+  </script>
+</body>
+
+</html>
