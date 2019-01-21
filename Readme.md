@@ -41,6 +41,6 @@ If you experience any issues or bugs using layerJS or you would like to request 
 Contributions to layerJS are more than welcome. Get in touch with us at [developers@layerjs.org](mailto:developers@layerjs.org) and discuss your ideas. You can also fork the repository and start building.
 
 layerJS uses a contribution agreement to be able to republish code under future licenses if necessary:
-[layerJS contribution agreement](https://github.com/layerJS/layerJS/wiki/Contribution.md)
+[layerJS contribution agreement](https://github.com/layerJS/layerJS/blob/master/CONTRIBUTING.md)
 
 [Learn more about Harmony agreements.](http://harmonyagreements.org)
