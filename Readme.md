@@ -2,20 +2,23 @@
 
 [![Join the chat at https://gitter.im/layerJS/layerJS](https://badges.gitter.im/layerJS/layerJS.svg)](https://gitter.im/layerJS/layerJS?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
-layerJS is an open source Javascript UI/UX library allowing intuitive, visually intense, mobile app-like experiences for web apps and websites.
+[layerJS.org](https://layerjs.org) is an open source Javascript UI/UX library allowing intuitive, visually intense, mobile app-like experiences for web apps and websites. 
 
-layerJS follows the idea that any kind of interactive web content is composed of media elements on moving layers. Unlike existing UI frameworks, layerJS does not provide various UI elements (use your favorite framework for that) but focusses on how larger blocks are put together to form websites and apps and how these blocks will behave upon user interaction.
+UX patterns like menus, sliders, layers & light boxes, parallax effects, page-swipes, zoom effects, etc. are really just interactive animated layers. layerJS provides one simple universal concept to create such patterns in pure HTML - the Stage-Frame concept. Frames are containers that contain your content, like sub pages, menues, lightboxes, cards, slides, etc. Stages are virtual windows into which the frame content is dynamically fit. The root Stage is usually the browser window and its Frames represent sub pages or app screens. Frames can be exchanged within Stages using animated transitions like swipes, fades or 3D transitions. Stages and Frames can be nested such that a slider can exists within an animated frame. Frames can be placed on overlapping layers allowing effects like floating menus or parallax backgrounds.
 
-layerJS introduces the Stage-Frame concept. Frames are defined HTML fragments of your site - like sub pages, menues, cards, lightboxes or layers - that can be dynamically fit into Stages (viewports). The root Stage is usually the browser window and its Frames represent sub pages or app screens. Frames can be exchanged within Stages using animated transitions like swipes, fades or 3D transitions. Stages and Frames can be nested such that a slider can exists within an animated frame. Frames can be placed on overlapping layers allowing effects like floating menus or parallax backgrounds.
+layerJS’ concept resembles the principles of material design. In particular, layerJS’ frames are the papers/surfaces in material design. The stages are a convenient way to define the layout and the principle movements of the surfaces. With stages, animated transitions of the user interface can simply be triggered by defining, which frame should be shown in which stage in the next step.
 
-layerJS supports directional touch and touchpad gestures to trigger transitions.  Use your fingers to pull down menus or swipe through a list of sub pages. Transitions can also be triggered through plain HTML links or through the API.
+layerJS supports directional touch and touchpad gestures to trigger transitions. Use your fingers to pull down menus or swipe through a list of sub pages. Transitions can also be triggered through plain HTML links or through the API.
+
+Watch the animation on how it works: [https://layerjs.org/#explain-animation](https://layerjs.org/#explain-animation)
+
 
 ## Quickstart ##
 
 layerJS can be included into your site from our CDN. Simply include the following tags into the head of your HTML document.
 ```
-<script src="http://cdn.layerjs.org/libs/layerjs/layerjs-0.5.2.min.js"></script>
-<link href="http://cdn.layerjs.org/libs/layerjs/layerjs-0.5.2.css" type="text/css" rel="stylesheet" />
+<script src="http://cdn.layerjs.org/libs/layerjs/layerjs-0.6.1.min.js"></script>
+<link href="http://cdn.layerjs.org/libs/layerjs/layerjs-0.6.1.css" type="text/css" rel="stylesheet" />
 ```
 
 In layerJS you will define stages, layers and frames simply by adding HTML-attributes to `<div>`s. Here is an example structure:
