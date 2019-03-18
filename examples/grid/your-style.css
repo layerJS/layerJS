@@ -18,13 +18,23 @@ body
   padding: 20px;
 }
 
-#lgrid.nativescroll>*, #lgrid:not(.nativescroll) {
+[lj-type="layer"].nativescroll>[lj-helper], [lj-type="layer"]:not(.nativescroll) {
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  grid-template-rows: 600px 600px;
+  grid-template-columns: min-content auto auto;
+  grid-template-rows: minmax(300px,50%) minmax(300px,50%);
   grid-template-areas:
     "side header header"
     "side left right";
+
+  min-height: 100vh;
+}
+[lj-type="layer"]>[lj-helper]>[lj-type="frame"], [lj-type="layer"]:not(.nativescroll)>[lj-type="frame"] {
+  position: initial;
+}
+
+#frame0 {
+  grid-area: side;
+  width: 300px;
 }
 #frame1 {
   grid-area: header;
@@ -34,4 +44,5 @@ body
 }
 #frame3 {
   grid-area: right;
+  width: 300px;
 }
