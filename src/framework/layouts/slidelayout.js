@@ -220,7 +220,7 @@ var SlideLayout = LayerLayout.extend({
     var finished = new Kern.Promise();
     var prep;
     var currentFrame = this.layer.currentFrame;
-    if (!transition.wasInTransition) this.hideOtherFrames(frame, currentFrame);
+    if (this.hideothers && !transition.wasInTransition) this.hideOtherFrames(frame, currentFrame);
     if (frame && (prep = this._preparedTransitions[frame.id()])) {
       if (prep.transform === targetTransform && prep.applied) { // if also the targetTransform is already applied we can just conptue
         finished.resolve(prep);

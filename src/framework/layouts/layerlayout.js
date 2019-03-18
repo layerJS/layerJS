@@ -60,18 +60,9 @@ var LayerLayout = Kern.EventManager.extend({
     var computedStyle = (null !== frame && frame.document.defaultView && frame.document.defaultView.getComputedStyle) || function(el) {
       return el.style;
     };
-    if (frame.document.body.contains(frame.outerEl) && computedStyle(frame.outerEl).display !== 'none' && frame.parent === this.layer) {
-      finished.resolve();
-    } else if (frame === null) {
-      if (true) {// FIXME: this will lead to unneccessary reflows if the positions of other frames are not influenced.only do this for static layout!!!!
-        this.preLoad(frame); // notify layout that something will change
-        this.layer.currentFrame.outerEl.style.position = 'absolute'; // this should remove the frame from its position and trigger relayout of other frames, so a display none is not necessary
-        // FIXME we need to reposition the frame back to its original position
-        this.postLoad(frame);
-      }
+    if (frame === null || (frame.document.body.contains(frame.outerEl) && computedStyle(frame.outerEl).display !== 'none' && frame.parent === this.layer)) {
       finished.resolve();
     } else {
-      this.preLoad(frame); // notify layout that something will change
       // frame not in the layer
       if (frame.parent !== this.layer) {
         frame.parent._layout.preLoad(null);
@@ -105,8 +96,9 @@ var LayerLayout = Kern.EventManager.extend({
         }
 
         that.layer.innerEl.appendChild(frame.outerEl);
-        frame.parent._layout.prostLoad(null); // notify old layers layout about removed frame
-        this.postLoad(frame); // notify layout about inserted frame. 
+        frame.parent._layout.postLoad(null); // notify old layers layout about removed frame
+        // FIXME: we might need to call this here before we apply the reverse transform:
+        //this.postLoad(frame); // notify layout about inserted frame. 
         frame.transformData = undefined;
 
         // reset top and left to 0 (important when doing an interstage from canva to slidelayout)
@@ -116,10 +108,10 @@ var LayerLayout = Kern.EventManager.extend({
           left: '0px'
         });
         $.debug("moved " + frame.id() + " to layer " + this.layer.id());
-        // wait until rendered;
-        $.postAnimationFrame(function() {
+        // wait until rendered; NOTE: we don't need that. the next time we read any dimensions from frames the will cause a reflow and we have the displayed element
+        //$.postAnimationFrame(function() {
           finished.resolve();
-        });
+        //});
 
       } else {
         // FIXME: add to dom if not in dom
@@ -127,7 +119,7 @@ var LayerLayout = Kern.EventManager.extend({
         frame.outerEl.style.display = 'block';
         // frame should not be visible; opacity is the best as "visibility" can be reverted by nested elements
         frame.outerEl.style.opacity = '0';
-        this.postLoad(frame);
+        // this.postLoad(frame);
 
         // wait until rendered; NOTE: we don't need that. the next time we read any dimensions from frames the will cause a reflow and we have the displayed element
         //$.postAnimationFrame(function() {
