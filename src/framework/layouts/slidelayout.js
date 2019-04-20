@@ -103,8 +103,12 @@ var SlideLayout = LayerLayout.extend({
    */
   transitionTo: function(frame, transition, targetFrameTransformData, targetTransform) {
     var that = this;
-    var currentFrame = that.layer.currentFrame;
-    return this.prepareTransition(frame, transition, targetFrameTransformData, targetTransform).then(function(t) {
+    var currentFrame = (that.hideothers ? that.layer.currentFrame : null);
+    if (transition.hide) { // in a hide transition the frame needs to be hidden instead of the current frame -> swap them
+      currentframe = frame;
+      frame = null;
+    }
+    return this.prepareTransition(frame, currentFrame, transition, targetFrameTransformData, targetTransform).then(function(t) {
       var finished = new Kern.Promise();
       var transitionEnds = 0; // number of transitions to wait for
       var transitionEnd = function(frame, oldcurrent) {
@@ -210,16 +214,16 @@ var SlideLayout = LayerLayout.extend({
    * make sure targetFrame is at pre position
    *
    * @param {ViewFrame} frame - the target frame
+   * @param {ViewFrame} currentframe - the frame that will be hidden, usually the current frame
    * @param {Object} transition - transition object
    * @param {Object} targetFrameTransformData - the transformData object of the target frame
    * @param {string} targetTransform - transform represenptg the scrolling after transition
    * @returns {Promise} will fire when pre transform to target frame is applied
    */
-  prepareTransition: function(frame, transition, targetFrameTransformData, targetTransform) {
+  prepareTransition: function(frame, currentframe, transition, targetFrameTransformData, targetTransform) {
     // create a promise that will wait for the transform being applied
     var finished = new Kern.Promise();
     var prep;
-    var currentFrame = this.layer.currentFrame;
     if (this.hideothers && !transition.wasInTransition) this.hideOtherFrames(frame, currentFrame);
     if (frame && (prep = this._preparedTransitions[frame.id()])) {
       if (prep.transform === targetTransform && prep.applied) { // if also the targetTransform is already applied we can just conptue
