@@ -2,11 +2,12 @@
 
 ## New in 0.6.2
 
- * frame neighbors can now take hasrouter routes, so multiple transitions can be triggered by a gesture. Note: you need to specify the transition type manually, it will not be determined from the gesture direction as when only the framename is specified
+ * frame neighbors can now take hashrouter routes, so multiple transitions can be triggered by a gesture. Note: you need to specify the transition type manually, it will not be determined from the gesture direction as when only the framename is specified
  * fixed: loadFrame doesn't need to wait for next render
  * canvaslayout: currentFrame positions are corrected before transition, if the whole canvas layout layer wasn't shown before.
  * allow scrolling to an element
  * added transition option "ScrollIfNeeded"
+ * fix: autoheight/autowidth didn't always work as css style was missing "px" unit
 
 ## New in 0.6.1
 
