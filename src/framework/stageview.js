@@ -88,7 +88,8 @@ var StageView = BaseView.extend({
           //that.setWidth(currentFrameTransformData.width);
           style.width = currentFrameTransformData.width + "px";
           //style.transform = 'scaleX(' + (1 / that.width()) * currentFrameTransformData.width + ')';
-        } else if (that.autoHeight()) {
+        }
+        if (that.autoHeight()) {
           //that.setHeight(currentFrameTransformData.height);
           style.height = currentFrameTransformData.height + "px";
           //style.transform = 'scaleY(' + (1 / that.height()) * currentFrameTransformData.height + ')';

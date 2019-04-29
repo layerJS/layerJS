@@ -160,14 +160,17 @@ var FrameView = BaseView.extend({
       this.heightSet(false);
     }
 
+    var fitX = false, fitY = false;
 
     switch (fitTo) {
       case 'width':
         d.scale = stageWidth / d.frameWidth;
         d.isScrollY = true;
+        fitX = true;
         break;
       case 'height':
         d.scale = stageHeight / d.frameHeight;
+        fitY = true;
         d.isScrollX = true;
         break;
       case 'fixed':
@@ -178,6 +181,8 @@ var FrameView = BaseView.extend({
       case 'contain':
         d.scaleX = stageWidth / d.frameWidth;
         d.scaleY = stageHeight / d.frameHeight;
+        fitX = true;
+        fitY = true;
         if (d.scaleX < d.scaleY) {
           d.scale = d.scaleX;
           d.isScrollY = true;
@@ -189,6 +194,8 @@ var FrameView = BaseView.extend({
       case 'cover':
         d.scaleX = stageWidth / d.frameWidth;
         d.scaleY = stageHeight / d.frameHeight;
+        fitX = true;
+        fitY = true;
         if (d.scaleX > d.scaleY) {
           d.scale = d.scaleX;
           d.isScrollY = true;
@@ -207,6 +214,7 @@ var FrameView = BaseView.extend({
           d.scale = stageWidth / (d.frameWidth - this.elasticLeft() - this.elasticRight());
           d.shiftX = this.elasticLeft();
         }
+        fitX = true;
         d.isScrollY = true;
         break;
       case 'elastic-height':
@@ -219,6 +227,7 @@ var FrameView = BaseView.extend({
           d.scale = stageHeight / (d.frameHeight - this.elasticTop() - this.elasticBottom());
           d.shiftY = this.elasticTop();
         }
+        fitY = true;
         d.isScrollY = true;
         break;
       case 'responsive':
@@ -230,6 +239,8 @@ var FrameView = BaseView.extend({
         //if (d.frameHeight !== stageHeight) {
         d.applyHeight = true;
         d.frameHeight = stageHeight;
+        fitX = true;
+        fitY = true;
         //}
         break;
       case 'responsive-width':
@@ -238,6 +249,7 @@ var FrameView = BaseView.extend({
         //if (d.frameWidth !== stageWidth) {
         d.applyWidth = true;
         d.frameWidth = stageWidth;
+        fitX = true;
         // NOTE: Afterward the height of the frame most likely changed which is not reflected in the transformData; however, this should be dealt with by the sizechanged handler
         //}
         break;
@@ -247,16 +259,19 @@ var FrameView = BaseView.extend({
         //if (d.frameHeight !== stageHeight) {
         d.applyHeight = true;
         d.frameHeight = stageHeight;
+        fitY = true;
         //}
         break;
       default:
         throw "unkown fitTo type '" + fitTo + "'";
     }
 
-    if (d.isScrollY && stage.autoWidth()) {
-      throw 'we can\'t adapt stage width if we fit to width';
-    } else if (d.isScrollX && stage.autoHeight()) {
-      throw 'we can\'t adapt stage height if we fit to height';
+    if (fitX && stage.autoWidth()) {
+      console.warn('we can\'t adapt stage width if we fit to width');
+      d.stageWidth = stageWidth = d.width = 100;
+    } else if (fitY && stage.autoHeight()) {
+      console.warn('we can\'t adapt stage height if we fit to height');
+      d.stageHeight = stageHeight = d.height = 100;
     }
 
 

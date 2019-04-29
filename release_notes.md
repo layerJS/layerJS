@@ -8,6 +8,8 @@
  * allow scrolling to an element
  * added transition option "ScrollIfNeeded"
  * fix: autoheight/autowidth didn't always work as css style was missing "px" unit
+ * fix: allowing autoheight+ autowidth at the same time; 
+ * fixing wrong throwing behaviour for fitting and autolength mode
 
 ## New in 0.6.1
 
