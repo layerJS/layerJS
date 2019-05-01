@@ -17,8 +17,8 @@ Watch this animation on how it works: [https://layerjs.org/#explain-animation](h
 
 layerJS can be included into your site from our CDN. Simply include the following tags into the head of your HTML document.
 ```
-<script src="http://cdn.layerjs.org/libs/layerjs/layerjs-0.6.1.min.js"></script>
-<link href="http://cdn.layerjs.org/libs/layerjs/layerjs-0.6.1.css" type="text/css" rel="stylesheet" />
+<script src="http://cdn.layerjs.org/libs/layerjs/layerjs-0.6.2.min.js"></script>
+<link href="http://cdn.layerjs.org/libs/layerjs/layerjs-0.6.2.css" type="text/css" rel="stylesheet" />
 ```
 
 In layerJS you will define stages, layers and frames simply by adding HTML-attributes to `<div>`s. Here is an example structure:
