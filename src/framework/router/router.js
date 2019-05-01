@@ -69,7 +69,7 @@ var Router = Kern.EventManager.extend({
     };
 
     // register link listener
-    $.addDelegtedListener(this.rootElement, 'click', 'a:not([data-lj-nolink=\'true\']):not([lj-nolink=\'true\'])', function(event) {
+    $.addDelegtedListener(this.rootElement, 'click', 'a:not([data-lj-no-link=\'true\']):not([lj-no-link=\'true\'])', function(event) {
       //delete that.ignoreUrl;
 
       var _navigationHandler = function(result) {

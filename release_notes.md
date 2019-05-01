@@ -10,6 +10,7 @@
  * fix: autoheight/autowidth didn't always work as css style was missing "px" unit
  * fix: allowing autoheight+ autowidth at the same time; 
  * fixing wrong throwing behaviour for fitting and autolength mode
+ * renamed `lj-nolink`to `lj-no-link`
 
 ## New in 0.6.1
 

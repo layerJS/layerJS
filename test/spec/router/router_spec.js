@@ -75,7 +75,7 @@ describe('router', function() {
     expect(called).toBeTruthy();
   });
 
-  it('will ignore links with data-lj-nolink attribute', function() {
+  it('will ignore links with data-lj-no-link attribute', function() {
     var called = false;
     var dummyRouter = {
       handle: function(url) {
@@ -91,7 +91,7 @@ describe('router', function() {
 
     layerJS.router.addRouter(dummyRouter);
     var element = document.createElement('a');
-    element.setAttribute('data-lj-nolink','true');
+    element.setAttribute('data-lj-no-link','true');
     element.href = '#';
     document.body.appendChild(element);
     element.click();
