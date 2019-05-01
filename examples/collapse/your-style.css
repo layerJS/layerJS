@@ -8,6 +8,7 @@ body
     max-width: 500px;
     margin: auto;
     background-color: white;
+    padding: 20px;
 }
 
 [lj-type="stage"]

@@ -9,7 +9,7 @@
   <body>
   <div lj-type="stage"> <!-- Add a stage. -->
     <div lj-type="layer" lj-default-frame="frame1"> <!-- The layer for the main content -->
-      <div lj-type="frame" lj-name="frame1" class="content" lj-fit-to="responsive-width"> <!-- The content of the current page -->
+      <div lj-type="frame" lj-name="frame1" class="content" lj-fit-to="responsive-width" lj-neighbors.l="#menu" lj-neighbors.r="#hmenu"> <!-- The content of the current page -->
         <p> Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no
           sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo
           duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.</p>
@@ -19,7 +19,7 @@
         </div>
       </div>
     <div lj-type="layer" lj-name="menulayer" lj-native-scroll="false"> <!-- The layer for the menu on top of the main content -->
-      <div lj-type="frame" lj-name="hmenu" class="nav" lj-fit-to="responsive-width" lj-transition="fade"> <!-- The frame for the menu in the closed state -->
+      <div lj-type="frame" lj-name="hmenu" class="nav" lj-fit-to="responsive-width" lj-transition="fade"  lj-neighbors.l="#menu"> <!-- The frame for the menu in the closed state -->
           <div class="nav-hor">
           <a href="#menu&t=0.5s">&#x2630; Menu</a> <!-- Link to open state with parameters that control the animation type and the timing. -->
           </div>
