@@ -150,6 +150,8 @@ var DomHelpers = {
     }
     element.addEventListener(eventName, function(event) {
       var el = event.target;
+      if (!el || !document.contains(el))
+        return;
       while (el !== element && !el.matches(selector)) {
         el = el.parentNode;
       }
