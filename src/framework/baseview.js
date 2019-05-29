@@ -440,10 +440,10 @@ var BaseView = DOMObserver.extend({
    */
   neighbors: function () {
     var neighbors = {
-      l: this.getAttributeLJ('neighbors.l'),
-      r: this.getAttributeLJ('neighbors.r'),
-      t: this.getAttributeLJ('neighbors.t'),
-      b: this.getAttributeLJ('neighbors.b')
+      l: this.getAttributeLJ('neighbors-l') || this.getAttributeLJ('neighbors.l'),
+      r: this.getAttributeLJ('neighbors-r') || this.getAttributeLJ('neighbors.r'),
+      t: this.getAttributeLJ('neighbors-t') || this.getAttributeLJ('neighbors.t'),
+      b: this.getAttributeLJ('neighbors-b') || this.getAttributeLJ('neighbors.b')
     };
 
     return neighbors;
