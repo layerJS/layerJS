@@ -1,5 +1,10 @@
 # Release notes #
 
+## New in 0.6.3
+
+* in slidelayout/generic transitions zooms and rotations will be relative to stage center
+* allowing more consistent neighbor properties (lj-neighbors-r, -l, -t, -b)
+
 ## New in 0.6.2
 
  * frame neighbors can now take hashrouter routes, so multiple transitions can be triggered by a gesture. Note: you need to specify the transition type manually, it will not be determined from the gesture direction as when only the framename is specified
