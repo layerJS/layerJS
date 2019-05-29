@@ -392,7 +392,7 @@ var SlideLayout = LayerLayout.extend({
           if (pt_y === 0) ty += -ttfd.scrollY * ttfd.scale + ctfd.scrollY * ctfd.scale;
           return Kern._extend({
             // transform: "translate3d(" + tx + "px," + ty + "px," + z + "px) scale(" + ttfd.scale * pt_scale + ") rotate(" + pt_rot + "deg)",
-            transform: "translate3d(" + tx + "px," + ty + "px," + z + "px) translate(" + ttfd.width * ttfd.scale / 2 + "px," + ttfd.height * ttfd.scale / 2 + "px) scale(" + pt_scale + ") rotate(" + pt_rot + "deg) translate(" + (-ttfd.width * ttfd.scale / 2) + "px," + (-ttfd.height * ttfd.scale / 2) + "px) scale(" + ttfd.scale + ")",            
+            transform: "translate3d(" + tx + "px," + ty + "px," + z + "px) translate(" + sw / 2 + "px," + sh / 2 + "px) scale(" + pt_scale + ") rotate(" + pt_rot + "deg) translate(" + (-sw / 2) + "px," + (-sh / 2) + "px) scale(" + ttfd.scale + ")",            
             opacity: 1,
             'z-index': z
           }, pt_css);
