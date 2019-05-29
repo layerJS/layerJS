@@ -391,7 +391,8 @@ var SlideLayout = LayerLayout.extend({
           if (pt_x === 0) tx += -ttfd.scrollX * ttfd.scale + ctfd.scrollX * ctfd.scale;
           if (pt_y === 0) ty += -ttfd.scrollY * ttfd.scale + ctfd.scrollY * ctfd.scale;
           return Kern._extend({
-            transform: "translate3d(" + tx + "px," + ty + "px," + z + "px) scale(" + ttfd.scale * pt_scale + ") rotate(" + pt_rot + "deg)",
+            // transform: "translate3d(" + tx + "px," + ty + "px," + z + "px) scale(" + ttfd.scale * pt_scale + ") rotate(" + pt_rot + "deg)",
+            transform: "translate3d(" + tx + "px," + ty + "px," + z + "px) translate(" + ttfd.width * ttfd.scale / 2 + "px," + ttfd.height * ttfd.scale / 2 + "px) scale(" + pt_scale + ") rotate(" + pt_rot + "deg) translate(" + (-ttfd.width * ttfd.scale / 2) + "px," + (-ttfd.height * ttfd.scale / 2) + "px) scale(" + ttfd.scale + ")",            
             opacity: 1,
             'z-index': z
           }, pt_css);
@@ -409,7 +410,7 @@ var SlideLayout = LayerLayout.extend({
     t.fix_css = [tin[5], tout[5], tin[6], tout[6]].map(function(e) {
       return Object.keys(e || {});
     }).reduce(function(css, property) {
-      if (property !== 'transform' && '' !== property) {
+      if (property && property !== 'transform') {
         css[property] = 'initial';
       }
       return css;
