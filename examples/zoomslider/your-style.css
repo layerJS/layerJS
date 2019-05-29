@@ -1,0 +1,46 @@
+[lj-type="stage"] {
+    width: 600px;
+    height: 600px;
+    max-width: 800px;
+    margin: auto;
+}
+
+.btn-left {
+    float: left;
+}
+
+body {
+    padding: 0px;
+    margin: 0px;
+}
+
+#arrows {
+    width: 100%;
+}
+
+#arrows>div {
+    width: 100%;
+    pointer-events: none;
+}
+
+p {
+    font-size: 24px;
+}
+.btn-right {
+    float: right;
+}
+
+.btn {
+    background-color: rgba(128, 128, 128, 0.5);
+    font-size: 32px;
+    font-weight: bold;
+    text-decoration: none;
+    color: black;
+    padding: 20px;
+    border-radius: 50%;
+    width: 30px;
+    pointer-events: all;
+    height: 30px;
+    line-height: 30px;
+    text-align: center;
+}

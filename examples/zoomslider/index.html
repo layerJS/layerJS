@@ -1,0 +1,44 @@
+<html>
+
+<head>
+  <meta name="description" content="simple slider; medium.com example">
+  <script src="../../dist/layerjs.js"></script>
+  <link href="../../dist/layerjs.css" type="text/css" rel="stylesheet" />
+  <link href="your-style.css" type="text/css" rel="stylesheet" />
+</head>
+
+<body>
+  <div lj-type="stage"> <!--  Define a single stage.  -->
+    <!--  Define the layer "slider" for the slides.  -->
+    <!--  The default frame is "frame1" -->
+    <div lj-type="layer" lj-name="slider" lj-default-frame="frame1" lj-native-scroll="false" lj-fit-to="cover" lj-no-scrolling="false" lj-start-position="top">
+      <!--  Define one frame per slide.  -->
+      <!--  lj-fit-to="cover" will make sure that the stage will be fully filled with the frame.  -->
+      <!--  "neighbors.l"/"r" define which frames will be transitioned to upon left/right swipe gestures. -->
+      <div lj-type="frame" lj-name="frame1" lj-neighbors-b="#frame2&p=zoomin">
+        <img src="img/samples1a.png">
+      </div>
+      <div lj-type="frame" lj-name="frame2" lj-fit-to="responsive-width" lj-neighbors-t="#frame1&p=zoomout" lj-neighbors-b="#frame3&p=zoomin">
+        <p>
+            Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.
+        </p>
+        <p>Lorem ipsum dolor sit amet consectetur adipiscing elit metus ac, mollis odio netus molestie facilisi quisque ridiculus litora sed class, laoreet himenaeos orci ante feugiat ultrices convallis pellentesque. Nascetur vestibulum fusce proin in venenatis congue mus felis, tincidunt ultrices platea phasellus libero magnis penatibus praesent, blandit donec consequat neque aliquet ut pretium. Lacinia posuere id mollis conubia nullam fusce vel natoque, malesuada et lectus magnis pharetra odio ante.</p><p>In blandit velit malesuada quis penatibus risus suspendisse habitant condimentum faucibus sociosqu augue, taciti convallis cras fusce congue porta conubia aliquet dignissim dapibus ornare. Et quisque viverra non curabitur vel nostra, iaculis volutpat malesuada orci himenaeos nibh congue, litora dignissim pellentesque nullam hac. Lobortis sem natoque molestie vivamus suspendisse suscipit curae habitasse, etiam ornare ligula mollis quisque pulvinar sodales varius, mus diam ut laoreet hac at hendrerit.</p>
+        
+      </div>
+      <div lj-type="frame" lj-name="frame3" lj-neighbors-t="#frame2&p=zoomout">
+        <img src="img/samples1c.png">
+      </div>
+    </div>
+    <!--  A second layer for the controls -->
+    <div lj-type="layer" lj-native-scroll="false" id="arrows">
+      <!--  The control frame. The frame will be centered in the stage. -->
+      <div lj-type="frame" lj-fit-to="width" lj-start-position="center" lj-no-scrolling="true">
+        <!--  the link will trigger the transition to the previous frame of the currently active frame in layer "slider". -->
+        <a class="btn-left btn" href="#slider.!prev&p=zoomout">&lt;</a>
+        <a class="btn-right btn" href="#slider.!next&p=zoomin">&gt;</a>
+      </div>
+    </div>
+  </div>
+</body>
+
+</html>
