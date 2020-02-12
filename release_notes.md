@@ -1,9 +1,14 @@
 # Release notes #
 
+## New in 0.6.4
+
+ * router should not replace title if no title was saved in history state
+
+
 ## New in 0.6.3
 
-* in slidelayout/generic transitions zooms and rotations will be relative to stage center
-* allowing more consistent neighbor properties (lj-neighbors-r, -l, -t, -b)
+ * in slidelayout/generic transitions zooms and rotations will be relative to stage center
+ * allowing more consistent neighbor properties (lj-neighbors-r, -l, -t, -b)
 
 ## New in 0.6.2
 
