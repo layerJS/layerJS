@@ -15,13 +15,13 @@
       <!--  Define one frame per slide.  -->
       <!--  lj-fit-to="cover" will make sure that the stage will be fully filled with the frame.  -->
       <!--  "neighbors.l"/"r" define which frames will be transitioned to upon left/right swipe gestures. -->
-      <div lj-type="frame" lj-name="frame1" lj-fit-to="cover" lj-no-scrolling="true" lj-start-position="center" lj-neighbors.r="frame2">
+      <div lj-type="frame" lj-name="frame1" lj-fit-to="cover" lj-no-scrolling="true" lj-start-position="center" lj-neighbors.r="!next">
         <img src="img/samples1a.png">
       </div>
-      <div lj-type="frame" lj-name="frame2" lj-fit-to="cover" lj-no-scrolling="true" lj-start-position="center" lj-neighbors.l="frame1" lj-neighbors.r="frame3">
+      <div lj-type="frame" lj-name="frame2" lj-fit-to="cover" lj-no-scrolling="true" lj-start-position="center" lj-neighbors.l="!prev" lj-neighbors.r="!next">
         <img src="img/samples1b.png">
       </div>
-      <div lj-type="frame" lj-name="frame3" lj-fit-to="cover" lj-no-scrolling="true" lj-start-position="center" lj-neighbors.l="frame2">
+      <div lj-type="frame" lj-name="frame3" lj-fit-to="cover" lj-no-scrolling="true" lj-start-position="center" lj-neighbors.l="!prev">
         <img src="img/samples1c.png">
       </div>
     </div>
