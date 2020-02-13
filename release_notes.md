@@ -2,7 +2,9 @@
 
 ## New in 0.6.4
 
- * router should not replace title if no title was saved in history state
+ * fix: router should not replace title if no title was saved in history state
+ * example: slider updated to use !next / !prev instead of direct frame names
+
 
 
 ## New in 0.6.3
