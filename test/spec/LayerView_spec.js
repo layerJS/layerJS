@@ -3,7 +3,7 @@ var StageView = require('../../src/framework/stageview.js');
 var state = require('../../src/framework/state.js');
 
 var ViewsCommon_renderChildPositionTests = require('./helpers/views/common/_renderchildpositiontests.js');
-var ViewsCommon_parseChildrenTests = require('./helpers/views/common/_parseChildrentests.js');
+var ViewsCommon_parseChildrenTests = require('./helpers/views/common/_parsechildrentests.js');
 
 var ViewsCommonIdentifyTests = require('./helpers/views/common/identifytests.js');
 var ViewsCommonViewTests = require('./helpers/views/common/viewtests.js');
