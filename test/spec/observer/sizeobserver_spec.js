@@ -8,7 +8,7 @@ describe('SizeObserver', function() {
   });
 
   it('will execute the callback function when change in dimensions is detected', function(done) {
-    var element = utilities.appendChildHTML(require('../htmlElements/simple_frame_1.js'));
+    var element = utilities.appendChildHTML(require('../htmlelements/simple_frame_1.js'));
 
     var detected = 0;
     var callback = function() {

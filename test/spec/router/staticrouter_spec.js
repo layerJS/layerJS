@@ -1,6 +1,6 @@
 describe('staticRouter', function() {
 
-  var StaticRouter = require('../../../src/framework/router/staticRouter.js');
+  var StaticRouter = require('../../../src/framework/router/staticrouter.js');
   var utilities = require('../helpers/utilities.js');
   var state = require('../../../src/framework/state.js');
 

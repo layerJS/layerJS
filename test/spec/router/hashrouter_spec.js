@@ -1,6 +1,6 @@
 describe('HashRouter', function() {
 
-  var HashRouter = require('../../../src/framework/router/hashRouter.js');
+  var HashRouter = require('../../../src/framework/router/hashrouter.js');
   var utilities = require('../helpers/utilities.js');
   var state = require('../../../src/framework/state.js');
 
